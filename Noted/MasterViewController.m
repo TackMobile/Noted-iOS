@@ -555,6 +555,10 @@
         // Remove deleted files
         // Iterate backwards because we need to remove items from the array
         for (int i = _objects.count -1; i >= 0; --i) {
+            if ([[_objects objectAtIndex:i] isKindOfClass:[NSString class]]) {
+                NSLog(@"This is an error withthe object stored in the table view");
+                return;
+            }
             NoteEntry * entry = [_objects objectAtIndex:i];
             if (![_iCloudURLs containsObject:entry.fileURL]) {
                 [self removeEntryWithURL:entry.fileURL];
@@ -786,6 +790,9 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)insertNewObject:(id)sender
 {
+    //disable updates while creating new objects
+    [_query disableUpdates];
+    
     // Determine a unique filename to create
     NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
     NSLog(@"Want to create file at %@", fileURL);
@@ -824,6 +831,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         }];             
     
     }];
+    [_query enableUpdates];
 }
 
 #pragma mark - Table View
@@ -1031,6 +1039,9 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsCommitRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableView *tableView = gestureRecognizer.tableView;
+    [_query disableUpdates];
+    [tableView beginUpdates];
     [_objects removeObjectAtIndex:indexPath.row];
     NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
     NSLog(@"Want to create file at %@", fileURL);
@@ -1069,7 +1080,9 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             });
         }];         
-    }]; 
+    }];
+    [tableView endUpdates];
+    [_query enableUpdates];
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsDiscardRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1106,6 +1119,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer commitEditingState:(NoteCellEditingState)state forRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableView *tableView = gestureRecognizer.tableView;
+    [_query disableUpdates];
     [tableView beginUpdates];
     if (state == NoteCellEditingStateLeft) {
         // An example to discard the cell at JTTableViewCellEditingStateLeft
@@ -1120,9 +1134,10 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         // - [JTTableViewGestureDelegate gestureRecognizer:commitEditingState:forRowAtIndexPath:]
     }
     [tableView endUpdates];
-    
+    [_query enableUpdates];
     // Row color needs update after datasource changes, reload it.
     [tableView performSelector:@selector(reloadVisibleRowsExceptIndexPath:) withObject:indexPath afterDelay:NoteTableRowAnimationDuration];
+    
 
  }
 
