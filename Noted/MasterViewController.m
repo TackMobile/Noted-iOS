@@ -193,6 +193,55 @@
     });
 }
 
+-(void)sortObjects {
+    [_query disableUpdates];
+    for (NoteEntry* entry in _objects) {
+        
+        NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:entry.fileURL];        
+        [doc openWithCompletionHandler:^(BOOL success) {
+            
+            // Check status
+            if (!success) {
+                NSLog(@"Failed to open %@", entry.fileURL);
+                return;
+            }
+            
+            // Preload metadata on background thread
+            NoteData * noteData = [NoteData new];
+            noteData.noteText = doc.text;
+            int loc = [_objects indexOfObject:entry];
+            doc.location = [NSString stringWithFormat:@"%i",loc];
+            noteData.noteLocation = doc.location;
+            noteData.noteColor = doc.color;
+            NSURL * fileURL = doc.fileURL;
+            UIDocumentState state = doc.documentState;
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDoesRelativeDateFormatting:YES];
+            [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+            [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+            NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+            NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+            
+            
+            // Close since we're done with it
+            [doc closeWithCompletionHandler:^(BOOL success) {
+                
+                // Check status
+                if (!success) {
+                    NSLog(@"Failed to close %@", fileURL);
+                    // Continue anyway...
+                }
+                
+                // Add to the list of files on main thread
+                dispatch_async(dispatch_get_main_queue(), ^{                
+                    [self addOrUpdateEntryWithURL:fileURL noteData:noteData state:state version:version];
+                });
+            }];             
+        }];    }
+    [_query enableUpdates];
+    
+}
+
 #pragma mark Entry management methods
 
 - (int)indexOfEntryWithFileURL:(NSURL *)fileURL {
@@ -214,10 +263,24 @@
     if (index == -1) {    
         
         NoteEntry * entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
-        
-        [_objects addObject:entry];
+        if ([_objects count]>0) {
+            BOOL found = NO;
+            for(int i = 0; i < [_objects count]; i++) {
+                NoteEntry *anEntry = [_objects objectAtIndex:i];
+                if (entry.noteData.noteLocation.intValue < anEntry.noteData.noteLocation.intValue) {
+                    [_objects insertObject:entry atIndex:[_objects indexOfObject:anEntry]];
+                    found = YES;
+                    break;
+                }
+            }
+            if (!found) {
+                [_objects addObject:entry];
+            }
+        }else {
+            [_objects addObject:entry];
+        }
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:(_objects.count - 1) inSection:0]] withRowAnimation:UITableViewRowAnimationRight];
-        entry = nil;
+        [self.tableView reloadData];
         
     } 
     
@@ -372,8 +435,8 @@
 }
 
 - (void)deleteEntry:(NoteEntry *)entry {
+    [_query disableUpdates];
     // Wrap in file coordinator
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         [fileCoordinator coordinateWritingItemAtURL:entry.fileURL 
@@ -384,6 +447,7 @@
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
                                              [fileManager removeItemAtURL:entry.fileURL error:nil];
                                              NSLog(@"Deleted item at %@",entry.fileURL);
+                                             [_query enableUpdates];
                                          }];
     });    
     
@@ -1057,6 +1121,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         
         NSLog(@"File created at %@", fileURL);        
         NoteData * noteData = [NoteData new];
+        doc.location = [NSString stringWithFormat:@"%i",indexPath.row];
         noteData.noteLocation = doc.location;
         noteData.noteColor = doc.color;
         noteData.noteText = doc.text;
@@ -1078,11 +1143,12 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 NoteEntry * entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
                 [_objects replaceObjectAtIndex:indexPath.row withObject:entry];
                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [self sortObjects];
+                [tableView endUpdates];
+                [_query enableUpdates];
             });
         }];         
     }];
-    [tableView endUpdates];
-    [_query enableUpdates];
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsDiscardRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1119,7 +1185,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer commitEditingState:(NoteCellEditingState)state forRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableView *tableView = gestureRecognizer.tableView;
-    [_query disableUpdates];
     [tableView beginUpdates];
     if (state == NoteCellEditingStateLeft) {
         // An example to discard the cell at JTTableViewCellEditingStateLeft
@@ -1134,7 +1199,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         // - [JTTableViewGestureDelegate gestureRecognizer:commitEditingState:forRowAtIndexPath:]
     }
     [tableView endUpdates];
-    [_query enableUpdates];
+    [self sortObjects];
     // Row color needs update after datasource changes, reload it.
     [tableView performSelector:@selector(reloadVisibleRowsExceptIndexPath:) withObject:indexPath afterDelay:NoteTableRowAnimationDuration];
     
@@ -1160,6 +1225,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsReplacePlaceholderForRowAtIndexPath:(NSIndexPath *)indexPath {
     [_objects replaceObjectAtIndex:indexPath.row withObject:self.grabbedObject];
+    [self sortObjects];
     self.grabbedObject = nil;
 }
 

@@ -96,9 +96,6 @@
 {
     [super viewDidLoad];
     
-    UIBarButtonItem *backButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(saveTapped:)];
-    self.navigationItem.rightBarButtonItem = backButtonItem;
-    
 }
 
 
@@ -120,17 +117,6 @@
     
 }
 
-- (void)saveTapped:(id)sender {
-    
-    NSLog(@"Saving %@...", self.note.fileURL);
-    
-    [self.note saveToURL:self.note.fileURL forSaveOperation:UIDocumentSaveForOverwriting completionHandler:^(BOOL success) {
-        if (success) {
-            NSLog(@"Successfully saved document %@...", self.note.fileURL);
-        }
-    }];
-    
-}
 
 
 -(void)setInitialColor {

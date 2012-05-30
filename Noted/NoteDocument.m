@@ -67,7 +67,6 @@
 - (NoteData*)data {    
     if (_data == nil) {
         if (self.fileWrapper != nil) {
-            //NSLog(@"Loading photo for %@...", self.fileURL);
             self.data = [self decodeObjectFromWrapperWithPreferredFilename:DATA_FILENAME];
         } else {
             self.data = [[NoteData alloc] init];
