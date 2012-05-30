@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 
 #import "MasterViewController.h"
+#import "TestFlight.h"
 
 @implementation AppDelegate
 
@@ -20,7 +21,7 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-
+    [TestFlight takeOff:@"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA"];
     self.masterViewController = [[MasterViewController alloc] initWithNibName:@"MasterViewController" bundle:nil];
  //   self.navigationController = [[UINavigationController alloc] initWithRootViewController:self.masterViewController];
  //   self.window.rootViewController = self.navigationController;

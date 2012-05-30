@@ -17,6 +17,7 @@
 @property (assign) UIDocumentState state;
 @property (strong) NSFileVersion *version;
 @property (strong) NSString *typeOfCell;
+@property BOOL adding;
 
 -(id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
 -(NSString*)description;

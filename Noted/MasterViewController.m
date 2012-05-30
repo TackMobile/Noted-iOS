@@ -31,6 +31,7 @@
     NSURL * _selURL;
     BOOL _moveLocalToiCloud;
     BOOL _copyiCloudToLocal;
+    BOOL _addingCell;
     
 }
 @property (nonatomic, strong) NoteTableGestureRecognizer *tableViewRecognizer;
@@ -220,7 +221,7 @@
             [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
             [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
             NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-            NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+            NSLog(@"Sorted File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
             
             
             // Close since we're done with it
@@ -230,6 +231,8 @@
                 if (!success) {
                     NSLog(@"Failed to close %@", fileURL);
                     // Continue anyway...
+                }else {
+                    NSLog(@"closed the document on reload of order");
                 }
                 
                 // Add to the list of files on main thread
@@ -270,6 +273,7 @@
                 if (entry.noteData.noteLocation.intValue < anEntry.noteData.noteLocation.intValue) {
                     [_objects insertObject:entry atIndex:[_objects indexOfObject:anEntry]];
                     found = YES;
+                    anEntry = nil;
                     break;
                 }
             }
@@ -281,6 +285,7 @@
         }
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:(_objects.count - 1) inSection:0]] withRowAnimation:UITableViewRowAnimationRight];
         [self.tableView reloadData];
+        entry = nil;
         
     } 
     
@@ -620,7 +625,7 @@
         // Iterate backwards because we need to remove items from the array
         for (int i = _objects.count -1; i >= 0; --i) {
             if ([[_objects objectAtIndex:i] isKindOfClass:[NSString class]]) {
-                NSLog(@"This is an error withthe object stored in the table view");
+                NSLog(@"This is an error with the object stored in the table view");
                 return;
             }
             NoteEntry * entry = [_objects objectAtIndex:i];
@@ -645,7 +650,6 @@
         [self iCloudToLocalImpl];
     }
     [_query enableUpdates];
-    
 }
 
 
@@ -810,14 +814,13 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
-    self.navigationItem.rightBarButtonItem = addButton;
     
     // Setup your tableView.delegate and tableView.datasource,
     // then enable gesture recognition in one line.
     self.tableViewRecognizer = [self.tableView enableGestureTableViewWithDelegate:self];
     
-    self.tableView.backgroundColor = [UIColor blackColor];
+    UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
+    self.tableView.backgroundView = backgroundView;
     self.tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight       = NORMAL_CELL_FINISHING_HEIGHT;
     
@@ -852,52 +855,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
     [_query disableUpdates];
 }
 
-- (void)insertNewObject:(id)sender
-{
-    //disable updates while creating new objects
-    [_query disableUpdates];
-    
-    // Determine a unique filename to create
-    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
-    NSLog(@"Want to create file at %@", fileURL);
-    
-    // Create new document and save to the filename
-    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
-    [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
-        
-        if (!success) {
-            NSLog(@"Failed to create file at %@", fileURL);
-            return;
-        } 
-        
-        NSLog(@"File created at %@", fileURL);        
-        NoteData * noteData = [NoteData new];
-        noteData.noteLocation = doc.location;
-        noteData.noteColor = doc.color;
-        noteData.noteText = doc.text;
-        NSURL * fileURL = doc.fileURL;
-        UIDocumentState state = doc.documentState;
-        NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-        
-        // Close since we're done with it
-        [doc closeWithCompletionHandler:^(BOOL success) {
-            
-            // Check status
-            if (!success) {
-                NSLog(@"Failed to close %@", fileURL);
-                // Continue anyway...
-            }
-            
-            // Add to the list of files on main thread
-            dispatch_async(dispatch_get_main_queue(), ^{                
-                [self addOrUpdateEntryWithURL:fileURL noteData:noteData state:state version:version];
-            });
-        }];             
-    
-    }];
-    [_query enableUpdates];
-}
-
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -915,7 +872,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 {
     NSObject *object = [_objects objectAtIndex:indexPath.row];
     UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.02 * indexPath.row / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
-    if ([object isEqual:ADDING_CELL]) {
+    NoteEntry *anEntry = [_objects objectAtIndex:indexPath.row];
+    if (anEntry.adding == YES) {
         NSString *cellIdentifier = nil;
         TransformableNoteCell *cell = nil;
         
@@ -1065,9 +1023,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
             NSLog(@"Selected doc with state: %@", [self stringForState:_selDocument.documentState]);
             
             dispatch_async(dispatch_get_main_queue(), ^{
-//                self.detailViewController = [DetailViewController new];
-//                [self.detailViewController setNote:_selDocument];
-//                [self.navigationController pushViewController:self.detailViewController animated:YES];
                 self.noteKeyOpVC = [NoteKeyOpViewController new];
                 self.noteKeyOpVC.notes = _objects;
                 [self.noteKeyOpVC openTheNote:_selDocument];
@@ -1089,6 +1044,20 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 -(void)closeNote {
     [self dismissModalViewControllerAnimated:YES];
+    
+    [_selDocument closeWithCompletionHandler:nil];
+//    for (NoteDocument *doc in self.noteKeyOpVC.openedNoteDocuments) {
+//        if (doc.documentState != UIDocumentStateClosed) {
+//            [_selDocument closeWithCompletionHandler:^(BOOL success) {
+//                
+//                // Check status
+//                if (!success) {
+//                    NSLog(@"Failed to close %@", _selDocument.fileURL);
+//                    // Continue anyway...
+//                }
+//            }];
+//        }
+//    }
     self.noteKeyOpVC = nil;
     _selDocument = nil;
     [self refresh];
@@ -1099,17 +1068,24 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 #pragma mark NoteTableGestureAddingRowDelegate
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsAddRowAtIndexPath:(NSIndexPath *)indexPath {
-    [_objects insertObject:ADDING_CELL atIndex:indexPath.row];
+    
+    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+    NoteEntry * entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:nil state:UIDocumentStateClosed version:nil];
+    entry.adding = YES;
+    [_objects insertObject:entry atIndex:indexPath.row];
+    
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsCommitRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableView *tableView = gestureRecognizer.tableView;
     [_query disableUpdates];
     [tableView beginUpdates];
-    [_objects removeObjectAtIndex:indexPath.row];
-    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+    NoteEntry *entry = [_objects objectAtIndex:indexPath.row];
+//    [_objects removeObjectAtIndex:indexPath.row];
+//    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+//    [_objects insertObject:temp atIndex:indexPath.row];
+    NSURL *fileURL = entry.fileURL;
     NSLog(@"Want to create file at %@", fileURL);
-    [_objects insertObject:ADDING_CELL atIndex:indexPath.row];
     // Create new document and save to the filename
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
     [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
@@ -1140,10 +1116,12 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
             
             // Add to the list of files on main thread
             dispatch_async(dispatch_get_main_queue(), ^{                
-                NoteEntry * entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
-                [_objects replaceObjectAtIndex:indexPath.row withObject:entry];
+                entry.noteData = noteData;
+                entry.state = state;
+                entry.version = version;
+                entry.adding = NO;
                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-                [self sortObjects];
+        //        [self sortObjects];
                 [tableView endUpdates];
                 [_query enableUpdates];
             });
@@ -1199,7 +1177,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         // - [JTTableViewGestureDelegate gestureRecognizer:commitEditingState:forRowAtIndexPath:]
     }
     [tableView endUpdates];
-    [self sortObjects];
+//    [self sortObjects];
     // Row color needs update after datasource changes, reload it.
     [tableView performSelector:@selector(reloadVisibleRowsExceptIndexPath:) withObject:indexPath afterDelay:NoteTableRowAnimationDuration];
     
@@ -1225,7 +1203,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsReplacePlaceholderForRowAtIndexPath:(NSIndexPath *)indexPath {
     [_objects replaceObjectAtIndex:indexPath.row withObject:self.grabbedObject];
-    [self sortObjects];
+//    [self sortObjects];
     self.grabbedObject = nil;
 }
 
