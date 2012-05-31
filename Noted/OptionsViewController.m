@@ -44,6 +44,9 @@
     self.noteColorSchemes= [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"FFFFFF"], [self colorWithHexString:@"E9F2F6"],[self colorWithHexString:@"F3F6E9"],[self colorWithHexString:@"FBF6EA"], [self colorWithHexString:@"333333"], [self colorWithHexString:@"1A9FEB"], nil];
     self.optionColorSchemes = [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"FFFFFF"], [self colorWithHexString:@"C4D5DD"],[self colorWithHexString:@"C1D184"],[self colorWithHexString:@"DAC361"],[self colorWithHexString:@"333333"], [self colorWithHexString:@"1A9FEB"], nil];
     
+    //add version number 
+    self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
+    
 }
 
 -(void)loadOptionColors {

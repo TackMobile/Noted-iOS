@@ -17,11 +17,12 @@
 @protocol NoteKeyOpViewControllerDelegate <NSObject>
 
 -(void)closeNote;
-
+-(void)addNoteAtIndex:(int)index;
 @end
 
 @interface NoteKeyOpViewController : UIViewController <SingleNoteDelegate,KeyboardDelegate,OptionsViewDelegate,UIActionSheetDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate> {
     int touchesOnScreen;
+    int currentNoteIndex;
     BOOL optionsShowing;
 }
 
@@ -35,6 +36,8 @@
 @property (strong,nonatomic)DetailViewController *nextNoteVC;
 @property (strong,nonatomic)DetailViewController *previousNoteVC;
 @property (strong,nonatomic)UIView *overView;
+@property (strong, nonatomic) IBOutlet UIView *addNoteMain;
+@property (weak, nonatomic) IBOutlet UIView *addNoteCorners;
 @property (strong,nonatomic)id delegate;
 
 -(void)openTheNote:(NoteDocument*)note;

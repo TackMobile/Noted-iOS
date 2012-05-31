@@ -439,6 +439,50 @@
     
 }
 
+- (NoteDocument*)insertNewEntryAtIndex:(int)index {
+    [_query disableUpdates];
+    NoteEntry *entry = [NoteEntry new];
+    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+    NSLog(@"Want to create file at %@", fileURL);
+    // Create new document and save to the filename
+    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
+        
+        if (!success) {
+            NSLog(@"Failed to create file at %@", fileURL);
+            return;
+        } 
+        
+        NSLog(@"File created at %@", fileURL);        
+        NoteData * noteData = [NoteData new];
+        doc.location = [NSString stringWithFormat:@"%i",index];
+        noteData.noteLocation = doc.location;
+        noteData.noteColor = doc.color;
+        noteData.noteText = doc.text;
+        NSURL * fileURL = doc.fileURL;
+        UIDocumentState state = doc.documentState;
+        NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+        
+            
+        // Add to the list of files on main thread
+        dispatch_async(dispatch_get_main_queue(), ^{                
+            entry.noteData = noteData;
+            entry.state = state;
+            entry.version = version;
+            entry.adding = NO;
+            [_objects insertObject:entry atIndex:index];
+            //[self sortObjects];
+            [_query enableUpdates];
+            
+        });
+    }];   
+    
+    //we don't close the document since this document is automatically opened in the notekeyoptionsVC (cannot close documents twice)
+    
+    
+    return doc;
+}
+
 - (void)deleteEntry:(NoteEntry *)entry {
     [_query disableUpdates];
     // Wrap in file coordinator
@@ -871,7 +915,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSObject *object = [_objects objectAtIndex:indexPath.row];
-    UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.02 * indexPath.row / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
+    UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.05 * indexPath.row / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
     NoteEntry *anEntry = [_objects objectAtIndex:indexPath.row];
     if (anEntry.adding == YES) {
         NSString *cellIdentifier = nil;
@@ -1063,6 +1107,12 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
     [self refresh];
 }
 
+-(void)addNoteAtIndex:(int)index {
+  _selDocument =  [self insertNewEntryAtIndex:index];
+    self.noteKeyOpVC.notes = _objects;
+    [self.noteKeyOpVC openTheNote:_selDocument];
+}
+
 
 #pragma mark -
 #pragma mark NoteTableGestureAddingRowDelegate
@@ -1141,7 +1191,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
     UIColor *backgroundColor = nil;
     switch (state) {
         case NoteCellEditingStateMiddle:
-            backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.02 * indexPath.row / [self tableView:self.tableView numberOfRowsInSection:indexPath.section]];
+            backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.05 * indexPath.row / [self tableView:self.tableView numberOfRowsInSection:indexPath.section]];
             break;
         case NoteCellEditingStateRight:
             backgroundColor = [UIColor greenColor];

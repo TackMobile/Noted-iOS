@@ -57,7 +57,7 @@
 								<string key="NSFrameSize">{320, 477}</string>
 								<reference key="NSSuperview" ref="367690277"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="13186197"/>
+								<reference key="NSNextKeyView" ref="648032120"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<object class="NSColor" key="IBUIBackgroundColor" id="196447711">
 									<int key="NSColorSpace">3</int>
@@ -86,7 +86,7 @@
 							<object class="IBUITextView" id="648032120">
 								<reference key="NSNextResponder" ref="367690277"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{20, 369}, {110, 34}}</string>
+								<string key="NSFrame">{{0, -5}, {110, 34}}</string>
 								<reference key="NSSuperview" ref="367690277"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="760690915"/>
@@ -119,9 +119,10 @@
 							<object class="IBUITextView" id="760690915">
 								<reference key="NSNextResponder" ref="367690277"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{175, 369}, {110, 34}}</string>
+								<string key="NSFrame">{{210, -5}, {110, 34}}</string>
 								<reference key="NSSuperview" ref="367690277"/>
 								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="13186197"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<reference key="IBUIBackgroundColor" ref="402933708"/>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -147,7 +148,7 @@
 										<string key="NSFrameSize">{44, 46}</string>
 										<reference key="NSSuperview" ref="13186197"/>
 										<reference key="NSWindow"/>
-										<reference key="NSNextKeyView" ref="648032120"/>
+										<reference key="NSNextKeyView"/>
 										<string key="NSReuseIdentifierKey">_NS:9</string>
 										<reference key="IBUIBackgroundColor" ref="402933708"/>
 										<bool key="IBUIClipsSubviews">YES</bool>
@@ -307,9 +308,9 @@
 						<array class="NSMutableArray" key="children">
 							<reference ref="686551476"/>
 							<reference ref="982088327"/>
+							<reference ref="13186197"/>
 							<reference ref="648032120"/>
 							<reference ref="760690915"/>
-							<reference ref="13186197"/>
 						</array>
 						<reference key="parent" ref="191373211"/>
 						<string key="objectName">mainView</string>

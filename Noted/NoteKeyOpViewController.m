@@ -15,6 +15,8 @@
 @end
 
 @implementation NoteKeyOpViewController
+@synthesize addNoteMain;
+@synthesize addNoteCorners;
 @synthesize notes,keyboardVC,optionsVC,mailVC,messageVC,noteVC,nextNoteVC,previousNoteVC,overView,delegate,openedNoteDocuments;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -67,12 +69,12 @@
     self.keyboardVC.delegate = self;
     
     
-//    self.addNoteMain.layer.shadowColor = [[UIColor blackColor] CGColor];
-//    self.addNoteMain.layer.shadowOffset = CGSizeMake(2,2);
-//    self.addNoteMain.layer.shadowOpacity = .50;
-//    self.addNoteCorners.layer.bounds = self.addNoteMain.bounds;
-//    self.addNoteCorners.layer.cornerRadius = 6.5;
-//    self.addNoteCorners.layer.masksToBounds = YES;
+    self.addNoteMain.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.addNoteMain.layer.shadowOffset = CGSizeMake(2,2);
+    self.addNoteMain.layer.shadowOpacity = .50;
+    self.addNoteCorners.layer.bounds = self.addNoteMain.bounds;
+    self.addNoteCorners.layer.cornerRadius = 6.5;
+    self.addNoteCorners.layer.masksToBounds = YES;
     
     UITextView *relativeTime = [[UITextView alloc] init];
     relativeTime.frame = self.noteVC.relativeTimeText.frame;
@@ -85,8 +87,8 @@
     absoluteTime.textColor = [self.noteVC colorWithHexString:@"AAAAAA"];
     absoluteTime.text = [self.noteVC formatDate:[NSDate date]];
     
-//    [self.addNoteCorners addSubview:relativeTime];
-//    [self.addNoteCorners addSubview:absoluteTime];
+    [self.addNoteCorners addSubview:relativeTime];
+    [self.addNoteCorners addSubview:absoluteTime];
     
     //Register for notifications so the keyboard load will push any text into view
     [[NSNotificationCenter defaultCenter] addObserver: self
@@ -130,10 +132,10 @@
     self.previousNoteVC.view.alpha = 1;
     self.nextNoteVC.view.alpha = 1;
     
-    int location;
+    currentNoteIndex = 0;
     for (NoteEntry *entry in self.notes) {
         if (entry.fileURL == aNote.fileURL) {
-            location = [self.notes indexOfObject:entry];
+            currentNoteIndex = [self.notes indexOfObject:entry];
             break;
         }
     }
@@ -148,10 +150,10 @@
         
     }else {
         //beginning of list
-        if(location == 0) {
+        if(currentNoteIndex == 0) {
             NoteEntry *previousEntry = [self.notes objectAtIndex:(howManyNotes -1)];
             NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
-            NoteEntry *nextEntry = [self.notes objectAtIndex:(location +1)];
+            NoteEntry *nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
             NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
             [previousDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -166,9 +168,9 @@
                 });
             }];
 
-        }else if((location+1)==howManyNotes){
+        }else if((currentNoteIndex+1)==howManyNotes){
             //end of list
-            NoteEntry *previousEntry = [self.notes objectAtIndex:(location -1)];
+            NoteEntry *previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
             NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
             NoteEntry *nextEntry = [self.notes objectAtIndex:(0)];
             NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
@@ -185,9 +187,9 @@
                 });
             }];
         }else {
-            NoteEntry *previousEntry = [self.notes objectAtIndex:(location -1)];
+            NoteEntry *previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
             NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
-            NoteEntry *nextEntry = [self.notes objectAtIndex:(location +1)];
+            NoteEntry *nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
             NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
             [previousDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -209,7 +211,7 @@
     self.noteVC.view.frame = CGRectMake(0,0,320,480);
     self.previousNoteVC.view.frame = CGRectMake(320,0,320,480);
     self.nextNoteVC.view.frame = CGRectMake(0,0,320,480);
-    //    self.addNoteMain.frame = CGRectMake(320,0,320,480);
+    self.addNoteMain.frame = CGRectMake(320,0,320,480);
     
     //   self.scrollView.frame = CGRectMake(0, -480, 320, 480);
     
@@ -218,6 +220,8 @@
     [self.view addSubview:self.optionsVC.view];
     [self.view addSubview:self.noteVC.view];
     [self.view addSubview:self.previousNoteVC.view];
+    [self.view addSubview:self.addNoteMain];
+    [self.view bringSubviewToFront:self.addNoteMain];
     
 }
 
@@ -365,21 +369,21 @@
     }
     
     if (touchesOnScreen == 2){
-//        if (pan.state == UIGestureRecognizerStateChanged) {
-//            //panning from right to left
-//            if (point.x <0 && (fabs(2*point.x) >= fabs(point.y))) {
-//                NSLog(@"recognizing right to left 2pan");
-//                CGRect frame = self.addNoteMain.frame;
-//                frame.origin.x =  320 + point.x;
-//                if (frame.origin.x > 320) frame.origin.x = 320;
-//                self.addNoteMain.frame = frame;
-//                
-//                //make sure the other layer is offscreen
-//                CGRect otherFrame = self.nvc.view.frame;
-//                otherFrame.origin.x = 0;
-//                self.nvc.view.frame = otherFrame;
-//                self.trashNoteView.hidden = YES;
-//            }
+        if (pan.state == UIGestureRecognizerStateChanged) {
+            //panning from right to left
+            if (point.x <0 && (fabs(2*point.x) >= fabs(point.y))) {
+                NSLog(@"recognizing right to left 2pan");
+                CGRect frame = self.addNoteMain.frame;
+                frame.origin.x =  320 + point.x;
+                if (frame.origin.x > 320) frame.origin.x = 320;
+                self.addNoteMain.frame = frame;
+                
+                //make sure the other layer is offscreen
+      //          CGRect otherFrame = self.noteVC.view.frame;
+      //          otherFrame.origin.x = 0;
+      //          self.noteVC.view.frame = otherFrame;
+     //           self.trashNoteView.hidden = YES;
+            }
 //            //panning from left to right
 //            else if (point.x >0 && (fabs(2*point.x) >= fabs(point.y))) {
 //                NSLog(@"recognizing left to right 2pan");
@@ -400,29 +404,36 @@
 //            if (point.x< 160) {
 //                self.trashNoteView.text = @"Trashing note...keep going";
 //            }
-//        }
-//        
-//        
-//        
+        }
+        
+        
+        
         if (pan.state == UIGestureRecognizerStateEnded) {
             CGPoint velocity = [pan velocityInView:self.view];
             
             if ( fabs(point.x) <= 160 && fabs(velocity.x) <1000) {
                 if (point.y >= 100) {
+                    //closing note
                     [self.delegate closeNote];
                     
+                }else {
+                    //do nothing
+                    [self animateLayer:self.addNoteMain toPoint:320 withNote:nil];
                 }
             }
-        }        
-//                else if (point.x <= -160 || velocity.x <-1000) {
-//                
-//                //panned to a new note
-//                [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
-//                [self.nvc.noteTextView resignFirstResponder];
-//                NSLog(@"Recognizing add gesture %f  %f",self.addNoteMain.frame.origin.x,point.x);
-//                [self addNote];
-//                
-//            } else if (point.x > 160){
+            
+            else if (point.x <= -160 || velocity.x <-1000) {
+                
+                //panned to a new note
+                [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
+                [self.noteVC.noteTextView resignFirstResponder];
+                NSLog(@"Recognizing add gesture %f  %f",self.addNoteMain.frame.origin.x,point.x);
+                
+                [self addNote];
+                
+            } 
+        }
+                //else if (point.x > 160){
 //                //panned to trash
 //                
 //                [self.nvc.noteTextView resignFirstResponder];
@@ -500,6 +511,12 @@
 
 #pragma mark - 
 #pragma mark Delegate Events
+
+-(void)addNote {
+    
+    int index = currentNoteIndex;
+    [self.delegate addNoteAtIndex:index];
+}
 
 
 
@@ -764,4 +781,9 @@
 
 
 
+- (void)viewDidUnload {
+    [self setAddNoteMain:nil];
+    [self setAddNoteCorners:nil];
+    [super viewDidUnload];
+}
 @end
