@@ -9,6 +9,8 @@
 #import "NoteKeyOpViewController.h"
 #import "UIColor+HexColor.h"
 #import "NoteEntry.h"
+#import "UIColor+HexColor.h"
+#import "Utilities.h"
 
 @interface NoteKeyOpViewController ()
 
@@ -79,13 +81,13 @@
     UITextView *relativeTime = [[UITextView alloc] init];
     relativeTime.frame = self.noteVC.relativeTimeText.frame;
     relativeTime.font = self.noteVC.relativeTimeText.font;
-    relativeTime.textColor = [self.noteVC colorWithHexString:@"AAAAAA"];
+    relativeTime.textColor = [UIColor colorWithHexString:@"AAAAAA"];
     relativeTime.text = @"Today";
     UITextView *absoluteTime = [[UITextView alloc] init];
     absoluteTime.frame = self.noteVC.absoluteTimeText.frame;
     absoluteTime.font = self.noteVC.absoluteTimeText.font;
-    absoluteTime.textColor = [self.noteVC colorWithHexString:@"AAAAAA"];
-    absoluteTime.text = [self.noteVC formatDate:[NSDate date]];
+    absoluteTime.textColor = [UIColor colorWithHexString:@"AAAAAA"];
+    absoluteTime.text = [Utilities formatDate:[NSDate date]];
     
     [self.addNoteCorners addSubview:relativeTime];
     [self.addNoteCorners addSubview:absoluteTime];

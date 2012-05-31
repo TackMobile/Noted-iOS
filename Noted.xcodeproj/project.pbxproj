@@ -19,6 +19,7 @@
 		298EC00315702C6F00B72F5C /* KeyboardViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EC00115702C6F00B72F5C /* KeyboardViewController.xib */; };
 		298EC0071570415800B72F5C /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EC0051570415700B72F5C /* OptionsViewController.m */; };
 		298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EC0061570415700B72F5C /* OptionsViewController.xib */; };
+		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29914F11157530A70029D170 /* NoteKeyOpViewController.m */; };
 		29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29914F12157530A70029D170 /* NoteKeyOpViewController.xib */; };
 		29914F16157535060029D170 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
@@ -88,6 +89,8 @@
 		298EC0041570415700B72F5C /* OptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionsViewController.h; sourceTree = "<group>"; };
 		298EC0051570415700B72F5C /* OptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionsViewController.m; sourceTree = "<group>"; };
 		298EC0061570415700B72F5C /* OptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsViewController.xib; sourceTree = "<group>"; };
+		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
+		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F10157530A70029D170 /* NoteKeyOpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteKeyOpViewController.h; sourceTree = "<group>"; };
 		29914F11157530A70029D170 /* NoteKeyOpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteKeyOpViewController.m; sourceTree = "<group>"; };
 		29914F12157530A70029D170 /* NoteKeyOpViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteKeyOpViewController.xib; sourceTree = "<group>"; };
@@ -272,6 +275,8 @@
 				29960C8015740F2D0054347A /* UIColor+HexColor.m */,
 				29960C8B157418850054347A /* NoteTableGestureRecognizer.h */,
 				29960C8C157418850054347A /* NoteTableGestureRecognizer.m */,
+				298F8D1B15780FA2004D11A4 /* Utilities.h */,
+				298F8D1C15780FA2004D11A4 /* Utilities.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -465,6 +470,7 @@
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
 				29960C91157420390054347A /* NoteTableViewController.m in Sources */,
 				29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */,
+				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

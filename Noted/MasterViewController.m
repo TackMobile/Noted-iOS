@@ -17,6 +17,7 @@
 #import "TransformableNoteCell.h"
 #import "NoteTableGestureRecognizer.h"
 #import "UIColor+HexColor.h"
+#import "Utilities.h"
 
 @interface MasterViewController () <NoteTableGestureEditingRowDelegate, NoteTableGestureAddingRowDelegate, NoteTableGestureMoveRowDelegate> {
     NSMutableArray *_objects;
@@ -978,10 +979,13 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         }
         
     } else {
-        static NSString *cellIdentifier = @"MyCell";
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        static NSString *cellIdentifier = @"NoteEntryCell";
+        NoteEntryCell *cell = (NoteEntryCell*)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+
         if (cell == nil) {
-            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+            NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
+            // Grab a pointer to the first object (presumably the custom cell, as that's all the XIB should contain).
+            cell = [topLevelObjects objectAtIndex:0];
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
             cell.textLabel.backgroundColor = [UIColor clearColor];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -989,15 +993,17 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
         
         if ([object isKindOfClass:[NoteEntry class]]) {
             NoteEntry *entry = [_objects objectAtIndex:indexPath.row];
-    
-
-            cell.textLabel.text = entry.description;
+            
+            NSArray *allLines = [entry.noteData.noteText componentsSeparatedByString:@"\n"];
+            if ([allLines count]>0) {
+                NSString *firstLine = [allLines objectAtIndex:0];
+                cell.subtitleLabel.text = firstLine;
+            }else {
+                cell.subtitleLabel.text = entry.noteData.noteText;
+            }
             if (entry.version) {
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setDoesRelativeDateFormatting:YES];
-                [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-                [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-                cell.detailTextLabel.text = [dateFormatter stringFromDate:entry.version.modificationDate];
+                cell.relativeTimeText.text = [Utilities formatRelativeDate:entry.version.modificationDate];
+                cell.absoluteTimeText.text = [Utilities formatDate:entry.version.modificationDate];
                 cell.textLabel.textColor = [UIColor whiteColor];
                 cell.contentView.backgroundColor = backgroundColor;
                 //    if (entry.state & UIDocumentStateInConflict) {
@@ -1005,8 +1011,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 //    } else {
                 //        noteEntryCell.warningImageView.hidden = YES;
                 //    }                    
-                cell.textLabel.text = [NSString stringWithFormat:@"%@", (NSString *)object];
-                cell.detailTextLabel.text = @" ";
+             //   cell.textLabel.text = [NSString stringWithFormat:@"%@", (NSString *)object];
+           
             }else if (entry.moving) {
                 cell.textLabel.text = @"";
                 cell.contentView.backgroundColor = [UIColor clearColor];
@@ -1069,6 +1075,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 [self.noteKeyOpVC openTheNote:_selDocument];
                 self.noteKeyOpVC.delegate = self;
                 [self presentModalViewController:self.noteKeyOpVC animated:YES];
+                
             });
         }];
 

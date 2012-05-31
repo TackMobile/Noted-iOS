@@ -17,7 +17,7 @@
 -(void)noteTouched;
 @end
 
-@interface DetailViewController : UIViewController <UITextViewDelegate> {
+@interface DetailViewController : UIViewController <UITextViewDelegate,UIScrollViewDelegate> {
     id < SingleNoteDelegate > delegate;
 }
 @property (strong, nonatomic) NoteDocument *note;
@@ -32,7 +32,5 @@
 @property (strong, nonatomic) NSMutableArray *headerColorSchemes;
 @property (nonatomic, retain) id delegate;
 
--(NSString*)formatDate:(NSDate*)date;
--(UIColor*)colorWithHexString:(NSString*)hex;
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 @end

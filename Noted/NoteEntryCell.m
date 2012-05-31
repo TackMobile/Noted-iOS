@@ -12,6 +12,8 @@
 @synthesize titleTextField;
 @synthesize subtitleLabel;
 @synthesize warningImageView;
+@synthesize relativeTimeText;
+@synthesize absoluteTimeText;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {

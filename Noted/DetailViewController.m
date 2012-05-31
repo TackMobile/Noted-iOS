@@ -8,6 +8,8 @@
 
 #import "DetailViewController.h"
 #import "OptionsViewController.h"
+#import "Utilities.h"
+#import "UIColor+HexColor.h"
 
 @interface DetailViewController ()
 -(void)configureView;
@@ -49,8 +51,8 @@
     self.colorDot.font = [UIFont systemFontOfSize:10];
     
     //colorSchemes: white,lime,sky,kernal,shadow,tack
-    self.colorSchemes= [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"FFFFFF"],[self colorWithHexString:@"F3F6E9"], [self colorWithHexString:@"E9F2F6"],[self colorWithHexString:@"FBF6EA"], [self colorWithHexString:@"333333"], [self colorWithHexString:@"1A9FEB"], nil];
-    self.headerColorSchemes = [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"AAAAAA"], [self colorWithHexString:@"C1D184"],[self colorWithHexString:@"88ACBB"],[self colorWithHexString:@"DAC361"],[self colorWithHexString:@"CCCCCC"], [self colorWithHexString:@"FFFFFF"], nil];
+    self.colorSchemes= [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"],[UIColor colorWithHexString:@"F3F6E9"], [UIColor colorWithHexString:@"E9F2F6"],[UIColor colorWithHexString:@"FBF6EA"], [UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
+    self.headerColorSchemes = [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"AAAAAA"], [UIColor colorWithHexString:@"C1D184"],[UIColor colorWithHexString:@"88ACBB"],[UIColor colorWithHexString:@"DAC361"],[UIColor colorWithHexString:@"CCCCCC"], [UIColor colorWithHexString:@"FFFFFF"], nil];
     
     [self addAllGestures];
     
@@ -62,9 +64,9 @@
     
     // Update the user interface for the detail item.
     self.noteTextView.text = self.note.text;
-    self.relativeTimeText.text = [self formatRelativeDate:self.note.fileModificationDate];
-    self.absoluteTimeText.text = [self formatDate:self.note.fileModificationDate];
-    self.noteTextView.frame = CGRectMake(0,20,320,480);
+    self.relativeTimeText.text = [Utilities formatRelativeDate:self.note.fileModificationDate];
+    self.absoluteTimeText.text = [Utilities formatDate:self.note.fileModificationDate];
+    self.noteTextView.frame = CGRectMake(0,10,320,480);
     
     [self setInitialColor];
 }
@@ -146,10 +148,9 @@
     }
     self.note.color = color;
     self.backgroundImage.backgroundColor = color;
-    self.absoluteTimeText.backgroundColor = color;
-    self.relativeTimeText.backgroundColor = color;
-    self.colorDot.backgroundColor = color;
-    
+    self.absoluteTimeText.backgroundColor = [UIColor clearColor];
+    self.relativeTimeText.backgroundColor = [UIColor clearColor];
+    self.colorDot.backgroundColor = [UIColor clearColor];
     self.absoluteTimeText.textColor = [self.headerColorSchemes objectAtIndex:[self.colorSchemes indexOfObject:color]];
     self.relativeTimeText.textColor = self.absoluteTimeText.textColor;
     self.colorDot.textColor = self.absoluteTimeText.textColor;
@@ -170,44 +171,6 @@
 
 
 
--(UIColor *) colorWithHexString: (NSString *) hex  
-{  
-    NSString *cString = [[hex stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];  
-    
-    // String should be 6 or 8 characters  
-    if ([cString length] < 6) return [UIColor grayColor];  
-    
-    // strip 0X if it appears  
-    if ([cString hasPrefix:@"0X"]) cString = [cString substringFromIndex:2];  
-    
-    if ([cString length] != 6) return  [UIColor grayColor];  
-    
-    // Separate into r, g, b substrings  
-    NSRange range;  
-    range.location = 0;  
-    range.length = 2;  
-    NSString *rString = [cString substringWithRange:range];  
-    
-    range.location = 2;  
-    NSString *gString = [cString substringWithRange:range];  
-    
-    range.location = 4;  
-    NSString *bString = [cString substringWithRange:range];  
-    
-    // Scan values  
-    unsigned int r, g, b;  
-    [[NSScanner scannerWithString:rString] scanHexInt:&r];  
-    [[NSScanner scannerWithString:gString] scanHexInt:&g];  
-    [[NSScanner scannerWithString:bString] scanHexInt:&b];  
-    
-    return [UIColor colorWithRed:((float) r / 255.0f)  
-                           green:((float) g / 255.0f)  
-                            blue:((float) b / 255.0f)  
-                           alpha:1.0f];  
-} 
-
-
-
 - (void)dataReloaded:(NSNotification *)notification {
     
     self.note = notification.object;
@@ -215,13 +178,15 @@
     
 }
 
+#pragma mark UITextViewDelegate
+
 - (void)textViewDidChange:(UITextView *)textView {
     
     NSMutableString *content = [[NSMutableString alloc] initWithFormat:self.noteTextView.text];
     NSRange time = [content rangeOfString:@":time"];
     if (time.location != NSNotFound) {
         [content replaceCharactersInRange:time
-                               withString:[self getCurrentTime]];
+                               withString:[Utilities getCurrentTime]];
         self.noteTextView.text = content;
         
     }
@@ -230,110 +195,42 @@
     
 }
 
-
--(NSString*)getCurrentTime {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-	NSDate *now = [NSDate date];
-    [dateFormatter setDateFormat:@"HH"];
-    int hour = [[dateFormatter stringFromDate:now] intValue];
+#pragma mark UIScrollViewDelegate
+-(void)scrollViewDidScroll: (UIScrollView*)scrollView
+{
+    float scrollOffset = scrollView.contentOffset.y;
     
-    [dateFormatter setDateFormat:@"mm"];
-    int minute = [[dateFormatter stringFromDate:now] intValue];
-    
-    NSString *am_pm = @"AM"; 
-    
-    if (hour > 12) {
-        am_pm = @"PM";
-        hour = hour - 12;
+    if (scrollOffset == 0)
+    {
+        [UIView animateWithDuration:0.15 
+                              delay:0 
+                            options:UIViewAnimationCurveEaseOut 
+                         animations:^{
+                             self.relativeTimeText.frame = CGRectMake(0, -5, 100, 25);
+                             self.absoluteTimeText.frame = CGRectMake(103, -5, 200, 25); 
+                             self.noteTextView.frame = CGRectMake(0,10,320,480);
+                         }
+                         completion:^(BOOL finished){
+                             
+                         }];
     }
-    
-    NSString *dateString;
-    if (minute < 10) {
-        dateString = [[NSString alloc] initWithFormat:@"%i:0%i %@",hour,minute,am_pm];
-    }else {
-        dateString = [[NSString alloc] initWithFormat:@"%i:%i %@",hour,minute,am_pm];
+    else
+    {
+        // then we are not at the beginning
+        [UIView animateWithDuration:0.15 
+                              delay:0 
+                            options:UIViewAnimationCurveEaseOut 
+                         animations:^{
+                             self.relativeTimeText.frame = CGRectMake(0, -25, 100, 25);
+                             self.absoluteTimeText.frame = CGRectMake(103, -25, 200, 25); 
+                             self.noteTextView.frame = CGRectMake(0,0,320,480);
+                         }
+                         completion:^(BOOL finished){
+                             
+                         }];
     }
-    return dateString;
 }
 
--(NSString*)formatDate:(NSDate*)dateCreated {
-    NSArray *months = [[NSArray alloc] initWithObjects:@"January",@"February",@"March",@"April",@"May",@"June",@"July",@"August", @"September",@"October",@"November",@"December", nil];
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-	
-    [dateFormatter setDateFormat:@"yyyy"];
-    
-    [dateFormatter setDateFormat:@"MM"];
-    int monthInt = [[dateFormatter stringFromDate:dateCreated] intValue];
-    
-    [dateFormatter setDateFormat:@"dd"];
-    int day = [[dateFormatter stringFromDate:dateCreated] intValue];
-    
-    [dateFormatter setDateFormat:@"HH"];
-    int hour = [[dateFormatter stringFromDate:dateCreated] intValue];
-    
-    [dateFormatter setDateFormat:@"mm"];
-    int minute = [[dateFormatter stringFromDate:dateCreated] intValue];
-    
-    NSString *am_pm = @"AM"; 
-    
-    if (hour > 12) {
-        am_pm = @"PM";
-        hour = hour - 12;
-    }
-    
-    NSString *month = [months objectAtIndex:monthInt];
-    NSString *dateString;
-    if (minute < 10) {
-        dateString = [[NSString alloc] initWithFormat:@"%@ %i  %i:0%i %@",month,day,hour,minute,am_pm];
-    }else {
-        dateString = [[NSString alloc] initWithFormat:@"%@ %i  %i:%i %@",month,day,hour,minute,am_pm];
-    }
-    
-    return dateString;
-}
-
--(NSString*)formatRelativeDate:(NSDate*)dateCreated {
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-	NSDate *now = [NSDate date];
-    
-    [dateFormatter setDateFormat:@"yyyy"];
-    int year = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowYear = [[dateFormatter stringFromDate:now] intValue];
-    [dateFormatter setDateFormat:@"MM"];
-    int month = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowMonth = [[dateFormatter stringFromDate:now] intValue];
-    [dateFormatter setDateFormat:@"dd"];
-    int day = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowDay = [[dateFormatter stringFromDate:now] intValue];
-    
-    
-    if (month == 1 || month == 2) {
-        month += 12;
-        year -= 1;
-    }
-    if (nowMonth == 1 || nowMonth == 2) {
-        month+=12;
-        year -= 1;
-    }
-    
-    int totalDays = floorf(365.0*year) + floorf(year/4.0) - floorf(year/100.0) + floorf(year/400.0) + day + floorf((153*month+8)/5);
-    
-    int totalNowDays = floorf(365.0*nowYear) + floorf(nowYear/4.0) - floorf(nowYear/100.0) + floorf(nowYear/400.0) + nowDay + floorf((153*nowMonth+8)/5);
-    
-    int daysAgo = totalNowDays - totalDays;
-    NSString *dateString = [NSString alloc];
-    
-    if (daysAgo == 0) {
-        dateString = [NSString stringWithFormat:@"Today"];
-    }else if (daysAgo == 1) {
-        dateString = [NSString stringWithFormat:@"Yesterday"];
-    }else {
-        dateString = [NSString stringWithFormat:@"%i days ago",daysAgo];
-    }
-    return dateString;
-}
 
 
 
