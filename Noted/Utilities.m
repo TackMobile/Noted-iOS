@@ -61,6 +61,9 @@
         hour = hour - 12;
     }
     
+    if (monthInt == 0) {
+        monthInt++;
+    }
     NSString *month = [months objectAtIndex:monthInt-1];
     NSString *dateString;
     if (minute < 10) {

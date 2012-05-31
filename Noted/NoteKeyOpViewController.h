@@ -20,7 +20,7 @@
 -(void)addNoteAtIndex:(int)index;
 @end
 
-@interface NoteKeyOpViewController : UIViewController <SingleNoteDelegate,KeyboardDelegate,OptionsViewDelegate,UIActionSheetDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate> {
+@interface NoteKeyOpViewController : UIViewController <SingleNoteDelegate,KeyboardDelegate,OptionsViewDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate> {
     int touchesOnScreen;
     int currentNoteIndex;
     BOOL optionsShowing;
