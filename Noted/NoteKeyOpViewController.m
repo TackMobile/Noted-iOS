@@ -15,7 +15,7 @@
 @end
 
 @implementation NoteKeyOpViewController
-@synthesize notes,keyboardVC,optionsVC,mailVC,messageVC,noteVC,nextNoteVC,previousNoteVC,overView,delegate;
+@synthesize notes,keyboardVC,optionsVC,mailVC,messageVC,noteVC,nextNoteVC,previousNoteVC,overView,delegate,openedNoteDocuments;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -33,6 +33,7 @@
     
     //defaults
     optionsShowing = NO;
+    self.openedNoteDocuments = [NSMutableArray new];
     
     self.optionsVC = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
     self.optionsVC.view.frame = CGRectMake(-320, 0, 320, 480);
@@ -155,13 +156,16 @@
             [previousDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.previousNoteVC.note = previousDocument;
+                    [self.openedNoteDocuments addObject:previousDocument];
                 });
             }];
             [nextDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.nextNoteVC.note = nextDocument;
+                    [self.openedNoteDocuments addObject:nextDocument];
                 });
             }];
+
         }else if((location+1)==howManyNotes){
             //end of list
             NoteEntry *previousEntry = [self.notes objectAtIndex:(location -1)];
@@ -171,11 +175,13 @@
             [previousDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.previousNoteVC.note = previousDocument;
+                    [self.openedNoteDocuments addObject:previousDocument];
                 });
             }];
             [nextDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.nextNoteVC.note = nextDocument;
+                    [self.openedNoteDocuments addObject:nextDocument];
                 });
             }];
         }else {
@@ -186,11 +192,13 @@
             [previousDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.previousNoteVC.note = previousDocument;
+                    [self.openedNoteDocuments addObject:previousDocument];
                 });
             }];
             [nextDocument openWithCompletionHandler:^(BOOL success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     self.nextNoteVC.note = nextDocument;
+                    [self.openedNoteDocuments addObject:nextDocument];
                 });
             }];
         }
@@ -402,6 +410,7 @@
             if ( fabs(point.x) <= 160 && fabs(velocity.x) <1000) {
                 if (point.y >= 100) {
                     [self.delegate closeNote];
+                    
                 }
             }
         }        

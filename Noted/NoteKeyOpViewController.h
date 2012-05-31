@@ -26,6 +26,7 @@
 }
 
 @property (strong,nonatomic)NSMutableArray *notes;
+@property (strong,nonatomic)NSMutableArray *openedNoteDocuments;
 @property (strong,nonatomic)KeyboardViewController *keyboardVC;
 @property (strong,nonatomic)OptionsViewController *optionsVC;
 @property (strong,nonatomic)MFMailComposeViewController *mailVC;
