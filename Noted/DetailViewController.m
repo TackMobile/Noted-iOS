@@ -200,7 +200,7 @@
 {
     float scrollOffset = scrollView.contentOffset.y;
     
-    if (scrollOffset == 0)
+    if (scrollOffset == 0 && !self.noteTextView.isFirstResponder)
     {
         [UIView animateWithDuration:0.15 
                               delay:0 
@@ -214,7 +214,7 @@
                              
                          }];
     }
-    else
+    else if (scrollOffset != 0 && !self.noteTextView.isFirstResponder)
     {
         // then we are not at the beginning
         [UIView animateWithDuration:0.15 
@@ -224,6 +224,18 @@
                              self.relativeTimeText.frame = CGRectMake(0, -25, 100, 25);
                              self.absoluteTimeText.frame = CGRectMake(103, -25, 200, 25); 
                              self.noteTextView.frame = CGRectMake(0,0,320,480);
+                         }
+                         completion:^(BOOL finished){
+                             
+                         }];
+    } else {
+        [UIView animateWithDuration:0.15 
+                              delay:0 
+                            options:UIViewAnimationCurveEaseOut 
+                         animations:^{
+                             self.relativeTimeText.frame = CGRectMake(0, -25, 100, 25);
+                             self.absoluteTimeText.frame = CGRectMake(103, -25, 200, 25); 
+                             self.noteTextView.frame = CGRectMake(0,0,320,264);
                          }
                          completion:^(BOOL finished){
                              

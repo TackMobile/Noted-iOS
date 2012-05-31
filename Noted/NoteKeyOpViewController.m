@@ -574,7 +574,7 @@
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.noteVC.noteTextView.frame = CGRectMake(0, 20, 320, 244);
+                         self.noteVC.noteTextView.frame = CGRectMake(0, 0, 320, 264);
                      } completion:^(BOOL success){}];
 }
 
@@ -644,9 +644,9 @@
     self.keyboardVC.view.frame = frame;
     
     CGRect otherFrame = self.noteVC.noteTextView.frame;
-    otherFrame.size.height = 244 + point.y;
-    if (otherFrame.size.height <244) {
-        otherFrame.size.height = 244;
+    otherFrame.size.height = 264 + point.y;
+    if (otherFrame.size.height <264) {
+        otherFrame.size.height = 264;
     }
     self.noteVC.noteTextView.frame = otherFrame;
 }
@@ -657,7 +657,7 @@
     [UIView animateWithDuration:0.15 
                           delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{ 
                               CGRect otherFrame = self.noteVC.noteTextView.frame;
-                              otherFrame.size.height = 244;
+                              otherFrame.size.height = 264;
                               self.noteVC.noteTextView.frame = otherFrame;}
                      completion:^(BOOL success){}];
 }
