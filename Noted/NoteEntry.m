@@ -16,6 +16,7 @@
 @synthesize version = _version;
 @synthesize typeOfCell = _typeOfCell;
 @synthesize adding = _adding;
+@synthesize moving = _moving;
 
 -(id)initWithFileURL:(NSURL *)fileURL noteData:(NoteData *)noteData state:(UIDocumentState)state version:(NSFileVersion *)version {
     if ((self = [super init])) {

@@ -45,7 +45,7 @@
     self.noteVC = [[DetailViewController alloc] initWithNibName:@"DetailViewController" bundle:nil];
     self.noteVC.view.frame = CGRectMake(0,0,320,480);
     self.noteVC.delegate = self;
-    [self addAllGestures:self.noteVC.noteTextView];
+    [self addAllGestures];
     
     self.previousNoteVC = [[DetailViewController alloc] initWithNibName:@"DetailViewController" bundle:nil];
     self.previousNoteVC.delegate = self;
@@ -110,19 +110,19 @@
 }
 
 
--(void)addAllGestures: (UITextView *)textView {
+-(void)addAllGestures{
     // set up a two-finger pan recognizer as a dummy to steal two-finger scrolls from the scroll view
     // we initialize without a target or action because we don't want the two-finger pan to be handled
     UIPanGestureRecognizer *twoFingerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panLayer:)];
     twoFingerPan.minimumNumberOfTouches = 2;
     twoFingerPan.maximumNumberOfTouches = 2;
-    [textView addGestureRecognizer:twoFingerPan];
+    [self.noteVC.noteTextView addGestureRecognizer:twoFingerPan];
     
     
     UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panLayer:)];
     panRecognizer.maximumNumberOfTouches = 1;
     panRecognizer.minimumNumberOfTouches = 1;
-    [self.view addGestureRecognizer:panRecognizer];
+    [self.noteVC.view addGestureRecognizer:panRecognizer];
     
     
 }
@@ -278,6 +278,12 @@
             touchesOnScreen =2;
             NSLog(@"twofingers on screen");
         }
+        
+        //setup all the views
+        CGRect frame = self.addNoteMain.frame;
+        frame.origin = CGPointMake(320, 0);
+        self.addNoteMain.frame = frame;
+        
     }
     
     if (touchesOnScreen == 1){
@@ -422,13 +428,13 @@
                 }
             }
             
-            else if (point.x <= -160 || velocity.x <-1000) {
+            else if (point.x <= -160) {
                 
                 //panned to a new note
                 [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
                 [self.noteVC.noteTextView resignFirstResponder];
                 NSLog(@"Recognizing add gesture %f  %f",self.addNoteMain.frame.origin.x,point.x);
-                
+        //        [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
                 [self addNote];
                 
             } 

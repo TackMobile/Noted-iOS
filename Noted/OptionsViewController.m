@@ -7,12 +7,14 @@
 //
 
 #import "OptionsViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface OptionsViewController ()
 
 @end
 
 @implementation OptionsViewController
+@synthesize scrollView;
 
 @synthesize colorSubView,white,sky,lime,kernal,shadow,tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText,noteColorSchemes,optionColorSchemes;
 @synthesize delegate;
@@ -46,6 +48,14 @@
     
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
+    
+    self.scrollView.scrollEnabled = YES;
+    self.scrollView.bounces = YES;
+    
+    //make the corners
+    self.scrollView.layer.bounds = CGRectMake(0, 0, 320, 480);
+    self.scrollView.layer.cornerRadius = 6.5;
+    self.scrollView.layer.masksToBounds = YES;
     
 }
 
@@ -253,6 +263,7 @@
     [self setKernal:nil];
     [self setShadow:nil];
     [self setTack:nil];
+    [self setScrollView:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;

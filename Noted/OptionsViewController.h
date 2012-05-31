@@ -20,8 +20,9 @@
 
 @interface OptionsViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
-@property (weak, nonatomic) IBOutlet UIView *colorSubView;
+@property (weak, nonatomic) IBOutlet UIScrollView *colorSubView;
 @property (weak, nonatomic) IBOutlet UIView *white;
 @property (weak, nonatomic) IBOutlet UIView *sky;
 @property (weak, nonatomic) IBOutlet UIView *lime;

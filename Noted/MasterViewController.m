@@ -439,10 +439,10 @@
     
 }
 
-- (NoteDocument*)insertNewEntryAtIndex:(int)index {
+- (void)insertNewEntryAtIndex:(int)index {
     [_query disableUpdates];
-    NoteEntry *entry = [NoteEntry new];
     NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+    NoteEntry *entry = [NoteEntry new];
     NSLog(@"Want to create file at %@", fileURL);
     // Create new document and save to the filename
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
@@ -466,12 +466,15 @@
             
         // Add to the list of files on main thread
         dispatch_async(dispatch_get_main_queue(), ^{                
+            entry.fileURL = fileURL;
             entry.noteData = noteData;
             entry.state = state;
             entry.version = version;
             entry.adding = NO;
             [_objects insertObject:entry atIndex:index];
             //[self sortObjects];
+            self.noteKeyOpVC.notes = _objects;
+            [self.noteKeyOpVC openTheNote:doc];
             [_query enableUpdates];
             
         });
@@ -480,7 +483,7 @@
     //we don't close the document since this document is automatically opened in the notekeyoptionsVC (cannot close documents twice)
     
     
-    return doc;
+
 }
 
 - (void)deleteEntry:(NoteEntry *)entry {
@@ -995,33 +998,27 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
                 [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
                 cell.detailTextLabel.text = [dateFormatter stringFromDate:entry.version.modificationDate];
-            }
-            cell.textLabel.textColor = [UIColor whiteColor];
-            cell.contentView.backgroundColor = backgroundColor;
-            //    if (entry.state & UIDocumentStateInConflict) {
-            //        noteEntryCell.warningImageView.hidden = NO;
-            //    } else {
-            //        noteEntryCell.warningImageView.hidden = YES;
-            //    }
-            
-            return cell;
-            entry = nil;
-            
-        }else {
-            cell.textLabel.text = [NSString stringWithFormat:@"%@", (NSString *)object];
-            cell.detailTextLabel.text = @" ";
-            if ([object isEqual:DONE_CELL]) {
-                cell.textLabel.textColor = [UIColor grayColor];
-                cell.contentView.backgroundColor = [UIColor darkGrayColor];
-            } else if ([object isEqual:DUMMY_CELL]) {
+                cell.textLabel.textColor = [UIColor whiteColor];
+                cell.contentView.backgroundColor = backgroundColor;
+                //    if (entry.state & UIDocumentStateInConflict) {
+                //        noteEntryCell.warningImageView.hidden = NO;
+                //    } else {
+                //        noteEntryCell.warningImageView.hidden = YES;
+                //    }                    
+                cell.textLabel.text = [NSString stringWithFormat:@"%@", (NSString *)object];
+                cell.detailTextLabel.text = @" ";
+            }else if (entry.moving) {
                 cell.textLabel.text = @"";
                 cell.contentView.backgroundColor = [UIColor clearColor];
             } else {
                 cell.textLabel.textColor = [UIColor whiteColor];
                 cell.contentView.backgroundColor = backgroundColor;
             }
+            
             return cell;
         }
+        
+        return cell;
     }
 }
 
@@ -1108,9 +1105,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 }
 
 -(void)addNoteAtIndex:(int)index {
-  _selDocument =  [self insertNewEntryAtIndex:index];
-    self.noteKeyOpVC.notes = _objects;
-    [self.noteKeyOpVC openTheNote:_selDocument];
+    [self insertNewEntryAtIndex:index];
 }
 
 
@@ -1242,7 +1237,11 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsCreatePlaceholderForRowAtIndexPath:(NSIndexPath *)indexPath {
     self.grabbedObject = [_objects objectAtIndex:indexPath.row];
-    [_objects replaceObjectAtIndex:indexPath.row withObject:DUMMY_CELL];
+    NSURL * fileURL = [self getDocURL:[self getDocFilename:@"Note" uniqueInObjects:YES]];
+    NoteEntry * entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:nil state:UIDocumentStateClosed version:nil];
+    entry.adding = NO;
+    entry.moving = YES;
+    [_objects replaceObjectAtIndex:indexPath.row withObject:entry];
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsMoveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath {
