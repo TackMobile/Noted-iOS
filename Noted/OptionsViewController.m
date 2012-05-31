@@ -212,6 +212,10 @@
     [self.delegate sendEmail];
 }
 
+- (IBAction)sendSMS:(id)sender {
+    [self.delegate sendSMS];
+}
+
 - (IBAction)sendTweet:(id)sender {
     [self.delegate sendTweet];
 }

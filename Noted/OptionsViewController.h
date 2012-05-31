@@ -13,6 +13,7 @@
 -(void)openAbout;
 -(void)sendEmail;
 -(void)sendTweet;
+-(void)sendSMS;
 -(void)returnToOptions;
 
 @end
@@ -50,6 +51,7 @@
 - (IBAction)openShare:(id)sender;
 - (IBAction)openSettings:(id)sender;
 - (IBAction)sendEmail:(id)sender;
+- (IBAction)sendSMS:(id)sender;
 - (IBAction)sendTweet:(id)sender;
 - (IBAction)visitSite:(id)sender;
 - (IBAction)followTack:(id)sender;

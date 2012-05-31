@@ -645,7 +645,7 @@
 
 
 #pragma mark - 
-#pragma mark Messaging (Email/SMS/Tweet
+#pragma mark Messaging (Email/SMS/Tweet)
 
 -(void)sendEmail {
     self.mailVC = [[MFMailComposeViewController alloc] init];
@@ -656,13 +656,13 @@
     NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",self.noteVC.noteTextView.text,@"Sent from Noted"];
 	[self.mailVC setSubject:noteTitle];
 	[self.mailVC setMessageBody:body isHTML:NO];
-    //   [self presentModalViewController:email animated:NO];
-    [self.view addSubview:self.mailVC.view];
+    [self presentModalViewController:self.mailVC animated:NO];
+ //   [self.view addSubview:self.mailVC.view];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
-    //	[self dismissModalViewControllerAnimated:YES];
-    [controller.view removeFromSuperview];
+    [self dismissModalViewControllerAnimated:YES];
+    //[controller.view removeFromSuperview];
 }
 
 - (void)sendSMS{
@@ -671,16 +671,21 @@
     {
         MFMessageComposeViewController *messageViewController = [[MFMessageComposeViewController alloc] init];
         messageViewController.body = self.noteVC.noteTextView.text;   
-        messageViewController.recipients = [NSArray arrayWithObject:@"3037956278"];
         messageViewController.messageComposeDelegate = self;
+        messageViewController.wantsFullScreenLayout = NO;
         //SET RECIPIENTS
-        [self presentViewController:messageViewController animated:YES completion:nil];
-        //  [self presentModalViewController:messageViewController animated:NO];
-    }    
+        [self presentModalViewController:messageViewController animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }  
+    else {
+        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send text messages."];
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        [alertView show];
+    }
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissModalViewControllerAnimated:YES];
     
     if (result == MessageComposeResultCancelled){
         NSLog(@"Message cancelled");
@@ -706,11 +711,10 @@
         {
             // Dismiss the controller
             [self dismissModalViewControllerAnimated:NO];
-            //[self.twitterVC.view removeFromSuperview];
         };
         
         [self presentModalViewController:tweetViewController animated:NO];
-        //[self.view addSubview:self.twitterVC.view];
+
     }
     
 }
