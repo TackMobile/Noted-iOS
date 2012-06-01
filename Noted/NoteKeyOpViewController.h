@@ -15,7 +15,6 @@
 #import <Twitter/Twitter.h>
 
 @protocol NoteKeyOpViewControllerDelegate <NSObject>
-
 -(void)closeNote;
 -(void)addNoteAtIndex:(int)index;
 @end

@@ -138,11 +138,9 @@
         }
     }
     int howManyNotes = [self.notes count];
-
- //   NSUInteger location = [self.notes indexOfObject:aNote];
+    
+    //   NSUInteger location = [self.notes indexOfObject:aNote];
     if (howManyNotes == 1) {
-        self.previousNoteVC.note = aNote;
-        self.nextNoteVC.note = aNote;
         self.previousNoteVC.view.alpha = 0;
         self.nextNoteVC.view.alpha = 0;
         
@@ -165,7 +163,7 @@
                     [self.openedNoteDocuments addObject:nextDocument];
                 });
             }];
-
+            
         }else if((currentNoteIndex+1)==howManyNotes){
             //end of list
             NoteEntry *previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
@@ -203,23 +201,28 @@
             }];
         }
     }
-    [self.noteVC viewWillAppear:YES];
-    [self.previousNoteVC viewWillAppear:YES];
-    [self.nextNoteVC viewWillAppear:YES];
-    self.noteVC.view.frame = CGRectMake(0,0,320,480);
-    self.previousNoteVC.view.frame = CGRectMake(320,0,320,480);
-    self.nextNoteVC.view.frame = CGRectMake(0,0,320,480);
-    self.addNoteMain.frame = CGRectMake(320,0,320,480);
+    [aNote openWithCompletionHandler:^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.noteVC.note = aNote;
+            [self.openedNoteDocuments addObject:aNote];
+            [self.noteVC viewWillAppear:YES];
+            [self.previousNoteVC viewWillAppear:YES];
+            [self.nextNoteVC viewWillAppear:YES];
+            self.noteVC.view.frame = CGRectMake(0,0,320,480);
+            self.previousNoteVC.view.frame = CGRectMake(320,0,320,480);
+            self.nextNoteVC.view.frame = CGRectMake(0,0,320,480);
+            self.addNoteMain.frame = CGRectMake(320,0,320,480);
+            
+            self.noteVC.noteTextView.inputView = self.keyboardVC.view;
+            [self.view addSubview:self.nextNoteVC.view];
+            [self.view addSubview:self.optionsVC.view];
+            [self.view addSubview:self.noteVC.view];
+            [self.view addSubview:self.previousNoteVC.view];
+            [self.view addSubview:self.addNoteMain];
+            [self.view bringSubviewToFront:self.addNoteMain];
+        });
+    }];
     
-    //   self.scrollView.frame = CGRectMake(0, -480, 320, 480);
-    
-    self.noteVC.noteTextView.inputView = self.keyboardVC.view;
-    [self.view addSubview:self.nextNoteVC.view];
-    [self.view addSubview:self.optionsVC.view];
-    [self.view addSubview:self.noteVC.view];
-    [self.view addSubview:self.previousNoteVC.view];
-    [self.view addSubview:self.addNoteMain];
-    [self.view bringSubviewToFront:self.addNoteMain];
     
 }
 
@@ -290,7 +293,7 @@
             if (point.x <0 && (fabs(4*point.x) >= fabs(point.y)) && velocity.x > -500) {
                 NSLog(@"recognizing right to left pan in noteList");
                 //if only 1 note
-                if(self.previousNoteVC.note == self.noteVC.note) {
+                if(self.previousNoteVC.note == self.noteVC.note && self.previousNoteVC == self.nextNoteVC) {
                     
                     CGRect otherFrame = self.noteVC.view.frame;
                     otherFrame.origin.x = 0 + point.x;
@@ -314,7 +317,7 @@
                 NSLog(@"recognizing left to right pan in NoteList");
                 
                 //if only 1 note
-                if(self.previousNoteVC.note == self.noteVC.note) {
+                if(self.previousNoteVC.note == self.noteVC.note && self.previousNoteVC == self.nextNoteVC) {
                     
                     CGRect otherFrame = self.noteVC.view.frame;
                     otherFrame.origin.x = 0 + point.x;
@@ -344,7 +347,7 @@
     
     if (touchesOnScreen == 1) {
         if (pan.state == UIGestureRecognizerStateEnded) {
-            if (self.previousNoteVC.note == self.noteVC.note) {
+            if (self.previousNoteVC.note == self.noteVC.note && self.previousNoteVC == self.nextNoteVC) {
                 //first and only note
                 [self animateLayer:self.noteVC.view toPoint:0 withNote:nil];
                 [self animateLayer:self.previousNoteVC.view toPoint:320 withNote:nil];
@@ -570,6 +573,8 @@
 
 - (void) shiftViewUpForKeyboard: (NSNotification*) theNotification;
 {
+    self.noteVC.absoluteTimeText.hidden = YES;
+    self.noteVC.relativeTimeText.hidden = YES;
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -580,12 +585,14 @@
 
 - (void) shiftViewDownAfterKeyboard;
 {
+    self.noteVC.absoluteTimeText.hidden = NO;
+    self.noteVC.relativeTimeText.hidden = NO;
     [self animateLayerY:self.keyboardVC.view toPoint:216];
     [UIView animateWithDuration:0.15 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.noteVC.noteTextView.frame = CGRectMake(0, 20, 320, 480);
+                         self.noteVC.noteTextView.frame = CGRectMake(0, 10, 320, 480);
                      } completion:^(BOOL success){
                          [self.noteVC.noteTextView resignFirstResponder]; 
                      }];

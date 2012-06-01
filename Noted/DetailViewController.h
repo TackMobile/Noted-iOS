@@ -13,6 +13,7 @@
 
 
 @protocol SingleNoteDelegate <NSObject>
+@optional
 -(void)openOptions;
 -(void)noteTouched;
 @end
