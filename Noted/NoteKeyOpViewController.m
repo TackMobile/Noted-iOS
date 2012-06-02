@@ -397,8 +397,8 @@
                 self.noteVC.view.frame = otherFrame;
             }
             //panning from left to right
-            // else if (point.x >0 && (fabs(2*point.x) >= fabs(point.y))) {
-            else {
+             else if (point.x >0 && (fabs(2*point.x) >= fabs(point.y))) {
+           
                 NSLog(@"recognizing left to right pan (two finger)");
                 self.noteVC.view.hidden = YES;
                 for (int k = 0; k < [deletingViews count]; k++) {
