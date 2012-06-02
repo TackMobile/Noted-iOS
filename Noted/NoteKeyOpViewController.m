@@ -11,6 +11,7 @@
 #import "NoteEntry.h"
 #import "UIColor+HexColor.h"
 #import "Utilities.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface NoteKeyOpViewController ()
 
@@ -38,6 +39,7 @@
     //defaults
     optionsShowing = NO;
     self.openedNoteDocuments = [NSMutableArray new];
+    deletingViews = [NSMutableArray new];
     
     self.optionsVC = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
     self.optionsVC.view.frame = CGRectMake(-320, 0, 320, 480);
@@ -113,7 +115,7 @@
     // we initialize without a target or action because we don't want the two-finger pan to be handled
     UIPanGestureRecognizer *twoFingerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panLayer:)];
     twoFingerPan.minimumNumberOfTouches = 2;
-    twoFingerPan.maximumNumberOfTouches = 2;
+    twoFingerPan.maximumNumberOfTouches = 10;
     [self.noteVC.noteTextView addGestureRecognizer:twoFingerPan];
     
     
@@ -126,85 +128,12 @@
 }
 
 -(void)openTheNote:(NoteDocument*)aNote{
-    self.noteVC.note = aNote;
-    self.previousNoteVC.view.alpha = 1;
-    self.nextNoteVC.view.alpha = 1;
     
-    currentNoteIndex = 0;
-    for (NoteEntry *entry in self.notes) {
-        if (entry.fileURL == aNote.fileURL) {
-            currentNoteIndex = [self.notes indexOfObject:entry];
-            break;
-        }
-    }
-    int howManyNotes = [self.notes count];
-    
-    //   NSUInteger location = [self.notes indexOfObject:aNote];
-    if (howManyNotes == 1) {
-        self.previousNoteVC.view.alpha = 0;
-        self.nextNoteVC.view.alpha = 0;
-        
-    }else {
-        //beginning of list
-        if(currentNoteIndex == 0) {
-            NoteEntry *previousEntry = [self.notes objectAtIndex:(howManyNotes -1)];
-            NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
-            NoteEntry *nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
-            NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
-            [previousDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.previousNoteVC.note = previousDocument;
-                    [self.openedNoteDocuments addObject:previousDocument];
-                });
-            }];
-            [nextDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.nextNoteVC.note = nextDocument;
-                    [self.openedNoteDocuments addObject:nextDocument];
-                });
-            }];
-            
-        }else if((currentNoteIndex+1)==howManyNotes){
-            //end of list
-            NoteEntry *previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
-            NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
-            NoteEntry *nextEntry = [self.notes objectAtIndex:(0)];
-            NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
-            [previousDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.previousNoteVC.note = previousDocument;
-                    [self.openedNoteDocuments addObject:previousDocument];
-                });
-            }];
-            [nextDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.nextNoteVC.note = nextDocument;
-                    [self.openedNoteDocuments addObject:nextDocument];
-                });
-            }];
-        }else {
-            NoteEntry *previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
-            NoteDocument *previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
-            NoteEntry *nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
-            NoteDocument *nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
-            [previousDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.previousNoteVC.note = previousDocument;
-                    [self.openedNoteDocuments addObject:previousDocument];
-                });
-            }];
-            [nextDocument openWithCompletionHandler:^(BOOL success) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.nextNoteVC.note = nextDocument;
-                    [self.openedNoteDocuments addObject:nextDocument];
-                });
-            }];
-        }
-    }
-    [aNote openWithCompletionHandler:^(BOOL success) {
+    NoteDocument *newNote = [[NoteDocument alloc] initWithFileURL:aNote.fileURL];
+    [newNote openWithCompletionHandler:^(BOOL success) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.noteVC.note = aNote;
-            [self.openedNoteDocuments addObject:aNote];
+            [self.noteVC.note closeWithCompletionHandler:^(BOOL success){}];
+            self.noteVC.note = newNote;
             [self.noteVC viewWillAppear:YES];
             [self.previousNoteVC viewWillAppear:YES];
             [self.nextNoteVC viewWillAppear:YES];
@@ -223,6 +152,60 @@
         });
     }];
     
+    self.previousNoteVC.view.alpha = 1;
+    self.nextNoteVC.view.alpha = 1;
+    
+    currentNoteIndex = 0;
+    for (NoteEntry *entry in self.notes) {
+        if (entry.fileURL == aNote.fileURL) {
+            currentNoteIndex = [self.notes indexOfObject:entry];
+            break;
+        }
+    }
+    
+    int howManyNotes = [self.notes count];
+    
+    //   NSUInteger location = [self.notes indexOfObject:aNote];
+    if (howManyNotes == 1) {
+        self.previousNoteVC.view.alpha = 0;
+        self.nextNoteVC.view.alpha = 0;
+        
+    }else {
+        NoteEntry *previousEntry = nil;
+        NoteDocument *previousDocument = nil;
+        NoteEntry *nextEntry = nil;
+        NoteDocument *nextDocument = nil;        
+        
+        //beginning of list
+        if(currentNoteIndex == 0) {
+            previousEntry = [self.notes objectAtIndex:(howManyNotes -1)];
+            nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
+        }else if((currentNoteIndex+1)==howManyNotes){
+            //end of list
+            previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
+            nextEntry = [self.notes objectAtIndex:(0)];
+
+        }else {
+            previousEntry = [self.notes objectAtIndex:(currentNoteIndex -1)];
+            nextEntry = [self.notes objectAtIndex:(currentNoteIndex +1)];
+        }
+        
+        previousDocument = [[NoteDocument alloc] initWithFileURL:previousEntry.fileURL];
+        nextDocument = [[NoteDocument alloc] initWithFileURL:nextEntry.fileURL];
+        [previousDocument openWithCompletionHandler:^(BOOL success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.previousNoteVC.note = previousDocument;
+                [previousDocument closeWithCompletionHandler:nil];
+            });
+        }];
+        [nextDocument openWithCompletionHandler:^(BOOL success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.nextNoteVC.note = nextDocument;
+                [nextDocument closeWithCompletionHandler:nil];
+            });
+        }];
+
+    }
     
 }
 
@@ -272,12 +255,35 @@
     CGPoint velocity = [pan velocityInView:self.view];
     
     if (pan.state == UIGestureRecognizerStateBegan) {
-        
+
         if (pan.numberOfTouches == 1) {
             touchesOnScreen = 1;
-        }else if (pan.numberOfTouches == 2) {
+        }else if (pan.numberOfTouches >= 2) {
             touchesOnScreen =2;
-            NSLog(@"twofingers on screen");
+            int numberOfTouches = pan.numberOfTouches;
+            CGRect rect = CGRectMake(0, 0, 320, 480);
+            UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+            CGContextRef context = UIGraphicsGetCurrentContext();
+            [self.noteVC.view.layer renderInContext:context];   
+            UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            
+            // Create and show the new image from bitmap data
+            for (int k = 0; k <= numberOfTouches; k++) {
+                
+                CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouches+1), 320,480/(numberOfTouches+1));       
+                CGImageRef imageRef = CGImageCreateWithImageInRect([viewImage CGImage], cropRect);
+                UIImage *croppedImage = [UIImage imageWithCGImage:imageRef];
+                CGImageRelease(imageRef);
+
+                
+                UIImageView *imageView = [[UIImageView alloc] initWithImage:croppedImage];
+                imageView.frame = CGRectMake(0, (480*k)/(numberOfTouches+1), 320, 480/(numberOfTouches+1));
+                [deletingViews addObject:imageView];
+                imageView.hidden = YES;
+                [self.view addSubview:imageView];                
+            }
+
         }
         
         //setup all the views
@@ -375,57 +381,87 @@
         }
     }
     
-    if (touchesOnScreen == 2){
+    if (touchesOnScreen >= 2){
         if (pan.state == UIGestureRecognizerStateChanged) {
             //panning from right to left
             if (point.x <0 && (fabs(2*point.x) >= fabs(point.y))) {
-                NSLog(@"recognizing right to left 2pan");
+                NSLog(@"recognizing right to left pan (two finger)");
                 CGRect frame = self.addNoteMain.frame;
                 frame.origin.x =  320 + point.x;
                 if (frame.origin.x > 320) frame.origin.x = 320;
                 self.addNoteMain.frame = frame;
                 
                 //make sure the other layer is offscreen
-      //          CGRect otherFrame = self.noteVC.view.frame;
-      //          otherFrame.origin.x = 0;
-      //          self.noteVC.view.frame = otherFrame;
-     //           self.trashNoteView.hidden = YES;
+                CGRect otherFrame = self.noteVC.view.frame;
+                otherFrame.origin.x = 0;
+                self.noteVC.view.frame = otherFrame;
             }
-//            //panning from left to right
-//            else if (point.x >0 && (fabs(2*point.x) >= fabs(point.y))) {
-//                NSLog(@"recognizing left to right 2pan");
-//                [self.view bringSubviewToFront:self.trashNoteView];
-//                self.trashNoteView.hidden = NO;
-//                if (point.x>160) {
-//                    self.trashNoteView.text = @"Release to Trash";
-//                }
-//            } else {
-//                NSLog(@"recognizing top to bottom 2pan");
-//                [self panNote:point];
-//                
-//                CGRect otherFrame = self.addNoteMain.frame;
-//                otherFrame.origin.x = 320;
-//                self.addNoteMain.frame = otherFrame;
-//            }
-//            
-//            if (point.x< 160) {
-//                self.trashNoteView.text = @"Trashing note...keep going";
-//            }
+            //panning from left to right
+            // else if (point.x >0 && (fabs(2*point.x) >= fabs(point.y))) {
+            else {
+                NSLog(@"recognizing left to right pan (two finger)");
+                self.noteVC.view.hidden = YES;
+                for (int k = 0; k < [deletingViews count]; k++) {
+                    double middle = deletingViews.count/2.0;
+                    UIImageView *view = [deletingViews objectAtIndex:k];
+                    view.hidden = NO;
+                    CGRect frame = view.frame;
+                    frame.origin.x = 0 + (point.x);
+                    if (k < [deletingViews count]/2.0) {
+                        frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+                    }else {
+                        frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+                    }
+                    if (frame.origin.x < 0) {
+                        frame.origin.x = 0;
+                    }
+                    view.frame = frame;
+                }
+                //                if (point.x>160) {
+                //                }
+            } 
+            //            else {
+            //                NSLog(@"recognizing top to bottom pan (two finger)");
+            //                
+            //                CGRect otherFrame = self.addNoteMain.frame;
+            //                otherFrame.origin.x = 320;
+            //                self.addNoteMain.frame = otherFrame;
+            //            }
         }
         
         
         
         if (pan.state == UIGestureRecognizerStateEnded) {
-            CGPoint velocity = [pan velocityInView:self.view];
+//            CGPoint velocity = [pan velocityInView:self.view];
             
-            if ( fabs(point.x) <= 160 && fabs(velocity.x) <1000) {
+            if (fabs(point.x) <= 160) {
                 if (point.y >= 100) {
                     //closing note
-                    [self.delegate closeNote];
+                    [self closeNote];
                     
                 }else {
                     //do nothing
                     [self animateLayer:self.addNoteMain toPoint:320 withNote:nil];
+                    
+                    for (int k = 0; k < [deletingViews count]; k++) {
+                        UIView *view = [deletingViews objectAtIndex:k];
+                        [UIView animateWithDuration:0.25
+                                              delay:0 
+                                            options:UIViewAnimationOptionCurveEaseOut 
+                                         animations:^{
+                                             CGRect frame = view.frame;
+                                             frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
+                                             view.frame = frame;
+                                         }
+                                         completion:^(BOOL finished){
+                                             
+                                             
+                                             self.noteVC.view.hidden = NO;
+                                             [view removeFromSuperview];
+                                         }];
+                    }
+                    
+                    [deletingViews removeAllObjects];
                 }
             }
             
@@ -435,23 +471,40 @@
                 [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
                 [self.noteVC.noteTextView resignFirstResponder];
                 NSLog(@"Recognizing add gesture %f  %f",self.addNoteMain.frame.origin.x,point.x);
-        //        [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
+                //        [self animateLayer:self.addNoteMain toPoint:0 withNote:nil];
                 [self addNote];
                 
-            } 
+            } else if (point.x > 160){
+            //                //panned to trash
+            //                
+            for (int k = 0; k < [deletingViews count]; k++) {
+                UIView *view = [deletingViews objectAtIndex:k];
+                [UIView animateWithDuration:0.25
+                                      delay:0 
+                                    options:UIViewAnimationOptionCurveEaseOut 
+                                 animations:^{
+                                     CGRect frame = view.frame;
+                                     frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
+                                     view.frame = frame;
+                                 }
+                                 completion:^(BOOL finished){
+                                     
+                                     
+                                     self.noteVC.view.hidden = NO;
+                                     [view removeFromSuperview];
+                                 }];
+            }
+            
+            [deletingViews removeAllObjects];
+            //                [self.nvc.noteTextView resignFirstResponder];
+            //                NSLog(@"Recognizing trash gesture");
+            //                [self trashNote:self.nvc.note];
+            //                
+            //            } 
+            //            self.trashNoteView.hidden = YES;
+            //            self.trashNoteView.text = @"Trashing note...keep going";
+            }
         }
-                //else if (point.x > 160){
-//                //panned to trash
-//                
-//                [self.nvc.noteTextView resignFirstResponder];
-//                NSLog(@"Recognizing trash gesture");
-//                [self trashNote:self.nvc.note];
-//                
-//            } 
-//            self.trashNoteView.hidden = YES;
-//            self.trashNoteView.text = @"Trashing note...keep going";
-//        }
-//        
     }
 }
 
@@ -523,6 +576,11 @@
     
     int index = currentNoteIndex;
     [self.delegate addNoteAtIndex:index];
+}
+
+-(void)closeNote {
+    [self.noteVC.note closeWithCompletionHandler:nil];
+    [self.delegate closeNote];
 }
 
 
@@ -790,11 +848,4 @@
 }
 
 
-
-
-- (void)viewDidUnload {
-    [self setAddNoteMain:nil];
-    [self setAddNoteCorners:nil];
-    [super viewDidUnload];
-}
 @end

@@ -23,6 +23,7 @@
     int touchesOnScreen;
     int currentNoteIndex;
     BOOL optionsShowing;
+    NSMutableArray *deletingViews;
 }
 
 @property (strong,nonatomic)NSMutableArray *notes;

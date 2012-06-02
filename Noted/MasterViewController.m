@@ -1070,12 +1070,13 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
             NSLog(@"Selected doc with state: %@", [self stringForState:_selDocument.documentState]);
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.noteKeyOpVC = [NoteKeyOpViewController new];
-                self.noteKeyOpVC.notes = _objects;
-                [self.noteKeyOpVC openTheNote:_selDocument];
-                self.noteKeyOpVC.delegate = self;
-                [self presentModalViewController:self.noteKeyOpVC animated:YES];
-                
+                [_selDocument closeWithCompletionHandler:^(BOOL success) {                
+                    self.noteKeyOpVC = [NoteKeyOpViewController new];
+                    self.noteKeyOpVC.notes = _objects;
+                    [self.noteKeyOpVC openTheNote:_selDocument];
+                    self.noteKeyOpVC.delegate = self;
+                    [self presentModalViewController:self.noteKeyOpVC animated:YES];
+                }];
             });
         }];
 
@@ -1093,19 +1094,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 -(void)closeNote {
     [self dismissModalViewControllerAnimated:YES];
     
-    [_selDocument closeWithCompletionHandler:nil];
-//    for (NoteDocument *doc in self.noteKeyOpVC.openedNoteDocuments) {
-//        if (doc.documentState != UIDocumentStateClosed) {
-//            [_selDocument closeWithCompletionHandler:^(BOOL success) {
-//                
-//                // Check status
-//                if (!success) {
-//                    NSLog(@"Failed to close %@", _selDocument.fileURL);
-//                    // Continue anyway...
-//                }
-//            }];
-//        }
-//    }
     self.noteKeyOpVC = nil;
     _selDocument = nil;
     [self refresh];
