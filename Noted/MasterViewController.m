@@ -8,7 +8,6 @@
 
 #import "MasterViewController.h"
 #import "DetailViewController.h"
-#import "NoteTableViewController.h"
 #import "ConflictViewController.h"
 #import "NoteDocument.h"
 #import "NoteEntry.h"

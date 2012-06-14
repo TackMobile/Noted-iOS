@@ -35,8 +35,6 @@
 		29960C881574103F0054347A /* TransformableNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C871574103F0054347A /* TransformableNoteCell.m */; };
 		29960C8A157413020054347A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29960C89157413010054347A /* QuartzCore.framework */; };
 		29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8C157418850054347A /* NoteTableGestureRecognizer.m */; };
-		29960C91157420390054347A /* NoteTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8F157420380054347A /* NoteTableViewController.m */; };
-		29960C92157420390054347A /* NoteTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29960C90157420390054347A /* NoteTableViewController.xib */; };
 		29E326BF157554820013399B /* EnglishKeyboard.plist in Resources */ = {isa = PBXBuildFile; fileRef = 29E326BE157554820013399B /* EnglishKeyboard.plist */; };
 		29E326D3157556920013399B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 29E326C1157556920013399B /* Icon.png */; };
 		29E326D4157556920013399B /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 29E326C2157556920013399B /* Icon@2x.png */; };
@@ -114,9 +112,6 @@
 		29960C89157413010054347A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		29960C8B157418850054347A /* NoteTableGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteTableGestureRecognizer.h; path = Noted/NoteTableGestureRecognizer.h; sourceTree = "<group>"; };
 		29960C8C157418850054347A /* NoteTableGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteTableGestureRecognizer.m; path = Noted/NoteTableGestureRecognizer.m; sourceTree = "<group>"; };
-		29960C8E157420380054347A /* NoteTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteTableViewController.h; sourceTree = "<group>"; };
-		29960C8F157420380054347A /* NoteTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteTableViewController.m; sourceTree = "<group>"; };
-		29960C90157420390054347A /* NoteTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteTableViewController.xib; sourceTree = "<group>"; };
 		29E326BE157554820013399B /* EnglishKeyboard.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = EnglishKeyboard.plist; sourceTree = "<group>"; };
 		29E326C1157556920013399B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		29E326C2157556920013399B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
@@ -232,9 +227,6 @@
 				29960C6C1573F6CF0054347A /* ConflictViewController.h */,
 				29960C6D1573F6CF0054347A /* ConflictViewController.m */,
 				29960C6E1573F6CF0054347A /* ConflictViewController.xib */,
-				29960C8E157420380054347A /* NoteTableViewController.h */,
-				29960C8F157420380054347A /* NoteTableViewController.m */,
-				29960C90157420390054347A /* NoteTableViewController.xib */,
 				29914F10157530A70029D170 /* NoteKeyOpViewController.h */,
 				29914F11157530A70029D170 /* NoteKeyOpViewController.m */,
 				29914F12157530A70029D170 /* NoteKeyOpViewController.xib */,
@@ -418,7 +410,6 @@
 				29960C651573F4BF0054347A /* warning.png in Resources */,
 				29960C701573F6CF0054347A /* ConflictViewController.xib in Resources */,
 				29960C721573F7180054347A /* ConflictCell.xib in Resources */,
-				29960C92157420390054347A /* NoteTableViewController.xib in Resources */,
 				29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */,
 				29E326BF157554820013399B /* EnglishKeyboard.plist in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
@@ -468,7 +459,6 @@
 				29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */,
 				29960C881574103F0054347A /* TransformableNoteCell.m in Sources */,
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
-				29960C91157420390054347A /* NoteTableViewController.m in Sources */,
 				29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 			);
