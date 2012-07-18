@@ -1,4 +1,32 @@
+integration/results
+instrumentscli*
+bundler_bin
+integration/tmp
+
+\.\#*
+# Emacs and Vim
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.*.sw[a-z]
+*.un~
+
+# Mac
+.DS_Store
+Icon?
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
 # Xcode
+build
 build/*
 *.pbxuser
 !default.pbxuser
@@ -9,6 +37,7 @@ build/*
 *.perspectivev3
 !default.perspectivev3
 *.xcworkspace
+!Noted.xcworkspace
 !default.xcworkspace
 xcuserdata
 profile
