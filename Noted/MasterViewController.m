@@ -8,7 +8,6 @@
 
 #import "MasterViewController.h"
 #import "DetailViewController.h"
-#import "ConflictViewController.h"
 #import "NoteDocument.h"
 #import "NoteEntry.h"
 #import "NoteData.h"
@@ -1005,12 +1004,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 cell.absoluteTimeText.text = [Utilities formatDate:entry.version.modificationDate];
                 cell.textLabel.textColor = [UIColor whiteColor];
                 cell.contentView.backgroundColor = backgroundColor;
-                //    if (entry.state & UIDocumentStateInConflict) {
-                //        noteEntryCell.warningImageView.hidden = NO;
-                //    } else {
-                //        noteEntryCell.warningImageView.hidden = YES;
-                //    }                    
-             //   cell.textLabel.text = [NSString stringWithFormat:@"%@", (NSString *)object];
            
             }else if (entry.moving) {
                 cell.textLabel.text = @"";
@@ -1055,15 +1048,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
     
     NoteEntry * entry = [_objects objectAtIndex:indexPath.row];
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    
-//    if (entry.state & UIDocumentStateInConflict) {
-//        
-//        _selURL = entry.fileURL;
-//        ConflictViewController *conflictViewController = [ConflictViewController new];
-//        conflictViewController.fileURL = entry.fileURL;
-//        [self.navigationController pushViewController:conflictViewController animated:YES];
-//        
-//    } else {
         _selDocument = [[NoteDocument alloc] initWithFileURL:entry.fileURL];    
         [_selDocument openWithCompletionHandler:^(BOOL success) {
             NSLog(@"Selected doc with state: %@", [self stringForState:_selDocument.documentState]);

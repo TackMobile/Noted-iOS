@@ -26,11 +26,6 @@
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C5B1573E2860054347A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 29960C5A1573E2860054347A /* Settings.bundle */; };
 		29960C651573F4BF0054347A /* warning.png in Resources */ = {isa = PBXBuildFile; fileRef = 29960C641573F4BF0054347A /* warning.png */; };
-		29960C6F1573F6CF0054347A /* ConflictViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C6D1573F6CF0054347A /* ConflictViewController.m */; };
-		29960C701573F6CF0054347A /* ConflictViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29960C6E1573F6CF0054347A /* ConflictViewController.xib */; };
-		29960C721573F7180054347A /* ConflictCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29960C711573F7180054347A /* ConflictCell.xib */; };
-		29960C751573F78B0054347A /* ConflictCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C741573F78B0054347A /* ConflictCell.m */; };
-		29960C781573F8300054347A /* NoteConflictEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C771573F8300054347A /* NoteConflictEntry.m */; };
 		29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+HexColor.m */; };
 		29960C881574103F0054347A /* TransformableNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C871574103F0054347A /* TransformableNoteCell.m */; };
 		29960C8A157413020054347A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29960C89157413010054347A /* QuartzCore.framework */; };
@@ -97,14 +92,6 @@
 		29960C581573E1190054347A /* Noted.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Noted.entitlements; sourceTree = "<group>"; };
 		29960C5A1573E2860054347A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		29960C641573F4BF0054347A /* warning.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = warning.png; sourceTree = "<group>"; };
-		29960C6C1573F6CF0054347A /* ConflictViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConflictViewController.h; sourceTree = "<group>"; };
-		29960C6D1573F6CF0054347A /* ConflictViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConflictViewController.m; sourceTree = "<group>"; };
-		29960C6E1573F6CF0054347A /* ConflictViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConflictViewController.xib; sourceTree = "<group>"; };
-		29960C711573F7180054347A /* ConflictCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConflictCell.xib; sourceTree = "<group>"; };
-		29960C731573F78B0054347A /* ConflictCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConflictCell.h; sourceTree = "<group>"; };
-		29960C741573F78B0054347A /* ConflictCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConflictCell.m; sourceTree = "<group>"; };
-		29960C761573F8300054347A /* NoteConflictEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteConflictEntry.h; sourceTree = "<group>"; };
-		29960C771573F8300054347A /* NoteConflictEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteConflictEntry.m; sourceTree = "<group>"; };
 		29960C7F15740F2D0054347A /* UIColor+HexColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+HexColor.h"; path = "Noted/UIColor+HexColor.h"; sourceTree = "<group>"; };
 		29960C8015740F2D0054347A /* UIColor+HexColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+HexColor.m"; path = "Noted/UIColor+HexColor.m"; sourceTree = "<group>"; };
 		29960C861574103F0054347A /* TransformableNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformableNoteCell.h; sourceTree = "<group>"; };
@@ -190,9 +177,6 @@
 				298EBFED157020DA00B72F5C /* NoteEntryCell.h */,
 				298EBFEE157020DA00B72F5C /* NoteEntryCell.m */,
 				298EBFF1157021CC00B72F5C /* NoteEntryCell.xib */,
-				29960C711573F7180054347A /* ConflictCell.xib */,
-				29960C731573F78B0054347A /* ConflictCell.h */,
-				29960C741573F78B0054347A /* ConflictCell.m */,
 				29960C861574103F0054347A /* TransformableNoteCell.h */,
 				29960C871574103F0054347A /* TransformableNoteCell.m */,
 			);
@@ -224,9 +208,6 @@
 				298EC0041570415700B72F5C /* OptionsViewController.h */,
 				298EC0051570415700B72F5C /* OptionsViewController.m */,
 				298EC0061570415700B72F5C /* OptionsViewController.xib */,
-				29960C6C1573F6CF0054347A /* ConflictViewController.h */,
-				29960C6D1573F6CF0054347A /* ConflictViewController.m */,
-				29960C6E1573F6CF0054347A /* ConflictViewController.xib */,
 				29914F10157530A70029D170 /* NoteKeyOpViewController.h */,
 				29914F11157530A70029D170 /* NoteKeyOpViewController.m */,
 				29914F12157530A70029D170 /* NoteKeyOpViewController.xib */,
@@ -319,8 +300,6 @@
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
 				298EBFE11570073F00B72F5C /* NoteEntry.h */,
 				298EBFE21570073F00B72F5C /* NoteEntry.m */,
-				29960C761573F8300054347A /* NoteConflictEntry.h */,
-				29960C771573F8300054347A /* NoteConflictEntry.m */,
 			);
 			path = Noted;
 			sourceTree = "<group>";
@@ -408,8 +387,6 @@
 				298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */,
 				29960C5B1573E2860054347A /* Settings.bundle in Resources */,
 				29960C651573F4BF0054347A /* warning.png in Resources */,
-				29960C701573F6CF0054347A /* ConflictViewController.xib in Resources */,
-				29960C721573F7180054347A /* ConflictCell.xib in Resources */,
 				29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */,
 				29E326BF157554820013399B /* EnglishKeyboard.plist in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
@@ -453,9 +430,6 @@
 				298EBFFA15702B5C00B72F5C /* KeyboardKey.m in Sources */,
 				298EC00215702C6F00B72F5C /* KeyboardViewController.m in Sources */,
 				298EC0071570415800B72F5C /* OptionsViewController.m in Sources */,
-				29960C6F1573F6CF0054347A /* ConflictViewController.m in Sources */,
-				29960C751573F78B0054347A /* ConflictCell.m in Sources */,
-				29960C781573F8300054347A /* NoteConflictEntry.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */,
 				29960C881574103F0054347A /* TransformableNoteCell.m in Sources */,
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
