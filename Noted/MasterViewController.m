@@ -495,9 +495,11 @@
                                               error:nil 
                                          byAccessor:^(NSURL* writingURL) {                                                   
                                              // Simple delete to start
+                                             NSError *error;
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
-                                             [fileManager removeItemAtURL:entry.fileURL error:nil];
+                                             [fileManager removeItemAtURL:entry.fileURL error:&error];
                                              NSLog(@"Deleted item at %@",entry.fileURL);
+                                             NSLog(@"Error? %@", error);
                                              [_query enableUpdates];
                                          }];
     });    
@@ -1084,6 +1086,14 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 
 -(void)addNoteAtIndex:(int)index {
     [self insertNewEntryAtIndex:index];
+}
+
+-(void)deleteNote:(NoteDocument *)noteDocument {
+    NSPredicate *findByFileURLPredicate = [NSPredicate predicateWithFormat:@"%K == %@", @"fileURL", noteDocument.fileURL];
+    NSArray *foundEntries = [_objects filteredArrayUsingPredicate:findByFileURLPredicate];
+    NoteEntry *entryToDelete = [foundEntries lastObject]; // only expecting one
+    [self deleteEntry:entryToDelete];
+    [self closeNote];
 }
 
 
