@@ -73,7 +73,7 @@
 
 
 - (BOOL)iCloudOn {    
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
+    return NO;//[[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
 }
 
 - (void)setiCloudOn:(BOOL)on {    
