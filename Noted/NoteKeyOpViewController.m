@@ -219,7 +219,6 @@
 #pragma mark - 
 #pragma mark Pans and Actions
 
-
 - (IBAction)panLayer:(UIPanGestureRecognizer *)pan {    
     [self.noteVC.noteTextView resignFirstResponder];
     CGPoint point = [pan translationInView:self.view];
