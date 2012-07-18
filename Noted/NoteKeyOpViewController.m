@@ -14,7 +14,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface NoteKeyOpViewController ()
-
+- (void) deleteCurrentNote;
 @end
 
 @implementation NoteKeyOpViewController
@@ -207,6 +207,10 @@
 
     }
     
+}
+
+- (void) deleteCurrentNote {
+    [self.delegate deleteNote:self.noteVC.note];
 }
 
 
@@ -473,34 +477,26 @@
                 [self addNote];
                 
             } else if (point.x > 160){
-            //                //panned to trash
-            //                
-            for (int k = 0; k < [deletingViews count]; k++) {
-                UIView *view = [deletingViews objectAtIndex:k];
-                [UIView animateWithDuration:0.25
-                                      delay:0 
-                                    options:UIViewAnimationOptionCurveEaseOut 
-                                 animations:^{
-                                     CGRect frame = view.frame;
-                                     frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
-                                     view.frame = frame;
-                                 }
-                                 completion:^(BOOL finished){
-                                     
-                                     
-                                     self.noteVC.view.hidden = NO;
-                                     [view removeFromSuperview];
-                                 }];
-            }
+                //panned to trash
+                for (int k = 0; k < [deletingViews count]; k++) {
+                    UIView *view = [deletingViews objectAtIndex:k];
+                    [UIView animateWithDuration:0.25
+                                          delay:0 
+                                        options:UIViewAnimationOptionCurveEaseOut 
+                                     animations:^{
+                                         CGRect frame = view.frame;
+                                         frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
+                                         view.frame = frame;
+                                     }
+                                     completion:^(BOOL finished){
+                                         self.noteVC.view.hidden = NO;
+                                         [view removeFromSuperview];
+                                     }];
+                }
             
-            [deletingViews removeAllObjects];
-            //                [self.nvc.noteTextView resignFirstResponder];
-            //                NSLog(@"Recognizing trash gesture");
-            //                [self trashNote:self.nvc.note];
-            //                
-            //            } 
-            //            self.trashNoteView.hidden = YES;
-            //            self.trashNoteView.text = @"Trashing note...keep going";
+                [deletingViews removeAllObjects];
+                NSLog(@"Recognizing trash gesture");
+                [self deleteCurrentNote];
             }
         }
     }

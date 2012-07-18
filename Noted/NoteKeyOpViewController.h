@@ -15,8 +15,10 @@
 #import <Twitter/Twitter.h>
 
 @protocol NoteKeyOpViewControllerDelegate <NSObject>
+@required
 -(void)closeNote;
 -(void)addNoteAtIndex:(int)index;
+-(void)deleteNote:(NoteDocument *)noteDocument;
 @end
 
 @interface NoteKeyOpViewController : UIViewController <SingleNoteDelegate,KeyboardDelegate,OptionsViewDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate> {
@@ -38,7 +40,7 @@
 @property (strong,nonatomic)UIView *overView;
 @property (strong, nonatomic) IBOutlet UIView *addNoteMain;
 @property (weak, nonatomic) IBOutlet UIView *addNoteCorners;
-@property (strong,nonatomic)id delegate;
+@property (strong,nonatomic)id<NoteKeyOpViewControllerDelegate> delegate;
 
 -(void)openTheNote:(NoteDocument*)note;
 
