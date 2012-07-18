@@ -165,8 +165,6 @@
 -(void)openOptions {
     NSLog(@"Options Dot tap seen");
     [delegate openOptions];
-//    OptionsViewController *optionVC = [OptionsViewController new];
-//    [self.navigationController pushViewController:optionVC animated:YES];
 }
 
 
@@ -200,7 +198,7 @@
 {
     float scrollOffset = scrollView.contentOffset.y;
     
-    if (scrollOffset == 0 && !self.noteTextView.isFirstResponder)
+    if (scrollOffset <= 5 && !self.noteTextView.isFirstResponder)
     {
         [UIView animateWithDuration:0.15 
                               delay:0 
@@ -214,7 +212,7 @@
                              
                          }];
     }
-    else if (scrollOffset != 0 && !self.noteTextView.isFirstResponder)
+    else if (scrollOffset > 5 && !self.noteTextView.isFirstResponder)
     {
         // then we are not at the beginning
         [UIView animateWithDuration:0.15 

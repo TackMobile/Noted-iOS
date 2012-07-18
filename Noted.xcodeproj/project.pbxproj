@@ -61,6 +61,7 @@
 		29FC4930156EE0CD0007BBAD /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29FC492E156EE0CD0007BBAD /* DetailViewController.xib */; };
 		29FC4938156EE1510007BBAD /* NoteData.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4937156EE1510007BBAD /* NoteData.m */; };
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
+		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -138,6 +139,8 @@
 		29FC4937156EE1510007BBAD /* NoteData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteData.m; path = Noted/NoteData.m; sourceTree = "<group>"; };
 		29FC493A156EE5510007BBAD /* NoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteDocument.h; path = Noted/NoteDocument.h; sourceTree = "<group>"; };
 		29FC493B156EE5510007BBAD /* NoteDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteDocument.m; path = Noted/NoteDocument.m; sourceTree = "<group>"; };
+		584E150215B73DDA00DD24D2 /* KeyboardScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardScrollView.h; sourceTree = "<group>"; };
+		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +194,8 @@
 				298EBFFF15702C6F00B72F5C /* KeyboardViewController.h */,
 				298EC00015702C6F00B72F5C /* KeyboardViewController.m */,
 				298EC00115702C6F00B72F5C /* KeyboardViewController.xib */,
+				584E150215B73DDA00DD24D2 /* KeyboardScrollView.h */,
+				584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */,
 				29E326BE157554820013399B /* EnglishKeyboard.plist */,
 			);
 			name = "Custom Keyboard";
@@ -201,9 +206,9 @@
 			children = (
 				29FC4925156EE0CD0007BBAD /* MasterViewController.h */,
 				29FC4926156EE0CD0007BBAD /* MasterViewController.m */,
+				29FC492B156EE0CD0007BBAD /* MasterViewController.xib */,
 				29FC4928156EE0CD0007BBAD /* DetailViewController.h */,
 				29FC4929156EE0CD0007BBAD /* DetailViewController.m */,
-				29FC492B156EE0CD0007BBAD /* MasterViewController.xib */,
 				29FC492E156EE0CD0007BBAD /* DetailViewController.xib */,
 				298EC0041570415700B72F5C /* OptionsViewController.h */,
 				298EC0051570415700B72F5C /* OptionsViewController.m */,
@@ -435,6 +440,7 @@
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
 				29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
+				584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

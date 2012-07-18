@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "KeyboardKey.h"
+#import "KeyboardScrollView.h"
 
 @protocol KeyboardDelegate <NSObject>
 @optional
@@ -21,11 +22,13 @@
 
 @end
 
-@interface KeyboardViewController : UIViewController <UIInputViewAudioFeedback>{
+@interface KeyboardViewController : UIViewController <UIInputViewAudioFeedback, UIScrollViewDelegate>{
     BOOL capitalized;
     BOOL returnLine;
     BOOL tapped;
     BOOL undo;
+    BOOL swipeUp;
+    BOOL swipeDown;
     
     BOOL shouldCloseKeyboard;
     KeyboardKey *returnKey;
@@ -38,20 +41,16 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *backgroundImage;
 @property (weak, nonatomic) IBOutlet UIImageView *keyImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *previousKeyImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *nextKeyImageView;
 @property (strong, nonatomic) IBOutlet UITextView *keyDisplay;
 @property (nonatomic,retain) NSMutableDictionary *allKeyboards;
 @property (nonatomic,retain) KeyboardKey *activeKeyboardKey;
 @property (nonatomic,retain) NSDictionary *activeKeyboard;
 @property (nonatomic,retain) NSMutableArray *keyboardNames;
 @property (nonatomic,retain) NSMutableString *activeKeyboardName;
-@property (strong) NSMutableString *nextKeyboard;
-@property (strong) NSMutableString *previousKeyboard;
 @property (nonatomic) int howManyTouches;
 @property (nonatomic) CGPoint firstTouch;
 @property (nonatomic, retain) id delegate;
 @property (weak, nonatomic) IBOutlet UIPageControl *pageIndicator;
-
+@property (strong, nonatomic) IBOutlet KeyboardScrollView *scrollView;
 
 @end
