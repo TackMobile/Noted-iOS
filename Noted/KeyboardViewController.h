@@ -29,6 +29,8 @@
     BOOL undo;
     BOOL swipeUp;
     BOOL swipeDown;
+    BOOL swipeLeftTwoFinger;
+    BOOL swipeRightTwoFinger;
     
     BOOL shouldCloseKeyboard;
     KeyboardKey *returnKey;

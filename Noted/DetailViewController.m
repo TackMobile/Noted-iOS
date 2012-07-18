@@ -59,6 +59,7 @@
     
     //register for the notification
     self.noteTextView.delegate = self;
+    self.noteTextView.autocorrectionType = UITextAutocorrectionTypeYes;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReloaded:) name:@"noteModified" object:nil];
     
@@ -114,9 +115,7 @@
 
 
 - (void)documentStateChanged:(NSNotification *)notification {
-    
     [self configureView];
-    
 }
 
 

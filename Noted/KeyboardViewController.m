@@ -232,12 +232,13 @@
 #pragma mark - 
 #pragma mark Touch Events and Hit Detection
 
--(void)touchesBegan: (NSSet *)touches 
-          withEvent: (UIEvent *)event {
+-(void)touchesBegan: (NSSet *)touches withEvent: (UIEvent *)event {
     
     tapped = YES;
     swipeUp = NO;
     swipeDown = NO;
+    swipeLeftTwoFinger = NO;
+    swipeRightTwoFinger = NO;
     [self resetTapTimer];
     firstTouch = [[touches anyObject] locationInView:self.view];
     
@@ -245,40 +246,62 @@
     
 }
 
--(void)touchesMoved: (NSSet *)touches 
-          withEvent: (UIEvent *)event {
-	
-    CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
-    if (currentLocation.y - firstTouch.y < -5) {
-        NSLog(@"vertical up swipe recognized");
-        if (!swipeUp) {
-            capitalized = YES;
-            [self keyHitDetected:firstTouch];
-            swipeUp = YES;
-        }
-    } else if (currentLocation.y - firstTouch.y > 5) {
-        NSLog(@"vertical down swipe recognized");
-        if (!swipeDown) {
-            returnLine = YES;
-            [self keyHitDetected:firstTouch];
-            swipeDown = YES;
-        }
+-(void)touchesMoved: (NSSet *)touches withEvent: (UIEvent *)event {
     
+	NSSet *allTouches= [event allTouches];
+    CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
+    CGFloat netXChange = currentLocation.x - firstTouch.x;
+    CGFloat netYChange = currentLocation.y - firstTouch.y;
+    
+    if (allTouches.count == 2) {
+        //Undo & Redo
+        if (netXChange < -40 && !swipeLeftTwoFinger) {
+            NSLog(@"Two finger swipe left detected");
+            [undoTimer invalidate];
+            undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
+            [self.delegate undoEdit];
+            swipeLeftTwoFinger = YES;
+        }else if (netXChange > 40 &&!swipeRightTwoFinger) {
+            NSLog(@"Two finger swipe right detected");
+            [undoTimer invalidate];
+            undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
+            [self.delegate redoEdit];
+            swipeRightTwoFinger = YES;
+            
+        }else if (netXChange >= -40 && netXChange <= 40) {
+            [undoTimer invalidate];
+        }
+    }else {
+        if (netYChange < -5) {
+            NSLog(@"vertical up swipe recognized");
+            if (!swipeUp) {
+                capitalized = YES;
+                [self keyHitDetected:firstTouch];
+                swipeUp = YES;
+            }
+        } else if (netYChange > 5) {
+            NSLog(@"vertical down swipe recognized");
+            if (!swipeDown) {
+                returnLine = YES;
+                [self keyHitDetected:firstTouch];
+                swipeDown = YES;
+            }
+            
+        }
     }
 }
 
--(void) touchesEnded: (NSSet *)touches 
-           withEvent: (UIEvent *)event {
+-(void) touchesEnded: (NSSet *)touches withEvent: (UIEvent *)event {
 	
 	// find the element that is being touched, if any.
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
-    if (!swipeUp) {
+    if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
         [self keyHitDetected:currentLocation];
     }
 	
 	// reset the selected and prior selected interface elements
 	self.activeKeyboardKey = nil;
-    
+    [undoTimer invalidate];
     
 }
 
