@@ -253,6 +253,7 @@
     [self.noteVC.noteTextView resignFirstResponder];
     CGPoint point = [pan translationInView:self.view];
     CGPoint velocity = [pan velocityInView:self.view];
+    int noteCount = [self.notes count];
     
     if (pan.state == UIGestureRecognizerStateBegan) {
 
@@ -353,7 +354,7 @@
     
     if (touchesOnScreen == 1) {
         if (pan.state == UIGestureRecognizerStateEnded) {
-            if (self.previousNoteVC.note == self.noteVC.note && self.previousNoteVC == self.nextNoteVC) {
+            if (noteCount == 1) {
                 //first and only note
                 [self animateLayer:self.noteVC.view toPoint:0 withNote:nil];
                 [self animateLayer:self.previousNoteVC.view toPoint:320 withNote:nil];
@@ -369,10 +370,7 @@
                 [self animateLayer:self.noteVC.view toPoint:320 withNote:self.nextNoteVC.note];
                 [self.noteVC.noteTextView resignFirstResponder];
                 NSLog(@"Recognizing next note gesture");
-                
-                
             } else if (self.previousNoteVC.view.frame.origin.x <= 160 || velocity.x <= -500) {
-                
                 //panned to a previous note
                 [self animateLayer:self.previousNoteVC.view toPoint:0 withNote:self.previousNoteVC.note];
                 [self.noteVC.noteTextView resignFirstResponder];
