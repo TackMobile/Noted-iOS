@@ -573,7 +573,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Anthony Hillerson (LUT6S85P2M)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -584,7 +584,7 @@
 					"\"$(SRCROOT)/Noted/TestFlightSDK1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "17E0A9C3-D6F2-4F76-8BBF-F349B23D50BD";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
