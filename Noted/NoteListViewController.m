@@ -11,6 +11,7 @@
 #import "NoteEntryCell.h"
 #import "NoteEntry.h"
 #import "UIColor+HexColor.h"
+#import "NoteStackViewController.h"
 
 @interface NoteListViewController (Private)
 
@@ -77,6 +78,12 @@
     cell.absoluteTimeText.text = [noteEntry absoluteDateString];
     
     return cell;
+}
+
+- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
+    [self presentViewController:stackViewController animated:YES completion:NULL];
 }
 
 
