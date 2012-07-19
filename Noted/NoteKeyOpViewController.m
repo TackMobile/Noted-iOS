@@ -10,8 +10,9 @@
 #import "UIColor+HexColor.h"
 #import "NoteEntry.h"
 #import "UIColor+HexColor.h"
-#import "Utilities.h"
+#import "UIImage+Crop.h"
 #import <QuartzCore/QuartzCore.h>
+#import "Utilities.h"
 
 @interface NoteKeyOpViewController ()
 - (void) deleteCurrentNote;
@@ -219,40 +220,6 @@
 #pragma mark Pans and Actions
 
 
-//-(void)trashNote:(Note*)aNote {
-//    //animations here
-//    [self deleteNote:aNote];
-//    self.scrollView.frame = CGRectMake(0, -480, 320, 480);
-//}
-
-//-(void)panNote:(CGPoint)point {
-//    NSLog(@"panning in list");
-//    [self updateNoteList];
-//    [self.view bringSubviewToFront:self.scrollView];
-//    
-//    CGRect frame = self.scrollView.frame;
-//    frame.origin.y = -480 + point.y;
-//    if (frame.origin.y < (-frame.size.height)) {
-//        frame.origin.y = (-frame.size.height);
-//    }
-//    
-//    self.scrollView.frame = frame;
-//    
-//}
-
-//-(void)panFinish:(BOOL)shouldShow closeNote:(Note *)aNote{
-//    NSLog(@"finished pan in list");
-//    
-//    [self updateNoteList];
-//    
-//    if (shouldShow) {
-//        [self animateLayerY:self.scrollView toPoint:0];
-//    }else {
-//        [self animateLayerY:self.scrollView toPoint:-480];
-//    }
-//    
-//}
-
 - (IBAction)panLayer:(UIPanGestureRecognizer *)pan {    
     [self.noteVC.noteTextView resignFirstResponder];
     CGPoint point = [pan translationInView:self.view];
@@ -275,20 +242,17 @@
             
             // Create and show the new image from bitmap data
             for (int k = 0; k <= numberOfTouches; k++) {
+                // Create rectangle that represents a cropped image  
+                // from the middle of the existing image
+                CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouches+1), 320, 480/(numberOfTouches+1));
                 
-                CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouches+1), 320,480/(numberOfTouches+1));       
-                CGImageRef imageRef = CGImageCreateWithImageInRect([viewImage CGImage], cropRect);
-                UIImage *croppedImage = [UIImage imageWithCGImage:imageRef];
-                CGImageRelease(imageRef);
-
-                
-                UIImageView *imageView = [[UIImageView alloc] initWithImage:croppedImage];
-                imageView.frame = CGRectMake(0, (480*k)/(numberOfTouches+1), 320, 480/(numberOfTouches+1));
+                // Create and show the new image from bitmap data
+                UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
+                imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouches+1));
                 [deletingViews addObject:imageView];
                 imageView.hidden = YES;
-                [self.view addSubview:imageView];                
+                [self.view addSubview:imageView];  
             }
-
         }
         
         //setup all the views
@@ -655,17 +619,15 @@
     //may have to add in the "space" case
     if ([label isEqualToString:@" "]) {
         NSCharacterSet *set = [NSCharacterSet alphanumericCharacterSet];
-        BOOL isALetterTwoAgo = [set characterIsMember: [self.noteVC.noteTextView.text characterAtIndex: [self.noteVC.noteTextView.text length]-2]];
-        unichar lastCharacterUni = [self.noteVC.noteTextView.text characterAtIndex: [self.noteVC.noteTextView.text length]-1];
+        BOOL isALetterTwoAgo = [set characterIsMember: [self.noteVC.noteTextView.text characterAtIndex:self.noteVC.noteTextView.selectedRange.location-2]];
+        unichar lastCharacterUni = [self.noteVC.noteTextView.text characterAtIndex:self.noteVC.noteTextView.selectedRange.location-1];
         NSString *lastCharacter = [NSString stringWithCharacters:&lastCharacterUni length:1];
         if (isALetterTwoAgo && [lastCharacter isEqualToString:@" "]){
             // code that you use to remove the last character
             [self.noteVC.noteTextView deleteBackward];
             [self.noteVC.noteTextView insertText:@"."];
         }
-        
     }
-    
     if ([label isEqualToString:@"delete"]) {
         
         //delete the last character out of the textview
@@ -673,15 +635,12 @@
         
         //not at the beginning of the note
         if(lastCharacterPosition > 0){
-            
             [self.noteVC.noteTextView deleteBackward];
         }
     } else if ([label isEqualToString:@"return"]) {
         unichar ch = 0x000A;
-        
         NSString *unicodeString = [NSString stringWithCharacters:&ch length:1];
         [self.noteVC.noteTextView insertText:unicodeString];
-        
     } else {
         [self.noteVC.noteTextView insertText:label];
     }
@@ -737,12 +696,10 @@
 	[self.mailVC setSubject:noteTitle];
 	[self.mailVC setMessageBody:body isHTML:NO];
     [self presentModalViewController:self.mailVC animated:NO];
- //   [self.view addSubview:self.mailVC.view];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
     [self dismissModalViewControllerAnimated:YES];
-    //[controller.view removeFromSuperview];
 }
 
 - (void)sendSMS{
@@ -753,7 +710,6 @@
         messageViewController.body = self.noteVC.noteTextView.text;   
         messageViewController.messageComposeDelegate = self;
         messageViewController.wantsFullScreenLayout = NO;
-        //SET RECIPIENTS
         [self presentModalViewController:messageViewController animated:YES];
         [[UIApplication sharedApplication] setStatusBarHidden:YES];
     }  
@@ -784,8 +740,7 @@
             [tweetViewController setInitialText:body];
         }else {
             [tweetViewController setInitialText:[body substringToIndex:140]];
-        }
-        //       [self.twitterVC setInitialText:body];    
+        }  
         
         tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result) 
         {
@@ -795,6 +750,10 @@
         
         [self presentModalViewController:tweetViewController animated:NO];
 
+    }else {
+        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        [alertView show];
     }
     
 }

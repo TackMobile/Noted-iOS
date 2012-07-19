@@ -62,6 +62,7 @@
 		29FC4938156EE1510007BBAD /* NoteData.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4937156EE1510007BBAD /* NoteData.m */; };
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
+		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -141,6 +142,8 @@
 		29FC493B156EE5510007BBAD /* NoteDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteDocument.m; path = Noted/NoteDocument.m; sourceTree = "<group>"; };
 		584E150215B73DDA00DD24D2 /* KeyboardScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardScrollView.h; sourceTree = "<group>"; };
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
+		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
+		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -255,6 +258,8 @@
 				29960C8C157418850054347A /* NoteTableGestureRecognizer.m */,
 				298F8D1B15780FA2004D11A4 /* Utilities.h */,
 				298F8D1C15780FA2004D11A4 /* Utilities.m */,
+				584E150A15B7A57400DD24D2 /* UIImage+Crop.h */,
+				584E150B15B7A57400DD24D2 /* UIImage+Crop.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -441,6 +446,7 @@
 				29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */,
+				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

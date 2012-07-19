@@ -25,12 +25,15 @@ return [super initWithFrame:frame];
 }
 
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    NSSet *allTouches= [event allTouches];
+    if (allTouches.count == 2) {
+        self.scrollEnabled = NO;
+    }
     [self.nextResponder touchesMoved:touches withEvent:event];
 }
 
 - (void) touchesEnded:(NSSet *) touches withEvent:(UIEvent *) event 
 {	
-    // If not dragging, send event to next responder
     [self.nextResponder touchesEnded: touches withEvent:event];
     self.scrollEnabled = YES;
 }
@@ -40,8 +43,5 @@ return [super initWithFrame:frame];
     self.scrollEnabled = YES;
 }
 
-//-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-//    
-//}
 
 @end
