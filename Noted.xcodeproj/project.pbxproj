@@ -63,6 +63,8 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		EAD695E315B7AC6E004A2494 /* NotePresentationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */; };
+		EAD695E815B7AC9D004A2494 /* NotedModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* NotedModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -144,6 +146,10 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		EAD695E115B7AC6E004A2494 /* NotePresentationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotePresentationModel.h; path = Noted/NotePresentationModel.h; sourceTree = "<group>"; };
+		EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NotePresentationModel.m; path = Noted/NotePresentationModel.m; sourceTree = "<group>"; };
+		EAD695E615B7AC9D004A2494 /* NotedModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotedModel.h; path = Noted/NotedModel.h; sourceTree = "<group>"; };
+		EAD695E715B7AC9D004A2494 /* NotedModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NotedModel.m; path = Noted/NotedModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -334,6 +340,10 @@
 				29FC4937156EE1510007BBAD /* NoteData.m */,
 				29FC493A156EE5510007BBAD /* NoteDocument.h */,
 				29FC493B156EE5510007BBAD /* NoteDocument.m */,
+				EAD695E115B7AC6E004A2494 /* NotePresentationModel.h */,
+				EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */,
+				EAD695E615B7AC9D004A2494 /* NotedModel.h */,
+				EAD695E715B7AC9D004A2494 /* NotedModel.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -447,6 +457,8 @@
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */,
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
+				EAD695E315B7AC6E004A2494 /* NotePresentationModel.m in Sources */,
+				EAD695E815B7AC9D004A2494 /* NotedModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
