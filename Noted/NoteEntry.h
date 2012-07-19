@@ -20,7 +20,10 @@
 @property BOOL adding;
 @property BOOL moving;
 
--(id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
--(NSString*)description;
+- (id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
+- (NSString *) title;
+- (NSString *) relativeDateString;
+- (NSString *) absoluteDateString;
+
 
 @end

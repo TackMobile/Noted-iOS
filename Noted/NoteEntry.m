@@ -7,6 +7,7 @@
 //
 
 #import "NoteEntry.h"
+#import "Utilities.h"
 
 @implementation NoteEntry
 
@@ -27,6 +28,19 @@
     }
     return self;
 }
+
+- (NSString *) title {
+    return @"title";//[entry.noteData.noteText componentsSeparatedByString:@"\n"]; <-- Grab title from there
+}
+
+- (NSString *) relativeDateString {
+    return @"foo"; //[Utilities formatRelativeDate:version.modificationDate];
+}
+
+- (NSString *) absoluteDateString {
+    return @"bar"; //[Utilities formatDate:version.modificationDate];
+}
+
 
 -(NSString*) description {
     return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];

@@ -63,8 +63,7 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
-		EAD695E315B7AC6E004A2494 /* NotePresentationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */; };
-		EAD695E815B7AC9D004A2494 /* NotedModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* NotedModel.m */; };
+		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,8 +72,8 @@
 		2908B5BC1576E7C700A1CFB9 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		2908B5BD1576E7C700A1CFB9 /* release_notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.txt; sourceTree = "<group>"; };
 		2908B5BE1576E7C700A1CFB9 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
-		298EBFE11570073F00B72F5C /* NoteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteEntry.h; sourceTree = "<group>"; };
-		298EBFE21570073F00B72F5C /* NoteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteEntry.m; sourceTree = "<group>"; };
+		298EBFE11570073F00B72F5C /* NoteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteEntry.h; path = Noted/NoteEntry.h; sourceTree = "<group>"; };
+		298EBFE21570073F00B72F5C /* NoteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteEntry.m; path = Noted/NoteEntry.m; sourceTree = "<group>"; };
 		298EBFED157020DA00B72F5C /* NoteEntryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteEntryCell.h; sourceTree = "<group>"; };
 		298EBFEE157020DA00B72F5C /* NoteEntryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteEntryCell.m; sourceTree = "<group>"; };
 		298EBFF1157021CC00B72F5C /* NoteEntryCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteEntryCell.xib; sourceTree = "<group>"; };
@@ -146,10 +145,8 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
-		EAD695E115B7AC6E004A2494 /* NotePresentationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotePresentationModel.h; path = Noted/NotePresentationModel.h; sourceTree = "<group>"; };
-		EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NotePresentationModel.m; path = Noted/NotePresentationModel.m; sourceTree = "<group>"; };
-		EAD695E615B7AC9D004A2494 /* NotedModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotedModel.h; path = Noted/NotedModel.h; sourceTree = "<group>"; };
-		EAD695E715B7AC9D004A2494 /* NotedModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NotedModel.m; path = Noted/NotedModel.m; sourceTree = "<group>"; };
+		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
+		EAD695E715B7AC9D004A2494 /* ApplicationModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationModel.m; path = Noted/ApplicationModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -314,8 +311,6 @@
 				298EBFF715702B3200B72F5C /* Cells and Keys */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
-				298EBFE11570073F00B72F5C /* NoteEntry.h */,
-				298EBFE21570073F00B72F5C /* NoteEntry.m */,
 			);
 			path = Noted;
 			sourceTree = "<group>";
@@ -340,10 +335,10 @@
 				29FC4937156EE1510007BBAD /* NoteData.m */,
 				29FC493A156EE5510007BBAD /* NoteDocument.h */,
 				29FC493B156EE5510007BBAD /* NoteDocument.m */,
-				EAD695E115B7AC6E004A2494 /* NotePresentationModel.h */,
-				EAD695E215B7AC6E004A2494 /* NotePresentationModel.m */,
-				EAD695E615B7AC9D004A2494 /* NotedModel.h */,
-				EAD695E715B7AC9D004A2494 /* NotedModel.m */,
+				298EBFE11570073F00B72F5C /* NoteEntry.h */,
+				298EBFE21570073F00B72F5C /* NoteEntry.m */,
+				EAD695E615B7AC9D004A2494 /* ApplicationModel.h */,
+				EAD695E715B7AC9D004A2494 /* ApplicationModel.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -457,8 +452,8 @@
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */,
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
-				EAD695E315B7AC6E004A2494 /* NotePresentationModel.m in Sources */,
-				EAD695E815B7AC9D004A2494 /* NotedModel.m in Sources */,
+				EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */,
+				EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
