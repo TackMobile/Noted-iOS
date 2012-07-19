@@ -18,16 +18,11 @@ __strong static klass *_sharedInstance; \
 + (klass *) sharedInstance { \
 if (_sharedInstance == nil) { \
 _sharedInstance = block(); \
-[[NSNotificationCenter defaultCenter] addObserver:self \
-selector:@selector(resetSharedInstance) \
-name:kLogout \
-object:nil]; \
 } \
 return _sharedInstance; \
 } \
 + (void) resetSharedInstance { \
 _sharedInstance = nil; \
-[[NSNotificationCenter defaultCenter] removeObserver:self]; \
 }
 
 
