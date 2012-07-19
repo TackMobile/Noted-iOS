@@ -64,6 +64,8 @@
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
+		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
+		EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -147,6 +149,9 @@
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
 		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
 		EAD695E715B7AC9D004A2494 /* ApplicationModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationModel.m; path = Noted/ApplicationModel.m; sourceTree = "<group>"; };
+		EAD6960015B7B8FB004A2494 /* NoteListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteListViewController.h; sourceTree = "<group>"; };
+		EAD6960115B7B8FB004A2494 /* NoteListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteListViewController.m; sourceTree = "<group>"; };
+		EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteListViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -305,6 +310,7 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
+				EAD695FF15B7B8CA004A2494 /* New */,
 				29FC491A156EE0CD0007BBAD /* Supporting Files */,
 				29914F0915752EF70029D170 /* View Controllers */,
 				298EBFFB15702C0D00B72F5C /* Custom Keyboard */,
@@ -341,6 +347,16 @@
 				EAD695E715B7AC9D004A2494 /* ApplicationModel.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		EAD695FF15B7B8CA004A2494 /* New */ = {
+			isa = PBXGroup;
+			children = (
+				EAD6960015B7B8FB004A2494 /* NoteListViewController.h */,
+				EAD6960115B7B8FB004A2494 /* NoteListViewController.m */,
+				EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */,
+			);
+			name = New;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -424,6 +440,7 @@
 				29E326E4157556920013399B /* cell-background.png in Resources */,
 				2908B5C01576E7C700A1CFB9 /* README.txt in Resources */,
 				2908B5C11576E7C700A1CFB9 /* release_notes.txt in Resources */,
+				EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -536,6 +553,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Anthony Hillerson (LUT6S85P2M)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -546,6 +564,7 @@
 					"\"$(SRCROOT)/Noted/TestFlightSDK1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "17E0A9C3-D6F2-4F76-8BBF-F349B23D50BD";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
