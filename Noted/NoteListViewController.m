@@ -13,7 +13,7 @@
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
 
-@interface NoteListViewController (Private)
+@interface NoteListViewController ()
 
 @end
 
