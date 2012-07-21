@@ -19,4 +19,11 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 - (void) refreshNotes;
 
+- (BOOL)iCloudOn;
+- (void)setiCloudOn:(BOOL)on;
+- (BOOL)iCloudWasOn;
+- (void)setiCloudWasOn:(BOOL)on;
+- (BOOL)iCloudPrompted;
+- (void)setiCloudPrompted:(BOOL)prompted;
+    
 @end

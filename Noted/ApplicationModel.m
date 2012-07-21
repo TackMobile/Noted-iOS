@@ -32,6 +32,33 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     
     self.currentNoteEntries = notes;
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
+#pragma mark - Preferences
+
+- (BOOL)iCloudOn {    
+    return NO;//[[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
+}
+
+- (void)setiCloudOn:(BOOL)on {    
+    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)iCloudWasOn {    
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudWasOn"];
+}
+
+- (void)setiCloudWasOn:(BOOL)on {    
+    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudWasOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)iCloudPrompted {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudPrompted"];
+}
+
+- (void)setiCloudPrompted:(BOOL)prompted {    
+    [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end
