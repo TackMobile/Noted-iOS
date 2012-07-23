@@ -13,9 +13,10 @@
 @class NoteFileManager;
 
 @protocol NoteFileManagerDelegate <NSObject>
-
+@optional
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSOrderedSet *)noteEntries;
 - (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesFromICloudWithLocalNoteEntries:(NSOrderedSet *)noteEntries;
+- (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesWithError:(NSError *)error;
 
 @end
 

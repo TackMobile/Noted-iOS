@@ -10,11 +10,13 @@
 #import "NoteDocument.h"
 #import "NoteData.h"
 #import "NoteEntry.h"
+#import "TKPromise.h"
 
 @interface NoteFileManager () {
     NSURL *localDocumentRoot;
     NSURL *iCloudDocumentRoot;
     NSURL *currentDocumentRoot;
+    TKPromise *fileLoadPromise;
 }
 
 @end
@@ -46,27 +48,40 @@
 - (void) loadLocalNoteEntriesInBackground {
     NSMutableOrderedSet *list = [NSMutableOrderedSet orderedSet];
     NSArray *localDocuments = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:localDocumentRoot includingPropertiesForKeys:nil options:0 error:nil];
+    NSPredicate *notedDocsPredicate = [NSPredicate predicateWithFormat:@"%K == %@", @"pathExtension", NOTE_EXTENSION];
+    NSArray *notedDocuments = [localDocuments filteredArrayUsingPredicate:notedDocsPredicate];
+    NSArray *fileURLs = [notedDocuments valueForKeyPath:@"absoluteString"];
+    
 #ifdef DEBUG
-    NSLog(@"Found %d local files.", localDocuments.count);    
+    NSLog(@"Found %d local noted documents.", notedDocuments.count);    
+    NSLog(@" at URLs %@", fileURLs);    
 #endif
-    for (int i=0; i < localDocuments.count; i++) {
-
-        NSURL *fileURL = [localDocuments objectAtIndex:i];
-        if ([[fileURL pathExtension] isEqualToString:NOTE_EXTENSION]) {
-#ifdef DEBUG
-            NSLog(@"Found local file: %@", fileURL);
-#endif
-            [self loadDocAtURL:fileURL intoList:list];
-        }        
-    }
-    [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
+    NSSet *fileURLSet = [NSSet setWithArray:fileURLs];
+    TKPromiseKeptBlock promiseKeptBlock = ^{
+        [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
+    };
+    TKPromiseFailedBlock promiseFailedBlock = ^{
+        //TODO can we get an error here?
+        [self.delegate fileManager:self failedToLoadNoteEntriesWithError:nil];
+    };
+    TKPromiseResolveBlock promiseResolvedBlock = ^{
+        fileLoadPromise = nil;
+    };
+    
+    fileLoadPromise = [[TKPromise alloc] initWithPromiseKeptBlock:promiseKeptBlock
+                                               promiseFailedBlock:promiseFailedBlock
+                                             promiseResolvedBlock:promiseResolvedBlock
+                                                      commitments:nil];
+    [fileLoadPromise addCommitments:fileURLSet];
+    
+    [notedDocuments enumerateObjectsUsingBlock:^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
+        [self loadDocAtURL:fileURL intoList:list];
+    }];
 }
 
 - (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list {
-    // Open doc so we can read metadata
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];        
     [doc openWithCompletionHandler:^(BOOL success) {
-        // Check status
         if (!success) {
 #ifdef DEBUG
             NSLog(@"Failed to open %@", fileURL);
@@ -79,31 +94,28 @@
         noteData.noteText = doc.text;
         noteData.noteLocation = doc.location;
         noteData.noteColor = doc.color;
-        NSURL * fileURL = doc.fileURL;
+        NSURL *fileURL = doc.fileURL;
         UIDocumentState state = doc.documentState;
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         [dateFormatter setDoesRelativeDateFormatting:YES];
         [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
 #ifdef DEBUG
         NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
 #endif
         
         NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
         [list addObject:entry];
+        [fileLoadPromise keepCommitment:fileURL.absoluteString];
         
-        // Close since we're done with it
         [doc closeWithCompletionHandler:^(BOOL success) {
-            // Check status
 #ifdef DEBUG
             if (!success) {
                 NSLog(@"Failed to close %@", fileURL);
                 // Continue anyway...
             }
 #endif
-            
-
         }];             
     }];
     
