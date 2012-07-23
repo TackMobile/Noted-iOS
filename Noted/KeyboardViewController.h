@@ -30,6 +30,7 @@
     BOOL swipeDown;
     BOOL swipeLeftTwoFinger;
     BOOL swipeRightTwoFinger;
+    BOOL swipeDownTwoFinger;
     
     BOOL shouldCloseKeyboard;
     KeyboardKey *returnKey;

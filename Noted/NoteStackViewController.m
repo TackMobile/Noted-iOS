@@ -203,14 +203,30 @@ static const int PREVIOUS_DIRECTION = 1;
 }
 
 -(void)closeKeyboard {
+    [self.currentNoteViewController.textView resignFirstResponder];
 }
--(void)snapKeyboardBack{
-}
--(void)panKeyboard:(CGPoint)point {
-}
+
 -(void)undoEdit {
+    [self.currentNoteViewController.textView.undoManager undo];
+    NSLog(@"Undo Detected");
 }
 -(void)redoEdit {
+    [self.currentNoteViewController.textView.undoManager redo];
+    NSLog(@"Redo Detected");
+}
+
+
+-(void)panKeyboard:(CGPoint)point {
+    CGRect frame = self.keyboardViewController.view.frame;
+    frame.origin.y =  0 + point.y;
+    if (frame.origin.y < 0) frame.origin.y = 0;
+    self.keyboardViewController.view.frame = frame;
+}
+
+-(void)snapKeyboardBack {
+    CGRect frame = self.keyboardViewController.view.frame;
+    frame.origin = CGPointMake(0, 0);
+    self.keyboardViewController.view.frame = frame;
 }
 
 @end

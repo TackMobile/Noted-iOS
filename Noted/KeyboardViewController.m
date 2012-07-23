@@ -233,17 +233,16 @@
 #pragma mark Touch Events and Hit Detection
 
 -(void)touchesBegan: (NSSet *)touches withEvent: (UIEvent *)event {
-    
+    CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
     tapped = YES;
     swipeUp = NO;
     swipeDown = NO;
     swipeLeftTwoFinger = NO;
     swipeRightTwoFinger = NO;
     [self resetTapTimer];
-    firstTouch = [[touches anyObject] locationInView:self.view];
-    
+    firstTouch = currentLocation;
+    NSLog(@"First touch location = %f, %f", firstTouch.x, firstTouch.y);
 	self.activeKeyboardKey = nil;
-    
 }
 
 -(void)touchesMoved: (NSSet *)touches withEvent: (UIEvent *)event {
@@ -253,23 +252,28 @@
     CGFloat netXChange = currentLocation.x - firstTouch.x;
     CGFloat netYChange = currentLocation.y - firstTouch.y;
     
+    NSLog(@"Net X,Y change = %f, %f", netXChange, netYChange);
+    
     if (allTouches.count == 2) {
         //Undo & Redo
-        if (netXChange < -40 && !swipeLeftTwoFinger) {
+        if (netXChange < -80 && !swipeLeftTwoFinger) {
             NSLog(@"Two finger swipe left detected");
             [undoTimer invalidate];
             undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
             [self.delegate undoEdit];
             swipeLeftTwoFinger = YES;
-        }else if (netXChange > 40 &&!swipeRightTwoFinger) {
+        }else if (netXChange > 80 &&!swipeRightTwoFinger) {
             NSLog(@"Two finger swipe right detected");
             [undoTimer invalidate];
             undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
             [self.delegate redoEdit];
             swipeRightTwoFinger = YES;
-            
         }else if (netXChange >= -40 && netXChange <= 40) {
             [undoTimer invalidate];
+        }
+        
+        if (netYChange > 80) {
+            swipeDownTwoFinger = YES;
         }
     }else {
         if (netYChange < -5) {
@@ -294,12 +298,16 @@
 -(void) touchesEnded: (NSSet *)touches withEvent: (UIEvent *)event {
 	
 	// find the element that is being touched, if any.
+    
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
-    if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
+    if (swipeDownTwoFinger) {
+        [self.delegate closeKeyboard];
+    } else if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
         [self keyHitDetected:currentLocation];
     }
 	
 	// reset the selected and prior selected interface elements
+    
 	self.activeKeyboardKey = nil;
     [undoTimer invalidate];
     
