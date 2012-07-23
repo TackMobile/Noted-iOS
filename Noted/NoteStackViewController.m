@@ -18,32 +18,50 @@
 @end
 
 @implementation NoteStackViewController
-@synthesize currentNoteViewController, nextNoteViewController, previousNoteViewController, panGestureRecognizer, optionsViewController, overView;
+@synthesize currentNoteViewController, nextNoteViewController, previousNoteViewController, panGestureRecognizer, keyboardViewController,optionsViewController, overView;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.layer.cornerRadius = 6.5;
     self.view.layer.masksToBounds = NO;
     
+    self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
+    self.keyboardViewController.delegate = self;
+    //Register for notifications so the keyboard load will push any text into view
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(shiftViewUpForKeyboard:)
+                                                 name: UIKeyboardWillShowNotification
+                                               object: nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(shiftViewDownAfterKeyboard:)
+                                                 name: UIKeyboardWillHideNotification
+                                               object: nil];
+    
     self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
+    self.optionsViewController.delegate = self;
     [self.view addSubview:self.optionsViewController.view];
     
     self.currentNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
+    self.currentNoteViewController.delegate = self;
+    [self.view addSubview:self.currentNoteViewController.view];
+    self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
+    
     self.nextNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
     self.previousNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
-    [self.view addSubview:self.currentNoteViewController.view];
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
-    
-    self.currentNoteViewController.delegate = self;
-    self.optionsViewController.delegate = self;
 }
 
 - (void)viewDidUnload {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.currentNoteViewController = nil;
     self.previousNoteViewController = nil;
     self.nextNoteViewController = nil;
+    self.optionsViewController = nil;
+    self.keyboardViewController = nil;
+    self.overView = nil;
     [super viewDidUnload];
 }
 
@@ -104,6 +122,7 @@ static const int PREVIOUS_DIRECTION = 1;
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point{
     self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
+    [self.currentNoteViewController.textView resignFirstResponder];
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
     [UIView animateWithDuration:0.3 
                           delay:0.0
@@ -125,6 +144,73 @@ static const int PREVIOUS_DIRECTION = 1;
                              self.overView.frame = self.currentNoteViewController.view.frame;
                          }
                      }];
+}
+
+#pragma mark - Keyboard notifications
+
+- (void) shiftViewUpForKeyboard: (NSNotification*) theNotification;
+{
+    // Step 1: Get the size of the keyboard.
+    CGSize keyboardSize = [[[theNotification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    // Step 2: Adjust the bottom content inset of your scroll view by the keyboard height.
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize.height, 0.0);
+    self.currentNoteViewController.textView.contentInset = contentInsets;
+    self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
+}
+
+- (void) shiftViewDownAfterKeyboard:(NSNotification*)theNotification;
+{
+    // Step 1: Adjust the bottom content inset of your scroll view by the keyboard height.
+    UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+    self.currentNoteViewController.textView.contentInset = contentInsets;
+    self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
+}
+
+#pragma mark - Keyboard Delegate
+
+//This might want to be changed so that the NoteViewController handles all of this.
+-(void)printKeySelected:(NSString *)label {
+    //may have to add in the "space" case
+    if ([label isEqualToString:@" "]) {
+        NSCharacterSet *set = [NSCharacterSet alphanumericCharacterSet];
+        BOOL isALetterTwoAgo = [set characterIsMember: [self.currentNoteViewController.textView.text characterAtIndex:self.currentNoteViewController.textView.selectedRange.location-2]];
+        unichar lastCharacterUni = [self.currentNoteViewController.textView.text characterAtIndex:self.currentNoteViewController.textView.selectedRange.location-1];
+        NSString *lastCharacter = [NSString stringWithCharacters:&lastCharacterUni length:1];
+        if (isALetterTwoAgo && [lastCharacter isEqualToString:@" "]){
+            // code that you use to remove the last character
+            [self.currentNoteViewController.textView deleteBackward];
+            [self.currentNoteViewController.textView insertText:@"."];
+        }
+    }
+    if ([label isEqualToString:@"delete"]) {
+        
+        //delete the last character out of the textview
+        NSUInteger lastCharacterPosition = [self.currentNoteViewController.textView.text length];
+        
+        //not at the beginning of the note
+        if(lastCharacterPosition > 0){
+            [self.currentNoteViewController.textView deleteBackward];
+        }
+    } else if ([label isEqualToString:@"return"]) {
+        unichar ch = 0x000A;
+        NSString *unicodeString = [NSString stringWithCharacters:&ch length:1];
+        [self.currentNoteViewController.textView insertText:unicodeString];
+    } else {
+        [self.currentNoteViewController.textView insertText:label];
+    }
+    [self.currentNoteViewController.textView.delegate textViewDidChange:self.currentNoteViewController.textView];
+}
+
+-(void)closeKeyboard {
+}
+-(void)snapKeyboardBack{
+}
+-(void)panKeyboard:(CGPoint)point {
+}
+-(void)undoEdit {
+}
+-(void)redoEdit {
 }
 
 @end

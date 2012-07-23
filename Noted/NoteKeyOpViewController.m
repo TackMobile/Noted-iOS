@@ -94,7 +94,7 @@
     
     [self.addNoteCorners addSubview:relativeTime];
     [self.addNoteCorners addSubview:absoluteTime];
-    
+
     //Register for notifications so the keyboard load will push any text into view
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(shiftViewUpForKeyboard:)

@@ -11,14 +11,13 @@
 #import "KeyboardScrollView.h"
 
 @protocol KeyboardDelegate <NSObject>
-@optional
+@required
 -(void)closeKeyboard;
 -(void)printKeySelected:(NSString*)label;
 -(void)snapKeyboardBack;
 -(void)panKeyboard:(CGPoint)point;
 -(void)undoEdit;
 -(void)redoEdit;
-
 
 @end
 

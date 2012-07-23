@@ -15,6 +15,7 @@
 @end
 @interface NoteViewController : UIViewController
 @property (strong, nonatomic) id<NoteViewControllerDelegate> delegate;
+@property (strong, nonatomic) IBOutlet UITextView *textView;
 - (IBAction)optionsSelected:(id)sender;
 
 @end
