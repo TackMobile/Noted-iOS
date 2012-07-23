@@ -10,12 +10,10 @@
 @protocol OptionsViewDelegate <NSObject>
 @optional
 -(void)setNoteColor:(UIColor*)color textColor:(UIColor*)textColor;
--(void)openShare;
--(void)openAbout;
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point;
 -(void)sendEmail;
 -(void)sendTweet;
 -(void)sendSMS;
--(void)returnToOptions;
 
 @end
 

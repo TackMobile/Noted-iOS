@@ -8,6 +8,7 @@
 
 #import "OptionsViewController.h"
 #import <QuartzCore/QuartzCore.h>
+#import "UIColor+HexColor.h"
 
 @interface OptionsViewController ()
 
@@ -34,8 +35,8 @@
     [self.view addSubview:self.aboutSubview];
     
     //colorSchemes: white,lime,sky,kernal,shadow,tack
-    self.noteColorSchemes= [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"FFFFFF"], [self colorWithHexString:@"E9F2F6"],[self colorWithHexString:@"F3F6E9"],[self colorWithHexString:@"FBF6EA"], [self colorWithHexString:@"333333"], [self colorWithHexString:@"1A9FEB"], nil];
-    self.optionColorSchemes = [[NSMutableArray alloc] initWithObjects:[self colorWithHexString:@"FFFFFF"], [self colorWithHexString:@"C4D5DD"],[self colorWithHexString:@"C1D184"],[self colorWithHexString:@"DAC361"],[self colorWithHexString:@"333333"], [self colorWithHexString:@"1A9FEB"], nil];
+    self.noteColorSchemes= [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"E9F2F6"],[UIColor colorWithHexString:@"F3F6E9"],[UIColor colorWithHexString:@"FBF6EA"], [UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
+    self.optionColorSchemes = [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"C4D5DD"],[UIColor colorWithHexString:@"C1D184"],[UIColor colorWithHexString:@"DAC361"],[UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
     
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
@@ -51,28 +52,28 @@
 }
 
 -(void)loadOptionColors {
-    self.white.backgroundColor = [self colorWithHexString:@"FFFFFF"];
-    self.sky.backgroundColor = [self colorWithHexString:@"C4D5DD"];
-    self.lime.backgroundColor = [self colorWithHexString:@"C1D184"];
-    self.kernal.backgroundColor = [self colorWithHexString:@"DAC361"];
-    self.shadow.backgroundColor = [self colorWithHexString:@"333333"];
-    self.tack.backgroundColor = [self colorWithHexString:@"1A9FEB"];
+    self.white.backgroundColor = [UIColor colorWithHexString:@"FFFFFF"];
+    self.sky.backgroundColor = [UIColor colorWithHexString:@"C4D5DD"];
+    self.lime.backgroundColor = [UIColor colorWithHexString:@"C1D184"];
+    self.kernal.backgroundColor = [UIColor colorWithHexString:@"DAC361"];
+    self.shadow.backgroundColor = [UIColor colorWithHexString:@"333333"];
+    self.tack.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
     
-    self.shareText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.settingsText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.aboutText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.versionText.textColor  = [self colorWithHexString:@"CCCCCC"];
-    self.optionsSubview.backgroundColor = [self colorWithHexString:@"292929"];
-    self.shareSubview.backgroundColor = [self colorWithHexString:@"292929"];
-    self.aboutSubview.backgroundColor = [self colorWithHexString:@"292929"];
-    self.emailText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.messageText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.tweetText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.builtText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.websiteText.textColor = [self colorWithHexString:@"CCCCCC"];
-    self.tackTwitterText.textColor = [self colorWithHexString:@"CCCCCC"];
+    self.shareText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.settingsText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.aboutText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.versionText.textColor  = [UIColor colorWithHexString:@"CCCCCC"];
+    self.optionsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
+    self.shareSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
+    self.aboutSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
+    self.emailText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.messageText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.tweetText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.builtText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.websiteText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
+    self.tackTwitterText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
     
-    self.cancelX.textColor = [self colorWithHexString:@"CCCCCC"];
+    self.cancelX.textColor = [UIColor colorWithHexString:@"CCCCCC"];
     
 }
 
@@ -96,46 +97,10 @@
     
 }
 
--(UIColor *) colorWithHexString: (NSString *) hex  
-{  
-    NSString *cString = [[hex stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];  
-    
-    // String should be 6 or 8 characters  
-    if ([cString length] < 6) return [UIColor grayColor];  
-    
-    // strip 0X if it appears  
-    if ([cString hasPrefix:@"0X"]) cString = [cString substringFromIndex:2];  
-    
-    if ([cString length] != 6) return  [UIColor grayColor];  
-    
-    // Separate into r, g, b substrings  
-    NSRange range;  
-    range.location = 0;  
-    range.length = 2;  
-    NSString *rString = [cString substringWithRange:range];  
-    
-    range.location = 2;  
-    NSString *gString = [cString substringWithRange:range];  
-    
-    range.location = 4;  
-    NSString *bString = [cString substringWithRange:range];  
-    
-    // Scan values  
-    unsigned int r, g, b;  
-    [[NSScanner scannerWithString:rString] scanHexInt:&r];  
-    [[NSScanner scannerWithString:gString] scanHexInt:&g];  
-    [[NSScanner scannerWithString:bString] scanHexInt:&b];  
-    
-    return [UIColor colorWithRed:((float) r / 255.0f)  
-                           green:((float) g / 255.0f)  
-                            blue:((float) b / 255.0f)  
-                           alpha:1.0f];  
-} 
-
 
 -(void)returnToOptions {
     [self.cancelX removeFromSuperview];
-    [self.delegate returnToOptions];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
     self.shareSubview.hidden = YES;
     self.aboutSubview.hidden = YES;
     [UIView animateWithDuration:0.3 
@@ -160,7 +125,7 @@
 
 
 -(void)openShare:(id)sender {
-    [self.delegate openShare];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0)];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -185,7 +150,7 @@
 }
 
 -(void)openAbout:(id)sender {
-    [self.delegate openAbout];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0)];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -213,15 +178,15 @@
 }
 
 - (IBAction)sendEmail:(id)sender {
-    [self.delegate sendEmail];
+//    [self.delegate sendEmail];
 }
 
 - (IBAction)sendSMS:(id)sender {
-    [self.delegate sendSMS];
+//    [self.delegate sendSMS];
 }
 
 - (IBAction)sendTweet:(id)sender {
-    [self.delegate sendTweet];
+//    [self.delegate sendTweet];
 }
 
 - (IBAction)visitSite:(id)sender {
@@ -236,15 +201,13 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-    UIColor *noteColor = [noteColorSchemes objectAtIndex:[optionColorSchemes indexOfObject:tap.view.backgroundColor]];
-    if ([optionColorSchemes indexOfObject:tap.view.backgroundColor] >= 4) {
-        [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
-    }else {
-        [self.delegate setNoteColor:noteColor textColor:nil];
-    }
-    
+//    UIColor *noteColor = [noteColorSchemes objectAtIndex:[optionColorSchemes indexOfObject:tap.view.backgroundColor]];
+//    if ([optionColorSchemes indexOfObject:tap.view.backgroundColor] >= 4) {
+//        [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
+//    }else {
+//        [self.delegate setNoteColor:noteColor textColor:nil];
+//    }    
 }
-
 
 - (void)viewDidUnload
 {
@@ -256,11 +219,6 @@
     [self setTack:nil];
     [self setScrollView:nil];
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
-
-
-
 
 @end

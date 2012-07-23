@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol NoteViewControllerDelegate <NSObject>
+@required
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point;
+
+@end
 @interface NoteViewController : UIViewController
+@property (strong, nonatomic) id<NoteViewControllerDelegate> delegate;
+- (IBAction)optionsSelected:(id)sender;
 
 @end

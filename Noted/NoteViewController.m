@@ -13,6 +13,7 @@
 @end
 
 @implementation NoteViewController
+@synthesize delegate;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -41,4 +42,7 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+- (IBAction)optionsSelected:(id)sender {
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
+}
 @end

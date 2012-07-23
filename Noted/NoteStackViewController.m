@@ -13,17 +13,20 @@
 
 @interface NoteStackViewController () {
     int numberOfTouchesInCurrentPanGesture;
-    
+    BOOL optionsShowing;
 }
 @end
 
 @implementation NoteStackViewController
-@synthesize currentNoteViewController, nextNoteViewController, previousNoteViewController, panGestureRecognizer;
+@synthesize currentNoteViewController, nextNoteViewController, previousNoteViewController, panGestureRecognizer, optionsViewController, overView;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.layer.cornerRadius = 6.5;
     self.view.layer.masksToBounds = NO;
+    
+    self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
+    [self.view addSubview:self.optionsViewController.view];
     
     self.currentNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
     self.nextNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
@@ -32,6 +35,9 @@
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
+    
+    self.currentNoteViewController.delegate = self;
+    self.optionsViewController.delegate = self;
 }
 
 - (void)viewDidUnload {
@@ -69,6 +75,56 @@ static const int PREVIOUS_DIRECTION = 1;
             self.currentNoteViewController.view.frame = newFrame;
         }
     }
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    NSLog(@"note is touched");
+    if(optionsShowing) {
+        // find the element that is being touched, if any.
+        CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
+        CGRect frame = self.overView.frame;
+        if(!CGRectContainsPoint(frame, currentLocation)) {
+            NSLog(@"touch options panel");
+        }else {
+            [self shiftCurrentNoteOriginToPoint:CGPointMake(0, 0)];
+            NSLog(@"touched outside of options");
+        }
+    }
+}
+
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+    
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    
+}
+
+#pragma mark - OptionsDelegate
+
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point{
+    self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
+    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
+    [UIView animateWithDuration:0.3 
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.currentNoteViewController.view.frame = CGRectMake(point.x, point.y, 320, 480);
+                     } completion:^(BOOL success){
+                         if (point.x == 0) {
+                             [self.overView removeFromSuperview];
+                             self.overView = nil;
+                             self.optionsViewController.view.frame = CGRectMake(-320,0,320,480);
+                             optionsShowing = NO;
+                         }else {
+                             if (!self.overView) {
+                                 self.overView = [UIView new];
+                                 [self.view addSubview:self.overView];
+                                 optionsShowing = YES;
+                             }
+                             self.overView.frame = self.currentNoteViewController.view.frame;
+                         }
+                     }];
 }
 
 @end
