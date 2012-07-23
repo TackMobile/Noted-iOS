@@ -8,13 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import "Utilities.h"
+#import "NoteFileManager.h"
 
 #define kNoteListChangedNotification @"kNoteListChangedNotification"
 
-@interface ApplicationModel : NSObject
+@interface ApplicationModel : NSObject <NoteFileManagerDelegate>
 
 DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
+@property(nonatomic,readonly) NoteFileManager *noteFileManager;
 @property(nonatomic,strong) NSOrderedSet *currentNoteEntries;
 
 - (void) refreshNotes;

@@ -9,29 +9,34 @@
 #import "ApplicationModel.h"
 #import "Utilities.h"
 #import "NoteEntry.h"
+#import "NoteFileManager.h"
 
 @implementation ApplicationModel
-@synthesize currentNoteEntries;
+@synthesize currentNoteEntries, noteFileManager;
 
 SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [[self alloc] init];
 });
 
-- (void) refreshNotes {
-    // TODO add real implementation
-    [self loadFakeNotes];
+- (NoteFileManager *) noteFileManager {
+    if (nil == noteFileManager) {
+        noteFileManager = [[NoteFileManager alloc] init];
+        noteFileManager.delegate = self;
+    }
+    return noteFileManager;
 }
 
-- (void) loadFakeNotes {
-    NSMutableOrderedSet *notes = [NSMutableOrderedSet orderedSet];
-    
-    [notes addObject:[NoteEntry new]];
-    [notes addObject:[NoteEntry new]];
-    [notes addObject:[NoteEntry new]];
-    [notes addObject:[NoteEntry new]];
-    
-    self.currentNoteEntries = notes;
+- (void) refreshNotes {
+    [self.noteFileManager loadAllNoteEntriesFromLocal];
+}
+
+#pragma mark - Note File Manager Delegate
+
+- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSOrderedSet *)noteEntries {
+    self.currentNoteEntries = noteEntries;
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
+}
+
 #pragma mark - Preferences
 
 - (BOOL)iCloudOn {    
@@ -60,5 +65,6 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
+
 
 @end
