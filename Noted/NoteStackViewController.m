@@ -10,11 +10,15 @@
 #import "ApplicationModel.h"
 #import "NoteViewController.h"
 #import <QuartzCore/QuartzCore.h>
+#import "NoteEntry.h"
 
 @interface NoteStackViewController () {
     int numberOfTouchesInCurrentPanGesture;
     BOOL optionsShowing;
 }
+
+- (void) presentNotes;
+
 @end
 
 @implementation NoteStackViewController
@@ -54,6 +58,11 @@
     [self.view addGestureRecognizer:self.panGestureRecognizer];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self presentNotes];
+}
+
 - (void)viewDidUnload {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.currentNoteViewController = nil;
@@ -63,6 +72,12 @@
     self.keyboardViewController = nil;
     self.overView = nil;
     [super viewDidUnload];
+}
+
+- (void)presentNotes {
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:model.selectedNoteIndex];
+    self.currentNoteViewController.noteEntry = noteEntry;
 }
 
 static const int NEXT_DIRECTION = 0;

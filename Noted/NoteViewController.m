@@ -13,22 +13,25 @@
 @end
 
 @implementation NoteViewController
-@synthesize delegate;
-@synthesize textView;
+@synthesize delegate, textView, noteEntry;
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
 }
 
-- (void)viewDidUnload
-{
+- (void)viewDidUnload {
     [self setTextView:nil];
     [super viewDidUnload];
 
 }
 
+- (void) setNoteEntry:(NoteEntry *)entry {
+    noteEntry = entry;
+    self.textView.text = [noteEntry text];
+}
+
 - (IBAction)optionsSelected:(id)sender {
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
 }
+
 @end

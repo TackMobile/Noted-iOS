@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NoteEntry.h"
 
 @protocol NoteViewControllerDelegate <NSObject>
 @required
@@ -14,8 +15,11 @@
 
 @end
 @interface NoteViewController : UIViewController
-@property (strong, nonatomic) id<NoteViewControllerDelegate> delegate;
-@property (strong, nonatomic) IBOutlet UITextView *textView;
+
+@property(strong, nonatomic) id<NoteViewControllerDelegate> delegate;
+@property(strong, nonatomic) IBOutlet UITextView *textView;
+@property(strong, nonatomic) NoteEntry *noteEntry;
+
 - (IBAction)optionsSelected:(id)sender;
 
 @end
