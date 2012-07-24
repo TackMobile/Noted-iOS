@@ -110,14 +110,6 @@ static const int PREVIOUS_DIRECTION = 1;
     }
 }
 
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    
-}
-
--(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-}
-
 #pragma mark - OptionsDelegate
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point{
