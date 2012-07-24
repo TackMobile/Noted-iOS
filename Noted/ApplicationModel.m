@@ -12,7 +12,7 @@
 #import "NoteFileManager.h"
 
 @implementation ApplicationModel
-@synthesize currentNoteEntries, noteFileManager;
+@synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
 
 SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [[self alloc] init];

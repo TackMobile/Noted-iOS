@@ -82,6 +82,8 @@
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    model.selectedNoteIndex = indexPath.row;
     NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
     [self presentViewController:stackViewController animated:YES completion:NULL];
 }

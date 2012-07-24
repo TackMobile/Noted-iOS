@@ -18,6 +18,7 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 @property(nonatomic,readonly) NoteFileManager *noteFileManager;
 @property(nonatomic,strong) NSOrderedSet *currentNoteEntries;
+@property(nonatomic,assign) NSInteger selectedNoteIndex;
 
 - (void) refreshNotes;
 
