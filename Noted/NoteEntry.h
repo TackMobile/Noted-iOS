@@ -24,6 +24,7 @@
 - (NSString *) title;
 - (NSString *) relativeDateString;
 - (NSString *) absoluteDateString;
+- (NSString *) text;
 
 
 @end

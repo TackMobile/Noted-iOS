@@ -42,6 +42,10 @@
     return [Utilities formatDate:self.version.modificationDate];
 }
 
+- (NSString *) text {
+    return self.noteData.noteText;
+}
+
 -(NSString*) description {
     return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }
