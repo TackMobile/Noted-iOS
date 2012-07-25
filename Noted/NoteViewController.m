@@ -34,4 +34,13 @@
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
 }
 
+-(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
+    if (textColor) {
+        self.textView.textColor = textColor;
+    }else {
+        self.textView.textColor = [UIColor blackColor];
+    }
+    self.view.backgroundColor = color;
+}
+
 @end

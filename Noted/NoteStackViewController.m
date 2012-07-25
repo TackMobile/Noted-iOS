@@ -125,7 +125,11 @@ static const int PREVIOUS_DIRECTION = 1;
     }
 }
 
-#pragma mark - OptionsDelegate
+#pragma mark OptionsViewController Delegate
+
+-(void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor {
+    [self.currentNoteViewController setColors:color textColor:textColor];
+}
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point{
     self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);

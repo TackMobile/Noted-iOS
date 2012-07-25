@@ -201,12 +201,12 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-//    UIColor *noteColor = [noteColorSchemes objectAtIndex:[optionColorSchemes indexOfObject:tap.view.backgroundColor]];
-//    if ([optionColorSchemes indexOfObject:tap.view.backgroundColor] >= 4) {
-//        [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
-//    }else {
-//        [self.delegate setNoteColor:noteColor textColor:nil];
-//    }    
+    UIColor *noteColor = [noteColorSchemes objectAtIndex:[optionColorSchemes indexOfObject:tap.view.backgroundColor]];
+    if ([optionColorSchemes indexOfObject:tap.view.backgroundColor] >= 4) {
+        [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
+    }else {
+        [self.delegate setNoteColor:noteColor textColor:nil];
+    }    
 }
 
 - (void)viewDidUnload

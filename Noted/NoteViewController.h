@@ -21,5 +21,6 @@
 @property(strong, nonatomic) NoteEntry *noteEntry;
 
 - (IBAction)optionsSelected:(id)sender;
+-(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 
 @end
