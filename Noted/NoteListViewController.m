@@ -12,6 +12,7 @@
 #import "NoteEntry.h"
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
+#import "NewNoteCell.h"
 
 @interface NoteListViewController ()
 
@@ -51,41 +52,77 @@
 
 #pragma mark - Table View methods
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        return 44;
+    } else {
+        return 66;
+    }
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    return [model.currentNoteEntries count];
+    if (section == 0) {
+        return 1;
+    } else {
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        return [model.currentNoteEntries count];
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellId = @"NoteCellId";
-    NoteEntryCell *cell = [tableView dequeueReusableCellWithIdentifier:CellId];
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
-    UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.05 * indexPath.row / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
-    
-    if (cell == nil) {
-        NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
-        // Grab a pointer to the first object (presumably the custom cell, as that's all the XIB should contain).
-        cell = [topLevelObjects objectAtIndex:0];
-        cell.textLabel.adjustsFontSizeToFitWidth = YES;
-        cell.textLabel.backgroundColor = [UIColor clearColor];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    static NSString *NewNoteCellId = @"NewNoteCellId";
+    UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.05 * indexPath.section / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
+    if (indexPath.section == 0) {
+        NewNoteCell *newNoteCell = [tableView dequeueReusableCellWithIdentifier:NewNoteCellId];
+        if (newNoteCell == nil) {
+            NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
+            newNoteCell = [topLevelObjects objectAtIndex:0];
+            newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
+            newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
+            newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            newNoteCell.contentView.backgroundColor = backgroundColor;
+        }
+        
+        newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
+        return newNoteCell;
+        
+    } else {
+        NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+        
+        if (noteEntryCell == nil) {
+            NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
+            noteEntryCell = [topLevelObjects objectAtIndex:0];
+            noteEntryCell.textLabel.adjustsFontSizeToFitWidth = YES;
+            noteEntryCell.textLabel.backgroundColor = [UIColor clearColor];
+            noteEntryCell.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+        
+        noteEntryCell.contentView.backgroundColor = backgroundColor;
+        noteEntryCell.subtitleLabel.text = [noteEntry title];
+        noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
+        noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
+        
+        return noteEntryCell;
     }
-    
-    cell.contentView.backgroundColor = backgroundColor;
-    cell.subtitleLabel.text = [noteEntry title];
-    cell.relativeTimeText.text = [noteEntry relativeDateString];
-    cell.absoluteTimeText.text = [noteEntry absoluteDateString];
-    
-    return cell;
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    model.selectedNoteIndex = indexPath.row;
-    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
-    [self presentViewController:stackViewController animated:YES completion:NULL];
+    if (indexPath.section == 0) {
+        // add new note
+    } else {
+        model.selectedNoteIndex = indexPath.row;
+        NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
+        [self presentViewController:stackViewController animated:YES completion:NULL];
+    }
 }
 
 

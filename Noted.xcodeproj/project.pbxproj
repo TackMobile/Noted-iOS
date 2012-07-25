@@ -63,6 +63,8 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
+		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
 		EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5FF43E15BD90BD003C481E /* TKPromise.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
@@ -153,6 +155,9 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
+		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
+		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
 		EA5FF43D15BD90BD003C481E /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TKPromise.h; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.h"; sourceTree = "<group>"; };
 		EA5FF43E15BD90BD003C481E /* TKPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TKPromise.m; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.m"; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
@@ -209,6 +214,9 @@
 				298EBFF1157021CC00B72F5C /* NoteEntryCell.xib */,
 				29960C861574103F0054347A /* TransformableNoteCell.h */,
 				29960C871574103F0054347A /* TransformableNoteCell.m */,
+				EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */,
+				EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */,
+				EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */,
 			);
 			name = "Cells and Keys";
 			sourceTree = "<group>";
@@ -469,6 +477,7 @@
 				EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */,
 				EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */,
 				EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */,
+				EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,6 +512,7 @@
 				EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */,
 				EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */,
 				EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */,
+				EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
