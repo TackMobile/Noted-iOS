@@ -1,3 +1,6 @@
 [submodule "Dependent Projects/Later"]
 	path = Dependent Projects/Later
 	url = git@github.com:TackMobile/Later.git
+[submodule "Dependent Projects/ios-utils"]
+	path = Dependent Projects/ios-utils
+	url = git@github.com:TackMobile/ios-utils.git
