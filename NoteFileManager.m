@@ -64,7 +64,7 @@
         //TODO can we get an error here?
         [self.delegate fileManager:self failedToLoadNoteEntriesWithError:nil];
     };
-    TKPromiseResolveBlock promiseResolvedBlock = ^{
+    TKPromiseResolvedBlock promiseResolvedBlock = ^{
         fileLoadPromise = nil;
     };
     
