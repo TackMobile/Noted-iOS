@@ -28,7 +28,7 @@
     if (self == [super init]) {
         NSArray *paths = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
         localDocumentRoot = [paths objectAtIndex:0];
-
+        currentDocumentRoot = localDocumentRoot;
     }
     return self;
 }
@@ -41,9 +41,65 @@
     [self performSelectorInBackground:@selector(loadLocalNoteEntriesInBackground) withObject:nil];
 }
 
-- (void) didLoadNoteEntries:(NSOrderedSet *)entries {
+- (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries {
     [self.delegate fileManager:self didLoadNoteEntries:entries];
 }
+
+- (NSURL *) URLForFileNamed:(NSString *)filename {
+    return [currentDocumentRoot URLByAppendingPathComponent:filename];
+}
+
+#pragma mark - Creating
+
+- (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
+    //TODO:
+    //[_query disableUpdates];
+    NSURL *fileURL = [self URLForFileNamed:noteName];
+#ifdef DEBUG
+    NSLog(@"Want to create file at %@", fileURL);
+#endif
+    NoteDocument *doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
+        
+        if (!success) {
+            NSLog(@"Failed to create file at %@", fileURL);
+            return;
+        } 
+        
+#ifdef DEBUG
+        NSLog(@"File created at %@", fileURL);
+#endif
+        NoteData *noteData = [NoteData new];
+        doc.location = @"0";
+        noteData.noteLocation = doc.location;
+        noteData.noteColor = doc.color;
+        noteData.noteText = doc.text;
+        UIDocumentState state = doc.documentState;
+        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+        
+        [doc closeWithCompletionHandler:^(BOOL success) {
+            if (!success) {
+#ifdef DEBUG
+                NSLog(@"Failed to close %@", fileURL);
+#endif
+                // Continue anyway...
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
+                entry.noteData = noteData;
+                entry.state = state;
+                entry.version = version;
+                entry.adding = NO;
+                noteCreationCompleteBlock(entry);
+                //TODO
+                //[_query enableUpdates];
+            });
+        }];         
+    }];
+}
+
+#pragma mark - Loading
 
 - (void) loadLocalNoteEntriesInBackground {
     NSMutableOrderedSet *list = [NSMutableOrderedSet orderedSet];
@@ -62,6 +118,7 @@
     };
     TKPromiseFailedBlock promiseFailedBlock = ^{
         //TODO can we get an error here?
+        //TODO do this on the main thread, right?
         [self.delegate fileManager:self failedToLoadNoteEntriesWithError:nil];
     };
     TKPromiseResolvedBlock promiseResolvedBlock = ^{
@@ -131,7 +188,7 @@
 #ifdef DEBUG
                 NSLog(@"iCloud available at: %@", iCloudDocumentRoot);
 #endif
-                currentDocumentRoot = iCloudDocumentRoot;
+                currentDocumentRoot = [iCloudDocumentRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
                 completionWithICloudAvailable(YES);
             });            
         } else {

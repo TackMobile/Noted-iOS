@@ -10,6 +10,7 @@
 #import "Utilities.h"
 #import "NoteEntry.h"
 #import "NoteFileManager.h"
+#import "NSString+Digest.h"
 
 @implementation ApplicationModel
 @synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
@@ -30,9 +31,18 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self.noteFileManager loadAllNoteEntriesFromLocal];
 }
 
+- (void) createNote {
+    NSString *uniqueName = [NSString randomSHA1];
+    CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {
+        [self.currentNoteEntries addObject:entry];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
+    };
+    [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
+}
+
 #pragma mark - Note File Manager Delegate
 
-- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSOrderedSet *)noteEntries {
+- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {
     self.currentNoteEntries = noteEntries;
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
 }

@@ -7,15 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NoteEntry.h"
 
 #define NOTE_EXTENSION @"ntd"
 
 @class NoteFileManager;
 
+typedef void (^CreateNoteCompletionBlock)(NoteEntry *entry);
+
 @protocol NoteFileManagerDelegate <NSObject>
 @optional
-- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSOrderedSet *)noteEntries;
-- (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesFromICloudWithLocalNoteEntries:(NSOrderedSet *)noteEntries;
+- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries;
+- (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesFromICloudWithLocalNoteEntries:(NSMutableOrderedSet *)noteEntries;
 - (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesWithError:(NSError *)error;
 
 @end
@@ -26,5 +29,6 @@
 
 - (void) loadAllNoteEntriesFromICloud;
 - (void) loadAllNoteEntriesFromLocal;
+- (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
 
 @end

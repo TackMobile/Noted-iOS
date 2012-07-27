@@ -117,7 +117,7 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     if (indexPath.section == 0) {
-        // add new note
+        [model createNote];
     } else {
         model.selectedNoteIndex = indexPath.row;
         NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];

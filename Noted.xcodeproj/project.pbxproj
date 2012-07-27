@@ -66,6 +66,7 @@
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
 		EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5FF43E15BD90BD003C481E /* TKPromise.m */; };
+		EABFFCD915C258770051859B /* NSString+Digest.m in Sources */ = {isa = PBXBuildFile; fileRef = EABFFCD815C258770051859B /* NSString+Digest.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
@@ -160,6 +161,8 @@
 		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
 		EA5FF43D15BD90BD003C481E /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TKPromise.h; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.h"; sourceTree = "<group>"; };
 		EA5FF43E15BD90BD003C481E /* TKPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TKPromise.m; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.m"; sourceTree = "<group>"; };
+		EABFFCD715C258770051859B /* NSString+Digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+Digest.h"; path = "Dependent Projects/ios-utils/utils/utils/NSString+Digest.h"; sourceTree = "<group>"; };
+		EABFFCD815C258770051859B /* NSString+Digest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+Digest.m"; path = "Dependent Projects/ios-utils/utils/utils/NSString+Digest.m"; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
 		EAC1F06215B99EB700262749 /* NoteFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteFileManager.m; sourceTree = "<group>"; };
 		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
@@ -284,6 +287,8 @@
 		29960C7E15740F050054347A /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				EABFFCD715C258770051859B /* NSString+Digest.h */,
+				EABFFCD815C258770051859B /* NSString+Digest.m */,
 				EA5FF43D15BD90BD003C481E /* TKPromise.h */,
 				EA5FF43E15BD90BD003C481E /* TKPromise.m */,
 				29960C7F15740F2D0054347A /* UIColor+HexColor.h */,
@@ -513,6 +518,7 @@
 				EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */,
 				EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */,
 				EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */,
+				EABFFCD915C258770051859B /* NSString+Digest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

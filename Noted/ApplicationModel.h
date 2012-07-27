@@ -17,7 +17,7 @@
 DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 @property(nonatomic,readonly) NoteFileManager *noteFileManager;
-@property(nonatomic,strong) NSOrderedSet *currentNoteEntries;
+@property(nonatomic,strong) NSMutableOrderedSet *currentNoteEntries;
 @property(nonatomic,assign) NSInteger selectedNoteIndex;
 
 - (void) refreshNotes;
@@ -28,5 +28,7 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void)setiCloudWasOn:(BOOL)on;
 - (BOOL)iCloudPrompted;
 - (void)setiCloudPrompted:(BOOL)prompted;
+
+- (void) createNote;
     
 @end
