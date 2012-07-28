@@ -13,14 +13,17 @@
 @end
 
 @implementation NoteViewController
+@synthesize scrollView;
 @synthesize delegate, textView, noteEntry;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.scrollView.contentSize = self.view.frame.size;
 }
 
 - (void)viewDidUnload {
     [self setTextView:nil];
+    [self setScrollView:nil];
     [super viewDidUnload];
 
 }
@@ -28,6 +31,7 @@
 - (void) setNoteEntry:(NoteEntry *)entry {
     noteEntry = entry;
     self.textView.text = [noteEntry text];
+    [self textViewDidChange:self.textView];
 }
 
 - (IBAction)optionsSelected:(id)sender {
@@ -41,6 +45,16 @@
         self.textView.textColor = [UIColor blackColor];
     }
     self.view.backgroundColor = color;
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
+    self.scrollView.contentOffset = aScrollView.contentOffset;
+}
+
+- (void)textViewDidChange:(UITextView *)aTextView{
+    if (![aTextView.text hasPrefix:@"\n"]) {
+        aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
+    }
 }
 
 @end

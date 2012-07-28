@@ -179,6 +179,7 @@ static const int PREVIOUS_DIRECTION = 1;
 }
 
 #pragma mark - Keyboard Delegate
+//TODO error checking isALetterTwoAgo
 
 //This might want to be changed so that the NoteViewController handles all of this.
 -(void)printKeySelected:(NSString *)label {
