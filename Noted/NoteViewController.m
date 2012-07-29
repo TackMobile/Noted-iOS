@@ -8,6 +8,7 @@
 
 #import "NoteViewController.h"
 #import "UIColor+HexColor.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface NoteViewController ()
 
@@ -23,6 +24,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.scrollView.contentSize = self.view.frame.size;
+//    self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
+//    self.view.layer.shadowOffset = CGSizeMake(-2,2 );
+//    self.view.layer.shadowOpacity = .70;
+    self.view.layer.cornerRadius = 6.5;
 }
 
 - (void)viewDidUnload {
@@ -38,6 +43,8 @@
 - (void) setNoteEntry:(NoteEntry *)entry {
     noteEntry = entry;
     self.textView.text = [noteEntry text];
+    self.absoluteTime.text = [noteEntry absoluteDateString];
+    self.relativeTime.text = [noteEntry relativeDateString];
     [self textViewDidChange:self.textView];
 }
 

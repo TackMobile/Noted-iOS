@@ -27,7 +27,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.layer.cornerRadius = 6.5;
-    self.view.layer.masksToBounds = NO;
     
     self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
     self.keyboardViewController.delegate = self;
@@ -44,7 +43,8 @@
     
     self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
     self.optionsViewController.delegate = self;
-    [self.view addSubview:self.optionsViewController.view];
+    self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
+    self.optionsViewController.view.hidden = YES;
     
     self.currentNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
     self.currentNoteViewController.delegate = self;
@@ -53,9 +53,12 @@
     
     self.nextNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
     self.previousNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
+    [self.view insertSubview:self.previousNoteViewController.view belowSubview:self.currentNoteViewController.view];
+    [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
+    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -87,19 +90,29 @@ static const int PREVIOUS_DIRECTION = 1;
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
     // TODO This is a bit simplified for now...
+    if (self.currentNoteViewController.view.frame.origin.x < 0) {
+        self.optionsViewController.view.hidden = YES;
+    }
     int xDirection = (velocity.x < 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1) {
             if (xDirection == PREVIOUS_DIRECTION) {
-                [self.view insertSubview:self.previousNoteViewController.view belowSubview:self.currentNoteViewController.view];
+
             } else {
-                [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
+
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         // CLEANUP
+        [UIView animateWithDuration:0.3 
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{
+                             self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+                         } completion:^(BOOL success){
+                         }];
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (numberOfTouchesInCurrentPanGesture == 1) {
             CGRect frame = self.currentNoteViewController.view.frame;
@@ -112,7 +125,7 @@ static const int PREVIOUS_DIRECTION = 1;
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     NSLog(@"note is touched");
-    if(optionsShowing) {
+    if(!self.optionsViewController.view.hidden) {
         // find the element that is being touched, if any.
         CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
         CGRect frame = self.overView.frame;
@@ -132,9 +145,10 @@ static const int PREVIOUS_DIRECTION = 1;
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point{
-    self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
+    if (point.x != 0) {
+        self.optionsViewController.view.hidden = NO;
+    } 
     [self.currentNoteViewController.textView resignFirstResponder];
-    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -144,13 +158,11 @@ static const int PREVIOUS_DIRECTION = 1;
                          if (point.x == 0) {
                              [self.overView removeFromSuperview];
                              self.overView = nil;
-                             self.optionsViewController.view.frame = CGRectMake(-320,0,320,480);
-                             optionsShowing = NO;
+                             self.optionsViewController.view.hidden = YES;
                          }else {
                              if (!self.overView) {
                                  self.overView = [UIView new];
                                  [self.view addSubview:self.overView];
-                                 optionsShowing = YES;
                              }
                              self.overView.frame = self.currentNoteViewController.view.frame;
                          }
