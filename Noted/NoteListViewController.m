@@ -125,6 +125,7 @@
     ApplicationModel *model = [ApplicationModel sharedInstance];
     if (indexPath.section == 0) {
         [model createNote];
+        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
         NoteEntry *entry = [model.currentNoteEntries objectAtIndex:indexPath.row];
         if (!entry.adding) {

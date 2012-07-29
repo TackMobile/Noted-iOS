@@ -35,11 +35,11 @@
 }
 
 - (NSString *) relativeDateString {
-    return [Utilities formatRelativeDate:self.version.modificationDate];
+    return (adding) ? @"..." : [Utilities formatRelativeDate:self.version.modificationDate];
 }
 
 - (NSString *) absoluteDateString {
-    return [Utilities formatDate:self.version.modificationDate];
+    return (adding) ? @"..." : [Utilities formatDate:self.version.modificationDate];
 }
 
 - (NSString *) text {

@@ -30,7 +30,7 @@ typedef void (^DeleteNoteCompletionBlock)();
 
 - (void) loadAllNoteEntriesFromICloud;
 - (void) loadAllNoteEntriesFromLocal;
-- (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
-- (void)deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+- (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
+- (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
     
 @end

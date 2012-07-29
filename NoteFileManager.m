@@ -51,13 +51,16 @@
 
 #pragma mark - Create update delete
 
-- (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
+- (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     //TODO:
     //[_query disableUpdates];
     NSURL *fileURL = [self URLForFileNamed:noteName];
 #ifdef DEBUG
     NSLog(@"Want to create file at %@", fileURL);
 #endif
+    __block NoteEntry *entry = [[NoteEntry alloc] init];
+    entry.fileURL = fileURL;
+    entry.adding = YES;
     NoteDocument *doc = [[NoteDocument alloc] initWithFileURL:fileURL];
     [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
         
@@ -86,7 +89,6 @@
             }
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
                 entry.noteData = noteData;
                 entry.state = state;
                 entry.version = version;
@@ -97,6 +99,7 @@
             });
         }];         
     }];
+    return entry;
 }
 
 - (void)deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {
