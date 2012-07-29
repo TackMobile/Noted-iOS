@@ -24,7 +24,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
-    self.tableView.backgroundView = backgroundView;
+    self.tableView.backgroundView  = backgroundView;
     self.tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight       = 60;
 
@@ -73,10 +73,13 @@
     }
 }
 
+- (BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return (indexPath.section != 0);
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellId = @"NoteCellId";
     static NSString *NewNoteCellId = @"NewNoteCellId";
-    UIColor *backgroundColor = [[UIColor colorWithHexString:@"1A9FEB"] colorWithHueOffset:0.05 * indexPath.section / [self tableView:tableView numberOfRowsInSection:indexPath.section]];
     if (indexPath.section == 0) {
         NewNoteCell *newNoteCell = [tableView dequeueReusableCellWithIdentifier:NewNoteCellId];
         if (newNoteCell == nil) {
@@ -85,9 +88,8 @@
             newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
             newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
             newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            newNoteCell.contentView.backgroundColor = backgroundColor;
+            newNoteCell.contentView.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
         }
-        
         newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
         return newNoteCell;
         
@@ -104,7 +106,12 @@
             noteEntryCell.selectionStyle = UITableViewCellSelectionStyleNone;
         }
         
-        noteEntryCell.contentView.backgroundColor = backgroundColor;
+        if (noteEntry.adding) {
+            noteEntryCell.contentView.backgroundColor = [UIColor lightGrayColor];
+        } else {
+            noteEntryCell.contentView.backgroundColor = [UIColor colorWithRed:0.05f green:0.54f blue:0.82f alpha:1.00f];
+        }
+        
         noteEntryCell.subtitleLabel.text = [noteEntry title];
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
@@ -119,9 +126,20 @@
     if (indexPath.section == 0) {
         [model createNote];
     } else {
-        model.selectedNoteIndex = indexPath.row;
-        NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
-        [self presentViewController:stackViewController animated:YES completion:NULL];
+        NoteEntry *entry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+        if (!entry.adding) {
+            model.selectedNoteIndex = indexPath.row;
+            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
+            [self presentViewController:stackViewController animated:YES completion:NULL];
+        }
+    }
+}
+
+- (void) tableView:(UITableView *)tv commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section != 0 && editingStyle == UITableViewCellEditingStyleDelete) {
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:NULL];
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
 }
 

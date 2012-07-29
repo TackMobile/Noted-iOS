@@ -49,7 +49,7 @@
     return [currentDocumentRoot URLByAppendingPathComponent:filename];
 }
 
-#pragma mark - Creating
+#pragma mark - Create update delete
 
 - (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     //TODO:
@@ -97,6 +97,30 @@
             });
         }];         
     }];
+}
+
+- (void)deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {
+    //TODO
+    //[_query disableUpdates];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [fileCoordinator coordinateWritingItemAtURL:entry.fileURL 
+                                            options:NSFileCoordinatorWritingForDeleting
+                                              error:nil 
+                                         byAccessor:^(NSURL* writingURL) {                                                   
+                                             NSError *error;
+                                             NSFileManager* fileManager = [[NSFileManager alloc] init];
+                                             [fileManager removeItemAtURL:entry.fileURL error:&error];
+#ifdef DEBUG
+                                             NSLog(@"Deleted item at %@",entry.fileURL);
+                                             NSLog(@"Error? %@", error);
+#endif
+                                             if (completionBlock) completionBlock();
+                                             //TODO
+                                             //[_query enableUpdates];
+                                         }];
+    });    
+    
 }
 
 #pragma mark - Loading

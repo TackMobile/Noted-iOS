@@ -40,6 +40,16 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
 }
 
+- (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
+    NoteEntry *entry = [self.currentNoteEntries objectAtIndex:index];
+    [self deleteNoteEntry:entry withCompletionBlock:callersCompletionBlock];
+}
+
+- (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
+    [self.currentNoteEntries removeObject:entry];
+    [self.noteFileManager deleteNoteEntry:entry withCompletionBlock:callersCompletionBlock];
+}
+
 #pragma mark - Note File Manager Delegate
 
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {

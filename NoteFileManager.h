@@ -14,6 +14,7 @@
 @class NoteFileManager;
 
 typedef void (^CreateNoteCompletionBlock)(NoteEntry *entry);
+typedef void (^DeleteNoteCompletionBlock)();
 
 @protocol NoteFileManagerDelegate <NSObject>
 @optional
@@ -30,5 +31,6 @@ typedef void (^CreateNoteCompletionBlock)(NoteEntry *entry);
 - (void) loadAllNoteEntriesFromICloud;
 - (void) loadAllNoteEntriesFromLocal;
 - (void) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
-
+- (void)deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+    
 @end
