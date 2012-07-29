@@ -32,7 +32,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 }
 
 - (void) createNote {
-    NSString *uniqueName = [NSString randomSHA1];
+    NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], NOTE_EXTENSION];
     CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {
         [self.currentNoteEntries addObject:entry];
         [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
