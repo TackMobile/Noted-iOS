@@ -17,7 +17,7 @@
 @implementation OptionsViewController
 @synthesize scrollView;
 
-@synthesize colorSubView,white,sky,lime,kernal,shadow,tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText,noteColorSchemes,optionColorSchemes;
+@synthesize colorSubView,white,sky,lime,kernal,shadow,tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText;
 @synthesize delegate;
 
 - (void)viewDidLoad
@@ -34,9 +34,6 @@
     [self.view addSubview:self.shareSubview];
     [self.view addSubview:self.aboutSubview];
     
-    //colorSchemes: white,lime,sky,kernal,shadow,tack
-    self.noteColorSchemes= [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"E9F2F6"],[UIColor colorWithHexString:@"F3F6E9"],[UIColor colorWithHexString:@"FBF6EA"], [UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
-    self.optionColorSchemes = [[NSMutableArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"C4D5DD"],[UIColor colorWithHexString:@"C1D184"],[UIColor colorWithHexString:@"DAC361"],[UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
     
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
@@ -201,8 +198,8 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-    UIColor *noteColor = [noteColorSchemes objectAtIndex:[optionColorSchemes indexOfObject:tap.view.backgroundColor]];
-    if ([optionColorSchemes indexOfObject:tap.view.backgroundColor] >= 4) {
+    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:[[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor]]; 
+    if ([[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor] >= 4) {
         [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
     }else {
         [self.delegate setNoteColor:noteColor textColor:nil];

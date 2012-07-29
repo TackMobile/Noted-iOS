@@ -42,8 +42,6 @@
 @property (weak, nonatomic) IBOutlet UITextView *builtText;
 @property (weak, nonatomic) IBOutlet UITextView *websiteText;
 @property (weak, nonatomic) IBOutlet UITextView *tackTwitterText;
-@property (strong) NSMutableArray *noteColorSchemes;
-@property (strong) NSMutableArray *optionColorSchemes;
 @property (nonatomic, retain) id delegate;
 
 

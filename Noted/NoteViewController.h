@@ -20,8 +20,10 @@
 @property(strong, nonatomic) IBOutlet UITextView *textView;
 @property(strong, nonatomic) NoteEntry *noteEntry;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (strong, nonatomic) IBOutlet UILabel *optionsDot;
+@property (strong, nonatomic) IBOutlet UILabel *relativeTime;
+@property (strong, nonatomic) IBOutlet UILabel *absoluteTime;
 
-- (IBAction)optionsSelected:(id)sender;
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView;
 @end
