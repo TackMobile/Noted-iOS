@@ -10,12 +10,14 @@
 #import "NoteViewController.h"
 #import "OptionsViewController.h"
 #import "KeyboardViewController.h"
+#import "NoteEntry.h"
 
 @interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate>
 
 @property(nonatomic,strong) NoteViewController *currentNoteViewController;
 @property(nonatomic,strong) NoteViewController *nextNoteViewController;
-@property(nonatomic,strong) NoteViewController *previousNoteViewController;
+@property(nonatomic,strong) NoteEntry *nextNoteEntry;
+@property(nonatomic,strong) NoteEntry *previousNoteEntry;
 
 @property(nonatomic,strong) KeyboardViewController *keyboardViewController;
 @property(nonatomic,strong) OptionsViewController *optionsViewController;

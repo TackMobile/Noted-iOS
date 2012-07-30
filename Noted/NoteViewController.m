@@ -41,11 +41,13 @@
 }
 
 - (void) setNoteEntry:(NoteEntry *)entry {
-    noteEntry = entry;
-    self.textView.text = [noteEntry text];
-    self.absoluteTime.text = [noteEntry absoluteDateString];
-    self.relativeTime.text = [noteEntry relativeDateString];
-    [self textViewDidChange:self.textView];
+    if (entry != noteEntry) {
+        noteEntry = entry;
+        self.textView.text = [noteEntry text];
+        self.absoluteTime.text = [noteEntry absoluteDateString];
+        self.relativeTime.text = [noteEntry relativeDateString];
+        [self textViewDidChange:self.textView];
+    }
 }
 
 - (IBAction)optionsSelected{

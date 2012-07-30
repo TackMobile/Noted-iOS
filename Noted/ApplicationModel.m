@@ -31,6 +31,22 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self.noteFileManager loadAllNoteEntriesFromLocal];
 }
 
+- (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
+    int count = [self.currentNoteEntries count];
+    assert(index <= count);
+    assert(index >= 0);
+    NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
+    return [self.currentNoteEntries objectAtIndex:previousIndex];
+}
+
+- (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index {
+    int count = [self.currentNoteEntries count];
+    assert(index <= count);
+    assert(index >= 0);
+    NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
+    return [self.currentNoteEntries objectAtIndex:nextIndex];
+}
+
 - (void) createNote {
     NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], NOTE_EXTENSION];
     CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {

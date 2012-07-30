@@ -22,7 +22,7 @@
 @end
 
 @implementation NoteStackViewController
-@synthesize currentNoteViewController, nextNoteViewController, previousNoteViewController, panGestureRecognizer, keyboardViewController,optionsViewController, overView;
+@synthesize currentNoteViewController, nextNoteViewController, panGestureRecognizer, keyboardViewController,optionsViewController, overView, nextNoteEntry, previousNoteEntry;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -52,8 +52,6 @@
     self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
     
     self.nextNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
-    self.previousNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
-    [self.view insertSubview:self.previousNoteViewController.view belowSubview:self.currentNoteViewController.view];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
@@ -69,11 +67,12 @@
 - (void)viewDidUnload {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.currentNoteViewController = nil;
-    self.previousNoteViewController = nil;
     self.nextNoteViewController = nil;
     self.optionsViewController = nil;
     self.keyboardViewController = nil;
     self.overView = nil;
+    self.nextNoteEntry = nil;
+    self.previousNoteEntry = nil;
     [super viewDidUnload];
 }
 
@@ -81,15 +80,22 @@
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:model.selectedNoteIndex];
     self.currentNoteViewController.noteEntry = noteEntry;
+    self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
+    self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
 }
 
 static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
+    ApplicationModel *model = [ApplicationModel sharedInstance];
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
-    // TODO This is a bit simplified for now...
+    CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
+    CGRect viewFrame = self.view.frame;
+    int noteCount = [model.currentNoteEntries count];
+    NoteEntry *entryUnderneath;
+    
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
     }
@@ -98,10 +104,16 @@ static const int PREVIOUS_DIRECTION = 1;
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1) {
-            if (xDirection == PREVIOUS_DIRECTION) {
-
+            if (noteCount == 1) {
+                self.nextNoteViewController.view.hidden = YES;
             } else {
-
+                self.nextNoteViewController.view.hidden = NO;
+                if (xDirection == PREVIOUS_DIRECTION) {
+                    entryUnderneath = previousNoteEntry;
+                } else {
+                    entryUnderneath = nextNoteEntry;
+                }
+                self.nextNoteViewController.noteEntry = entryUnderneath;
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -119,6 +131,17 @@ static const int PREVIOUS_DIRECTION = 1;
             CGRect newFrame;
             newFrame = CGRectMake(0 + point.x, 0, frame.size.width, frame.size.height);
             self.currentNoteViewController.view.frame = newFrame;
+            if (noteCount > 1) {
+                if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width) {
+                    entryUnderneath = previousNoteEntry;
+                    self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
+                    self.nextNoteViewController.noteEntry = entryUnderneath;
+                } else if (currentNoteFrame.origin.x < viewFrame.origin.x) {
+                    entryUnderneath = nextNoteEntry;
+                    self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
+                    self.nextNoteViewController.noteEntry = entryUnderneath;
+                }
+            }
         }
     }
 }
