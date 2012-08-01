@@ -31,6 +31,10 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self.noteFileManager loadAllNoteEntriesFromLocal];
 }
 
+- (NoteEntry *) noteAtSelectedNoteIndex {
+    return [self.currentNoteEntries objectAtIndex:self.selectedNoteIndex];
+}
+
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
     int count = [self.currentNoteEntries count];
     assert(index <= count);
@@ -46,6 +50,18 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
     return [self.currentNoteEntries objectAtIndex:nextIndex];
 }
+
+- (void) setCurrentNoteIndexToNext {
+    int count = [self.currentNoteEntries count];
+    self.selectedNoteIndex = (selectedNoteIndex == count - 1) ? 0 : selectedNoteIndex + 1;
+}
+
+- (void) setCurrentNoteIndexToPrevious {
+    int count = [self.currentNoteEntries count];
+    self.selectedNoteIndex = (selectedNoteIndex == 0) ? count - 1 : selectedNoteIndex - 1;
+}
+
+#pragma mark - CRUD
 
 - (void) createNote {
     NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], NOTE_EXTENSION];

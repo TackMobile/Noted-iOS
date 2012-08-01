@@ -86,6 +86,7 @@
 
 static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
+static const float DURATION = 0.3;
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -117,14 +118,47 @@ static const int PREVIOUS_DIRECTION = 1;
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
-        // CLEANUP
-        [UIView animateWithDuration:0.3 
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveEaseOut
-                         animations:^{
-                             self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
-                         } completion:^(BOOL success){
-                         }];
+        if (currentNoteFrame.origin.x > viewFrame.size.width/2) {
+            [UIView animateWithDuration:DURATION
+                                  delay:0.0
+                                options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 self.currentNoteViewController.view.frame = CGRectMake(viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
+                             }
+                             completion:^(BOOL success) {
+                                 if (success) {
+                                    [model setCurrentNoteIndexToPrevious];
+                                    self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
+                                    self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
+                                    self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
+                                    self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
+                                 }
+                             }];
+        } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2) {
+            [UIView animateWithDuration:DURATION
+                                  delay:0.0
+                                options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 self.currentNoteViewController.view.frame = CGRectMake(-viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
+                             }
+                             completion:^(BOOL success) {
+                                 if (success) {
+                                     [model setCurrentNoteIndexToNext];
+                                     self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
+                                     self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
+                                     self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
+                                     self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
+                                 }
+                             }];
+        } else {
+            [UIView animateWithDuration:DURATION
+                                  delay:0.0
+                                options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
+                             }
+                             completion:NULL];
+        }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (numberOfTouchesInCurrentPanGesture == 1) {
             CGRect frame = self.currentNoteViewController.view.frame;

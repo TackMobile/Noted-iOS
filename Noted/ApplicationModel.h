@@ -31,8 +31,12 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void)setiCloudPrompted:(BOOL)prompted;
 
 // Note Stack Helpers
+- (NoteEntry *) noteAtSelectedNoteIndex;
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index;
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index;
+- (void) setCurrentNoteIndexToNext;
+- (void) setCurrentNoteIndexToPrevious;
+
 
 // CRUD
 - (void) createNote;
