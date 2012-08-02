@@ -397,7 +397,7 @@
         
         
         if (pan.state == UIGestureRecognizerStateEnded) {
-//            CGPoint velocity = [pan velocityInView:self.view];
+            //            CGPoint velocity = [pan velocityInView:self.view];
             
             if (fabs(point.x) <= 160) {
                 if (point.y >= 100) {
@@ -411,8 +411,8 @@
                     for (int k = 0; k < [deletingViews count]; k++) {
                         UIView *view = [deletingViews objectAtIndex:k];
                         [UIView animateWithDuration:0.25
-                                              delay:0 
-                                            options:UIViewAnimationOptionCurveEaseOut 
+                                              delay:0
+                                            options:UIViewAnimationOptionCurveEaseOut
                                          animations:^{
                                              CGRect frame = view.frame;
                                              frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));

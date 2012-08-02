@@ -11,10 +11,12 @@
 #import "NoteViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "NoteEntry.h"
+#import "UIImage+Crop.h"
 
 @interface NoteStackViewController () {
     int numberOfTouchesInCurrentPanGesture;
     BOOL optionsShowing;
+    NSMutableArray *deletingViews;
 }
 
 - (void) presentNotes;
@@ -116,6 +118,28 @@ static const float DURATION = 0.3;
                 }
                 self.nextNoteViewController.noteEntry = entryUnderneath;
             }
+        } else if (numberOfTouchesInCurrentPanGesture >= 2) {
+            deletingViews = [NSMutableArray new];
+            CGRect rect = CGRectMake(0, 0, 320, 480);
+            UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+            CGContextRef context = UIGraphicsGetCurrentContext();
+            [self.currentNoteViewController.view.layer renderInContext:context];
+            UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            
+            // Create and show the new image from bitmap data
+            for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
+                // Create rectangle that represents a cropped image
+                // from the middle of the existing image
+                CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+                
+                // Create and show the new image from bitmap data
+                UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
+                imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+                [deletingViews addObject:imageView];
+                imageView.hidden = YES;
+                [self.view addSubview:imageView];
+            }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         if (currentNoteFrame.origin.x > viewFrame.size.width/2) {
@@ -159,6 +183,25 @@ static const float DURATION = 0.3;
                              }
                              completion:NULL];
         }
+        
+        if (numberOfTouchesInCurrentPanGesture >= 2) {            
+            for (int k = 0; k < [deletingViews count]; k++) {
+                UIView *view = [deletingViews objectAtIndex:k];
+                [UIView animateWithDuration:0.25
+                                      delay:0
+                                    options:UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                                     CGRect frame = view.frame;
+                                     frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
+                                     view.frame = frame;
+                                 }
+                                 completion:^(BOOL finished){
+                                     self.currentNoteViewController.view.hidden = NO;
+                                     [view removeFromSuperview];
+                                 }];
+            }
+            [deletingViews removeAllObjects];
+        }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (numberOfTouchesInCurrentPanGesture == 1) {
             CGRect frame = self.currentNoteViewController.view.frame;
@@ -174,6 +217,26 @@ static const float DURATION = 0.3;
                     entryUnderneath = nextNoteEntry;
                     self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
                     self.nextNoteViewController.noteEntry = entryUnderneath;
+                }
+            }
+        } else if (numberOfTouchesInCurrentPanGesture == 2) {
+            if (point.x > 0) {
+                self.currentNoteViewController.view.hidden = YES;
+                for (int k = 0; k < [deletingViews count]; k++) {
+                    double middle = deletingViews.count/2.0;
+                    UIImageView *view = [deletingViews objectAtIndex:k];
+                    view.hidden = NO;
+                    CGRect frame = view.frame;
+                    frame.origin.x = 0 + (point.x);
+                    if (k < [deletingViews count]/2.0) {
+                        frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+                    }else {
+                        frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+                    }
+                    if (frame.origin.x < 0) {
+                        frame.origin.x = 0;
+                    }
+                    view.frame = frame;
                 }
             }
         }
