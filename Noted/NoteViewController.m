@@ -24,10 +24,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.scrollView.contentSize = self.view.frame.size;
-//    self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
-//    self.view.layer.shadowOffset = CGSizeMake(-2,2 );
-//    self.view.layer.shadowOpacity = .70;
-    self.view.layer.cornerRadius = 6.5;
 }
 
 - (void)viewDidUnload {
@@ -47,6 +43,13 @@
         self.absoluteTime.text = [noteEntry absoluteDateString];
         self.relativeTime.text = [noteEntry relativeDateString];
         [self textViewDidChange:self.textView];
+        self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.view.layer.shadowOffset = CGSizeMake(-1,0);
+        self.view.layer.shadowOpacity = .70;
+        self.view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+        self.view.layer.shouldRasterize = YES;
+        [self.view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.view.bounds cornerRadius:6.5] CGPath]];
+        self.view.layer.cornerRadius = 6.5;
     }
 }
 
