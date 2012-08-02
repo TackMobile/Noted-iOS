@@ -89,6 +89,7 @@
 static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
+static const float FLIP_VELOCITY_THRESHOLD = 500;
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -142,7 +143,7 @@ static const float DURATION = 0.3;
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
-        if (currentNoteFrame.origin.x > viewFrame.size.width/2) {
+        if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {
             [UIView animateWithDuration:DURATION
                                   delay:0.0
                                 options:UIViewAnimationOptionCurveEaseOut
@@ -158,7 +159,7 @@ static const float DURATION = 0.3;
                                     self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
                                  }
                              }];
-        } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2) {
+        } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
             [UIView animateWithDuration:DURATION
                                   delay:0.0
                                 options:UIViewAnimationOptionCurveEaseOut
