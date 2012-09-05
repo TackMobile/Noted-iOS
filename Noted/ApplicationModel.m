@@ -16,6 +16,7 @@
 @synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
 
 SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
+    
     return [[self alloc] init];
 });
 
@@ -26,6 +27,17 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     }
     return noteFileManager;
 }
+
+
+- (NSMutableOrderedSet *)currentNoteEntries
+{
+    if (!currentNoteEntries) {
+        currentNoteEntries = [[NSMutableOrderedSet alloc] init];
+    }
+    
+    return currentNoteEntries;
+}
+
 
 - (void) refreshNotes {
     [self.noteFileManager loadAllNoteEntriesFromLocal];
