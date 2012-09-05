@@ -604,6 +604,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Benjamin Pilcher (RQZRE5LT36)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -615,6 +616,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "607EAAD0-3F4F-4B6D-9184-9452FAA5FD2F";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -623,6 +625,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Benjamin Pilcher (RQZRE5LT36)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -633,6 +636,7 @@
 					"\"$(SRCROOT)/Noted/TestFlightSDK1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "607EAAD0-3F4F-4B6D-9184-9452FAA5FD2F";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

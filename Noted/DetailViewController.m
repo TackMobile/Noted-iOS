@@ -179,7 +179,7 @@
 
 - (void)textViewDidChange:(UITextView *)textView {
     
-    NSMutableString *content = [[NSMutableString alloc] initWithFormat:self.noteTextView.text];
+    NSMutableString *content = [[NSMutableString alloc] initWithFormat:@"%@",self.noteTextView.text];
     NSRange time = [content rangeOfString:@":time"];
     if (time.location != NSNotFound) {
         [content replaceCharactersInRange:time
