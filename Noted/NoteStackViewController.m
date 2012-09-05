@@ -24,7 +24,22 @@
 @end
 
 @implementation NoteStackViewController
+
 @synthesize currentNoteViewController, nextNoteViewController, panGestureRecognizer, keyboardViewController,optionsViewController, overView, nextNoteEntry, previousNoteEntry;
+
+- (id)init
+{
+    self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
+    if (self){
+        //
+    }
+    
+    return self;
+}
+- (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
+{
+    return [self init];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -103,6 +118,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
     }
+    
     int xDirection = (velocity.x < 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
@@ -120,6 +136,12 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 self.nextNoteViewController.noteEntry = entryUnderneath;
             }
         } else if (numberOfTouchesInCurrentPanGesture >= 2) {
+            
+            BOOL popToList = (velocity.y > 0) && numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
+            if (popToList) {
+                [self dismissViewControllerAnimated:YES completion:nil];
+            }
+            
             deletingViews = [NSMutableArray new];
             CGRect rect = CGRectMake(0, 0, 320, 480);
             UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
@@ -185,6 +207,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                              completion:NULL];
         }
         
+                
         if (numberOfTouchesInCurrentPanGesture >= 2) {            
             for (int k = 0; k < [deletingViews count]; k++) {
                 UIView *view = [deletingViews objectAtIndex:k];

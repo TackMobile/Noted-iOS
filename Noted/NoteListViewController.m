@@ -130,7 +130,7 @@
         NoteEntry *entry = [model.currentNoteEntries objectAtIndex:indexPath.row];
         if (!entry.adding) {
             model.selectedNoteIndex = indexPath.row;
-            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithNibName:@"NoteStackViewController" bundle:nil];
+            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] init];
             [self presentViewController:stackViewController animated:YES completion:NULL];
         }
     }
