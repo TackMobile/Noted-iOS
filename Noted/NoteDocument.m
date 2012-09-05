@@ -63,7 +63,6 @@
     
 }
 
-
 - (NoteData*)data {    
     if (_data == nil) {
         if (self.fileWrapper != nil) {

@@ -13,6 +13,7 @@
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
 #import "NewNoteCell.h"
+#import "StorageSettingsDefaults.h"
 
 @interface NoteListViewController ()
 
@@ -32,10 +33,16 @@
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
                                                object:nil];
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model.noteFileManager checkICloudAvailabilityWithCompletionBlock:^(BOOL available){
+        [StorageSettingsDefaults setiCloudOn:available];
+    }];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model refreshNotes];
 }

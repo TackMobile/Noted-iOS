@@ -37,7 +37,6 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void) setCurrentNoteIndexToNext;
 - (void) setCurrentNoteIndexToPrevious;
 
-
 // CRUD
 - (void) createNote;
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;

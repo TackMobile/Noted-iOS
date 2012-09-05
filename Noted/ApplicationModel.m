@@ -11,6 +11,8 @@
 #import "NoteEntry.h"
 #import "NoteFileManager.h"
 #import "NSString+Digest.h"
+#import "StorageSettingsDefaults.h"
+#import "UIAlertView+Blocks.h"
 
 @implementation ApplicationModel
 @synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
@@ -40,7 +42,38 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 
 - (void) refreshNotes {
-    [self.noteFileManager loadAllNoteEntriesFromLocal];
+    void(^refreshBlock)() = ^{
+        [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
+    };
+    if ([StorageSettingsDefaults shouldPrompt]) {
+        [self promptForPreferredStorageWithCompletion:^(){
+            refreshBlock();
+            [StorageSettingsDefaults setPreferredStoragePrompted:YES];
+        }];
+        
+    } else {
+        refreshBlock();
+    }
+}
+
+- (void)promptForPreferredStorageWithCompletion:(void(^)())completionBlock
+{
+    RIButtonItem *iCloudButton = [RIButtonItem item];
+    iCloudButton.label = @"Use iCloud";
+    iCloudButton.action = ^{
+        [StorageSettingsDefaults setPreferredStorage:kTKiCloud];
+        completionBlock();
+    };
+    
+    RIButtonItem *localBtn = [RIButtonItem item];
+    localBtn.label = @"Later";
+    localBtn.action = ^{
+        [StorageSettingsDefaults setPreferredStorage:kTKlocal];
+        completionBlock();
+    };
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." cancelButtonItem:nil otherButtonItems:localBtn,iCloudButton,nil];
+    [alert show];
 }
 
 - (NoteEntry *) noteAtSelectedNoteIndex {

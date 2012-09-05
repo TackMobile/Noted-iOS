@@ -11,6 +11,7 @@
 #import "NoteData.h"
 #import "NoteEntry.h"
 #import "TKPromise.h"
+#import "StorageSettingsDefaults.h"
 
 @interface NoteFileManager () {
     NSURL *localDocumentRoot;
@@ -33,8 +34,18 @@
     return self;
 }
 
+- (void) loadAllNoteEntriesFromPreferredStorage
+{
+    TKPreferredStorage storage = [StorageSettingsDefaults preferredStorage];
+    if (storage==kTKiCloud) {
+        [self loadAllNoteEntriesFromICloud];
+    } else if (storage==kTKlocal) {
+        [self loadAllNoteEntriesFromLocal];
+    }
+}
+
 - (void) loadAllNoteEntriesFromICloud {
-    
+    [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
 }
 
 - (void) loadAllNoteEntriesFromLocal {
@@ -127,6 +138,11 @@
 }
 
 #pragma mark - Loading
+
+- (void) loadICloudNoteEntriesInBackground {
+    NSLog(@"loading from local, iCloud not yet implemented [%d]",__LINE__);
+    [self loadLocalNoteEntriesInBackground];
+}
 
 - (void) loadLocalNoteEntriesInBackground {
     NSMutableOrderedSet *list = [NSMutableOrderedSet orderedSet];

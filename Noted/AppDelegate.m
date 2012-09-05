@@ -10,6 +10,7 @@
 
 #import "NoteListViewController.h"
 #import "MasterViewController.h"
+#import "NoteFileManager.h"
 #import "TestFlight.h"
 
 @implementation AppDelegate
@@ -26,6 +27,7 @@
     
     self.window.rootViewController = [[NoteListViewController alloc] initWithNibName:@"NoteListViewController" bundle:nil];
     [self.window makeKeyAndVisible];
+        
     return YES;
 }
 

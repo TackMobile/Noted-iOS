@@ -28,9 +28,9 @@ typedef void (^DeleteNoteCompletionBlock)();
 
 @property(nonatomic,strong) id<NoteFileManagerDelegate> delegate;
 
-- (void) loadAllNoteEntriesFromICloud;
-- (void) loadAllNoteEntriesFromLocal;
+- (void) loadAllNoteEntriesFromPreferredStorage;
 - (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
 - (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+- (void)checkICloudAvailabilityWithCompletionBlock:(void (^)(BOOL available)) completionWithICloudAvailable;
     
 @end
