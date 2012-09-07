@@ -68,6 +68,7 @@
         self.textView.text = [noteEntry text];
         self.absoluteTime.text = [noteEntry absoluteDateString];
         self.relativeTime.text = [noteEntry relativeDateString];
+        [self.view setBackgroundColor:noteEntry.noteColor];
         [self textViewDidChange:self.textView];
         self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.view.layer.shadowOffset = CGSizeMake(-1,0);

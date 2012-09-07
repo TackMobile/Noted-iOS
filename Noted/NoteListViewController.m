@@ -145,7 +145,8 @@
         }
         
         //noteEntryCell.subtitleLabel.text = [noteEntry title];
-        noteEntryCell.subtitleLabel.text = [[noteEntry text] substringToIndex:10];
+        NSString *noteText = [NSString stringWithFormat:@"%@..",[[noteEntry text] substringToIndex:20]];
+        noteEntryCell.subtitleLabel.text = [noteEntry text]>0 ? noteText : @"";
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         

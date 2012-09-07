@@ -46,6 +46,11 @@
     return self.noteData.noteText;
 }
 
+- (UIColor *)noteColor
+{
+    return self.noteData.noteColor;
+}
+
 -(NSString*) description {
     return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }

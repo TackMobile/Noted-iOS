@@ -21,10 +21,11 @@
 @property BOOL moving;
 
 - (id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
+
 - (NSString *) title;
 - (NSString *) relativeDateString;
 - (NSString *) absoluteDateString;
 - (NSString *) text;
-
+- (UIColor *)noteColor;
 
 @end
