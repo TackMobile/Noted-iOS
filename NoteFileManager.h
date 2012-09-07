@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "NoteEntry.h"
 
-#define NOTE_EXTENSION @"ntd"
-
 @class NoteFileManager;
 
 typedef void (^CreateNoteCompletionBlock)(NoteEntry *entry);

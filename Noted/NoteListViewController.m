@@ -13,14 +13,30 @@
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
 #import "NewNoteCell.h"
-#import "StorageSettingsDefaults.h"
+#import "FileStorageState.h"
+#import "ICloudManager.h"
 
 @interface NoteListViewController ()
 
 @end
 
 @implementation NoteListViewController
+
 @synthesize tableView;
+
+- (id)init
+{
+    self = [super initWithNibName:@"NoteListViewController" bundle:nil];
+    if (self){
+        //
+    }
+    
+    return self;
+}
+- (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
+{
+    return [self init];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -34,10 +50,15 @@
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model.noteFileManager checkICloudAvailabilityWithCompletionBlock:^(BOOL available){
-        [StorageSettingsDefaults setiCloudOn:available];
-    }];
+    /*
+     ApplicationModel *model = [ApplicationModel sharedInstance];
+     [model.noteFileManager checkICloudAvailabilityWithCompletionBlock:^(BOOL available){
+     // peform any UI stuff that reflects iCloud-on state
+     NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
+     }];
+     */
+    
+    
 }
 
 - (void) viewDidAppear:(BOOL)animated {

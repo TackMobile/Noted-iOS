@@ -8,9 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class NoteData;
-
-#define NOTE_EXTENSION @"ntd"
+extern NSString *const kNoteExtension;
 
 @interface NoteDocument : UIDocument
 
@@ -21,5 +19,7 @@
 -(void)setText:(NSString*)text;
 -(void)setColor:(UIColor*)color;
 -(void)setLocation:(NSString*)location;
+
++ (NSString *)uniqueNoteName;
 
 @end

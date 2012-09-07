@@ -8,20 +8,21 @@
 
 #import "NoteDocument.h"
 #import "NoteData.h"
+#import "NSString+Digest.h"
 
-#define DATA_FILENAME @"note.data"
-
+NSString *const kNoteExtension = @"ntd";
+NSString *const kDataFilename = @"note.data";
 
 @interface NoteDocument ()
+
 @property (strong, nonatomic) NoteData *data;
 @property (strong, nonatomic) NSFileWrapper *fileWrapper;
 @end
 
 @implementation NoteDocument
+
 @synthesize data = _data;
 @synthesize fileWrapper = _fileWrapper;
-
-
 
 - (void)encodeObject:(id<NSCoding>)object toWrappers:(NSMutableDictionary*)wrappers preferredFilename:(NSString*)preferredFilename {
     @autoreleasepool {            
@@ -34,6 +35,7 @@
     }
 }
 
+// Called whenever the application (auto)saves the content of a note
 - (id)contentsForType:(NSString *)typeName error:(NSError*__autoreleasing*)outError {
     NSLog(@"Saving current Document");
     if (self.data == nil) {        
@@ -41,11 +43,10 @@
     }
     
     NSMutableDictionary *wrappers = [NSMutableDictionary dictionary];
-    [self encodeObject:self.data toWrappers:wrappers preferredFilename:DATA_FILENAME];   
+    [self encodeObject:self.data toWrappers:wrappers preferredFilename:kDataFilename];   
     NSFileWrapper *fileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:wrappers];
     
     return fileWrapper;
-    
 }
 
 - (id)decodeObjectFromWrapperWithPreferredFilename:(NSString*)preferredFilename {
@@ -56,17 +57,19 @@
         return nil;
     }
     
-    NSData *data = [fileWrapper regularFileContents];    
+    NSData *data = [fileWrapper regularFileContents];
+    if (!data){
+        NSLog(@"data was nil %s [%d]",__PRETTY_FUNCTION__,__LINE__);
+    }
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     
     return [unarchiver decodeObjectForKey:@"data"];
-    
 }
 
 - (NoteData*)data {    
     if (_data == nil) {
         if (self.fileWrapper != nil) {
-            self.data = [self decodeObjectFromWrapperWithPreferredFilename:DATA_FILENAME];
+            self.data = [self decodeObjectFromWrapperWithPreferredFilename:kDataFilename];
         } else {
             self.data = [[NoteData alloc] init];
         }
@@ -74,6 +77,7 @@
     return _data;
 }
 
+// called by the background queue whenever the read operation has been completed.
 - (BOOL)loadFromContents:(id)contents ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError {
     
     self.fileWrapper = (NSFileWrapper*) contents;    
@@ -82,7 +86,6 @@
     self.data = nil;
     
     return YES;
-    
 }
 
 
@@ -123,6 +126,11 @@
     [self.undoManager registerUndoWithTarget:self selector:@selector(setLocation:) object:oldLocation];
 }
 
-
++ (NSString *)uniqueNoteName
+{
+    NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], kNoteExtension];
+    
+    return uniqueName;
+}
 
 @end

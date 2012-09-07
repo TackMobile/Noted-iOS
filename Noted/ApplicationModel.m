@@ -8,13 +8,15 @@
 
 #import "ApplicationModel.h"
 #import "Utilities.h"
+#import "NoteDocument.h"
 #import "NoteEntry.h"
 #import "NoteFileManager.h"
 #import "NSString+Digest.h"
-#import "StorageSettingsDefaults.h"
+#import "FileStorageState.h"
 #import "UIAlertView+Blocks.h"
 
 @implementation ApplicationModel
+
 @synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
 
 SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
@@ -36,19 +38,24 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     if (!currentNoteEntries) {
         currentNoteEntries = [[NSMutableOrderedSet alloc] init];
     }
-    
+        
     return currentNoteEntries;
 }
 
 
-- (void) refreshNotes {
+- (void)refreshNotes {
     void(^refreshBlock)() = ^{
         [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
     };
-    if ([StorageSettingsDefaults shouldPrompt]) {
+    if ([FileStorageState shouldPrompt]) {
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:@"createNote" object:nil queue:nil usingBlock:^(NSNotification *note){
+            [self createNote];
+        }];
+        
         [self promptForPreferredStorageWithCompletion:^(){
             refreshBlock();
-            [StorageSettingsDefaults setPreferredStoragePrompted:YES];
+            [FileStorageState setPreferredStoragePrompted:YES];
         }];
         
     } else {
@@ -61,14 +68,14 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     RIButtonItem *iCloudButton = [RIButtonItem item];
     iCloudButton.label = @"Use iCloud";
     iCloudButton.action = ^{
-        [StorageSettingsDefaults setPreferredStorage:kTKiCloud];
+        [FileStorageState setPreferredStorage:kTKiCloud];
         completionBlock();
     };
     
     RIButtonItem *localBtn = [RIButtonItem item];
     localBtn.label = @"Later";
     localBtn.action = ^{
-        [StorageSettingsDefaults setPreferredStorage:kTKlocal];
+        [FileStorageState setPreferredStorage:kTKlocal];
         completionBlock();
     };
     
@@ -109,7 +116,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 #pragma mark - CRUD
 
 - (void) createNote {
-    NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], NOTE_EXTENSION];
+    NSString *uniqueName = [NoteDocument uniqueNoteName];
     CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
     };

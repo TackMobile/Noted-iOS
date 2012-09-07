@@ -9,13 +9,18 @@
 #import <UIKit/UIKit.h>
 #import "NoteEntry.h"
 
+@class NoteDocument;
+
 @protocol NoteViewControllerDelegate <NSObject>
+
 @required
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point;
 
 @end
+
 @interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate>
 
+@property (strong, nonatomic) NoteDocument *note;
 @property(strong, nonatomic) id<NoteViewControllerDelegate> delegate;
 @property(strong, nonatomic) IBOutlet UITextView *textView;
 @property(strong, nonatomic) NoteEntry *noteEntry;
@@ -26,4 +31,5 @@
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView;
+
 @end

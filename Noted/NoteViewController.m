@@ -36,6 +36,15 @@
 
 }
 
+-(void)setNote:(NoteDocument *)newNote
+{
+    if (_note != newNote) {
+        _note = newNote;
+        
+        //[self configureView];
+    }
+}
+
 - (void) setNoteEntry:(NoteEntry *)entry {
     if (entry != noteEntry) {
         noteEntry = entry;
@@ -83,6 +92,7 @@
 - (void)textViewDidChange:(UITextView *)aTextView{
     if (![aTextView.text hasPrefix:@"\n"]) {
         aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
+
     }
 }
 

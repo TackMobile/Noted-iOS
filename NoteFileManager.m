@@ -11,11 +11,13 @@
 #import "NoteData.h"
 #import "NoteEntry.h"
 #import "TKPromise.h"
-#import "StorageSettingsDefaults.h"
+#import "FileStorageState.h"
+#import "ICloudManager.h"
+#import "ApplicationModel.h"
 
 @interface NoteFileManager () {
     NSURL *localDocumentRoot;
-    NSURL *iCloudDocumentRoot;
+    //NSURL *iCloudDocumentRoot;
     NSURL *currentDocumentRoot;
     TKPromise *fileLoadPromise;
 }
@@ -23,6 +25,7 @@
 @end
 
 @implementation NoteFileManager
+
 @synthesize delegate;
 
 - (id) init {
@@ -36,7 +39,7 @@
 
 - (void) loadAllNoteEntriesFromPreferredStorage
 {
-    TKPreferredStorage storage = [StorageSettingsDefaults preferredStorage];
+    TKPreferredStorage storage = [FileStorageState preferredStorage];
     if (storage==kTKiCloud) {
         [self loadAllNoteEntriesFromICloud];
     } else if (storage==kTKlocal) {
@@ -63,8 +66,7 @@
 #pragma mark - Create update delete
 
 - (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
-    //TODO:
-    //[_query disableUpdates];
+    
     NSURL *fileURL = [self URLForFileNamed:noteName];
 #ifdef DEBUG
     NSLog(@"Want to create file at %@", fileURL);
@@ -140,14 +142,32 @@
 #pragma mark - Loading
 
 - (void) loadICloudNoteEntriesInBackground {
-    NSLog(@"loading from local, iCloud not yet implemented [%d]",__LINE__);
-    [self loadLocalNoteEntriesInBackground];
+
+    // check what's there
+    [[ICloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects){
+        
+        if (noteObjects.count==0) {
+            // 1st use, create one
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"createNote" object:nil];
+            
+        } else {
+            
+            // show them
+            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:noteObjects waitUntilDone:NO];
+        }
+        
+    } failBlock:^{
+        NSLog(@"iCloud load desired but unavailable [%d]",__LINE__);
+        [self performSelectorInBackground:@selector(loadLocalNoteEntriesInBackground) withObject:nil];
+    }];
 }
 
-- (void) loadLocalNoteEntriesInBackground {
+- (void) loadLocalNoteEntriesInBackground
+{
     NSMutableOrderedSet *list = [NSMutableOrderedSet orderedSet];
+    // array of urls from NSFileManager
     NSArray *localDocuments = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:localDocumentRoot includingPropertiesForKeys:nil options:0 error:nil];
-    NSPredicate *notedDocsPredicate = [NSPredicate predicateWithFormat:@"%K == %@", @"pathExtension", NOTE_EXTENSION];
+    NSPredicate *notedDocsPredicate = [NSPredicate predicateWithFormat:@"%K == %@", @"pathExtension", kNoteExtension];
     NSArray *notedDocuments = [localDocuments filteredArrayUsingPredicate:notedDocsPredicate];
     NSArray *fileURLs = [notedDocuments valueForKeyPath:@"absoluteString"];
     
@@ -223,28 +243,38 @@
 
 #pragma mark - iCloud
 
-- (void)checkICloudAvailabilityWithCompletionBlock:(void (^)(BOOL available)) completionWithICloudAvailable {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        iCloudDocumentRoot = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
-        if (iCloudDocumentRoot) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-#ifdef DEBUG
-                NSLog(@"iCloud available at: %@", iCloudDocumentRoot);
-#endif
-                currentDocumentRoot = [iCloudDocumentRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
-                completionWithICloudAvailable(YES);
-            });            
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-#ifdef DEBUG
-                NSLog(@"iCloud not available");
-#endif
-                currentDocumentRoot = localDocumentRoot;
-                completionWithICloudAvailable(NO);
-            });
-        }
-    });
+- (void)checkICloudAvailability:(void (^)(BOOL available))completionWithICloudAvailable
+{
+    ICloudManager *manager = [ICloudManager sharedInstance];
+    [manager initializeiCloudAccessWithCompletion:^(BOOL available){
+        completionWithICloudAvailable(available);
+    }];
 }
+
+/*
+ - (void)checkICloudAvailabilityWithCompletionBlock:(void (^)(BOOL available)) completionWithICloudAvailable {
+ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+ iCloudDocumentRoot = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
+ if (iCloudDocumentRoot) {
+ dispatch_async(dispatch_get_main_queue(), ^{
+ #ifdef DEBUG
+ NSLog(@"iCloud available at: %@", iCloudDocumentRoot);
+ #endif
+ currentDocumentRoot = [iCloudDocumentRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
+ completionWithICloudAvailable(YES);
+ });
+ } else {
+ dispatch_async(dispatch_get_main_queue(), ^{
+ #ifdef DEBUG
+ NSLog(@"iCloud not available");
+ #endif
+ currentDocumentRoot = localDocumentRoot;
+ completionWithICloudAvailable(NO);
+ });
+ }
+ });
+ }
+ */
 
 #pragma mark - Helpers
 
@@ -268,4 +298,4 @@
     return [states componentsJoinedByString:@", "];
 }
 
-@end 
+@end

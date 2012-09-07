@@ -3,7 +3,7 @@
 //  Noted
 //
 //  Created by James Bartolotta on 5/24/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Tackmobile. All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -12,6 +12,9 @@
 #import "MasterViewController.h"
 #import "NoteFileManager.h"
 #import "TestFlight.h"
+#import "ICloudManager.h"
+
+NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
 
 @implementation AppDelegate
 
@@ -23,10 +26,14 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    [TestFlight takeOff:@"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA"];
+    [TestFlight takeOff:kTestflightToken];
     
-    self.window.rootViewController = [[NoteListViewController alloc] initWithNibName:@"NoteListViewController" bundle:nil];
+    self.window.rootViewController = [[NoteListViewController alloc] init];
     [self.window makeKeyAndVisible];
+    
+    [[ICloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
+        NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
+    }];
         
     return YES;
 }

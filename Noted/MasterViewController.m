@@ -3,7 +3,7 @@
 //  Noted
 //
 //  Created by James Bartolotta on 5/24/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Tackmobile. All rights reserved.
 //
 
 #import "MasterViewController.h"
@@ -150,10 +150,10 @@
         if (first) {
             first = NO;
             newDocName = [NSString stringWithFormat:@"%@.%@",
-                          prefix, NOTE_EXTENSION];
+                          prefix, kNoteExtension];
         } else {
             newDocName = [NSString stringWithFormat:@"%@ %d.%@",
-                          prefix, docCount, NOTE_EXTENSION];
+                          prefix, docCount, kNoteExtension];
         }
         
         // Look for an existing document with the same name. If one is
@@ -311,7 +311,7 @@
     
     // Check if can rename file
     NSString * newDocFilename = [NSString stringWithFormat:@"%@.%@",
-                                 filename, NOTE_EXTENSION];
+                                 filename, kNoteExtension];
     if ([self docNameExistsInObjects:newDocFilename]) {
         NSString * message = [NSString stringWithFormat:@"\"%@\" is already taken.  Please choose a different name.", filename];
         UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
@@ -553,7 +553,7 @@
     for (int i=0; i < localDocuments.count; i++) {
         
         NSURL * fileURL = [localDocuments objectAtIndex:i];
-        if ([[fileURL pathExtension] isEqualToString:NOTE_EXTENSION]) {
+        if ([[fileURL pathExtension] isEqualToString:kNoteExtension]) {
             
             NSString * fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
             NSURL *destURL = [self getDocURL:[self getDocFilename:fileName uniqueInObjects:NO]];
@@ -586,7 +586,6 @@
     else {
         _moveLocalToiCloud = YES;         
     }
-    
 }
 
 #pragma mark iCloud Query
@@ -600,7 +599,7 @@
         [query setSearchScopes:[NSArray arrayWithObject:NSMetadataQueryUbiquitousDocumentsScope]];
         
         // Add a predicate for finding the documents
-        NSString * filePattern = [NSString stringWithFormat:@"*.%@", NOTE_EXTENSION];
+        NSString * filePattern = [NSString stringWithFormat:@"*.%@", kNoteExtension];
         [query setPredicate:[NSPredicate predicateWithFormat:@"%K LIKE %@",
                              NSMetadataItemFSNameKey, filePattern]];        
         
@@ -711,7 +710,7 @@ NSLog(@"Found %d local files.", localDocuments.count);
 for (int i=0; i < localDocuments.count; i++) {
     
     NSURL * fileURL = [localDocuments objectAtIndex:i];
-    if ([[fileURL pathExtension] isEqualToString:NOTE_EXTENSION]) {
+    if ([[fileURL pathExtension] isEqualToString:kNoteExtension]) {
         NSLog(@"Found local file: %@", fileURL);
         [self loadDocAtURL:fileURL];
     }        

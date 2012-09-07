@@ -3,7 +3,7 @@
 //  Noted
 //
 //  Created by James Bartolotta on 5/24/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Tackmobile. All rights reserved.
 //
 
 #import "NoteData.h"
@@ -32,19 +32,18 @@
 #define kLocationKey @"Location"
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
-[encoder encodeInt:1 forKey:kVersionKey];
-[encoder encodeObject:self.noteText forKey:kTextKey];
-[encoder encodeObject:self.noteColor forKey:kColorKey];
-[encoder encodeObject:self.noteLocation forKey:kLocationKey];
+    [encoder encodeInt:1 forKey:kVersionKey];
+    [encoder encodeObject:self.noteText forKey:kTextKey];
+    [encoder encodeObject:self.noteColor forKey:kColorKey];
+    [encoder encodeObject:self.noteLocation forKey:kLocationKey];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
-[decoder decodeIntForKey:kVersionKey];
-NSString *text = [decoder decodeObjectForKey:kTextKey];
-UIColor *color = [decoder decodeObjectForKey:kColorKey];
-NSString *location = [decoder decodeObjectForKey:kLocationKey];
-return [self initWithText:text color:color location:location];
+    [decoder decodeIntForKey:kVersionKey];
+    NSString *text = [decoder decodeObjectForKey:kTextKey];
+    UIColor *color = [decoder decodeObjectForKey:kColorKey];
+    NSString *location = [decoder decodeObjectForKey:kLocationKey];
+    return [self initWithText:text color:color location:location];
 }
-
 
 @end

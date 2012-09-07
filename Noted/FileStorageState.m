@@ -6,12 +6,12 @@
 //  Copyright (c) 2012 Tack Mobile. All rights reserved.
 //
 
-#import "StorageSettingsDefaults.h"
+#import "FileStorageState.h"
 
 NSString *const kPreferredStorage =         @"preferredStorage";
 NSString *const kPreferredStoragePrompted = @"preferredStoragePrompted";
 
-@implementation StorageSettingsDefaults
+@implementation FileStorageState
 
 #pragma mark iCloud state
 

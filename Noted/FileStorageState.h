@@ -13,7 +13,7 @@ typedef enum {
     kTKlocal
 } TKPreferredStorage;
 
-@interface StorageSettingsDefaults : NSObject
+@interface FileStorageState : NSObject
 
 + (TKPreferredStorage)preferredStorage;
 + (void)setPreferredStorage:(TKPreferredStorage)storage;
