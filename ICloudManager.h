@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 
 typedef void(^iCloudAvailableBlock)(BOOL available);
-typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *);
+typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *note,NSMutableOrderedSet *noteDocs);
 typedef void(^iCloudLoadingFailed)();
 
 @interface ICloudManager : NSObject

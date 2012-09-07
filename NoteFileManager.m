@@ -15,9 +15,9 @@
 #import "ICloudManager.h"
 #import "ApplicationModel.h"
 
-@interface NoteFileManager () {
+@interface NoteFileManager ()
+{
     NSURL *localDocumentRoot;
-    //NSURL *iCloudDocumentRoot;
     NSURL *currentDocumentRoot;
     TKPromise *fileLoadPromise;
 }
@@ -144,7 +144,7 @@
 - (void) loadICloudNoteEntriesInBackground {
 
     // check what's there
-    [[ICloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects){
+    [[ICloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects,NSMutableOrderedSet *docs){
         
         if (noteObjects.count==0) {
             // 1st use, create one
@@ -153,7 +153,7 @@
         } else {
             
             // show them
-            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:noteObjects waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:docs waitUntilDone:NO];
         }
         
     } failBlock:^{

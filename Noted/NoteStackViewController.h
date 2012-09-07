@@ -16,6 +16,7 @@
 
 @property(nonatomic,strong) NoteViewController *currentNoteViewController;
 @property(nonatomic,strong) NoteViewController *nextNoteViewController;
+
 @property(nonatomic,strong) NoteEntry *nextNoteEntry;
 @property(nonatomic,strong) NoteEntry *previousNoteEntry;
 

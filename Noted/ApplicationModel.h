@@ -10,6 +10,8 @@
 #import "Utilities.h"
 #import "NoteFileManager.h"
 
+@class NoteDocument;
+
 #define kNoteListChangedNotification @"kNoteListChangedNotification"
 
 @interface ApplicationModel : NSObject <NoteFileManagerDelegate>
@@ -18,6 +20,7 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 @property(nonatomic,readonly) NoteFileManager *noteFileManager;
 @property(nonatomic,strong) NSMutableOrderedSet *currentNoteEntries;
+@property(nonatomic,strong) NSMutableOrderedSet *currentNoteDocuments;
 @property(nonatomic,assign) NSInteger selectedNoteIndex;
 
 - (void) refreshNotes;
@@ -31,7 +34,10 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void)setiCloudPrompted:(BOOL)prompted;
 
 // Note Stack Helpers
+- (NoteEntry *) noteAtIndex:(int)index;
 - (NoteEntry *) noteAtSelectedNoteIndex;
+- (NoteDocument *)noteDocumentAtIndex:(int)index;
+
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index;
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index;
 - (void) setCurrentNoteIndexToNext;

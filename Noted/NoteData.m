@@ -41,6 +41,7 @@
 - (id)initWithCoder:(NSCoder *)decoder {
     [decoder decodeIntForKey:kVersionKey];
     NSString *text = [decoder decodeObjectForKey:kTextKey];
+    NSLog(@"unarchiving note with text:%@ [%d]",text,__LINE__);
     UIColor *color = [decoder decodeObjectForKey:kColorKey];
     NSString *location = [decoder decodeObjectForKey:kLocationKey];
     return [self initWithText:text color:color location:location];

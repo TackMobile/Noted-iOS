@@ -8,6 +8,7 @@
 
 #import "NoteDocument.h"
 #import "NoteData.h"
+#import "NoteEntry.h"
 #import "NSString+Digest.h"
 
 NSString *const kNoteExtension = @"ntd";
@@ -41,7 +42,7 @@ NSString *const kDataFilename = @"note.data";
     if (self.data == nil) {        
         return nil;    
     }
-    
+        
     NSMutableDictionary *wrappers = [NSMutableDictionary dictionary];
     [self encodeObject:self.data toWrappers:wrappers preferredFilename:kDataFilename];   
     NSFileWrapper *fileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:wrappers];
@@ -131,6 +132,48 @@ NSString *const kDataFilename = @"note.data";
     NSString *uniqueName = [NSString stringWithFormat:@"%@.%@", [NSString randomSHA1], kNoteExtension];
     
     return uniqueName;
+}
+
+- (NoteEntry *)noteEntry
+{
+    NoteData * noteData = [NoteData new];
+    noteData.noteText = self.text;
+    noteData.noteLocation = self.location;
+    noteData.noteColor = self.color;
+    
+    NSURL * fileURL = self.fileURL;
+    UIDocumentState state = self.documentState;
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDoesRelativeDateFormatting:YES];
+    [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+    NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+    NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [self.fileURL lastPathComponent], [NoteDocument stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+    
+    NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
+    
+    return entry;
+}
+
++ (NSString *)stringForState:(UIDocumentState)state
+{
+    NSMutableArray * states = [NSMutableArray array];
+    if (state == 0) {
+        [states addObject:@"Normal"];
+    }
+    if (state & UIDocumentStateClosed) {
+        [states addObject:@"Closed"];
+    }
+    if (state & UIDocumentStateInConflict) {
+        [states addObject:@"In Conflict"];
+    }
+    if (state & UIDocumentStateSavingError) {
+        [states addObject:@"Saving error"];
+    }
+    if (state & UIDocumentStateEditingDisabled) {
+        [states addObject:@"Editing disabled"];
+    }
+    return [states componentsJoinedByString:@", "];
 }
 
 @end

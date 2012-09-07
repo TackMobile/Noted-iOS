@@ -9,17 +9,34 @@
 #import "NoteViewController.h"
 #import "UIColor+HexColor.h"
 #import <QuartzCore/QuartzCore.h>
+#import "NoteDocument.h"
 
 @interface NoteViewController ()
 
 @end
 
 @implementation NoteViewController
+
 @synthesize scrollView;
 @synthesize optionsDot;
 @synthesize relativeTime;
 @synthesize absoluteTime;
 @synthesize delegate, textView, noteEntry;
+
+- (id)init
+{
+    self = [super initWithNibName:@"NoteViewController" bundle:nil];
+    if (self){
+        // init
+    }
+    
+    return self;
+}
+
+- (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
+{
+    return [self init];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -83,6 +100,9 @@
         self.optionsDot.text = @"•";
         self.optionsDot.font = [UIFont systemFontOfSize:40];
     }
+    
+    // update the model
+    [self.note setColor:color];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
@@ -94,6 +114,9 @@
         aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
 
     }
+    
+    [self.note setText:aTextView.text];
+
 }
 
 #pragma mark - Touches

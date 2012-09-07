@@ -63,12 +63,12 @@
     self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
     self.optionsViewController.view.hidden = YES;
     
-    self.currentNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
+    self.currentNoteViewController = [[NoteViewController alloc] init];
     self.currentNoteViewController.delegate = self;
     [self.view addSubview:self.currentNoteViewController.view];
     self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
     
-    self.nextNoteViewController = [[NoteViewController alloc] initWithNibName:@"NoteViewController" bundle:nil];
+    self.nextNoteViewController = [[NoteViewController alloc] init];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
@@ -95,8 +95,10 @@
 
 - (void)presentNotes {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:model.selectedNoteIndex];
-    self.currentNoteViewController.noteEntry = noteEntry;
+    
+    self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
+    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    
     self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
 }

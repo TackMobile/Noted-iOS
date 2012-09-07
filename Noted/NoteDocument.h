@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class NoteEntry;
+
 extern NSString *const kNoteExtension;
 
 @interface NoteDocument : UIDocument
@@ -21,5 +23,8 @@ extern NSString *const kNoteExtension;
 -(void)setLocation:(NSString*)location;
 
 + (NSString *)uniqueNoteName;
++ (NSString *)stringForState:(UIDocumentState)state;
+
+- (NoteEntry *)noteEntry;
 
 @end

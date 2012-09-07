@@ -10,6 +10,7 @@
 #import "ApplicationModel.h"
 #import "NoteEntryCell.h"
 #import "NoteEntry.h"
+#import "NoteDocument.h"
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
 #import "NewNoteCell.h"
@@ -124,7 +125,10 @@
     } else {
         NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
         ApplicationModel *model = [ApplicationModel sharedInstance];
-        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+        
+        NoteDocument *document = [model.currentNoteEntries objectAtIndex:indexPath.row];
+        //NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+        NoteEntry *noteEntry = [document noteEntry];
         
         if (noteEntryCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
@@ -140,7 +144,8 @@
             noteEntryCell.contentView.backgroundColor = [UIColor colorWithRed:0.05f green:0.54f blue:0.82f alpha:1.00f];
         }
         
-        noteEntryCell.subtitleLabel.text = [noteEntry title];
+        //noteEntryCell.subtitleLabel.text = [noteEntry title];
+        noteEntryCell.subtitleLabel.text = [[noteEntry text] substringToIndex:10];
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
@@ -155,7 +160,8 @@
         [model createNote];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
-        NoteEntry *entry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+
+        NoteEntry *entry = [model noteAtIndex:indexPath.row];
         if (!entry.adding) {
             model.selectedNoteIndex = indexPath.row;
             NoteStackViewController *stackViewController = [[NoteStackViewController alloc] init];

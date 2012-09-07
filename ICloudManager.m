@@ -333,7 +333,8 @@ static ICloudManager *sharedInstance;
         
         // open the documents, and when they're all done
         // pass an NSMutableOrderedSet list of NoteDocuments to a notification (didLoadNoteEntries:)
-        NSMutableOrderedSet *openedDocsList = [NSMutableOrderedSet orderedSet];
+        NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
+        NSMutableOrderedSet *noteDocsList = [NSMutableOrderedSet orderedSet];
         // we don't need a predicate to filter for docs with kNoteExtension
         // like we do when we load local files cause these urls are filtered 
         // in the metadata query
@@ -341,7 +342,8 @@ static ICloudManager *sharedInstance;
             // now we can pass to tableview and reload
             //[self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:openedDocsList waitUntilDone:NO];
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.loadingComplete(openedDocsList);
+                NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
+                self.loadingComplete(noteEntriesList,noteDocsList);
             });
         };
         TKPromiseFailedBlock promiseFailedBlock = ^{
@@ -360,8 +362,8 @@ static ICloudManager *sharedInstance;
         [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
         
         for (NSURL * fileURL in _iCloudURLs) {
-            //NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
-            [self loadDocAtURL:fileURL intoList:openedDocsList promised:YES];
+            NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
+            [self loadDocAtURL:fileURL intoList:noteEntriesList docsList:noteDocsList promised:YES];
         }
     }
     // just got everything from iCloud
@@ -376,14 +378,16 @@ static ICloudManager *sharedInstance;
     [_query enableUpdates];
 }
 
-- (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries
-{
-    self.loadingComplete(entries);
-}
+/*
+ - (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries
+ {
+ self.loadingComplete(entries,nil);
+ }
+ */
 
 #pragma mark File management methods
 
-- (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list promised:(BOOL)promised {
+- (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list docsList:(NSMutableOrderedSet *)docsList promised:(BOOL)promised {
     
     // Open doc so we can read metadata
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
@@ -398,22 +402,28 @@ static ICloudManager *sharedInstance;
         }
         
         // Preload metadata on background thread
-        NoteData * noteData = [NoteData new];
-        noteData.noteText = doc.text;
-        noteData.noteLocation = doc.location;
-        noteData.noteColor = doc.color;
-        NSURL * fileURL = doc.fileURL;
-        UIDocumentState state = doc.documentState;
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDoesRelativeDateFormatting:YES];
-        [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-        NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+        /*
+         NoteData * noteData = [NoteData new];
+         noteData.noteText = doc.text;
+         noteData.noteLocation = doc.location;
+         noteData.noteColor = doc.color;
+         NSURL * fileURL = doc.fileURL;
+         UIDocumentState state = doc.documentState;
+         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+         [dateFormatter setDoesRelativeDateFormatting:YES];
+         [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+         NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+         NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [NoteDocument stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+         
+         NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
+         */
         
-        NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
-        if (list) {
+        NoteEntry *entry = [doc noteEntry];
+        
+        if (list && docsList) {
             [list addObject:entry];
+            [docsList addObject:doc];
         }
         
         if (promised) {
@@ -433,7 +443,7 @@ static ICloudManager *sharedInstance;
             
             // Add to the list of files on main thread
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self addOrUpdateEntryWithURL:fileURL noteData:noteData state:state version:version];
+                [self addOrUpdateEntryWithURL:fileURL noteData:entry.noteData state:entry.state version:entry.version];
             });
         }];
     }];
@@ -534,7 +544,7 @@ static ICloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Copied %@ to %@ (%d)", fileURL, destURL, [FileStorageState iCloudOn]);
 #warning test this
-                    [self loadDocAtURL:destURL intoList:nil promised:NO];
+                    [self loadDocAtURL:destURL intoList:nil docsList:nil promised:NO];
                 } else {
                     NSLog(@"Failed to copy %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }
@@ -573,7 +583,7 @@ static ICloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Moved %@ to %@", fileURL, destURL);
 #warning test this
-                    [self loadDocAtURL:fileURL intoList:nil promised:NO];
+                    [self loadDocAtURL:fileURL intoList:nil docsList:nil promised:NO];
                 } else {
                     NSLog(@"Failed to move %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }
@@ -598,26 +608,6 @@ static ICloudManager *sharedInstance;
 }
 
 #pragma mark Helpers
-
-- (NSString *)stringForState:(UIDocumentState)state {
-    NSMutableArray * states = [NSMutableArray array];
-    if (state == 0) {
-        [states addObject:@"Normal"];
-    }
-    if (state & UIDocumentStateClosed) {
-        [states addObject:@"Closed"];
-    }
-    if (state & UIDocumentStateInConflict) {
-        [states addObject:@"In Conflict"];
-    }
-    if (state & UIDocumentStateSavingError) {
-        [states addObject:@"Saving error"];
-    }
-    if (state & UIDocumentStateEditingDisabled) {
-        [states addObject:@"Editing disabled"];
-    }
-    return [states componentsJoinedByString:@", "];
-}
 
 - (NSURL *)localRoot {
     if (_localRoot != nil) {

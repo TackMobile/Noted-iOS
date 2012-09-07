@@ -17,7 +17,10 @@
 
 @implementation ApplicationModel
 
-@synthesize currentNoteEntries, noteFileManager, selectedNoteIndex;
+@synthesize currentNoteEntries;
+@synthesize currentNoteDocuments;
+@synthesize noteFileManager;
+@synthesize selectedNoteIndex;
 
 SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     
@@ -83,8 +86,17 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [alert show];
 }
 
+- (NoteEntry *) noteAtIndex:(int)index {
+    return [[self noteDocumentAtIndex:index] noteEntry];
+}
+
 - (NoteEntry *) noteAtSelectedNoteIndex {
-    return [self.currentNoteEntries objectAtIndex:self.selectedNoteIndex];
+    return [[self noteDocumentAtIndex:selectedNoteIndex] noteEntry];
+}
+
+- (NoteDocument *)noteDocumentAtIndex:(int)index
+{
+    return [self.currentNoteEntries objectAtIndex:index];
 }
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
@@ -92,7 +104,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     assert(index <= count);
     assert(index >= 0);
     NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
-    return [self.currentNoteEntries objectAtIndex:previousIndex];
+    return [self noteAtIndex:previousIndex];
 }
 
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index {
@@ -100,7 +112,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     assert(index <= count);
     assert(index >= 0);
     NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
-    return [self.currentNoteEntries objectAtIndex:nextIndex];
+    return [self noteAtIndex:nextIndex];;
 }
 
 - (void) setCurrentNoteIndexToNext {
@@ -120,6 +132,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
     };
+    NSLog(@"\n\n\n\n create note doc instead!!!!! [%d]\n\n\n\n",__LINE__);
     NoteEntry *entry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
     [self.currentNoteEntries insertObject:entry atIndex:0];
 }
