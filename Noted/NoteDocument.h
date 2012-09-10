@@ -14,13 +14,13 @@ extern NSString *const kNoteExtension;
 
 @interface NoteDocument : UIDocument
 
--(NSString*)description;
--(NSString*)text;
--(UIColor*)color;
--(NSString*)location;
--(void)setText:(NSString*)text;
--(void)setColor:(UIColor*)color;
--(void)setLocation:(NSString*)location;
+- (NSString*)description;
+- (NSString*)text;
+- (UIColor*)color;
+- (NSString*)location;
+- (void)setText:(NSString*)text;
+- (void)setColor:(UIColor*)color;
+- (void)setLocation:(NSString*)location;
 
 + (NSString *)uniqueNoteName;
 + (NSString *)stringForState:(UIDocumentState)state;

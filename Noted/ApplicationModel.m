@@ -17,7 +17,7 @@
 
 @implementation ApplicationModel
 
-@synthesize currentNoteEntries;
+@synthesize currentNoteEntries=_currentNoteEntries;
 @synthesize currentNoteDocuments;
 @synthesize noteFileManager;
 @synthesize selectedNoteIndex;
@@ -38,13 +38,25 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (NSMutableOrderedSet *)currentNoteEntries
 {
-    if (!currentNoteEntries) {
-        currentNoteEntries = [[NSMutableOrderedSet alloc] init];
+    if (!_currentNoteEntries) {
+        _currentNoteEntries = [[NSMutableOrderedSet alloc] init];
     }
-        
-    return currentNoteEntries;
+   
+    return _currentNoteEntries;
 }
 
+- (void)setCurrentNoteEntries:(NSMutableOrderedSet *)noteEntries
+{
+    [noteEntries sortUsingComparator:(NSComparator)^(id obj1, id obj2){
+        
+        NoteDocument *doc1 = (NoteDocument *)obj1;
+        NoteDocument *doc2 = (NoteDocument *)obj2;
+        
+        return [doc1.noteEntry.dateCreated compare:doc2.noteEntry.dateCreated];
+    }];
+    
+    _currentNoteEntries = noteEntries;
+}
 
 - (void)refreshNotes {
     void(^refreshBlock)() = ^{
@@ -156,7 +168,9 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 #pragma mark - Note File Manager Delegate
 
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {
+    
     self.currentNoteEntries = noteEntries;
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
 }
 

@@ -111,6 +111,7 @@
     
     // update the model
     [self.note setColor:color];
+    //[self.note set]
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)aScrollView {

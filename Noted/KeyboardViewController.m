@@ -11,6 +11,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIColor+HexColor.h"
 
+@interface KeyboardViewController()
+
+@property (nonatomic) CGPoint firstTouch;
+@property (nonatomic) CGPoint secondTouch;
+
+@end
+
 @interface KeyboardViewController () {
     int currentPageLocation;
 }
@@ -28,11 +35,10 @@
 @synthesize activeKeyboardName;
 @synthesize howManyTouches;
 @synthesize firstTouch;
+@synthesize secondTouch;
 @synthesize delegate;
 @synthesize pageIndicator;
 @synthesize scrollView;
-
-
 
 - (void)viewDidLoad
 {
@@ -64,7 +70,7 @@
     
     //add gestureRecognizers 
  //   [self addAllGestures];
-    
+    [self.view setMultipleTouchEnabled:YES];
     [self setupAllKeyboards];
     
     
@@ -233,7 +239,9 @@
 #pragma mark Touch Events and Hit Detection
 
 -(void)touchesBegan: (NSSet *)touches withEvent: (UIEvent *)event {
+    NSLog(@"Num touches %d [%d]",[touches allObjects].count,__LINE__);
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
+        
     tapped = YES;
     swipeUp = NO;
     swipeDown = NO;
@@ -250,32 +258,32 @@
 	NSSet *allTouches= [event allTouches];
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
     CGFloat netXChange = currentLocation.x - firstTouch.x;
-    CGFloat netYChange = currentLocation.y - firstTouch.y;
+    CGFloat netYChange = abs(currentLocation.y - firstTouch.y);
     
     NSLog(@"Net X,Y change = %f, %f", netXChange, netYChange);
     
     if (allTouches.count == 2) {
         //Undo & Redo
-        if (netXChange < -80 && !swipeLeftTwoFinger) {
+        if (netXChange < -80 && !swipeLeftTwoFinger && netYChange < 5) {
             NSLog(@"Two finger swipe left detected");
             [undoTimer invalidate];
             undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
             [self.delegate undoEdit];
             swipeLeftTwoFinger = YES;
-        }else if (netXChange > 80 &&!swipeRightTwoFinger) {
+        } else if (netXChange > 80 &&!swipeRightTwoFinger) {
             NSLog(@"Two finger swipe right detected");
             [undoTimer invalidate];
             undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
             [self.delegate redoEdit];
             swipeRightTwoFinger = YES;
-        }else if (netXChange >= -40 && netXChange <= 40) {
+        } else if (netXChange >= -40 && netXChange <= 40) {
             [undoTimer invalidate];
         }
-        
-        if (netYChange > 80) {
+        if (netYChange > 5) {
             swipeDownTwoFinger = YES;
+            [self fadeKeyboard];
         }
-    }else {
+    } else {
         if (netYChange < -5) {
             NSLog(@"vertical up swipe recognized");
             if (!swipeUp) {

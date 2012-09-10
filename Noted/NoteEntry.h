@@ -22,10 +22,11 @@
 
 - (id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
 
-- (NSString *) title;
-- (NSString *) relativeDateString;
-- (NSString *) absoluteDateString;
-- (NSString *) text;
+- (NSString *)title;
+- (NSString *)relativeDateString;
+- (NSString *)absoluteDateString;
+- (NSString *)text;
 - (UIColor *)noteColor;
+- (NSDate *)dateCreated;
 
 @end

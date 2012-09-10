@@ -50,7 +50,7 @@
 @property (nonatomic,retain) NSMutableArray *keyboardNames;
 @property (nonatomic,retain) NSMutableString *activeKeyboardName;
 @property (nonatomic) int howManyTouches;
-@property (nonatomic) CGPoint firstTouch;
+
 @property (nonatomic, retain) id delegate;
 @property (weak, nonatomic) IBOutlet UIPageControl *pageIndicator;
 @property (strong, nonatomic) IBOutlet KeyboardScrollView *scrollView;

@@ -55,4 +55,9 @@
     return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }
 
+- (NSDate *)dateCreated
+{
+    return self.noteData.dateCreated;
+}
+
 @end

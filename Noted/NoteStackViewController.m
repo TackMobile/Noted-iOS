@@ -102,6 +102,15 @@
     [super viewDidUnload];
 }
 
+/*
+ - (void)viewWillDisappear:(BOOL)animated
+ {
+ [super viewWillDisappear:animated];
+ 
+ NoteDocument *doc = self.currentNoteViewController.note;
+ }
+ */
+
 - (void)presentNotes {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
