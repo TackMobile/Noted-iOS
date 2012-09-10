@@ -34,4 +34,5 @@
 @property (nonatomic, retain) id delegate;
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
+
 @end

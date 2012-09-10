@@ -198,7 +198,8 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:[[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor]]; 
+    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:[[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor]];
+    // if it's dark grey, use white text
     if ([[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor] >= 4) {
         [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
     }else {

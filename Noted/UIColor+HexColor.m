@@ -12,15 +12,36 @@
 
 +(NSArray*)getNoteColorSchemes {
     //colorSchemes: white,lime,sky,kernal,shadow,tack
-   return [[NSArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"E9F2F6"],[UIColor colorWithHexString:@"F3F6E9"],[UIColor colorWithHexString:@"FBF6EA"], [UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
+   return [[NSArray alloc] initWithObjects:
+           [UIColor colorWithHexString:@"FFFFFF"],
+           [UIColor colorWithHexString:@"E9F2F6"],
+           [UIColor colorWithHexString:@"F3F6E9"],
+           [UIColor colorWithHexString:@"FBF6EA"],
+           [UIColor colorWithHexString:@"333333"],
+           [UIColor colorWithHexString:@"1A9FEB"],
+           nil];
 }
 
 +(NSArray*)getOptionsColorSchemes {
-    return [[NSArray alloc] initWithObjects:[UIColor colorWithHexString:@"FFFFFF"], [UIColor colorWithHexString:@"C4D5DD"],[UIColor colorWithHexString:@"C1D184"],[UIColor colorWithHexString:@"DAC361"],[UIColor colorWithHexString:@"333333"], [UIColor colorWithHexString:@"1A9FEB"], nil];
+    return [[NSArray alloc] initWithObjects:
+            [UIColor colorWithHexString:@"FFFFFF"],
+            [UIColor colorWithHexString:@"C4D5DD"],
+            [UIColor colorWithHexString:@"C1D184"],
+            [UIColor colorWithHexString:@"DAC361"],
+            [UIColor colorWithHexString:@"333333"],
+            [UIColor colorWithHexString:@"1A9FEB"],
+            nil];
 }
 
 +(NSArray*)getHeaderColorSchemes {
-    return [[NSArray alloc] initWithObjects:[UIColor colorWithHexString:@"AAAAAA"],[UIColor colorWithHexString:@"88ACBB"], [UIColor colorWithHexString:@"C1D184"],[UIColor colorWithHexString:@"DAC361"],[UIColor colorWithHexString:@"CCCCCC"], [UIColor colorWithHexString:@"FFFFFF"], nil];
+    return [[NSArray alloc] initWithObjects:
+            [UIColor colorWithHexString:@"AAAAAA"],
+            [UIColor colorWithHexString:@"88ACBB"],
+            [UIColor colorWithHexString:@"C1D184"],
+            [UIColor colorWithHexString:@"DAC361"],
+            [UIColor colorWithHexString:@"CCCCCC"],
+            [UIColor colorWithHexString:@"FFFFFF"],
+            nil];
 }
 
 +(BOOL)isWhiteColor:(UIColor *)color {

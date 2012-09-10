@@ -76,6 +76,8 @@
         UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
         [self.view setBackgroundColor:bgColor];
         
+        [self setTextLabelColorsByBGColor:bgColor];
+        
         [self textViewDidChange:self.textView];
         self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.view.layer.shadowOffset = CGSizeMake(-1,0);
@@ -87,17 +89,15 @@
     }
 }
 
-- (IBAction)optionsSelected{
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
-}
-
--(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
-    if (textColor) {
-        self.textView.textColor = textColor;
-    }else {
-        self.textView.textColor = [UIColor blackColor];
+- (void)setTextLabelColorsByBGColor:(UIColor *)color
+{
+    int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
+    if (index >= 4) {
+        [self.textView setTextColor:[UIColor whiteColor]];
+    } else {
+        [self.textView setTextColor:[UIColor blackColor]];
     }
-    self.view.backgroundColor = color;
+    
     self.absoluteTime.textColor = [[UIColor getHeaderColorSchemes] objectAtIndex:[[UIColor getNoteColorSchemes] indexOfObject:color]];
     self.relativeTime.textColor = self.absoluteTime.textColor;
     self.optionsDot.textColor = self.absoluteTime.textColor;
@@ -108,10 +108,28 @@
         self.optionsDot.text = @"•";
         self.optionsDot.font = [UIFont systemFontOfSize:40];
     }
+}
+
+- (IBAction)optionsSelected{
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
+}
+
+-(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
     
-    // update the model
-    [self.note setColor:color];
-    //[self.note set]
+    if (![self.note.color isEqual:color]) {
+        // update the model, but avoid unecessary updates
+        [self.note setColor:color];
+    }
+    
+    /*
+     if (textColor) {
+     self.textView.textColor = textColor;
+     } else {
+     self.textView.textColor = [UIColor blackColor];
+     }
+     */
+    self.view.backgroundColor = color;
+    [self setTextLabelColorsByBGColor:color];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
