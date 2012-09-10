@@ -13,9 +13,9 @@ typedef void(^iCloudAvailableBlock)(BOOL available);
 typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *note,NSMutableOrderedSet *noteDocs);
 typedef void(^iCloudLoadingFailed)();
 
-@interface ICloudManager : NSObject
+@interface CloudManager : NSObject
 
-+ (ICloudManager *)sharedInstance;
++ (CloudManager *)sharedInstance;
 - (void)initializeiCloudAccessWithCompletion:(iCloudAvailableBlock)available;
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
 - (void)insertNewEntryAtIndex:(int)index completion:(void(^)())completion;

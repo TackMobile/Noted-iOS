@@ -12,7 +12,7 @@
 #import "MasterViewController.h"
 #import "NoteFileManager.h"
 #import "TestFlight.h"
-#import "ICloudManager.h"
+#import "CloudManager.h"
 
 NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
 
@@ -31,8 +31,9 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     self.window.rootViewController = [[NoteListViewController alloc] init];
     [self.window makeKeyAndVisible];
     
-    [[ICloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
+    [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
         NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
+       
     }];
         
     return YES;

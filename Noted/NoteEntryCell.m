@@ -9,16 +9,19 @@
 #import "NoteEntryCell.h"
 
 @implementation NoteEntryCell
+
 @synthesize titleTextField;
 @synthesize subtitleLabel;
 @synthesize warningImageView;
 @synthesize relativeTimeText;
 @synthesize absoluteTimeText;
+@synthesize deleteButton;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+
     }
     return self;
 }
@@ -45,5 +48,7 @@
     }];
     
 }
+
+
 
 @end

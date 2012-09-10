@@ -14,5 +14,6 @@
 @property (weak, nonatomic) IBOutlet UIImageView *warningImageView;
 @property (weak, nonatomic) IBOutlet UITextView *relativeTimeText;
 @property (weak, nonatomic) IBOutlet UITextView *absoluteTimeText;
+@property (weak, nonatomic) IBOutlet UIButton *deleteButton;
 
 @end

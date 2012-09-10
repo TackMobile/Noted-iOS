@@ -26,12 +26,14 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void) refreshNotes;
 
 // iCloud
-- (BOOL)iCloudOn;
-- (void)setiCloudOn:(BOOL)on;
-- (BOOL)iCloudWasOn;
-- (void)setiCloudWasOn:(BOOL)on;
-- (BOOL)iCloudPrompted;
-- (void)setiCloudPrompted:(BOOL)prompted;
+/*
+ - (BOOL)iCloudOn;
+ - (void)setiCloudOn:(BOOL)on;
+ - (BOOL)iCloudWasOn;
+ - (void)setiCloudWasOn:(BOOL)on;
+ - (BOOL)iCloudPrompted;
+ - (void)setiCloudPrompted:(BOOL)prompted;
+ */
 
 // Note Stack Helpers
 - (NoteEntry *) noteAtIndex:(int)index;
@@ -46,6 +48,6 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 // CRUD
 - (void) createNote;
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
-- (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
     
 @end

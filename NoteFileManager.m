@@ -12,7 +12,7 @@
 #import "NoteEntry.h"
 #import "TKPromise.h"
 #import "FileStorageState.h"
-#import "ICloudManager.h"
+#import "CloudManager.h"
 #import "ApplicationModel.h"
 
 @interface NoteFileManager ()
@@ -40,6 +40,7 @@
 - (void) loadAllNoteEntriesFromPreferredStorage
 {
     TKPreferredStorage storage = [FileStorageState preferredStorage];
+    
     if (storage==kTKiCloud) {
         [self loadAllNoteEntriesFromICloud];
     } else if (storage==kTKlocal) {
@@ -49,6 +50,11 @@
 
 - (void) loadAllNoteEntriesFromICloud {
     [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
+}
+
+- (void)copyFromCloudAndLoadLocalNoteEntries
+{
+    //
 }
 
 - (void) loadAllNoteEntriesFromLocal {
@@ -115,9 +121,12 @@
     return entry;
 }
 
-- (void)deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {
+- (void)deleteNoteEntry:(NoteDocument *)noteDocument withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {
     //TODO
     //[_query disableUpdates];
+    
+    NoteEntry *entry = [noteDocument noteEntry];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         [fileCoordinator coordinateWritingItemAtURL:entry.fileURL 
@@ -126,8 +135,9 @@
                                          byAccessor:^(NSURL* writingURL) {                                                   
                                              NSError *error;
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
-                                             [fileManager removeItemAtURL:entry.fileURL error:&error];
+                                             [fileManager removeItemAtURL:writingURL error:&error];
 #ifdef DEBUG
+                                             NSLog(@"Writing URL: %@ [%d]",writingURL,__LINE__);
                                              NSLog(@"Deleted item at %@",entry.fileURL);
                                              NSLog(@"Error? %@", error);
 #endif
@@ -144,7 +154,7 @@
 - (void) loadICloudNoteEntriesInBackground {
 
     // check what's there
-    [[ICloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects,NSMutableOrderedSet *docs){
+    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects,NSMutableOrderedSet *docs){
         
         if (noteObjects.count==0) {
             // 1st use, create one
@@ -245,7 +255,7 @@
 
 - (void)checkICloudAvailability:(void (^)(BOOL available))completionWithICloudAvailable
 {
-    ICloudManager *manager = [ICloudManager sharedInstance];
+    CloudManager *manager = [CloudManager sharedInstance];
     [manager initializeiCloudAccessWithCompletion:^(BOOL available){
         completionWithICloudAvailable(available);
     }];

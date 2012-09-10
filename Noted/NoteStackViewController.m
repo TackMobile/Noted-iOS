@@ -97,7 +97,7 @@
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
     self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
-    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    //self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
     
     self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];

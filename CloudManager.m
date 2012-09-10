@@ -6,14 +6,14 @@
 //  Copyright (c) 2012 Tack Mobile. All rights reserved.
 //
 
-#import "ICloudManager.h"
+#import "CloudManager.h"
 #import "NoteDocument.h"
 #import "NoteEntry.h"
 #import "NoteData.h"
 #import "FileStorageState.h"
 #import "TKPromise.h"
 
-@interface ICloudManager()
+@interface CloudManager()
 {
     NSMetadataQuery * _query;
     
@@ -35,11 +35,11 @@
 
 @end
 
-@implementation ICloudManager
+@implementation CloudManager
 
-static ICloudManager *sharedInstance;
+static CloudManager *sharedInstance;
 
-+ (ICloudManager *)sharedInstance
++ (CloudManager *)sharedInstance
 {
     static dispatch_once_t onceToken;
     
@@ -80,9 +80,11 @@ static ICloudManager *sharedInstance;
         }
         else {
             [FileStorageState setiCloudOn:NO];
+            //[FileStorageState setiCloudWasOn:NO];
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"iCloud not available");
+                NSLog(@"iCloud not available. Loading files from local docs directory");
                 available(NO);
+                
             });
         }
     });
@@ -116,6 +118,8 @@ static ICloudManager *sharedInstance;
             // No matter what, iCloud isn't available so switch it to off.
             [FileStorageState setiCloudOn:NO];
             [FileStorageState setiCloudWasOn:NO];
+            
+            //[self copyFromCloudToLocal];
             
         } else {
             
@@ -165,6 +169,7 @@ static ICloudManager *sharedInstance;
     [self stopQuery];
     
     NSLog(@"Starting to watch iCloud dir...");
+    [EZToastView showToastMessage:[NSString stringWithFormat:@"%s",__PRETTY_FUNCTION__]];
     
     _query = [self documentQuery];
     

@@ -138,13 +138,17 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
-    NoteEntry *entry = [self.currentNoteEntries objectAtIndex:index];
-    [self deleteNoteEntry:entry withCompletionBlock:callersCompletionBlock];
+    NoteDocument *noteDoc = [self.currentNoteEntries objectAtIndex:index];
+    [self deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
 }
 
-- (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
-    [self.currentNoteEntries removeObject:entry];
-    [self.noteFileManager deleteNoteEntry:entry withCompletionBlock:callersCompletionBlock];
+- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
+    
+    // in-memory model updated, notify ui
+    [self.currentNoteEntries removeObject:noteDoc];
+    callersCompletionBlock();
+    
+    [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:nil];
 }
 
 #pragma mark - Note File Manager Delegate
@@ -156,32 +160,34 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 #pragma mark - Preferences
 
-- (BOOL)iCloudOn {    
-    return NO;//[[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
-}
-
-- (void)setiCloudOn:(BOOL)on {    
-    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudOn"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (BOOL)iCloudWasOn {    
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudWasOn"];
-}
-
-- (void)setiCloudWasOn:(BOOL)on {    
-    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudWasOn"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-- (BOOL)iCloudPrompted {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudPrompted"];
-}
-
-- (void)setiCloudPrompted:(BOOL)prompted {    
-    [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
+/*
+ - (BOOL)iCloudOn {
+ return NO;//[[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
+ }
+ 
+ - (void)setiCloudOn:(BOOL)on {
+ [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudOn"];
+ [[NSUserDefaults standardUserDefaults] synchronize];
+ }
+ 
+ - (BOOL)iCloudWasOn {
+ return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudWasOn"];
+ }
+ 
+ - (void)setiCloudWasOn:(BOOL)on {
+ [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudWasOn"];
+ [[NSUserDefaults standardUserDefaults] synchronize];
+ }
+ 
+ - (BOOL)iCloudPrompted {
+ return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudPrompted"];
+ }
+ 
+ - (void)setiCloudPrompted:(BOOL)prompted {
+ [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
+ [[NSUserDefaults standardUserDefaults] synchronize];
+ }
+ */
 
 
 @end

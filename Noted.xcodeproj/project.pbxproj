@@ -66,7 +66,7 @@
 		B548666215F7F807005FBC60 /* FileStorageState.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666115F7F807005FBC60 /* FileStorageState.m */; };
 		B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666715F7FEF7005FBC60 /* RIButtonItem.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		B548668915F8F4B4005FBC60 /* ICloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* ICloudManager.m */; };
+		B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* CloudManager.m */; };
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
@@ -167,8 +167,8 @@
 		B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Blocks.m"; sourceTree = "<group>"; };
 		B548666615F7FEF6005FBC60 /* RIButtonItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RIButtonItem.h; sourceTree = "<group>"; };
 		B548666715F7FEF7005FBC60 /* RIButtonItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RIButtonItem.m; sourceTree = "<group>"; };
-		B548668715F8F4B4005FBC60 /* ICloudManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICloudManager.h; sourceTree = "<group>"; };
-		B548668815F8F4B4005FBC60 /* ICloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICloudManager.m; sourceTree = "<group>"; };
+		B548668715F8F4B4005FBC60 /* CloudManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudManager.h; sourceTree = "<group>"; };
+		B548668815F8F4B4005FBC60 /* CloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloudManager.m; sourceTree = "<group>"; };
 		B548669C15FA4CCD005FBC60 /* EZToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EZToastView.h; sourceTree = "<group>"; };
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
@@ -399,8 +399,8 @@
 				EAD695E715B7AC9D004A2494 /* ApplicationModel.m */,
 				EAC1F06115B99EB700262749 /* NoteFileManager.h */,
 				EAC1F06215B99EB700262749 /* NoteFileManager.m */,
-				B548668715F8F4B4005FBC60 /* ICloudManager.h */,
-				B548668815F8F4B4005FBC60 /* ICloudManager.m */,
+				B548668715F8F4B4005FBC60 /* CloudManager.h */,
+				B548668815F8F4B4005FBC60 /* CloudManager.m */,
 				B548666015F7F807005FBC60 /* FileStorageState.h */,
 				B548666115F7F807005FBC60 /* FileStorageState.m */,
 			);
@@ -547,7 +547,7 @@
 				B548666215F7F807005FBC60 /* FileStorageState.m in Sources */,
 				B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */,
 				B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */,
-				B548668915F8F4B4005FBC60 /* ICloudManager.m in Sources */,
+				B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */,
 				B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -15,7 +15,7 @@
 #import "NoteStackViewController.h"
 #import "NewNoteCell.h"
 #import "FileStorageState.h"
-#import "ICloudManager.h"
+#import "CloudManager.h"
 
 @interface NoteListViewController ()
 
@@ -134,8 +134,13 @@
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
             noteEntryCell = [topLevelObjects objectAtIndex:0];
             noteEntryCell.textLabel.adjustsFontSizeToFitWidth = YES;
+            noteEntryCell.subtitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
             noteEntryCell.textLabel.backgroundColor = [UIColor clearColor];
             noteEntryCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            noteEntryCell.editingAccessoryView.backgroundColor = [UIColor clearColor];
+            //UIButton *editingButton = (UIButton *)[noteEntryCell viewWithTag:89];
+            //noteEntryCell.editingAccessoryView = editingButton;
+            noteEntryCell.absoluteTimeText.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         }
         
         if (noteEntry.adding) {
@@ -163,6 +168,16 @@
     } else {
 
         NoteEntry *entry = [model noteAtIndex:indexPath.row];
+        
+        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+
+        if (cell.editing && !self.editing)
+        {
+            [cell setEditing:NO animated:YES];
+            return;
+        }
+
+        
         if (!entry.adding) {
             model.selectedNoteIndex = indexPath.row;
             NoteStackViewController *stackViewController = [[NoteStackViewController alloc] init];
@@ -174,8 +189,10 @@
 - (void) tableView:(UITableView *)tv commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section != 0 && editingStyle == UITableViewCellEditingStyleDelete) {
         ApplicationModel *model = [ApplicationModel sharedInstance];
-        [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:NULL];
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+        }];
+        
     }
 }
 

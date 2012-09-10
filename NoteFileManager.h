@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NoteEntry.h"
 
 @class NoteFileManager;
+@class NoteDocument;
+@class NoteEntry;
 
 typedef void (^CreateNoteCompletionBlock)(NoteEntry *entry);
 typedef void (^DeleteNoteCompletionBlock)();
@@ -28,7 +29,7 @@ typedef void (^DeleteNoteCompletionBlock)();
 
 - (void) loadAllNoteEntriesFromPreferredStorage;
 - (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)block;
-- (void) deleteNoteEntry:(NoteEntry *)entry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+- (void)deleteNoteEntry:(NoteDocument *)noteDocument withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
 - (void)checkICloudAvailabilityWithCompletionBlock:(void (^)(BOOL available)) completionWithICloudAvailable;
     
 @end

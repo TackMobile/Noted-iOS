@@ -58,6 +58,8 @@
     if (_note != newNote) {
         _note = newNote;
         
+        [self setNoteEntry:_note.noteEntry];
+        
         //[self configureView];
     }
 }
