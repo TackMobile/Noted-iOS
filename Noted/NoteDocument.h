@@ -26,5 +26,6 @@ extern NSString *const kNoteExtension;
 + (NSString *)stringForState:(UIDocumentState)state;
 
 - (NoteEntry *)noteEntry;
+- (NSString *)debugDescription;
 
 @end

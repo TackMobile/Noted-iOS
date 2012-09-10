@@ -129,12 +129,14 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void) createNote {
     NSString *uniqueName = [NoteDocument uniqueNoteName];
-    CreateNoteCompletionBlock completionBlock = ^(NoteEntry *entry) {
+
+    CreateNoteCompletionBlock completionBlock = ^(NoteDocument *entry) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
     };
     NSLog(@"\n\n\n\n create note doc instead!!!!! [%d]\n\n\n\n",__LINE__);
-    NoteEntry *entry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
-    [self.currentNoteEntries insertObject:entry atIndex:0];
+    
+    NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
+    [self.currentNoteEntries insertObject:noteDoc atIndex:0];
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {

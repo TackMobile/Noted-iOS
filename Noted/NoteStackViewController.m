@@ -74,6 +74,15 @@
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [self presentNotes];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -96,8 +105,9 @@
 - (void)presentNotes {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
-    self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
-    //self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    
+    //self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
+    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
     
     self.previousNoteEntry = [model previousNoteInStackFromIndex:model.selectedNoteIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:model.selectedNoteIndex];

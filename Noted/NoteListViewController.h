@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NoteEntryCell.h"
 
-@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
+@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, NoteEntryCellDelegate>
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 

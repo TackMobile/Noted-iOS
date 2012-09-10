@@ -58,6 +58,8 @@
     if (_note != newNote) {
         _note = newNote;
         
+        NSLog(@"%@ [%d]",newNote.debugDescription,__LINE__);
+        
         [self setNoteEntry:_note.noteEntry];
         
         //[self configureView];
@@ -70,7 +72,10 @@
         self.textView.text = [noteEntry text];
         self.absoluteTime.text = [noteEntry absoluteDateString];
         self.relativeTime.text = [noteEntry relativeDateString];
-        [self.view setBackgroundColor:noteEntry.noteColor];
+        
+        UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+        [self.view setBackgroundColor:bgColor];
+        
         [self textViewDidChange:self.textView];
         self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.view.layer.shadowOffset = CGSizeMake(-1,0);
@@ -119,7 +124,6 @@
     }
     
     [self.note setText:aTextView.text];
-
 }
 
 #pragma mark - Touches

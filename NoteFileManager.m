@@ -66,12 +66,22 @@
 }
 
 - (NSURL *) URLForFileNamed:(NSString *)filename {
-    return [currentDocumentRoot URLByAppendingPathComponent:filename];
+    
+    NSURL *filePath = nil;
+    if ([FileStorageState preferredStorage]==kTKlocal) {
+        filePath = [currentDocumentRoot URLByAppendingPathComponent:filename];
+    } else {
+        filePath = [[CloudManager sharedInstance] getDocURL:filename];
+    }
+    
+    NSLog(@"%@ [%d]",filePath.absoluteString,__LINE__);
+    
+    return filePath;
 }
 
 #pragma mark - Create update delete
 
-- (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
+- (NoteDocument *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     
     NSURL *fileURL = [self URLForFileNamed:noteName];
 #ifdef DEBUG
@@ -112,13 +122,14 @@
                 entry.state = state;
                 entry.version = version;
                 entry.adding = NO;
-                noteCreationCompleteBlock(entry);
+                noteCreationCompleteBlock(doc);
                 //TODO
                 //[_query enableUpdates];
             });
         }];         
     }];
-    return entry;
+    
+    return doc;
 }
 
 - (void)deleteNoteEntry:(NoteDocument *)noteDocument withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {

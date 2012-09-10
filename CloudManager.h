@@ -20,4 +20,6 @@ typedef void(^iCloudLoadingFailed)();
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
 - (void)insertNewEntryAtIndex:(int)index completion:(void(^)())completion;
 
+- (NSURL *)getDocURL:(NSString *)filename;
+
 @end

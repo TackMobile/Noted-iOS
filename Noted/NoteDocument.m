@@ -94,6 +94,12 @@ NSString *const kDataFilename = @"note.data";
     return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }
 
+- (NSString *)debugDescription
+{
+    NoteEntry *entry = self.noteEntry;
+    return [NSString stringWithFormat:@"\n\ntext: %@, color: %@, abs time: %@",self.text,self.color,entry.absoluteDateString];
+}
+
 #pragma mark Accessors
 
 -(NSString*)text {

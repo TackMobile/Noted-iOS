@@ -18,12 +18,23 @@
 #import "CloudManager.h"
 
 @interface NoteListViewController ()
+{
+    NoteEntryCell *_deletedCell;
+}
 
 @end
 
 @implementation NoteListViewController
 
 @synthesize tableView;
+
+static inline BOOL IsEmpty(id thing) {
+    return thing == nil
+    || ([thing respondsToSelector:@selector(length)]
+        && [(NSData *)thing length] == 0)
+    || ([thing respondsToSelector:@selector(count)]
+        && [(NSArray *)thing count] == 0);
+}
 
 - (id)init
 {
@@ -51,22 +62,17 @@
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
-    /*
-     ApplicationModel *model = [ApplicationModel sharedInstance];
-     [model.noteFileManager checkICloudAvailabilityWithCompletionBlock:^(BOOL available){
-     // peform any UI stuff that reflects iCloud-on state
-     NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
-     }];
-     */
-    
-    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+        
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        [model refreshNotes];
+    }];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model refreshNotes];
+    
 }
 
 - (void)viewDidUnload {
@@ -106,6 +112,7 @@
     return (indexPath.section != 0);
 }
 
+
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellId = @"NoteCellId";
     static NSString *NewNoteCellId = @"NewNoteCellId";
@@ -127,20 +134,12 @@
         ApplicationModel *model = [ApplicationModel sharedInstance];
         
         NoteDocument *document = [model.currentNoteEntries objectAtIndex:indexPath.row];
-        //NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
         NoteEntry *noteEntry = [document noteEntry];
         
         if (noteEntryCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
             noteEntryCell = [topLevelObjects objectAtIndex:0];
-            noteEntryCell.textLabel.adjustsFontSizeToFitWidth = YES;
-            noteEntryCell.subtitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-            noteEntryCell.textLabel.backgroundColor = [UIColor clearColor];
-            noteEntryCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            noteEntryCell.editingAccessoryView.backgroundColor = [UIColor clearColor];
-            //UIButton *editingButton = (UIButton *)[noteEntryCell viewWithTag:89];
-            //noteEntryCell.editingAccessoryView = editingButton;
-            noteEntryCell.absoluteTimeText.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+            noteEntryCell.delegate = self;
         }
         
         if (noteEntry.adding) {
@@ -149,14 +148,24 @@
             noteEntryCell.contentView.backgroundColor = [UIColor colorWithRed:0.05f green:0.54f blue:0.82f alpha:1.00f];
         }
         
-        //noteEntryCell.subtitleLabel.text = [noteEntry title];
-        NSString *noteText = [NSString stringWithFormat:@"%@..",[[noteEntry text] substringToIndex:20]];
-        noteEntryCell.subtitleLabel.text = [noteEntry text]>0 ? noteText : @"";
+        noteEntryCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
         return noteEntryCell;
     }
+}
+
+- (NSString *)displayTitleForNoteEntry:(NoteEntry *)entry
+{
+    NSString *title = nil;
+    if (!IsEmpty([entry text]) && ![entry.text isEqualToString:@"\n"]){
+        title = [entry text];
+    } else {
+        title = @"...";
+    }
+    
+    return title;
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -166,34 +175,29 @@
         [model createNote];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
-
-        NoteEntry *entry = [model noteAtIndex:indexPath.row];
         
-        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-
-        if (cell.editing && !self.editing)
-        {
-            [cell setEditing:NO animated:YES];
-            return;
-        }
-
+        NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
+        NoteEntry *entry = [doc noteEntry];
         
         if (!entry.adding) {
             model.selectedNoteIndex = indexPath.row;
+            
             NoteStackViewController *stackViewController = [[NoteStackViewController alloc] init];
             [self presentViewController:stackViewController animated:YES completion:NULL];
         }
     }
 }
 
-- (void) tableView:(UITableView *)tv commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section != 0 && editingStyle == UITableViewCellEditingStyleDelete) {
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
-        }];
-        
-    }
+
+- (void)didSwipeToDeleteCellWithIndexPath:(NoteEntryCell *)cell
+{
+    CGPoint correctedPoint = [cell convertPoint:cell.bounds.origin toView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:correctedPoint];
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    }];
 }
 
 

@@ -21,7 +21,7 @@
 }
 
 -(id)init {
-    return [self initWithText:nil color:nil location:nil];
+    return [self initWithText:@"" color:[UIColor whiteColor] location:nil];
 }
 
 #pragma mark NSCoding

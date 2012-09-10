@@ -16,14 +16,34 @@
 @synthesize relativeTimeText;
 @synthesize absoluteTimeText;
 @synthesize deleteButton;
+@synthesize delegate;
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+- (void)awakeFromNib
 {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    if (self) {
+    UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeRightInCell:)];
+    [swipeRight setDirection:UISwipeGestureRecognizerDirectionRight];
+    [self addGestureRecognizer:swipeRight];
+    
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.textLabel.adjustsFontSizeToFitWidth = YES;
+    self.subtitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    self.textLabel.backgroundColor = [UIColor clearColor];
+    self.absoluteTimeText.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    
+}
 
-    }
-    return self;
+- (void)didSwipeRightInCell:(id)sender
+{
+    [delegate didSwipeToDeleteCellWithIndexPath:self];
+    
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         [self.contentView setFrame:CGRectMake(320.0, 0.0, 320.0, 66.0)];
+                     }
+                     completion:^(BOOL finished){
+                         NSLog(@"finished animating, now delete for reals");
+                     }];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
