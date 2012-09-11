@@ -20,6 +20,7 @@ typedef enum {
 + (BOOL)preferredStoragePrompted;
 + (void)setPreferredStoragePrompted:(BOOL)prompted;
 + (BOOL)shouldPrompt;
++ (BOOL)isFirstUse;
 
 + (BOOL)iCloudOn;
 + (void)setiCloudOn:(BOOL)on;

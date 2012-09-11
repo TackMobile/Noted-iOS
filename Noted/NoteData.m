@@ -10,21 +10,19 @@
 
 @implementation NoteData
 
-@synthesize dateCreated;
-@synthesize noteColor,noteText,noteLocation;
+@synthesize noteColor,noteText,noteLocation,dateCreated;
 
--(id)initWithText:(NSString*)text color:(UIColor*)color location:(NSString*)location {
-    if ((self = [super init])) {
-        self.noteText = text;
-        self.noteColor = color;
-        self.noteLocation = location;
+- (id)init
+{
+    if (self = [super init]) {
+        //
+        self.noteColor = [UIColor whiteColor];
+        self.noteText = @"lorem ipsum";
         self.dateCreated = [NSDate date];
+        self.noteLocation = @"0";
     }
+    
     return self;
-}
-
--(id)init {
-    return [self initWithText:@"" color:[UIColor whiteColor] location:nil];
 }
 
 #pragma mark NSCoding
@@ -35,7 +33,8 @@
 #define kLocationKey @"Location"
 #define kDateCreatedKey @"Created"
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
     [encoder encodeInt:1 forKey:kVersionKey];
     [encoder encodeObject:self.noteText forKey:kTextKey];
     [encoder encodeObject:self.noteColor forKey:kColorKey];
@@ -43,16 +42,16 @@
     [encoder encodeObject:self.dateCreated forKey:kDateCreatedKey];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder {
+- (id)initWithCoder:(NSCoder *)decoder
+{
     [decoder decodeIntForKey:kVersionKey];
-    NSString *text = [decoder decodeObjectForKey:kTextKey];
-    NSLog(@"unarchiving note with text:%@ [%d]",text,__LINE__);
-    UIColor *color = [decoder decodeObjectForKey:kColorKey];
-    NSString *location = [decoder decodeObjectForKey:kLocationKey];
-    NSDate *created = [decoder decodeObjectForKey:kDateCreatedKey];
     
-    NoteData *data = [self initWithText:text color:color location:location];
-    [data setDateCreated:created];
+    NoteData *data = [self init];
+    
+    data.noteText = [decoder decodeObjectForKey:kTextKey];
+    data.noteColor = [decoder decodeObjectForKey:kColorKey];
+    data.noteLocation = [decoder decodeObjectForKey:kLocationKey];
+    data.dateCreated = [decoder decodeObjectForKey:kDateCreatedKey];
     
     return data;
 }

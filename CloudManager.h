@@ -9,6 +9,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class NoteEntry;
+
 typedef void(^iCloudAvailableBlock)(BOOL available);
 typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *note,NSMutableOrderedSet *noteDocs);
 typedef void(^iCloudLoadingFailed)();
@@ -19,7 +21,7 @@ typedef void(^iCloudLoadingFailed)();
 - (void)initializeiCloudAccessWithCompletion:(iCloudAvailableBlock)available;
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
 - (void)insertNewEntryAtIndex:(int)index completion:(void(^)())completion;
-
+- (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion;
 - (NSURL *)getDocURL:(NSString *)filename;
 
 @end

@@ -279,9 +279,8 @@
         } else if (netXChange >= -40 && netXChange <= 40) {
             [undoTimer invalidate];
         }
-        if (netYChange > 5) {
+        if (netYChange > 30) {
             swipeDownTwoFinger = YES;
-            [self fadeKeyboard];
         }
     } else {
         if (netYChange < -5) {
@@ -298,7 +297,6 @@
                 [self keyHitDetected:firstTouch];
                 swipeDown = YES;
             }
-            
         }
     }
 }
@@ -310,6 +308,7 @@
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
     if (swipeDownTwoFinger) {
         [self.delegate closeKeyboard];
+        swipeDownTwoFinger = NO;
     } else if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
         [self keyHitDetected:currentLocation];
     }

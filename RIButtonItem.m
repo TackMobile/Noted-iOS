@@ -27,6 +27,8 @@
 -(void)dealloc
 {
     action = nil;
+    
+    [super dealloc];
 }
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "NoteEntryCell.h"
+#import "NoteEntry.h"
+#import "Utilities.h"
 
 @implementation NoteEntryCell
 
@@ -30,20 +32,32 @@
     self.textLabel.backgroundColor = [UIColor clearColor];
     self.absoluteTimeText.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
+    [self setTimeLabelsForNew];
 }
 
+- (void)setTimeLabelsForNew
+{
+    // immediately set time fields
+    NSDate *now = [NSDate date];
+    self.relativeTimeText.text = [Utilities formatRelativeDate:now];
+    self.absoluteTimeText.text = [Utilities formatDate:now];
+    
+}
 - (void)didSwipeRightInCell:(id)sender
 {
     [delegate didSwipeToDeleteCellWithIndexPath:self];
     
-    [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         [self.contentView setFrame:CGRectMake(320.0, 0.0, 320.0, 66.0)];
-                     }
-                     completion:^(BOOL finished){
-                         NSLog(@"finished animating, now delete for reals");
-                     }];
+    /*
+     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+     [UIView animateWithDuration:0.5
+     animations:^{
+     NSLog(@"%@ [%d]",NSStringFromCGRect(self.contentView.frame),__LINE__);
+     [self.contentView setFrame:CGRectMake(320.0, 0.0, 320.0, 66.0)];
+     }
+     completion:^(BOOL finished){
+     NSLog(@"finished animating, now delete for reals");
+     }];
+     */
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated

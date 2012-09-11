@@ -47,15 +47,30 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)setCurrentNoteEntries:(NSMutableOrderedSet *)noteEntries
 {
-    [noteEntries sortUsingComparator:(NSComparator)^(id obj1, id obj2){
+    _currentNoteEntries = [self sortEntries:noteEntries];
+}
+
+- (NSMutableOrderedSet *)sortEntries:(NSMutableOrderedSet *)set
+{
+    NSLog(@"Sort before:");
+    for (NoteDocument *doc in set) {
+        NSLog(@"%@: %@",doc.dateCreated,doc.text);
+    }
+    
+    [set sortUsingComparator:(NSComparator)^(id obj1, id obj2){
         
         NoteDocument *doc1 = (NoteDocument *)obj1;
         NoteDocument *doc2 = (NoteDocument *)obj2;
         
-        return [doc1.noteEntry.dateCreated compare:doc2.noteEntry.dateCreated];
+        return [doc2.dateCreated compare:doc1.dateCreated];
     }];
     
-    _currentNoteEntries = noteEntries;
+    NSLog(@"Sort after:");
+    for (NoteDocument *doc in set) {
+        NSLog(@"%@: %@",doc.dateCreated,doc.text);
+    }
+    
+    return set;
 }
 
 - (void)refreshNotes {
@@ -66,6 +81,8 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
         
         [[NSNotificationCenter defaultCenter] addObserverForName:@"createNote" object:nil queue:nil usingBlock:^(NSNotification *note){
             [self createNote];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"createNote" object:nil];
+            
         }];
         
         [self promptForPreferredStorageWithCompletion:^(){
@@ -74,6 +91,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
         }];
         
     } else {
+        [EZToastView showToastMessage:@"refreshing notes"];
         refreshBlock();
     }
 }
@@ -140,18 +158,20 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 #pragma mark - CRUD
 
 - (void) createNote {
+    [EZToastView showToastMessage:@"create note called"];
     NSString *uniqueName = [NoteDocument uniqueNoteName];
 
     CreateNoteCompletionBlock completionBlock = ^(NoteDocument *entry) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
+        //[[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
     };
-    NSLog(@"\n\n\n\n create note doc instead!!!!! [%d]\n\n\n\n",__LINE__);
     
     NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
     [self.currentNoteEntries insertObject:noteDoc atIndex:0];
+    
 }
 
-- (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
+- (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
+{
     NoteDocument *noteDoc = [self.currentNoteEntries objectAtIndex:index];
     [self deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
 }
@@ -160,9 +180,9 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     
     // in-memory model updated, notify ui
     [self.currentNoteEntries removeObject:noteDoc];
-    callersCompletionBlock();
     
-    [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:nil];
+    [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
+    
 }
 
 #pragma mark - Note File Manager Delegate

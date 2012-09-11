@@ -21,6 +21,8 @@
 
 @property (nonatomic, weak) id <NoteEntryCellDelegate> delegate;
 
+- (void)setTimeLabelsForNew;
+
 @end
 
 @protocol NoteEntryCellDelegate <NSObject>

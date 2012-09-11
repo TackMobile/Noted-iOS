@@ -87,10 +87,20 @@
 #ifdef DEBUG
     NSLog(@"Want to create file at %@", fileURL);
 #endif
-    __block NoteEntry *entry = [[NoteEntry alloc] init];
-    entry.fileURL = fileURL;
-    entry.adding = YES;
+    /*
+     __block NoteEntry *entry = [[NoteEntry alloc] init];
+     entry.fileURL = fileURL;
+     entry.adding = YES;
+     
+     */
+    
     NoteDocument *doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+        
+    // NoteDocument wraps NoteEntry, which wraps NoteData
+    // NoteData *noteData = [[NoteData alloc] init];
+    //[entry setNoteData:noteData];
+    //[doc setNoteEntry:entry];
+    
     [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
         
         if (!success) {
@@ -100,15 +110,25 @@
         
 #ifdef DEBUG
         NSLog(@"File created at %@", fileURL);
-#endif
-        NoteData *noteData = [NoteData new];
-        doc.location = @"0";
-        noteData.noteLocation = doc.location;
-        noteData.noteColor = doc.color;
-        noteData.noteText = doc.text;
-        UIDocumentState state = doc.documentState;
-        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
         
+        NSLog(@"[%d] location: %@",__LINE__,doc.location);
+        NSLog(@"[%d] note text: %@",__LINE__,doc.text);
+#endif
+        /*
+         NoteData *noteData = [[NoteData alloc] init];
+         doc.location = @"0";
+         noteData.noteLocation = @"lorem ipsum";
+         noteData.noteColor = [UIColor whiteColor];
+         noteData.noteText = @"";
+         
+         noteData.dateCreated = [NSDate date];
+         */
+        //NSLog(@"%@ %@",noteData.dateCreated,noteData.noteText);
+        //UIDocumentState state = doc.documentState;
+        //NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+        
+        //entry.noteData = noteData;
+ 
         [doc closeWithCompletionHandler:^(BOOL success) {
             if (!success) {
 #ifdef DEBUG
@@ -118,10 +138,15 @@
             }
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                entry.noteData = noteData;
-                entry.state = state;
-                entry.version = version;
-                entry.adding = NO;
+                
+                /*
+                 entry.state = state;
+                 entry.version = version;
+                 entry.adding = NO;
+                 */
+                
+                [doc setEntryClosed];
+                
                 noteCreationCompleteBlock(doc);
                 //TODO
                 //[_query enableUpdates];
@@ -136,28 +161,43 @@
     //TODO
     //[_query disableUpdates];
     
-    NoteEntry *entry = [noteDocument noteEntry];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-        NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-        [fileCoordinator coordinateWritingItemAtURL:entry.fileURL 
-                                            options:NSFileCoordinatorWritingForDeleting
-                                              error:nil 
-                                         byAccessor:^(NSURL* writingURL) {                                                   
-                                             NSError *error;
-                                             NSFileManager* fileManager = [[NSFileManager alloc] init];
-                                             [fileManager removeItemAtURL:writingURL error:&error];
+    if ([FileStorageState preferredStorage]==kTKiCloud) {
+        // have CloudManager do it
+        [[CloudManager sharedInstance] deleteEntry:noteDocument.noteEntry withCompletion:completionBlock];
+    } else {
+        NoteEntry *entry = [noteDocument noteEntry];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            
+            NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+            
+            [fileCoordinator coordinateWritingItemAtURL:entry.fileURL
+                                                options:NSFileCoordinatorWritingForDeleting
+                                                  error:nil
+                                             byAccessor:^(NSURL* writingURL) {
+                                                 
+                                                 NSError *error;
+                                                 NSFileManager* fileManager = [[NSFileManager alloc] init];
+                                                 [fileManager removeItemAtURL:writingURL error:&error];
 #ifdef DEBUG
-                                             NSLog(@"Writing URL: %@ [%d]",writingURL,__LINE__);
-                                             NSLog(@"Deleted item at %@",entry.fileURL);
-                                             NSLog(@"Error? %@", error);
+                                                 NSLog(@"Writing URL: %@ [%d]",writingURL,__LINE__);
+                                                 NSLog(@"Deleted item at %@",entry.fileURL);
+                                                 NSLog(@"Error? %@", error);
+                                                 
+                                                 
 #endif
-                                             if (completionBlock) completionBlock();
-                                             //TODO
-                                             //[_query enableUpdates];
-                                         }];
-    });    
+                                                 if (completionBlock) {
+                                                     completionBlock();
+                                                 }
+                                                 //TODO
+                                                 //[_query enableUpdates];
+                                             }];
+        });    
+
+    }
     
+       
 }
 
 #pragma mark - Loading
@@ -167,9 +207,11 @@
     // check what's there
     [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects,NSMutableOrderedSet *docs){
         
-        if (noteObjects.count==0) {
-            // 1st use, create one
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"createNote" object:nil];
+        if (IsEmpty(docs)) {
+            // if 1st use, create one
+            if ([FileStorageState isFirstUse]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"createNote" object:nil];
+            }
             
         } else {
             
@@ -221,7 +263,8 @@
 }
 
 - (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list {
-    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];        
+    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    doc.noteEntry.adding = NO;
     [doc openWithCompletionHandler:^(BOOL success) {
         if (!success) {
 #ifdef DEBUG
@@ -243,7 +286,7 @@
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
         NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
 #ifdef DEBUG
-        NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
+        //NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [self stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
 #endif
         
         NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];

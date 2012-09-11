@@ -92,13 +92,18 @@
 - (void)setTextLabelColorsByBGColor:(UIColor *)color
 {
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
+    if (index==NSNotFound) {
+        // UICachedDeviceWhiteColor
+        NSLog(@"color for note bg not found in NoteColor schemes, setting to white [%d]",__LINE__);
+        index = 0;
+    }
     if (index >= 4) {
         [self.textView setTextColor:[UIColor whiteColor]];
     } else {
         [self.textView setTextColor:[UIColor blackColor]];
     }
     
-    self.absoluteTime.textColor = [[UIColor getHeaderColorSchemes] objectAtIndex:[[UIColor getNoteColorSchemes] indexOfObject:color]];
+    self.absoluteTime.textColor = [[UIColor getHeaderColorSchemes] objectAtIndex:index];
     self.relativeTime.textColor = self.absoluteTime.textColor;
     self.optionsDot.textColor = self.absoluteTime.textColor;
     if ([UIColor isWhiteColor:color] || [UIColor isShadowColor:color]) {
@@ -140,8 +145,11 @@
     if (![aTextView.text hasPrefix:@"\n"]) {
         aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
 
-    }
-    
+    }    
+}
+
+- (void)textViewDidEndEditing:(UITextView *)aTextView
+{
     [self.note setText:aTextView.text];
 }
 

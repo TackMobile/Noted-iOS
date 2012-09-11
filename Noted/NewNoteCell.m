@@ -9,7 +9,7 @@
 #import "NewNoteCell.h"
 
 @implementation NewNoteCell
-@synthesize label;
 
+@synthesize label;
 
 @end

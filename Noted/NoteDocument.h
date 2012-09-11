@@ -14,10 +14,13 @@ extern NSString *const kNoteExtension;
 
 @interface NoteDocument : UIDocument
 
+@property (nonatomic, strong) NoteEntry *noteEntry;
+
 - (NSString*)description;
 - (NSString*)text;
 - (UIColor*)color;
 - (NSString*)location;
+- (NSDate *)dateCreated;// no getter needed
 - (void)setText:(NSString*)text;
 - (void)setColor:(UIColor*)color;
 - (void)setLocation:(NSString*)location;
@@ -25,7 +28,9 @@ extern NSString *const kNoteExtension;
 + (NSString *)uniqueNoteName;
 + (NSString *)stringForState:(UIDocumentState)state;
 
-- (NoteEntry *)noteEntry;
+// update the entry's state after closing doc
+- (void)setEntryClosed;
+
 - (NSString *)debugDescription;
 
 @end

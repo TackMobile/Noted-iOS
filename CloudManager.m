@@ -299,6 +299,7 @@ static CloudManager *sharedInstance;
     [_query disableUpdates];
         
     [_iCloudURLs removeAllObjects];
+    [EZToastView showToastMessage:@"did query iCloud URLS"];
     
     // The query reports all files found, every time.
     NSArray * queryResults = [_query results];
@@ -314,9 +315,6 @@ static CloudManager *sharedInstance;
     }
     
     NSLog(@"Found %d iCloud files.", _iCloudURLs.count);
-    if (_iCloudURLs.count==0) {
-        [self createFirstDoc];
-    }
     
     _iCloudURLsReady = YES;
     
@@ -324,7 +322,6 @@ static CloudManager *sharedInstance;
         
         // Remove deleted files
         // Iterate backwards because we need to remove items from the array
-        
         for (int i = _objects.count -1; i >= 0; --i) {
             if ([[_objects objectAtIndex:i] isKindOfClass:[NSString class]]) {
                 NSLog(@"This is an error with the object stored in the table view");
@@ -336,41 +333,50 @@ static CloudManager *sharedInstance;
             }
         }
         
-        // open the documents, and when they're all done
-        // pass an NSMutableOrderedSet list of NoteDocuments to a notification (didLoadNoteEntries:)
-        NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
-        NSMutableOrderedSet *noteDocsList = [NSMutableOrderedSet orderedSet];
-        // we don't need a predicate to filter for docs with kNoteExtension
-        // like we do when we load local files cause these urls are filtered 
-        // in the metadata query
-        TKPromiseKeptBlock promiseKeptBlock = ^{
-            // now we can pass to tableview and reload
-            //[self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:openedDocsList waitUntilDone:NO];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
-                self.loadingComplete(noteEntriesList,noteDocsList);
-            });
-        };
-        TKPromiseFailedBlock promiseFailedBlock = ^{
-            //TODO can we get an error here?
-            //TODO do this on the main thread, right?
-            NSLog(@"promise failed %s [%d]",__PRETTY_FUNCTION__,__LINE__);
-        };
-        TKPromiseResolvedBlock promiseResolvedBlock = ^{
-            iCloudFileLoadPromise = nil;
-        };
-        iCloudFileLoadPromise = [[TKPromise alloc] initWithPromiseKeptBlock:promiseKeptBlock
-                                                   promiseFailedBlock:promiseFailedBlock
-                                                 promiseResolvedBlock:promiseResolvedBlock
-                                                          commitments:nil];
-        NSArray *absoluteFileURLs = [_iCloudURLs valueForKeyPath:@"absoluteString"];
-        [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
-        
-        for (NSURL * fileURL in _iCloudURLs) {
-            NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
-            [self loadDocAtURL:fileURL intoList:noteEntriesList docsList:noteDocsList promised:YES];
-        }
-    }
+        if (_iCloudURLs.count==0) {
+            // no docs found
+            self.loadingComplete(nil,nil);
+            
+        } else {
+            
+            // open the documents, and when they're all done
+            // pass an NSMutableOrderedSet of NoteDocuments to a notification (didLoadNoteEntries:)
+            NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
+            NSMutableOrderedSet *noteDocsList = [NSMutableOrderedSet orderedSet];
+            // we don't need a predicate to filter for docs with kNoteExtension
+            // like we do when we load local files cause these urls are filtered
+            // in the metadata query
+            TKPromiseKeptBlock promiseKeptBlock = ^{
+                // now we can pass to tableview and reload
+                //[self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:openedDocsList waitUntilDone:NO];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
+                    
+                    self.loadingComplete(noteEntriesList,noteDocsList);
+                });
+            };
+            TKPromiseFailedBlock promiseFailedBlock = ^{
+                //TODO can we get an error here?
+                //TODO do this on the main thread, right?
+                NSLog(@"promise failed %s [%d]",__PRETTY_FUNCTION__,__LINE__);
+            };
+            TKPromiseResolvedBlock promiseResolvedBlock = ^{
+                iCloudFileLoadPromise = nil;
+            };
+            iCloudFileLoadPromise = [[TKPromise alloc] initWithPromiseKeptBlock:promiseKeptBlock
+                                                             promiseFailedBlock:promiseFailedBlock
+                                                           promiseResolvedBlock:promiseResolvedBlock
+                                                                    commitments:nil];
+            NSArray *absoluteFileURLs = [_iCloudURLs valueForKeyPath:@"absoluteString"];
+            [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
+            
+            for (NSURL * fileURL in _iCloudURLs) {
+                NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
+                [self loadDocAtURL:fileURL intoList:noteEntriesList docsList:noteDocsList promised:YES];
+            }
+
+        }         
+            }
     // just got everything from iCloud
     // so don't need to move anything local back up
     if (_moveLocalToiCloud) {
@@ -396,6 +402,7 @@ static CloudManager *sharedInstance;
     
     // Open doc so we can read metadata
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    doc.noteEntry.adding = NO;
     [doc openWithCompletionHandler:^(BOOL success) {
         
         // Check status
@@ -406,26 +413,8 @@ static CloudManager *sharedInstance;
             NSLog(@"successfully opened a doc [%d]",__LINE__);
         }
         
-        // Preload metadata on background thread
-        /*
-         NoteData * noteData = [NoteData new];
-         noteData.noteText = doc.text;
-         noteData.noteLocation = doc.location;
-         noteData.noteColor = doc.color;
-         NSURL * fileURL = doc.fileURL;
-         UIDocumentState state = doc.documentState;
-         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-         [dateFormatter setDoesRelativeDateFormatting:YES];
-         [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-         NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-         NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [doc.fileURL lastPathComponent], [NoteDocument stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
-         
-         NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
-         */
-        
-        NoteEntry *entry = [doc noteEntry];
-        
+        NoteEntry *entry = doc.noteEntry;
+        NSLog(@"did it crash after this? %s [%d]",__PRETTY_FUNCTION__,__LINE__);
         if (list && docsList) {
             [list addObject:entry];
             [docsList addObject:doc];
@@ -463,6 +452,7 @@ static CloudManager *sharedInstance;
     NSLog(@"Want to create file at %@", fileURL);
     // Create new document and save to the filename
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    
     [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
         
         if (!success) {
@@ -507,7 +497,8 @@ static CloudManager *sharedInstance;
     
 }
 
-- (void)deleteEntry:(NoteEntry *)entry {
+- (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion
+{
     [_query disableUpdates];
     // Wrap in file coordinator
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
@@ -523,6 +514,11 @@ static CloudManager *sharedInstance;
                                              NSLog(@"Deleted item at %@",entry.fileURL);
                                              NSLog(@"Error? %@", error);
                                              [_query enableUpdates];
+                                             
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                 completion();
+                                             });
+                                             
                                          }];
     });
     

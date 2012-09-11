@@ -171,6 +171,7 @@
 		B548668815F8F4B4005FBC60 /* CloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloudManager.m; sourceTree = "<group>"; };
 		B548669C15FA4CCD005FBC60 /* EZToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EZToastView.h; sourceTree = "<group>"; };
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
+		B5A83BBD15FF937000CAE2E8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
 		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
 		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
@@ -419,6 +420,7 @@
 				EAD6960A15B7C604004A2494 /* NoteViewController.h */,
 				EAD6960B15B7C604004A2494 /* NoteViewController.m */,
 				EAD6960C15B7C604004A2494 /* NoteViewController.xib */,
+				B5A83BBD15FF937000CAE2E8 /* Constants.h */,
 			);
 			name = New;
 			sourceTree = "<group>";
