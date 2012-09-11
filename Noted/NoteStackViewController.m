@@ -161,29 +161,30 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             BOOL popToList = (velocity.y > 0) && numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
             if (popToList) {
                 [self dismissViewControllerAnimated:YES completion:nil];
-            }
-            
-            deletingViews = [NSMutableArray new];
-            CGRect rect = CGRectMake(0, 0, 320, 480);
-            UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
-            CGContextRef context = UIGraphicsGetCurrentContext();
-            [self.currentNoteViewController.view.layer renderInContext:context];
-            UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
-            // Create and show the new image from bitmap data
-            for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
-                // Create rectangle that represents a cropped image
-                // from the middle of the existing image
-                CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+            } else {
+                deletingViews = [NSMutableArray new];
+                CGRect rect = CGRectMake(0, 0, 320, 480);
+                UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                [self.currentNoteViewController.view.layer renderInContext:context];
+                UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
                 
                 // Create and show the new image from bitmap data
-                UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
-                imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
-                [deletingViews addObject:imageView];
-                imageView.hidden = YES;
-                [self.view addSubview:imageView];
+                for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
+                    // Create rectangle that represents a cropped image
+                    // from the middle of the existing image
+                    CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+                    
+                    // Create and show the new image from bitmap data
+                    UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
+                    imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+                    [deletingViews addObject:imageView];
+                    imageView.hidden = YES;
+                    [self.view addSubview:imageView];
+                }
             }
+            
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {

@@ -69,7 +69,7 @@
     self.scrollView.delegate = self;
     
     //add gestureRecognizers 
- //   [self addAllGestures];
+    [self addAllGestures];
     [self.view setMultipleTouchEnabled:YES];
     [self setupAllKeyboards];
     
@@ -229,13 +229,77 @@
 
 -(void)addAllGestures {
     
-    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panOnKeyboardDetected:)];
+    UISwipeGestureRecognizer *panRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(panOnKeyboardDetected:)];
+    [panRecognizer setNumberOfTouchesRequired:2];
+    [panRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
     [self.view addGestureRecognizer:panRecognizer];
     
+    UISwipeGestureRecognizer *twoFingerLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerSwipeLeft:)];
+    [twoFingerLeft setNumberOfTouchesRequired:2];
+    [twoFingerLeft setDirection:UISwipeGestureRecognizerDirectionLeft];
+    [self.view addGestureRecognizer:twoFingerLeft];
+    
+    UISwipeGestureRecognizer *twoFingerRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerSwipeRight:)];
+    [twoFingerRight setNumberOfTouchesRequired:2];
+    [twoFingerLeft setDirection:UISwipeGestureRecognizerDirectionRight];
+    [self.view addGestureRecognizer:twoFingerRight];
+    
+    UISwipeGestureRecognizer *oneFingerSwipeDown = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerSwipeDown:)];
+    [oneFingerSwipeDown setNumberOfTouchesRequired:1];
+    [oneFingerSwipeDown setDirection:UISwipeGestureRecognizerDirectionDown];
+    [self.view addGestureRecognizer:oneFingerSwipeDown];
+    
+    UISwipeGestureRecognizer *oneFingerSwipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerSwipeUp:)];
+    [oneFingerSwipeUp setNumberOfTouchesRequired:1];
+    [oneFingerSwipeUp setDirection:UISwipeGestureRecognizerDirectionUp];
+    [self.view addGestureRecognizer:oneFingerSwipeUp];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    [self.view addGestureRecognizer:tapGesture];
 }
 
+- (void)panOnKeyboardDetected:(UIGestureRecognizer *)gesture
+{
+    [self.delegate closeKeyboard];
+}
 
-#pragma mark - 
+- (void)handleOneFingerSwipeDown:(UISwipeGestureRecognizer *)gesture
+{
+    returnLine = YES;
+    [self keyHitDetected:firstTouch];
+}
+
+- (void)handleOneFingerSwipeUp:(UISwipeGestureRecognizer *)gesture
+{
+    capitalized = YES;
+    //[self keyHitDetected:firstTouch];
+}
+
+- (void)handleTwoFingerSwipeLeft:(UISwipeGestureRecognizer *)gesture
+{
+    [undoTimer invalidate];
+    undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
+    [self.delegate undoEdit];
+}
+
+- (void)handleTwoFingerSwipeRight:(UISwipeGestureRecognizer *)gesture
+{
+    [undoTimer invalidate];
+    undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
+    [self.delegate redoEdit];
+}
+
+- (void)handleTap:(UITapGestureRecognizer *)gesture
+{
+    CGPoint currentLocation = [gesture locationInView:self.view];
+    [self keyHitDetected:currentLocation];
+    
+    // reset the selected and prior selected interface elements
+    self.activeKeyboardKey = nil;
+    [undoTimer invalidate];
+}
+
+#pragma mark -
 #pragma mark Touch Events and Hit Detection
 
 -(void)touchesBegan: (NSSet *)touches withEvent: (UIEvent *)event {
@@ -255,7 +319,9 @@
 
 -(void)touchesMoved: (NSSet *)touches withEvent: (UIEvent *)event {
     
-	NSSet *allTouches= [event allTouches];
+	return;
+    
+    NSSet *allTouches= [event allTouches];
     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
     CGFloat netXChange = currentLocation.x - firstTouch.x;
     CGFloat netYChange = abs(currentLocation.y - firstTouch.y);
@@ -279,9 +345,9 @@
         } else if (netXChange >= -40 && netXChange <= 40) {
             [undoTimer invalidate];
         }
-        if (netYChange > 30) {
-            swipeDownTwoFinger = YES;
-        }
+        //if (netYChange > 30) {
+        //  swipeDownTwoFinger = YES;
+        //}
     } else {
         if (netYChange < -5) {
             NSLog(@"vertical up swipe recognized");
@@ -299,24 +365,27 @@
             }
         }
     }
+    
 }
 
 -(void) touchesEnded: (NSSet *)touches withEvent: (UIEvent *)event {
 	
 	// find the element that is being touched, if any.
     
-    CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
-    if (swipeDownTwoFinger) {
-        [self.delegate closeKeyboard];
-        swipeDownTwoFinger = NO;
-    } else if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
-        [self keyHitDetected:currentLocation];
-    }
-	
-	// reset the selected and prior selected interface elements
     
-	self.activeKeyboardKey = nil;
-    [undoTimer invalidate];
+     CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
+     if (swipeDownTwoFinger) {
+     //[self.delegate closeKeyboard];
+     //swipeDownTwoFinger = NO;
+     //} else if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
+     [self keyHitDetected:currentLocation];
+     }
+     
+     // reset the selected and prior selected interface elements
+     
+     self.activeKeyboardKey = nil;
+     [undoTimer invalidate];
+     
     
 }
 
@@ -342,8 +411,10 @@
 				
                 
                 [self keyboardKeySelected:theKey];
+                NSLog(@"found it");
             }
         }
+        NSLog(@"still enumerating all keys");
     }
 }
 

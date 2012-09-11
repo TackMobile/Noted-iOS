@@ -62,14 +62,6 @@
     }];
 }
 
-/*
- - (void) viewDidAppear:(BOOL)animated {
- [super viewDidAppear:animated];
- 
- 
- }
- */
-
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -182,6 +174,9 @@
     NSString *title = nil;
     if (!IsEmpty([entry text]) && ![entry.text isEqualToString:@"\n"]){
         title = [entry text];
+        if ([entry.text hasPrefix:@"\n"]) {
+            title = [title stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+        }
     } else {
         title = @"...";
     }

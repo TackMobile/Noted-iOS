@@ -84,75 +84,39 @@
 - (NoteDocument *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     
     NSURL *fileURL = [self URLForFileNamed:noteName];
-#ifdef DEBUG
-    NSLog(@"Want to create file at %@", fileURL);
-#endif
-    /*
-     __block NoteEntry *entry = [[NoteEntry alloc] init];
-     entry.fileURL = fileURL;
-     entry.adding = YES;
-     
-     */
-    
-    NoteDocument *doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    NoteDocument *doc = nil;
+    if ([FileStorageState preferredStorage]==kTKiCloud) {
+        // have CloudManager do it
+        doc = [[CloudManager sharedInstance] insertNewEntryAtIndex:0 completion:noteCreationCompleteBlock];
         
-    // NoteDocument wraps NoteEntry, which wraps NoteData
-    // NoteData *noteData = [[NoteData alloc] init];
-    //[entry setNoteData:noteData];
-    //[doc setNoteEntry:entry];
-    
-    [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
+    } else {
+
+        NSLog(@"Want to create file at %@", fileURL);
         
-        if (!success) {
-            NSLog(@"Failed to create file at %@", fileURL);
-            return;
-        } 
+        doc = [[NoteDocument alloc] initWithFileURL:fileURL];
         
-#ifdef DEBUG
-        NSLog(@"File created at %@", fileURL);
-        
-        NSLog(@"[%d] location: %@",__LINE__,doc.location);
-        NSLog(@"[%d] note text: %@",__LINE__,doc.text);
-#endif
-        /*
-         NoteData *noteData = [[NoteData alloc] init];
-         doc.location = @"0";
-         noteData.noteLocation = @"lorem ipsum";
-         noteData.noteColor = [UIColor whiteColor];
-         noteData.noteText = @"";
-         
-         noteData.dateCreated = [NSDate date];
-         */
-        //NSLog(@"%@ %@",noteData.dateCreated,noteData.noteText);
-        //UIDocumentState state = doc.documentState;
-        //NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-        
-        //entry.noteData = noteData;
- 
-        [doc closeWithCompletionHandler:^(BOOL success) {
+        [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
+            
             if (!success) {
-#ifdef DEBUG
-                NSLog(@"Failed to close %@", fileURL);
-#endif
-                // Continue anyway...
+                NSLog(@"Failed to create file at %@", fileURL);
+                return;
             }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
+            [doc closeWithCompletionHandler:^(BOOL success) {
+                if (!success) {
+                    NSLog(@"Failed to close %@", fileURL);
+                }
                 
-                /*
-                 entry.state = state;
-                 entry.version = version;
-                 entry.adding = NO;
-                 */
-                
-                [doc setEntryClosed];
-                
-                noteCreationCompleteBlock(doc);
-                //TODO
-                //[_query enableUpdates];
-            });
-        }];         
-    }];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [doc setEntryClosed];
+                    noteCreationCompleteBlock(doc);
+                    
+                });
+            }];         
+        }];
+
+    }
     
     return doc;
 }

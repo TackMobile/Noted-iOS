@@ -74,6 +74,9 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 }
 
 - (void)refreshNotes {
+    
+    
+    [EZToastView showToastMessage:@"refreshing notes explicitly"];
     void(^refreshBlock)() = ^{
         [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
     };

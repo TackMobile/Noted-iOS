@@ -178,7 +178,7 @@ static CloudManager *sharedInstance;
                                                  name:NSMetadataQueryDidFinishGatheringNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(processiCloudFiles:)
+                                             selector:@selector(processiCloudFilesFromUpdate:)
                                                  name:NSMetadataQueryDidUpdateNotification
                                                object:nil];
     
@@ -255,12 +255,21 @@ static CloudManager *sharedInstance;
             BOOL found = NO;
             for(int i = 0; i < [_objects count]; i++) {
                 NoteEntry *anEntry = [_objects objectAtIndex:i];
-                if (entry.noteData.noteLocation.intValue < anEntry.noteData.noteLocation.intValue) {
+                
+                if ([entry.fileURL isEqual:anEntry.fileURL]) {
                     [_objects insertObject:entry atIndex:[_objects indexOfObject:anEntry]];
                     found = YES;
                     anEntry = nil;
                     break;
                 }
+            /*
+             if (entry.noteData.noteLocation.intValue < anEntry.noteData.noteLocation.intValue) {
+             [_objects insertObject:entry atIndex:[_objects indexOfObject:anEntry]];
+             found = YES;
+             anEntry = nil;
+             break;
+             }
+             */
             }
             if (!found) {
                 [_objects addObject:entry];
@@ -268,10 +277,7 @@ static CloudManager *sharedInstance;
         }else {
             [_objects addObject:entry];
         }
-        
-#warning TODO: send message to UI to insert rows
-        //[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:(_objects.count - 1) inSection:0]] withRowAnimation:UITableViewRowAnimationRight];
-        //[self.tableView reloadData];
+
         
         entry = nil;
         
@@ -293,13 +299,25 @@ static CloudManager *sharedInstance;
 
 #pragma mark File management
 
+- (void)processiCloudFilesFromUpdate:(NSNotification *)notification
+{
+    [EZToastView showToastMessage:@"did query iCloud after update"];
+    [self processFiles:notification];
+}
+
 - (void)processiCloudFiles:(NSNotification *)notification {
     
+    [EZToastView showToastMessage:@"did query iCloud for refresh request"];
+    [self processFiles:notification];
+}
+
+- (void)processFiles:(NSNotification *)notification
+{
     // Always disable updates while processing results
     [_query disableUpdates];
-        
+    
     [_iCloudURLs removeAllObjects];
-    [EZToastView showToastMessage:@"did query iCloud URLS"];
+    [EZToastView showToastMessage:@"processing iCloud URLS"];
     
     // The query reports all files found, every time.
     NSArray * queryResults = [_query results];
@@ -335,7 +353,10 @@ static CloudManager *sharedInstance;
         
         if (_iCloudURLs.count==0) {
             // no docs found
+            [_query enableUpdates];
             self.loadingComplete(nil,nil);
+            
+            return;
             
         } else {
             
@@ -374,9 +395,9 @@ static CloudManager *sharedInstance;
                 NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
                 [self loadDocAtURL:fileURL intoList:noteEntriesList docsList:noteDocsList promised:YES];
             }
-
-        }         
-            }
+            
+        }
+    }
     // just got everything from iCloud
     // so don't need to move anything local back up
     if (_moveLocalToiCloud) {
@@ -444,13 +465,12 @@ static CloudManager *sharedInstance;
     
 }
 
-- (void)insertNewEntryAtIndex:(int)index completion:(void(^)())completion
+- (NoteDocument *)insertNewEntryAtIndex:(int)index completion:(void(^)(NoteDocument *entry))completion
 {
+    
     [_query disableUpdates];
     NSURL * fileURL = [self getDocURL:[self getDocFilename:[NoteDocument uniqueNoteName] uniqueInLocalObjects:YES]];
-    NoteEntry *entry = [NoteEntry new];
-    NSLog(@"Want to create file at %@", fileURL);
-    // Create new document and save to the filename
+    
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
     
     [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
@@ -460,41 +480,18 @@ static CloudManager *sharedInstance;
             return;
         }
         
-        NSLog(@"File created at %@", fileURL);
-        NoteData * noteData = [NoteData new];
-        doc.location = [NSString stringWithFormat:@"%i",index];
-        noteData.noteLocation = doc.location;
-        noteData.noteColor = doc.color;
-        noteData.noteText = doc.text;
-        NSURL * fileURL = doc.fileURL;
-        UIDocumentState state = doc.documentState;
-        NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
-        
-        
         // Add to the list of files on main thread
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            completion();
-            
-            entry.fileURL = fileURL;
-            entry.noteData = noteData;
-            entry.state = state;
-            entry.version = version;
-            entry.adding = NO;
-            [_objects insertObject:entry atIndex:index];
-            
-#warning TODO: send message to UI to open the new row...?
-            //[self sortObjects];
-            //self.noteKeyOpVC.notes = _objects;
-            //[self.noteKeyOpVC openTheNote:doc];
-            
+            [doc setEntryClosed];
+            completion(doc);            
+            [_objects insertObject:doc.noteEntry atIndex:index];
             [_query enableUpdates];
             
         });
     }];
     
-    //we don't close the document since this document is automatically opened in the notekeyoptionsVC (cannot close documents twice)
-    
+    return doc;
 }
 
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion
