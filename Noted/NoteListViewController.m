@@ -202,7 +202,9 @@
         if (!entry.adding) {
             model.selectedNoteIndex = indexPath.row;
             
-            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] init];
+            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row){
+                _selectedIndexPath = [NSIndexPath indexPathForRow:row inSection:1];
+            }];
             [self presentViewController:stackViewController animated:YES completion:NULL];
         }
     }

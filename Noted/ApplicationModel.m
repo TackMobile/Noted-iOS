@@ -132,12 +132,28 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [self.currentNoteEntries objectAtIndex:index];
 }
 
+- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index {
+    int count = [self.currentNoteEntries count];
+    assert(index <= count);
+    assert(index >= 0);
+    NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
+    return [self noteDocumentAtIndex:previousIndex];
+}
+
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
     int count = [self.currentNoteEntries count];
     assert(index <= count);
     assert(index >= 0);
     NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
     return [self noteAtIndex:previousIndex];
+}
+
+- (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index {
+    int count = [self.currentNoteEntries count];
+    assert(index <= count);
+    assert(index >= 0);
+    NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
+    return [self noteDocumentAtIndex:nextIndex];;
 }
 
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index {

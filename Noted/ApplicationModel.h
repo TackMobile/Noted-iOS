@@ -41,7 +41,11 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (NoteDocument *)noteDocumentAtIndex:(int)index;
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index;
+- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index;
+
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index;
+- (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index;
+
 - (void) setCurrentNoteIndexToNext;
 - (void) setCurrentNoteIndexToPrevious;
 
