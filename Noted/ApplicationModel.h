@@ -51,6 +51,8 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 // CRUD
 - (void) createNote;
+- (void)createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion;
+
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
 - (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
     

@@ -58,8 +58,6 @@
     if (_note != newNote) {
         _note = newNote;
         
-        NSLog(@"%@ [%d]",newNote.debugDescription,__LINE__);
-        
         [self setNoteEntry:_note.noteEntry];
         
         //[self configureView];
@@ -94,7 +92,7 @@
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
     if (index==NSNotFound) {
         // UICachedDeviceWhiteColor
-        NSLog(@"color for note bg not found in NoteColor schemes, setting to white [%d]",__LINE__);
+        //NSLog(@"color for note bg not found in NoteColor schemes, setting to white [%d]",__LINE__);
         index = 0;
     }
     if (index >= 4) {

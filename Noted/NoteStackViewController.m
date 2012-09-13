@@ -11,12 +11,14 @@
 #import "NoteViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "NoteEntry.h"
+#import "NoteDocument.h"
 #import "UIImage+Crop.h"
 
 @interface NoteStackViewController () {
     int numberOfTouchesInCurrentPanGesture;
     BOOL optionsShowing;
     NSMutableArray *deletingViews;
+    BOOL shouldMakeNewNote;
 }
 
 - (void) presentNotes;
@@ -39,6 +41,7 @@
     self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
     if (self){
         self.dismissBlock = dismiss;
+        shouldMakeNewNote = NO;
     }
     
     return self;
@@ -176,6 +179,8 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     
     int xDirection = (velocity.x < 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
     
+    
+    
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1) {
@@ -192,10 +197,21 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             }
         } else if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            BOOL popToList = (velocity.y > 0) && numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
+            BOOL popToList = (velocity.y > 30) && numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
             if (popToList) {
                 [self popToNoteList:model.selectedNoteIndex];
+                
+                [self showVelocity:velocity];
+                
+               
             } else {
+                
+                /*
+                 if (xDirection == PREVIOUS_DIRECTION && numberOfTouchesInCurrentPanGesture == 2 && velocity.x < 30 && point.x < -20.0) {
+                 NSLog(@"should create new note");
+                 shouldMakeNewNote = YES;
+                 }
+                 */
                 
                 deletingViews = [NSMutableArray new];
                 CGRect rect = CGRectMake(0, 0, 320, 480);
@@ -223,48 +239,77 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                         
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
-        if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {
-            [UIView animateWithDuration:DURATION
-                                  delay:0.0
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 self.currentNoteViewController.view.frame = CGRectMake(viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
-                             }
-                             completion:^(BOOL success) {
-                                 if (success) {
-                                     [model setCurrentNoteIndexToPrevious];
-                                     int currentIndex = model.selectedNoteIndex;
-                                     [self updateNoteDocumentsForIndex:currentIndex];
-                                 }
-                             }];
-        } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
-            [UIView animateWithDuration:DURATION
-                                  delay:0.0
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 self.currentNoteViewController.view.frame = CGRectMake(-viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
-                             }
-                             completion:^(BOOL success) {
-                                 if (success) {
-                                     [model setCurrentNoteIndexToNext];
-                                     
-                                     int currentIndex = model.selectedNoteIndex;
-                                     [self updateNoteDocumentsForIndex:currentIndex];
-                                     
-                                 }
-                             }];
-        } else {
-            [UIView animateWithDuration:DURATION
-                                  delay:0.0
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
-                             }
-                             completion:NULL];
-        }
         
+        if (numberOfTouchesInCurrentPanGesture==1) {
+            if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {
+                [UIView animateWithDuration:DURATION
+                                      delay:0.0
+                                    options:UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                                     self.currentNoteViewController.view.frame = CGRectMake(viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
+                                 }
+                                 completion:^(BOOL success) {
+                                     if (success) {
+                                         [model setCurrentNoteIndexToPrevious];
+                                         int currentIndex = model.selectedNoteIndex;
+                                         [self updateNoteDocumentsForIndex:currentIndex];
+                                     }
+                                 }];
+            } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
+                [UIView animateWithDuration:DURATION
+                                      delay:0.0
+                                    options:UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                                     self.currentNoteViewController.view.frame = CGRectMake(-viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
+                                 }
+                                 completion:^(BOOL success) {
+                                     if (success) {
+                                         
+                                         [model setCurrentNoteIndexToNext];
+                                         
+                                         int currentIndex = model.selectedNoteIndex;
+                                         [self updateNoteDocumentsForIndex:currentIndex];
+                                         
+                                         
+                                     }
+                                 }];
+            } else { // snap back
                 
-        if (numberOfTouchesInCurrentPanGesture >= 2) {            
+                [self snapBackCurrentNote];
+                
+            }
+
+        }
+                
+        if (numberOfTouchesInCurrentPanGesture >= 2) {
+            
+            // allow cancel of new note if user let's go before midpoint
+            if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
+                if (shouldMakeNewNote) {
+                    shouldMakeNewNote = NO;
+                    [self snapBackCurrentNote];
+                    NSLog(@"canceled new note");
+                }
+            } else if (shouldMakeNewNote) {
+                
+                NSLog(@"before: %d",model.currentNoteEntries.count);
+                [model createNoteWithCompletionBlock:^(NoteDocument *doc){
+                        
+                   
+                }];
+                NSLog(@"after: %d",model.currentNoteEntries.count);
+                
+                [model setSelectedNoteIndex:0];
+                int currentIndex = model.selectedNoteIndex;
+                [self updateNoteDocumentsForIndex:currentIndex];
+                shouldMakeNewNote = NO;
+                self.currentNoteViewController.view.hidden = NO;
+                [self slideOffCurrentNoteToLeftWithCompletion:^{
+                    
+                }];
+                
+            }
+            
             for (int k = 0; k < [deletingViews count]; k++) {
                 UIView *view = [deletingViews objectAtIndex:k];
                 [UIView animateWithDuration:0.25
@@ -283,16 +328,25 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             [deletingViews removeAllObjects];
         }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+        NSLog(@"point x: %f",point.x);
+        NSLog(@"velocity x: %f",velocity.x);
+        
         if (numberOfTouchesInCurrentPanGesture == 1) {
+            
+            // move the current note vc with the touch location
             CGRect frame = self.currentNoteViewController.view.frame;
             CGRect newFrame;
             newFrame = CGRectMake(0 + point.x, 0, frame.size.width, frame.size.height);
             self.currentNoteViewController.view.frame = newFrame;
+            
             if (noteCount > 1) {
+                
+                // if user has moved it far enough to what's 'behind' on the left side
                 if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width) {
                     entryUnderneath = previousNoteDocument;
                     self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
                     self.nextNoteViewController.note = entryUnderneath;
+                // else if user has moved it far enough to what's 'behind' on the right side
                 } else if (currentNoteFrame.origin.x < viewFrame.origin.x) {
                     entryUnderneath = nextNoteDocument;
                     self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
@@ -300,6 +354,8 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 }
             }
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
+            
+            // delete the note if panning w/ 2 fingers to the right
             if (point.x > 0) {
                 self.currentNoteViewController.view.hidden = YES;
                 for (int k = 0; k < [deletingViews count]; k++) {
@@ -318,9 +374,69 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                     }
                     view.frame = frame;
                 }
+            
+            }
+            // else user is in process of creating a new note
+            else if (point.x < 0) {
+                
+                if (!shouldMakeNewNote ) {
+                    if (xDirection == PREVIOUS_DIRECTION && velocity.x < 30) {
+                        NSLog(@"should create new note");
+                        shouldMakeNewNote = YES;
+                    }
+                }
+                
+                // move the current note vc with the touch location
+                CGRect frame = self.currentNoteViewController.view.frame;
+                CGRect newFrame;
+                newFrame = CGRectMake(0 + point.x, 0, frame.size.width, frame.size.height);
+                self.currentNoteViewController.view.frame = newFrame;
+                
+                entryUnderneath = nextNoteDocument;
+                // hide next note vc if next doc is nil
+                self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
+                self.nextNoteViewController.note = entryUnderneath;
+                
             }
         }
     }
+}
+
+- (void)snapBackCurrentNote
+{
+    // snap back
+    CGRect viewFrame = self.view.frame;
+    [UIView animateWithDuration:DURATION
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
+                     }
+                     completion:NULL];
+}
+
+- (void)slideOffCurrentNoteToLeftWithCompletion:(void(^)())completion
+{
+    CGRect viewFrame = self.view.frame;
+    [UIView animateWithDuration:DURATION
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.currentNoteViewController.view.frame = CGRectMake(-viewFrame.size.width, 0, viewFrame.size.width, viewFrame.size.height);
+                     }
+                     completion:^(BOOL success) {
+                         completion();
+                     }];
+}
+
+- (void)showVelocity:(CGPoint)velocity
+{
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [[EZToastView appearanceDefaults] setShowDuration:3.0];
+        //[EZToastView showToastMessage:[NSString stringWithFormat:@"dismissed with x velocity of %@",NSStringFromCGPoint(velocity)]];
+    });
 }
 
 - (void)popToNoteList:(int)index
@@ -333,13 +449,19 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
-    self.previousNoteEntry = [model previousNoteInStackFromIndex:index];
-    self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
+    //self.previousNoteEntry = [model previousNoteInStackFromIndex:index];
+    //self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
     
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:index];
-    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:index];
+    NSLog(@"previous doc %@",[self.previousNoteDocument text]);
     
-    self.currentNoteViewController.note = [model noteDocumentAtIndex:index];
+    NoteDocument *docToShow = [model noteDocumentAtIndex:index];
+    NSLog(@"should show doc %@",[docToShow text]);
+    
+    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:index];
+    NSLog(@"next doc %@",[self.nextNoteDocument text]);
+    
+    self.currentNoteViewController.note = docToShow;
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
 }
 

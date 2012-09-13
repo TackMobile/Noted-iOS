@@ -52,10 +52,12 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (NSMutableOrderedSet *)sortEntries:(NSMutableOrderedSet *)set
 {
-    NSLog(@"Sort before:");
-    for (NoteDocument *doc in set) {
-        NSLog(@"%@: %@",doc.dateCreated,doc.text);
-    }
+    /*
+     NSLog(@"Sort before:");
+     for (NoteDocument *doc in set) {
+     NSLog(@"%@: %@",doc.dateCreated,doc.text);
+     }
+     */
     
     [set sortUsingComparator:(NSComparator)^(id obj1, id obj2){
         
@@ -65,10 +67,12 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
         return [doc2.dateCreated compare:doc1.dateCreated];
     }];
     
-    NSLog(@"Sort after:");
-    for (NoteDocument *doc in set) {
-        NSLog(@"%@: %@",doc.dateCreated,doc.text);
-    }
+    /*
+     NSLog(@"Sort after:");
+     for (NoteDocument *doc in set) {
+     NSLog(@"%@: %@",doc.dateCreated,doc.text);
+     }
+     */
     
     return set;
 }
@@ -176,17 +180,19 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 #pragma mark - CRUD
 
+// when you don't need to know exactly when it's complete
 - (void) createNote {
+    [self createNoteWithCompletionBlock:nil];
+}
+
+- (void)createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion
+{
     [EZToastView showToastMessage:@"create note called"];
     NSString *uniqueName = [NoteDocument uniqueNoteName];
-
-    CreateNoteCompletionBlock completionBlock = ^(NoteDocument *entry) {
-        //[[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
-    };
     
-    NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completionBlock];
+    NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
     [self.currentNoteEntries insertObject:noteDoc atIndex:0];
-    
+    NSLog(@"done %d",__LINE__);
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock

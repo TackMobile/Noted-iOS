@@ -7,8 +7,10 @@
 //
 
 #import "NoteData.h"
+#import "ApplicationModel.h"
 
 @implementation NoteData
+
 
 @synthesize noteColor,noteText,noteLocation,dateCreated;
 
@@ -20,6 +22,11 @@
         self.noteText = @"lorem ipsum";
         self.dateCreated = [NSDate date];
         self.noteLocation = @"0";
+        
+#ifdef DEBUG
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        self.noteText = [NSString stringWithFormat:@"lorem ipsum [%d]",model.currentNoteEntries.count+1];
+#endif
     }
     
     return self;

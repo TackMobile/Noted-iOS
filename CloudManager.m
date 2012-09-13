@@ -169,7 +169,7 @@ static CloudManager *sharedInstance;
     [self stopQuery];
     
     NSLog(@"Starting to watch iCloud dir...");
-    [EZToastView showToastMessage:[NSString stringWithFormat:@"%s",__PRETTY_FUNCTION__]];
+    //[EZToastView showToastMessage:[NSString stringWithFormat:@"%s",__PRETTY_FUNCTION__]];
     
     _query = [self documentQuery];
     
@@ -301,13 +301,13 @@ static CloudManager *sharedInstance;
 
 - (void)processiCloudFilesFromUpdate:(NSNotification *)notification
 {
-    [EZToastView showToastMessage:@"did query iCloud after update"];
+    //[EZToastView showToastMessage:@"did query iCloud after update"];
     [self processFiles:notification];
 }
 
 - (void)processiCloudFiles:(NSNotification *)notification {
     
-    [EZToastView showToastMessage:@"did query iCloud for refresh request"];
+    //[EZToastView showToastMessage:@"did query iCloud for refresh request"];
     [self processFiles:notification];
 }
 
@@ -317,7 +317,7 @@ static CloudManager *sharedInstance;
     [_query disableUpdates];
     
     [_iCloudURLs removeAllObjects];
-    [EZToastView showToastMessage:@"processing iCloud URLS"];
+    //[EZToastView showToastMessage:@"processing iCloud URLS"];
     
     // The query reports all files found, every time.
     NSArray * queryResults = [_query results];
@@ -484,10 +484,13 @@ static CloudManager *sharedInstance;
         dispatch_async(dispatch_get_main_queue(), ^{
             
             [doc setEntryClosed];
-            completion(doc);            
             [_objects insertObject:doc.noteEntry atIndex:index];
             [_query enableUpdates];
             
+            if (completion) {
+                completion(doc);
+            }
+   
         });
     }];
     

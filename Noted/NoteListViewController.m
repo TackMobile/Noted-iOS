@@ -21,6 +21,7 @@
 {
     NoteEntryCell *_deletedCell;
     NSIndexPath *_selectedIndexPath;
+    NSUInteger _previousRowCount;
 }
 
 @end
@@ -33,7 +34,7 @@
 {
     self = [super initWithNibName:@"NoteListViewController" bundle:nil];
     if (self){
-        //
+        _previousRowCount = 0;
     }
     
     return self;
@@ -67,8 +68,10 @@
     [super viewWillAppear:animated];
     
     if (_selectedIndexPath) {
-        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:_selectedIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.tableView reloadData];
     }
+    
+    
 }
 
 - (void)viewDidUnload {
@@ -218,7 +221,7 @@
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
         
-        [EZToastView showToastMessage:@"note deleted from cloud"];
+        //[EZToastView showToastMessage:@"note deleted from cloud"];
     }];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationRight];
