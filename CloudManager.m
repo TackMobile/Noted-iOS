@@ -169,7 +169,6 @@ static CloudManager *sharedInstance;
     [self stopQuery];
     
     NSLog(@"Starting to watch iCloud dir...");
-    //[EZToastView showToastMessage:[NSString stringWithFormat:@"%s",__PRETTY_FUNCTION__]];
     
     _query = [self documentQuery];
     
@@ -223,9 +222,23 @@ static CloudManager *sharedInstance;
 
 - (int)removeEntryWithURL:(NSURL *)fileURL {
     int index = [self indexOfEntryWithFileURL:fileURL];
-    [_objects removeObjectAtIndex:index];
     
-    //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationLeft];
+    NSString *shortStr = [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-15];
+    
+    NSLog(@"%d is count of _objects before delete of %@",_objects.count,fileURL);
+    if (index != -1) {
+        NSLog(@"Removing url at index %d with name %@",index,shortStr);
+        [_objects removeObjectAtIndex:index];
+    } else {
+        NSLog(@"fileUrl not found in list");
+    }
+    
+    if ([_iCloudURLs indexOfObject:fileURL] != NSNotFound){
+        [_iCloudURLs removeObject:fileURL];
+    }
+    
+    NSLog(@"%d is count of _objects after delete of %@",_objects.count,shortStr);
+    NSLog(@"%d is count of _iCloudURLs after delete of %@",_iCloudURLs.count,shortStr);
     
     return index;
 }
@@ -316,6 +329,12 @@ static CloudManager *sharedInstance;
     // Always disable updates while processing results
     [_query disableUpdates];
     
+    
+    for (NSURL *url in _iCloudURLs) {
+        NSString *shorty = [url.absoluteString substringFromIndex:url.absoluteString.length-10];
+        NSLog(@"found %@",shorty);
+    }
+    
     [_iCloudURLs removeAllObjects];
     //[EZToastView showToastMessage:@"processing iCloud URLS"];
     
@@ -328,6 +347,8 @@ static CloudManager *sharedInstance;
         // Don't include hidden files
         [fileURL getResourceValue:&aBool forKey:NSURLIsHiddenKey error:nil];
         if (aBool && ![aBool boolValue]) {
+            NSString *shortyy = [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-10];
+            NSLog(@"adding %@",shortyy);
             [_iCloudURLs addObject:fileURL];
         }
     }
@@ -465,11 +486,11 @@ static CloudManager *sharedInstance;
     
 }
 
-- (NoteDocument *)insertNewEntryAtIndex:(int)index completion:(void(^)(NoteDocument *entry))completion
+- (NoteDocument *)insertNewEntryWithURL:(NSURL *)fileURL atIndex:(int)index completion:(void(^)(NoteDocument *entry))completion
 {
     
     [_query disableUpdates];
-    NSURL * fileURL = [self getDocURL:[self getDocFilename:[NoteDocument uniqueNoteName] uniqueInLocalObjects:YES]];
+    //NSURL * fileURL = [self getDocURL:[self getDocFilename:[NoteDocument uniqueNoteName] uniqueInLocalObjects:YES]];
     
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
     
@@ -500,6 +521,11 @@ static CloudManager *sharedInstance;
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion
 {
     [_query disableUpdates];
+    [self stopQuery];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSMetadataQueryDidUpdateNotification object:nil];
+    
+    [self removeEntryWithURL:entry.fileURL];
     // Wrap in file coordinator
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
@@ -522,8 +548,6 @@ static CloudManager *sharedInstance;
                                          }];
     });
     
-    // Fixup view
-    [self removeEntryWithURL:entry.fileURL];
 }
 
 - (void)iCloudToLocalImpl {
@@ -659,6 +683,8 @@ static CloudManager *sharedInstance;
         
     }
     
+    NSLog(@"yielding doc name of %@",newDocName);
+    
     return newDocName;
 }
 
@@ -687,7 +713,8 @@ static CloudManager *sharedInstance;
 - (NSURL *)getDocURL:(NSString *)filename {
     if ([FileStorageState iCloudOn]) {
         NSURL * docsDir = [_iCloudRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
-        return [docsDir URLByAppendingPathComponent:filename];
+        NSString *docURL = [docsDir URLByAppendingPathComponent:filename];
+        return docURL;
     } else {
         return [self.localRoot URLByAppendingPathComponent:filename];
     }

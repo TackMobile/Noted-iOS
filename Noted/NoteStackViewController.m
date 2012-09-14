@@ -32,7 +32,10 @@
 @synthesize nextNoteViewController;
 @synthesize panGestureRecognizer;
 @synthesize keyboardViewController;
-@synthesize optionsViewController, overView, nextNoteEntry, previousNoteEntry;
+@synthesize optionsViewController;
+@synthesize overView;
+@synthesize nextNoteEntry;
+@synthesize previousNoteEntry;
 @synthesize previousNoteDocument;
 @synthesize nextNoteDocument;
 
@@ -278,7 +281,6 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 [self snapBackCurrentNote];
                 
             }
-
         }
                 
         if (numberOfTouchesInCurrentPanGesture >= 2) {
@@ -463,6 +465,10 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     
     self.currentNoteViewController.note = docToShow;
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    
+    [self.currentNoteViewController.view.layer setBorderColor:[UIColor redColor].CGColor];
+    [self.currentNoteViewController.view.layer setBorderWidth:1.0];
+    [self.nextNoteViewController.view.layer setBorderWidth:0.0];
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {

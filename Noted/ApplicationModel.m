@@ -191,6 +191,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSString *uniqueName = [NoteDocument uniqueNoteName];
     
     NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
+    
     [self.currentNoteEntries insertObject:noteDoc atIndex:0];
     NSLog(@"done %d",__LINE__);
 }
@@ -208,6 +209,18 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     
     [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
     
+    /*
+     NSURL* fileURL = noteDoc.fileURL;
+     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+     NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+     [fileCoordinator coordinateWritingItemAtURL:fileURL options:NSFileCoordinatorWritingForDeleting
+     error:nil byAccessor:^(NSURL* writingURL) {
+     NSFileManager* fileManager = [[NSFileManager alloc] init];
+     [fileManager removeItemAtURL:writingURL error:nil];
+     }];
+     });
+     
+     */
 }
 
 #pragma mark - Note File Manager Delegate

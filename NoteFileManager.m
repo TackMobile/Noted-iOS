@@ -87,7 +87,9 @@
     NoteDocument *doc = nil;
     if ([FileStorageState preferredStorage]==kTKiCloud) {
         // have CloudManager do it
-        doc = [[CloudManager sharedInstance] insertNewEntryAtIndex:0 completion:noteCreationCompleteBlock];
+        NSLog(@"Want to create file at %@", fileURL);
+        
+        doc = [[CloudManager sharedInstance] insertNewEntryWithURL:fileURL atIndex:0 completion:noteCreationCompleteBlock];
         
     } else {
 

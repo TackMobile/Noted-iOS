@@ -21,7 +21,7 @@ typedef void(^iCloudLoadingFailed)();
 + (CloudManager *)sharedInstance;
 - (void)initializeiCloudAccessWithCompletion:(iCloudAvailableBlock)available;
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
-- (NoteDocument *)insertNewEntryAtIndex:(int)index completion:(void(^)(NoteDocument *))completion;
+- (NoteDocument *)insertNewEntryWithURL:(NSURL *)fileURL atIndex:(int)index completion:(void(^)(NoteDocument *entry))completion;
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion;
 - (NSURL *)getDocURL:(NSString *)filename;
 
