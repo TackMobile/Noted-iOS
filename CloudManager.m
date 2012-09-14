@@ -94,6 +94,13 @@ static CloudManager *sharedInstance;
 
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed
 {
+    NSArray *syms = [NSThread  callStackSymbols];
+    if ([syms count] > 1) {
+        NSLog(@"caller: %@ ",[syms objectAtIndex:1]);
+    } else {
+        NSLog(@"<%@ %p> %@", [self class], self, NSStringFromSelector(_cmd));
+    }
+    
     self.loadingComplete = complete;
     
     _iCloudURLsReady = NO;
@@ -375,7 +382,7 @@ static CloudManager *sharedInstance;
         if (_iCloudURLs.count==0) {
             // no docs found
             [_query enableUpdates];
-            self.loadingComplete(nil,nil);
+            self.loadingComplete(nil);
             
             return;
             
@@ -394,7 +401,7 @@ static CloudManager *sharedInstance;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
                     
-                    self.loadingComplete(noteEntriesList,noteDocsList);
+                    self.loadingComplete(noteDocsList);
                 });
             };
             TKPromiseFailedBlock promiseFailedBlock = ^{

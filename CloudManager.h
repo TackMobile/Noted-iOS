@@ -13,7 +13,7 @@
 @class NoteDocument;
 
 typedef void(^iCloudAvailableBlock)(BOOL available);
-typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *note,NSMutableOrderedSet *noteDocs);
+typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *noteDocs);
 typedef void(^iCloudLoadingFailed)();
 
 @interface CloudManager : NSObject

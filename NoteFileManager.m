@@ -62,6 +62,9 @@
 }
 
 - (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries {
+    if (entries.count==0) {
+        NSLog(@"Error loading entries [%d]",__LINE__);
+    }
     [self.delegate fileManager:self didLoadNoteEntries:entries];
 }
 
@@ -171,7 +174,7 @@
 - (void) loadICloudNoteEntriesInBackground {
 
     // check what's there
-    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *noteObjects,NSMutableOrderedSet *docs){
+    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *docs){
         
         if (IsEmpty(docs)) {
             // if 1st use, create one

@@ -19,6 +19,7 @@
     BOOL optionsShowing;
     NSMutableArray *deletingViews;
     BOOL shouldMakeNewNote;
+    BOOL shouldDeleteNote;
 }
 
 - (void) presentNotes;
@@ -44,7 +45,7 @@
     self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
     if (self){
         self.dismissBlock = dismiss;
-        shouldMakeNewNote = NO;
+        shouldMakeNewNote = shouldDeleteNote = NO;
     }
     
     return self;
@@ -168,6 +169,7 @@ static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
+    
     ApplicationModel *model = [ApplicationModel sharedInstance];
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
@@ -181,9 +183,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     }
     
     int xDirection = (velocity.x < 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
-    
-    
-    
+
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1) {
@@ -203,19 +203,10 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             BOOL popToList = (velocity.y > 30) && numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
             if (popToList) {
                 [self popToNoteList:model.selectedNoteIndex];
-                
                 [self showVelocity:velocity];
-                
                
             } else {
-                
-                /*
-                 if (xDirection == PREVIOUS_DIRECTION && numberOfTouchesInCurrentPanGesture == 2 && velocity.x < 30 && point.x < -20.0) {
-                 NSLog(@"should create new note");
-                 shouldMakeNewNote = YES;
-                 }
-                 */
-                
+                shouldDeleteNote = YES;
                 deletingViews = [NSMutableArray new];
                 CGRect rect = CGRectMake(0, 0, 320, 480);
                 UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
@@ -235,6 +226,16 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                     imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
                     [deletingViews addObject:imageView];
                     imageView.hidden = YES;
+                    
+                    
+                    imageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+                    imageView.layer.shadowOffset = CGSizeMake(-1,-2);
+                    imageView.layer.shadowOpacity = .70;
+                    imageView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+                    imageView.layer.shouldRasterize = YES;
+                    [imageView.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:imageView.bounds cornerRadius:6.5] CGPath]];
+                    imageView.layer.cornerRadius = 6.5;
+                    
                     [self.view addSubview:imageView];
                 }
 
@@ -285,56 +286,108 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 
         if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            // allow cancel of new note if user let's go before midpoint
-            if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
-                if (shouldMakeNewNote) {
+            if (shouldMakeNewNote) {
+                // allow cancel of new note if user let's go before midpoint
+                if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
                     shouldMakeNewNote = NO;
                     [self snapBackCurrentNote];
+                    // undo the dummy placeholder data
                     [self.nextNoteViewController setWithPlaceholderData:YES];
-                    NSLog(@"canceled new note");
-                }
-            } else if (shouldMakeNewNote) {
-                
-                NSLog(@"before: %d",model.currentNoteEntries.count);
-                [model createNoteWithCompletionBlock:^(NoteDocument *doc){
+                    NSLog(@"canceled creating new note");
+                } else if (shouldMakeNewNote) {
+                    
+                    [model createNoteWithCompletionBlock:^(NoteDocument *doc){
                         
-                   
-                }];
-                NSLog(@"after: %d",model.currentNoteEntries.count);
+                    }];
+                    
+                    [model setSelectedNoteIndex:0];
+                    int currentIndex = model.selectedNoteIndex;
+                    
+                    shouldMakeNewNote = NO;
+                    self.currentNoteViewController.view.hidden = NO;
+                    
+                    [self slideOffCurrentNoteToLeftWithCompletion:^{
+                        // update for 'real' new note entry
+                        [self updateNoteDocumentsForIndex:currentIndex];
+                    }];
+                    
+                }
+
+            } else if (shouldDeleteNote) {
                 
-                [model setSelectedNoteIndex:0];
-                int currentIndex = model.selectedNoteIndex;
-                
-                shouldMakeNewNote = NO;
-                self.currentNoteViewController.view.hidden = NO;
-                
-                [self slideOffCurrentNoteToLeftWithCompletion:^{
-                    // update for 'real' new note entry
-                    [self updateNoteDocumentsForIndex:currentIndex];
-                }];
+                BOOL shouldCancelDelete = (point.x > 0 && point.x < CGRectGetMidX(viewFrame)) || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2;
+                if (shouldCancelDelete) {
+                    // snap back to origin
+                    for (int k = 0; k < [deletingViews count]; k++) {
+                        UIView *view = [deletingViews objectAtIndex:k];
+                        [UIView animateWithDuration:0.25
+                                              delay:0
+                                            options:UIViewAnimationOptionCurveEaseOut
+                                         animations:^{
+                                             CGRect frame = view.frame;
+                                             frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
+                                             view.frame = frame;
+                                         }
+                                         completion:^(BOOL finished){
+                                             
+                                             self.currentNoteViewController.view.hidden = NO;
+                                             [view removeFromSuperview];
+                                             
+                                         }];
+                    }
+                    
+                } else {
+                    // shredding animations for deletion
+                    NoteDocument *toDelete = currentNoteViewController.note;
+                    NSLog(@"Should delete %@",currentNoteViewController.note.text);
+                    __block int completeCount = 0;
+                    for (int k = 0; k < [deletingViews count]; k++) {
+                        
+                        double middle = deletingViews.count/2.0;
+                        UIImageView *view = [deletingViews objectAtIndex:k];
+                        view.hidden = NO;
+                        CGRect frame = view.frame;
+                        frame.origin.x = 320.0;
+
+                        if (k < [deletingViews count]/2.0) {
+                            frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+                        }else {
+                            frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+                        }
+                        
+                        [UIView animateWithDuration:0.5
+                                         animations:^{
+                                             view.frame = frame;
+                                             NSLog(@"animating frame to %@",NSStringFromCGRect(frame));
+                                         }
+                                         completion:^(BOOL finished){
+                                             completeCount ++;
+                                             [view removeFromSuperview];
+                                             
+                                             if (completeCount==deletingViews.count) {
+                                                 
+                                                 self.currentNoteViewController.view.hidden = NO;
+                                                 
+                                                 [deletingViews removeAllObjects];
+                                                 
+                                                 
+                                                 [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
+                                                     NSLog(@"deleted");
+                                                 }];
+                                                 
+                                                 [model setCurrentNoteIndexToNext];
+                                                 int currentIndex = model.selectedNoteIndex;
+                                                 [self updateNoteDocumentsForIndex:currentIndex];
+                                             }
+                                         }];
+                    }
+                    
+                    
+                }
                 
             }
-            
-            for (int k = 0; k < [deletingViews count]; k++) {
-                UIView *view = [deletingViews objectAtIndex:k];
-                [UIView animateWithDuration:0.25
-                                      delay:0
-                                    options:UIViewAnimationOptionCurveEaseOut
-                                 animations:^{
-                                     CGRect frame = view.frame;
-                                     frame.origin = CGPointMake(0, (480*k/(deletingViews.count)));
-                                     view.frame = frame;
-                                 }
-                                 completion:^(BOOL finished){
-                                     self.currentNoteViewController.view.hidden = NO;
-                                     [view removeFromSuperview];
-                                 }];
-            }
-            [deletingViews removeAllObjects];
         }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
-        NSLog(@"point x: %f",point.x);
-        NSLog(@"velocity x: %f",velocity.x);
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
             
@@ -346,12 +399,12 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             
             if (noteCount > 1) {
                 
-                // if user has moved it far enough to what's 'behind' on the left side
+                // if user has moved it far enough to what's behind on the left side
                 if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width) {
                     entryUnderneath = previousNoteDocument;
                     self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
                     self.nextNoteViewController.note = entryUnderneath;
-                // else if user has moved it far enough to what's 'behind' on the right side
+                // else if user has moved it far enough to what's behind on the right side
                 } else if (currentNoteFrame.origin.x < viewFrame.origin.x) {
                     entryUnderneath = nextNoteDocument;
                     self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
@@ -362,34 +415,19 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             
             // delete the note if panning w/ 2 fingers to the right
             if (point.x > 0) {
+                
+                NSLog(@"point x: %f",point.x);
+                NSLog(@"velocity x: %f",velocity.x);
+                
                 self.currentNoteViewController.view.hidden = YES;
-                for (int k = 0; k < [deletingViews count]; k++) {
-                    double middle = deletingViews.count/2.0;
-                    UIImageView *view = [deletingViews objectAtIndex:k];
-                    view.hidden = NO;
-                    CGRect frame = view.frame;
-                    frame.origin.x = 0 + (point.x);
-                    if (k < [deletingViews count]/2.0) {
-                        frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
-                    }else {
-                        frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
-                    }
-                    if (frame.origin.x < 0) {
-                        frame.origin.x = 0;
-                    }
-                    view.frame = frame;
-                }
-            
+                [self animateDeletingViewsForPoint:point];
             }
             // else user is in process of creating a new note
             else if (point.x < 0) {
                 
                 if (!shouldMakeNewNote ) {
                     if (xDirection == PREVIOUS_DIRECTION && velocity.x < 30) {
-                        NSLog(@"should create new note");
                         shouldMakeNewNote = YES;
-                        // temporarily set next notevc to new
-                        
                     }
                 }
                 
@@ -407,10 +445,10 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                     self.nextNoteViewController.view.hidden = NO;
                     
                     if (shouldMakeNewNote) {
-                        NSLog(@"placeholder...");
+                        // temporarily set next note vc to dummy placeholder data
                         [self.nextNoteViewController setWithPlaceholderData:YES];
                     } else {
-                        NSLog(@"real...");
+                        // show the actual next note data
                         self.nextNoteViewController.note = entryUnderneath;
                     }
                 }
@@ -418,6 +456,26 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 
             }
         }
+    }
+}
+
+- (void)animateDeletingViewsForPoint:(CGPoint)point
+{
+    for (int k = 0; k < [deletingViews count]; k++) {
+        double middle = deletingViews.count/2.0;
+        UIImageView *view = [deletingViews objectAtIndex:k];
+        view.hidden = NO;
+        CGRect frame = view.frame;
+        frame.origin.x = 0 + (point.x);
+        if (k < [deletingViews count]/2.0) {
+            frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+        }else {
+            frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+        }
+        if (frame.origin.x < 0) {
+            frame.origin.x = 0;
+        }
+        view.frame = frame;
     }
 }
 
