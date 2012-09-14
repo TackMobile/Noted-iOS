@@ -290,6 +290,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 if (shouldMakeNewNote) {
                     shouldMakeNewNote = NO;
                     [self snapBackCurrentNote];
+                    [self.nextNoteViewController setWithPlaceholderData:YES];
                     NSLog(@"canceled new note");
                 }
             } else if (shouldMakeNewNote) {
@@ -303,11 +304,13 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 
                 [model setSelectedNoteIndex:0];
                 int currentIndex = model.selectedNoteIndex;
-                [self updateNoteDocumentsForIndex:currentIndex];
+                
                 shouldMakeNewNote = NO;
                 self.currentNoteViewController.view.hidden = NO;
+                
                 [self slideOffCurrentNoteToLeftWithCompletion:^{
-                    
+                    // update for 'real' new note entry
+                    [self updateNoteDocumentsForIndex:currentIndex];
                 }];
                 
             }
@@ -385,6 +388,8 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                     if (xDirection == PREVIOUS_DIRECTION && velocity.x < 30) {
                         NSLog(@"should create new note");
                         shouldMakeNewNote = YES;
+                        // temporarily set next notevc to new
+                        
                     }
                 }
                 
@@ -396,8 +401,20 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 
                 entryUnderneath = nextNoteDocument;
                 // hide next note vc if next doc is nil
-                self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
-                self.nextNoteViewController.note = entryUnderneath;
+                if (entryUnderneath == nil) {
+                    self.nextNoteViewController.view.hidden = YES;
+                } else {
+                    self.nextNoteViewController.view.hidden = NO;
+                    
+                    if (shouldMakeNewNote) {
+                        NSLog(@"placeholder...");
+                        [self.nextNoteViewController setWithPlaceholderData:YES];
+                    } else {
+                        NSLog(@"real...");
+                        self.nextNoteViewController.note = entryUnderneath;
+                    }
+                }
+     
                 
             }
         }
@@ -464,11 +481,13 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     NSLog(@"next doc %@",[self.nextNoteDocument text]);
     
     self.currentNoteViewController.note = docToShow;
+    [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
-    [self.currentNoteViewController.view.layer setBorderColor:[UIColor redColor].CGColor];
-    [self.currentNoteViewController.view.layer setBorderWidth:1.0];
-    [self.nextNoteViewController.view.layer setBorderWidth:0.0];
+    NSLog(@"%@ %d",[[self.currentNoteViewController noteEntry] text],__LINE__);
+    NSLog(@"%@ %d",self.currentNoteViewController.textView.text,__LINE__);
+    
+    
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {

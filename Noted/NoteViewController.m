@@ -10,6 +10,8 @@
 #import "UIColor+HexColor.h"
 #import <QuartzCore/QuartzCore.h>
 #import "NoteDocument.h"
+#import "NoteData.h"
+#import "Utilities.h"
 
 @interface NoteViewController ()
 
@@ -60,31 +62,50 @@
         
         [self setNoteEntry:_note.noteEntry];
         
-        //[self configureView];
     }
+}
+
+- (void)setWithPlaceholderData:(BOOL)val
+{
+    if (val) {
+        NoteData *placeholder = [[NoteData alloc] init];
+        self.textView.text = [placeholder noteText];
+        self.absoluteTime.text = [Utilities formatDate:[NSDate date]];
+        self.relativeTime.text = [Utilities formatRelativeDate:[NSDate date]];
+        [self.view setBackgroundColor:[UIColor whiteColor]];
+        [self setTextLabelColorsByBGColor:self.view.backgroundColor];
+    } else {
+        [self updateUIForCurrentEntry];
+    }
+    
 }
 
 - (void) setNoteEntry:(NoteEntry *)entry {
     if (entry != noteEntry) {
         noteEntry = entry;
-        self.textView.text = [noteEntry text];
-        self.absoluteTime.text = [noteEntry absoluteDateString];
-        self.relativeTime.text = [noteEntry relativeDateString];
-        
-        UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
-        [self.view setBackgroundColor:bgColor];
-        
-        [self setTextLabelColorsByBGColor:bgColor];
-        
-        [self textViewDidChange:self.textView];
-        self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.view.layer.shadowOffset = CGSizeMake(-1,0);
-        self.view.layer.shadowOpacity = .70;
-        self.view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-        self.view.layer.shouldRasterize = YES;
-        [self.view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.view.bounds cornerRadius:6.5] CGPath]];
-        self.view.layer.cornerRadius = 6.5;
+        [self updateUIForCurrentEntry];
     }
+}
+
+- (void)updateUIForCurrentEntry
+{
+    self.textView.text = [noteEntry text];
+    self.absoluteTime.text = [noteEntry absoluteDateString];
+    self.relativeTime.text = [noteEntry relativeDateString];
+    
+    UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+    [self.view setBackgroundColor:bgColor];
+    
+    [self setTextLabelColorsByBGColor:bgColor];
+    
+    [self textViewDidChange:self.textView];
+    self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.view.layer.shadowOffset = CGSizeMake(-1,0);
+    self.view.layer.shadowOpacity = .70;
+    self.view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+    self.view.layer.shouldRasterize = YES;
+    [self.view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.view.bounds cornerRadius:6.5] CGPath]];
+    self.view.layer.cornerRadius = 6.5;
 }
 
 - (void)setTextLabelColorsByBGColor:(UIColor *)color

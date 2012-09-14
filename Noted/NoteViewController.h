@@ -32,4 +32,7 @@
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView;
 
+// helper when swiping to create new notes
+- (void)setWithPlaceholderData:(BOOL)val;
+
 @end

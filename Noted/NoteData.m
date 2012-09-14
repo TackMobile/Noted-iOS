@@ -25,8 +25,11 @@
         
 #ifdef DEBUG
         ApplicationModel *model = [ApplicationModel sharedInstance];
-        self.noteText = [NSString stringWithFormat:@"lorem ipsum [%d]",model.currentNoteEntries.count+1];
+        int count = model.currentNoteEntries.count? model.currentNoteEntries.count+1 : 0;
+        
+        self.noteText = [NSString stringWithFormat:@"lorem ipsum [%d]",count];
 #endif
+        self.noteText = [NSString stringWithFormat:@"\n%@", self.noteText];
     }
     
     return self;

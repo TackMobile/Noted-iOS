@@ -79,9 +79,8 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)refreshNotes {
     
-    
-    [EZToastView showToastMessage:@"refreshing notes explicitly"];
     void(^refreshBlock)() = ^{
+        [EZToastView showToastMessage:@"refreshing notes explicitly"];
         [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
     };
     if ([FileStorageState shouldPrompt]) {
@@ -98,7 +97,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
         }];
         
     } else {
-        [EZToastView showToastMessage:@"refreshing notes"];
+        
         refreshBlock();
     }
 }
