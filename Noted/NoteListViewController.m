@@ -94,6 +94,7 @@
 }
 
 - (void) noteListChanged:(NSNotification *)notification {
+    NSLog(@"noteListChanged, count: %d [%d]",[ApplicationModel sharedInstance].currentNoteDocuments.count,__LINE__);
     [self.tableView reloadData];
 }
 
@@ -237,7 +238,7 @@
         //[EZToastView showToastMessage:@"note deleted from cloud"];
     }];
     
-    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationRight];
+    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     
     [self delayedCall:0.35 withBlock:^{
         [self.tableView reloadData];

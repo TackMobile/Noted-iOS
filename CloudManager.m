@@ -497,7 +497,7 @@ static CloudManager *sharedInstance;
 {
     
     [_query disableUpdates];
-    //NSURL * fileURL = [self getDocURL:[self getDocFilename:[NoteDocument uniqueNoteName] uniqueInLocalObjects:YES]];
+    [self stopQuery];
     
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
     

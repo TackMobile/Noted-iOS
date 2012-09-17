@@ -74,6 +74,7 @@
         self.relativeTime.text = [Utilities formatRelativeDate:[NSDate date]];
         [self.view setBackgroundColor:[UIColor whiteColor]];
         [self setTextLabelColorsByBGColor:self.view.backgroundColor];
+        [self setShadowForXOffset];
     } else {
         [self updateUIForCurrentEntry];
     }
@@ -98,14 +99,20 @@
     
     [self setTextLabelColorsByBGColor:bgColor];
     
-    [self textViewDidChange:self.textView];
+    [self setShadowForXOffset];
+}
+
+- (void)setShadowForXOffset
+{
     self.view.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.view.layer.shadowOffset = CGSizeMake(-1,0);
+    self.view.layer.shadowOffset = CGSizeMake(-1.0,0);
     self.view.layer.shadowOpacity = .70;
     self.view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     self.view.layer.shouldRasterize = YES;
     [self.view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.view.bounds cornerRadius:6.5] CGPath]];
     self.view.layer.cornerRadius = 6.5;
+    
+    [self.view setNeedsDisplay];
 }
 
 - (void)setTextLabelColorsByBGColor:(UIColor *)color
