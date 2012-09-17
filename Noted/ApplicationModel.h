@@ -48,6 +48,7 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 - (void) setCurrentNoteIndexToNext;
 - (void) setCurrentNoteIndexToPrevious;
+- (void) setCurrentNoteIndexToNextPriorToDelete;
 
 // CRUD
 - (void) createNote;

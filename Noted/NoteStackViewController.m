@@ -14,12 +14,21 @@
 #import "NoteDocument.h"
 #import "UIImage+Crop.h"
 
+typedef enum {
+    kShouldExit,
+    kShouldDelete,
+    kShouldCreateNew
+} NoteStackGestureState;
+
 @interface NoteStackViewController () {
     int numberOfTouchesInCurrentPanGesture;
     BOOL optionsShowing;
     NSMutableArray *deletingViews;
     BOOL shouldMakeNewNote;
     BOOL shouldDeleteNote;
+    BOOL shouldExitStack;
+    
+    NoteStackGestureState _currentGestureState;
 }
 
 - (void) presentNotes;
@@ -45,7 +54,7 @@
     self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
     if (self){
         self.dismissBlock = dismiss;
-        shouldMakeNewNote = shouldDeleteNote = NO;
+        shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
     }
     
     return self;
@@ -153,8 +162,8 @@
     
     NSUInteger currentIndex = model.selectedNoteIndex;
     
-    //self.currentNoteViewController.noteEntry = [model noteAtSelectedNoteIndex];
     self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    NSLog(@"Current note %@",self.currentNoteViewController.note.text);
     
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
@@ -186,6 +195,19 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     }
 }
 
+- (void)setGestureState:(NoteStackGestureState)state
+{
+    _currentGestureState = state;
+}
+
+- (BOOL)shouldExitWithVelocity:(CGPoint)velocity
+{
+    BOOL yVelocityForPop = velocity.y > 500;
+    BOOL touchCountForPop = numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
+    BOOL xVelocityForPop = abs(velocity.x) < velocity.y;
+    return yVelocityForPop && touchCountForPop && xVelocityForPop;
+}
+
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -211,52 +233,15 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            BOOL popToList = (velocity.y > 40) && numberOfTouchesInCurrentPanGesture==2 && (abs(velocity.x) < 10);
-            
-            if (popToList) {
-                NSLog(@"Told to pop to list with y velocity of %f and velocity x of %d",velocity.y,abs(velocity.x));
+            if ([self shouldExitWithVelocity:velocity]) {
                 [self popToNoteList:model.selectedNoteIndex];
-                [self showVelocity:velocity];
-               
+            } else if (point.x > 0 && abs(velocity.y) < 50 && !shouldDeleteNote) {
+                NSLog(@"should delete");
+                shouldDeleteNote = YES;
+                [self createDeletingViews];
+                
             } else {
-                
-                if (velocity.x > 0) {
-                    shouldDeleteNote = YES;
-                    deletingViews = [NSMutableArray new];
-                    CGRect rect = CGRectMake(0, 0, 320, 480);
-                    UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
-                    CGContextRef context = UIGraphicsGetCurrentContext();
-                    [self.currentNoteViewController.view.layer renderInContext:context];
-                    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-                    UIGraphicsEndImageContext();
-                    
-                    // Create and show the new image from bitmap data
-                    for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
-                        // Create rectangle that represents a cropped image
-                        // from the middle of the existing image
-                        CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
-                        
-                        // Create and show the new image from bitmap data
-                        UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
-                        imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
-                        [deletingViews addObject:imageView];
-                        imageView.hidden = YES;
-                        
-                        
-                        imageView.layer.shadowColor = [[UIColor blackColor] CGColor];
-                        imageView.layer.shadowOffset = CGSizeMake(-1,-2);
-                        imageView.layer.shadowOpacity = .70;
-                        imageView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-                        imageView.layer.shouldRasterize = YES;
-                        [imageView.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:imageView.bounds cornerRadius:6.5] CGPath]];
-                        imageView.layer.cornerRadius = 6.5;
-                        
-                        [self.view addSubview:imageView];
-                    }
-
-                } 
-                
-                
+                NSLog(@"not settingto should delete because velocity is %@",NSStringFromCGPoint(velocity));
             }
                         
         }
@@ -304,7 +289,11 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 
         if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            if (shouldMakeNewNote) {
+            if ([self shouldExitWithVelocity:velocity]) {
+                // show list
+                [self popToNoteList:model.selectedNoteIndex];
+                
+            } else if (shouldMakeNewNote) {
                 // allow cancel of new note if user let's go before midpoint
                 if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
                     shouldMakeNewNote = NO;
@@ -342,8 +331,10 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 BOOL shouldCancelDelete = (point.x > 0 && point.x < CGRectGetMidX(viewFrame)) || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2;
                 if (shouldCancelDelete) {
                     // snap back to origin
+                    shouldDeleteNote = NO;
                     for (int k = 0; k < [deletingViews count]; k++) {
                         UIView *view = [deletingViews objectAtIndex:k];
+                        [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
                         [UIView animateWithDuration:0.25
                                               delay:0
                                             options:UIViewAnimationOptionCurveEaseOut
@@ -353,8 +344,9 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                                              view.frame = frame;
                                          }
                                          completion:^(BOOL finished){
-                                             
                                              self.currentNoteViewController.view.hidden = NO;
+                                             
+                                             
                                              [view removeFromSuperview];
                                              
                                          }];
@@ -363,7 +355,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 } else {
                     // shredding animations for deletion
                     NoteDocument *toDelete = currentNoteViewController.note;
-                    NSLog(@"Should delete %@",currentNoteViewController.note.text);
+                    NSLog(@"should delete %@",toDelete.text);
                     __block int completeCount = 0;
                     for (int k = 0; k < [deletingViews count]; k++) {
                         
@@ -394,10 +386,11 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                                                  
                                                  [deletingViews removeAllObjects];
                                                  
+                                                 [model setCurrentNoteIndexToNextPriorToDelete];
                                                  [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
                                                  }];
                                                  
-                                                 [model setCurrentNoteIndexToNext];
+                                                 [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
 
                                              }
                                          }];
@@ -432,35 +425,27 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
             
             // delete the note if panning w/ 2 fingers to the right
-            if (point.x > 0) {
-                
-                NSLog(@"point x: %f",point.x);
-                NSLog(@"velocity x: %f",velocity.x);
+            if (shouldDeleteNote) {
+                NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
                 
                 self.currentNoteViewController.view.hidden = YES;
-                [self.nextNoteViewController setNote:[model nextNoteDocInStackFromIndex:model.selectedNoteIndex]];
+                
+                NoteDocument *nextDocument = [model nextNoteDocInStackFromIndex:model.selectedNoteIndex];
+                self.nextNoteViewController.note = nextDocument;
                 [self animateDeletingViewsForPoint:point];
             }
             // else user is wanting to create a new note
-            else if (point.x < 0) {
+            else if (point.x < 0 && abs(velocity.y)< 30) {
                 
                 if (!shouldMakeNewNote && (xDirection == PREVIOUS_DIRECTION && velocity.x < 30)) {
+                    NSLog(@"set to should make new note with velocity of %@",NSStringFromCGPoint(velocity));
                     shouldMakeNewNote = YES;
+                    [self.view addSubview:self.nextNoteViewController.view];
                 }
                 
                 if (shouldMakeNewNote) {
-                    [self.view addSubview:self.nextNoteViewController.view];
-                    // bring 'new'/next note vc in on top of current note vc
-                    CGRect frame = self.nextNoteViewController.view.frame;
-                    
-                    // multiplier to make sure note is aligned left by time fingers reach left side of screen
-                    float offset = 320.0 - abs(point.x);
-                    float newXLoc = offset-abs(point.x);
-                    if (newXLoc<0.0) {
-                        newXLoc = 0.0;
-                    }
-                    CGRect newFrame = CGRectMake(newXLoc, 0, frame.size.width, frame.size.height);
-                    self.nextNoteViewController.view.frame = newFrame;
+                    // move next document in from the far right, on top
+                    [self updatePositionOfNextDocumentToPoint:point];
                     
                 } else {
                     // move the current note vc with the touch location
@@ -491,6 +476,57 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             }
         }
     }
+}
+
+- (void)updatePositionOfNextDocumentToPoint:(CGPoint)point
+{
+    // bring 'new'/next note vc in on top of current note vc
+    CGRect frame = self.nextNoteViewController.view.frame;
+    
+    // multiplier to make sure note is aligned left by time fingers reach left side of screen
+    float offset = 320.0 - abs(point.x);
+    float newXLoc = offset-abs(point.x);
+    if (newXLoc<0.0) {
+        newXLoc = 0.0;
+    }
+    CGRect newFrame = CGRectMake(newXLoc, 0, frame.size.width, frame.size.height);
+    self.nextNoteViewController.view.frame = newFrame;
+}
+
+- (void)createDeletingViews
+{
+    deletingViews = [NSMutableArray new];
+    CGRect rect = CGRectMake(0, 0, 320, 480);
+    UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [self.currentNoteViewController.view.layer renderInContext:context];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    // Create and show the new image from bitmap data
+    for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
+        // Create rectangle that represents a cropped image
+        // from the middle of the existing image
+        CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+        
+        // Create and show the new image from bitmap data
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
+        imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+        [deletingViews addObject:imageView];
+        imageView.hidden = YES;
+        
+        
+        imageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+        imageView.layer.shadowOffset = CGSizeMake(-1,-2);
+        imageView.layer.shadowOpacity = .70;
+        imageView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+        imageView.layer.shouldRasterize = YES;
+        [imageView.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:imageView.bounds cornerRadius:6.5] CGPath]];
+        imageView.layer.cornerRadius = 6.5;
+        
+        [self.view addSubview:imageView];
+    }
+
 }
 
 - (void)animateDeletingViewsForPoint:(CGPoint)point

@@ -365,7 +365,7 @@ static CloudManager *sharedInstance;
     _iCloudURLsReady = YES;
     
     if ([FileStorageState iCloudOn]) {
-        
+        NSLog(@"found %d files and cloud is on",_iCloudURLs.count);
         // Remove deleted files
         // Iterate backwards because we need to remove items from the array
         for (int i = _objects.count -1; i >= 0; --i) {
@@ -401,6 +401,10 @@ static CloudManager *sharedInstance;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
                     
+                    if (noteDocsList.count==0) {
+                        NSLog(@"wtf??");
+                    }
+                    
                     self.loadingComplete(noteDocsList);
                 });
             };
@@ -425,6 +429,8 @@ static CloudManager *sharedInstance;
             }
             
         }
+    } else {
+        NSLog(@"found %d files and cloud is NOT on!!!!!!!!",_iCloudURLs.count);
     }
     // just got everything from iCloud
     // so don't need to move anything local back up

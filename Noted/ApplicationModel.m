@@ -172,6 +172,11 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     self.selectedNoteIndex = (selectedNoteIndex == count - 1) ? 0 : selectedNoteIndex + 1;
 }
 
+- (void) setCurrentNoteIndexToNextPriorToDelete {
+    int count = [self.currentNoteEntries count] - 1;
+    self.selectedNoteIndex = ((selectedNoteIndex+1) > count - 1) ? 0 : selectedNoteIndex;
+}
+
 - (void) setCurrentNoteIndexToPrevious {
     int count = [self.currentNoteEntries count];
     self.selectedNoteIndex = (selectedNoteIndex == 0) ? count - 1 : selectedNoteIndex - 1;
@@ -227,6 +232,8 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {
     
     self.currentNoteEntries = noteEntries;
+    NSLog(@"currentNoteDocuments count: %d",self.currentNoteDocuments.count);
+    NSLog(@"currentNoteEntries count: %d",self.currentNoteEntries.count);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
 }

@@ -17,11 +17,15 @@
 #import "FileStorageState.h"
 #import "CloudManager.h"
 
+NSString *const kEditingNoteIndex = @"editingNoteIndex";
+
 @interface NoteListViewController ()
 {
     NoteEntryCell *_deletedCell;
-    NSIndexPath *_selectedIndexPath;
+    BOOL _viewingNoteStack;
     NSUInteger _previousRowCount;
+    
+    BOOL _shouldAutoShowNote;
 }
 
 @end
@@ -35,6 +39,8 @@
     self = [super initWithNibName:@"NoteListViewController" bundle:nil];
     if (self){
         _previousRowCount = 0;
+        _shouldAutoShowNote = NO;
+        _viewingNoteStack = NO;
     }
     
     return self;
@@ -56,24 +62,36 @@
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
-    /*
+    
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
      
-     ApplicationModel *model = [ApplicationModel sharedInstance];
-     [model refreshNotes];
+         if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
+             _shouldAutoShowNote = YES;
+         }
+         
+         //ApplicationModel *model = [ApplicationModel sharedInstance];
+         //[model refreshNotes];
      }];
-     */
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+        _shouldAutoShowNote = NO;
+    }];
+     
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     
-    if (_selectedIndexPath) {
-        [self.tableView reloadData];
+    if (_viewingNoteStack) {
+        
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
+        _viewingNoteStack = NO;
+        _shouldAutoShowNote = NO;
+        
     }
     
-    
+    [self.tableView reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -94,8 +112,19 @@
 }
 
 - (void) noteListChanged:(NSNotification *)notification {
-    NSLog(@"noteListChanged, count: %d [%d]",[ApplicationModel sharedInstance].currentNoteDocuments.count,__LINE__);
+    
+    int noteCount = [ApplicationModel sharedInstance].currentNoteDocuments.count;
+    NSLog(@"noteListChanged, count: %d [%d]",noteCount,__LINE__);
     [self.tableView reloadData];
+    
+    if (_shouldAutoShowNote && noteCount > 0) {
+        NSUInteger row = [[[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] integerValue];
+        if (row < noteCount-1) {
+            [self showNoteStackForSelectedRow:row animated:NO];
+        }
+        
+        _shouldAutoShowNote = NO;
+    }
 }
 
 #pragma mark - Table View methods
@@ -211,20 +240,32 @@
         
         // remember indexPath so we can reload this row
         // on return without round-trip to iCloud
-        _selectedIndexPath = indexPath;
+        _viewingNoteStack = YES;
         
         NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
         NoteEntry *entry = [doc noteEntry];
         
         if (!entry.adding) {
-            model.selectedNoteIndex = indexPath.row;
-            
-            NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row){
-                _selectedIndexPath = [NSIndexPath indexPathForRow:row inSection:1];
-            }];
-            [self presentViewController:stackViewController animated:YES completion:NULL];
+            [self showNoteStackForSelectedRow:indexPath.row animated:YES];
         }
     }
+}
+
+- (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    model.selectedNoteIndex = row;
+    
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:model.selectedNoteIndex] forKey:kEditingNoteIndex];
+    
+    _viewingNoteStack = YES;
+    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row){
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
+        _viewingNoteStack = NO;
+        _shouldAutoShowNote = NO;
+        
+    }];
+    [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 
 - (void)didSwipeToDeleteCellWithIndexPath:(NoteEntryCell *)cell
