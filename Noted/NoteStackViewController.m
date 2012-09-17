@@ -347,14 +347,15 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                         UIImageView *view = [deletingViews objectAtIndex:k];
                         view.hidden = NO;
                         CGRect frame = view.frame;
-                        frame.origin.x = 320.0;
+                        frame.origin.x = 420.0;
 
                         if (k < [deletingViews count]/2.0) {
                             frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
-                        }else {
+                        } else {
                             frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
                         }
                         
+                        [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
                         [UIView animateWithDuration:0.5
                                          animations:^{
                                              view.frame = frame;
@@ -370,14 +371,13 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                                                  
                                                  [deletingViews removeAllObjects];
                                                  
-                                                 
                                                  [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
                                                      NSLog(@"deleted");
                                                  }];
                                                  
                                                  [model setCurrentNoteIndexToNext];
-                                                 int currentIndex = model.selectedNoteIndex;
-                                                 [self updateNoteDocumentsForIndex:currentIndex];
+                                                 //int currentIndex = model.selectedNoteIndex;
+                                                 //[self updateNoteDocumentsForIndex:currentIndex];
                                              }
                                          }];
                     }
@@ -420,6 +420,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 NSLog(@"velocity x: %f",velocity.x);
                 
                 self.currentNoteViewController.view.hidden = YES;
+                [self.nextNoteViewController setNote:[model nextNoteDocInStackFromIndex:model.selectedNoteIndex]];
                 [self animateDeletingViewsForPoint:point];
             }
             // else user is in process of creating a new note
@@ -452,7 +453,6 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                         self.nextNoteViewController.note = entryUnderneath;
                     }
                 }
-     
                 
             }
         }

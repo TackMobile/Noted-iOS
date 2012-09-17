@@ -12,6 +12,7 @@
 #import "MasterViewController.h"
 #import "NoteFileManager.h"
 #import "TestFlight.h"
+#import "ApplicationModel.h"
 #import "CloudManager.h"
 
 NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
@@ -37,6 +38,14 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     }];
         
     return YES;
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    NSLog(@"did become active");
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model refreshNotes];
+    
 }
 
 @end

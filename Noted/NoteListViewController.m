@@ -56,11 +56,13 @@
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-        
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        [model refreshNotes];
-    }];
+    /*
+     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+     
+     ApplicationModel *model = [ApplicationModel sharedInstance];
+     [model refreshNotes];
+     }];
+     */
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -72,6 +74,17 @@
     }
     
     
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+
+    /*
+     NSRange range = NSMakeRange(1, 1);
+     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
+     [self.tableView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+     */
 }
 
 - (void)viewDidUnload {
