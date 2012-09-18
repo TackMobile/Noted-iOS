@@ -69,8 +69,8 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
              _shouldAutoShowNote = YES;
          }
          
-         //ApplicationModel *model = [ApplicationModel sharedInstance];
-         //[model refreshNotes];
+         ApplicationModel *model = [ApplicationModel sharedInstance];
+         [model refreshNotes];
      }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){

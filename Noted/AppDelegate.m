@@ -43,8 +43,8 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     NSLog(@"did become active");
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model refreshNotes];
+    
+    
     
 }
 

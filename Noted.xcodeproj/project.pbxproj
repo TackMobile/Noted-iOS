@@ -63,6 +63,7 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		B531E8281608D2C900168AE5 /* UIView+position.m in Sources */ = {isa = PBXBuildFile; fileRef = B531E8261608D2C900168AE5 /* UIView+position.m */; };
 		B548666215F7F807005FBC60 /* FileStorageState.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666115F7F807005FBC60 /* FileStorageState.m */; };
 		B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666715F7FEF7005FBC60 /* RIButtonItem.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -161,6 +162,8 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		B531E8261608D2C900168AE5 /* UIView+position.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+position.m"; sourceTree = "<group>"; };
+		B531E8271608D2C900168AE5 /* UIView+position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+position.h"; sourceTree = "<group>"; };
 		B548666015F7F807005FBC60 /* FileStorageState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileStorageState.h; path = Noted/FileStorageState.h; sourceTree = "<group>"; };
 		B548666115F7F807005FBC60 /* FileStorageState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileStorageState.m; path = Noted/FileStorageState.m; sourceTree = "<group>"; };
 		B548666315F7FEDE005FBC60 /* UIAlertView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Blocks.h"; sourceTree = "<group>"; };
@@ -303,6 +306,8 @@
 		29960C7E15740F050054347A /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				B531E8271608D2C900168AE5 /* UIView+position.h */,
+				B531E8261608D2C900168AE5 /* UIView+position.m */,
 				B548669C15FA4CCD005FBC60 /* EZToastView.h */,
 				B548669D15FA4CCD005FBC60 /* EZToastView.m */,
 				B548666615F7FEF6005FBC60 /* RIButtonItem.h */,
@@ -551,6 +556,7 @@
 				B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */,
 				B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */,
 				B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */,
+				B531E8281608D2C900168AE5 /* UIView+position.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

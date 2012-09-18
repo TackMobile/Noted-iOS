@@ -13,6 +13,7 @@
 #import "NoteEntry.h"
 #import "NoteDocument.h"
 #import "UIImage+Crop.h"
+#import "UIView+position.h"
 
 typedef enum {
     kGestureFinished,
@@ -23,9 +24,15 @@ typedef enum {
 } NoteStackGestureState;
 
 @interface NoteStackViewController () {
+    
     int numberOfTouchesInCurrentPanGesture;
     BOOL optionsShowing;
+    
     NSMutableArray *deletingViews;
+    
+    CALayer *_currentNoteMask;
+    UIView *_currentNote;
+    
     BOOL shouldMakeNewNote;
     BOOL shouldDeleteNote;
     BOOL shouldExitStack;
@@ -101,30 +108,121 @@ typedef enum {
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
     
-    /*
-     UISwipeGestureRecognizer *twoFingerSwipeDown = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoSwipeDown:)];
-     [twoFingerSwipeDown setNumberOfTouchesRequired:2];
-     [twoFingerSwipeDown setDirection:UISwipeGestureRecognizerDirectionDown];
-     [self.view addGestureRecognizer:twoFingerSwipeDown];
-     
-     UISwipeGestureRecognizer *twoFingerSwipeLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoSwipeLeft:)];
-     [twoFingerSwipeLeft setNumberOfTouchesRequired:2];
-     [twoFingerSwipeLeft setDirection:UISwipeGestureRecognizerDirectionLeft];
-     [self.view addGestureRecognizer:twoFingerSwipeLeft];
-     */
+    UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
+    [self.view addGestureRecognizer:pinch];
+   
+
+}
+
+static const float kCellHeight = 66.0;
+static const float kPinchThreshold = 0.41;
+
+- (void)handlePinch:(UIPinchGestureRecognizer *)gesture
+{
+    CGFloat velocity = gesture.velocity;
+    CGFloat scale = gesture.scale;
+    [self logPinch:velocity scale:scale];
     
-       
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        //NSLog(@"began pinching");
+        
+        // get image from current view
+        UIImage *image = [self imageFromViewController:self.currentNoteViewController forRect:self.view.bounds];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        [imageView setTag:101];
+        
+        _currentNote = [self viewWithShadow];
+        [_currentNote addSubview:imageView];
+        _currentNote.layer.borderColor = [UIColor redColor].CGColor;
+        _currentNote.layer.borderWidth = 1.0;
+        
+        [self.view addSubview:_currentNote];
+        [self adjustCurrentNoteForStackingWithScale:scale];
+        
+        //NSLog(@"View height scale should start at %f",_currentNote.bounds.size.height);
+        
+    } else if (gesture.state == UIGestureRecognizerStateChanged) {
+        //NSLog(@"changed pinching");
+        
+        [self adjustCurrentNoteForStackingWithScale:scale];
+        // animate up the next notes
+        
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        //NSLog(@"ended pinching");
+        
+        // should look like list now
+        // do clean up here
+        
+        //NSLog(@"View height scale should end at at %f",kCellHeight);
+        [UIView animateWithDuration:0.5
+                         animations:^{
+                             
+                             [_currentNote setFrame:self.view.bounds];
+                         
+                         }
+                         completion:^(BOOL finished){
+                             [_currentNote removeFromSuperview];
+                         }];
+        
+        
+    }
 }
 
-- (void)handleTwoSwipeLeft:(UIGestureRecognizer *)gesture
+- (void)adjustCurrentNoteForStackingWithScale:(CGFloat)scale
 {
-    NSLog(@"did two swipe left");
+    scale = scale*0.67;
+    static float totalHeight = 480.0;
+    
+    float newHeightTotal = totalHeight-((kCellHeight)*(1.0-scale));
+    float height = scale*newHeightTotal;
+    float newY = (1.0-scale)*((480.0-height)*0.5);
+    if (height<=kCellHeight) {
+        height=kCellHeight;
+    }
+    if (newY>(totalHeight-kCellHeight)*0.5) {
+        newY=(totalHeight-kCellHeight)*0.5;
+    }
+    
+    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, height);
+    [_currentNote setFrame:newFrame];
+    
+    NSLog(@"height set to %f for adjusted scale of %f",height,scale);
+    
+    //[_currentNote setFrameY:newY];
 }
 
-- (void)handleTwoSwipeDown:(UIGestureRecognizer *)gesture
+- (UIView *)viewWithShadow
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
+    
+    view.layer.shadowColor = [[UIColor blackColor] CGColor];
+    view.layer.shadowOffset = CGSizeMake(0.0,-6.0);
+    view.layer.shadowOpacity = .70;
+    view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+    view.layer.shouldRasterize = YES;
+    CGRect frame = view.bounds;
+    [view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:frame cornerRadius:6.5] CGPath]];
+    view.layer.cornerRadius = 6.5;
+    
+    return view;
 }
+
+- (UIImage *)imageFromViewController:(UIViewController *)viewController forRect:(CGRect)rect
+{
+    UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [viewController.view.layer renderInContext:context];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return viewImage;
+}
+
+- (void)logPinch:(CGFloat)vel scale:(CGFloat)scale
+{
+    NSLog(@"pinch velocity: %f, scale: %f",vel,scale);
+}
+
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -179,27 +277,6 @@ static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
 
-- (NoteDocument *)determineNextNoteViewControllerForVelocity:(CGPoint)velocity
-{
-    int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
-    int xDirection = (velocity.x > 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
-
-    NoteDocument *entryUnderneath;
-    if (noteCount == 1) {
-        self.nextNoteViewController.view.hidden = YES;
-    } else {
-        self.nextNoteViewController.view.hidden = NO;
-        if (xDirection == PREVIOUS_DIRECTION) {
-            entryUnderneath = self.previousNoteDocument;
-        } else {
-            entryUnderneath = self.nextNoteDocument;
-        }
-        self.nextNoteViewController.note = entryUnderneath;
-    }
-    
-    return entryUnderneath;
-}
-
 - (void)setGestureState:(NoteStackGestureState)state
 {
     _currentGestureState = state;
@@ -211,6 +288,16 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     BOOL touchCountForPop = numberOfTouchesInCurrentPanGesture==2 ? YES : NO;
     BOOL xVelocityForPop = abs(velocity.x) < velocity.y;
     return yVelocityForPop && touchCountForPop && xVelocityForPop;
+}
+
+- (BOOL)wantsToDeleteWithPoint:(CGPoint)point velocity:(CGPoint)velocity
+{
+    return velocity.x > 0;
+}
+
+- (BOOL)wantsToCreateWithPoint:(CGPoint)point velocity:(CGPoint)velocity
+{
+    return velocity.x < 0;
 }
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
@@ -229,26 +316,28 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1) {
             
-            [self determineNextNoteViewControllerForVelocity:velocity];
+            [self setNextNoteDocumentForVelocity:velocity];
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) {
-            
+            // wants to exit
             if ([self shouldExitWithVelocity:velocity]) {
+                
                 [self setGestureState:kShouldExit];
-                //[self popToNoteList:model.selectedNoteIndex];
-            } else if (point.x > 0 && abs(velocity.y) < 50 && !shouldDeleteNote) {
+                
+            // wants to delete note
+            } else if ([self wantsToDeleteWithPoint:point velocity:velocity]) {
+                
                 [self setGestureState:kShouldDelete];
-                //shouldDeleteNote = YES;
                 [self createDeletingViews];
                 
-            } else if (velocity.x < 0) {
-                //shouldMakeNewNote = YES;
+            // wants to create new note
+            } else if ([self wantsToCreateWithPoint:point velocity:velocity]) {
+
                 [self setGestureState:kShouldCreateNew];
                 [self.view addSubview:self.nextNoteViewController.view];
                 self.nextNoteViewController.view.hidden = NO;
                 [self.nextNoteViewController setWithPlaceholderData:YES];
             }
-                        
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         
@@ -266,11 +355,12 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
             } else if (_currentGestureState == kShouldCreateNew) {
                 // allow cancelation of new note creation if user lets go before midpoint
                 if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
-                    //shouldMakeNewNote = NO;
+
                     [self setGestureState:kGestureFinished];
                     [self snapBackNextNote];
                     // undo the dummy placeholder data
                     [self.nextNoteViewController setWithPlaceholderData:NO];
+                    
                 } else {
                     
                     [self finishCreatingNewDocument];
@@ -289,7 +379,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
-            NSLog(@"handling one touch pan");
+
             [self handleSingleTouchPanChangedForPoint:point];
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
@@ -311,6 +401,25 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 [self updatePositionOfNextDocumentToPoint:point];
             }
         }
+    }
+}
+
+- (void)setNextNoteDocumentForVelocity:(CGPoint)velocity
+{
+    int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
+    int xDirection = (velocity.x > 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
+    
+    NoteDocument *entryUnderneath;
+    if (noteCount == 1) {
+        self.nextNoteViewController.view.hidden = YES;
+    } else {
+        self.nextNoteViewController.view.hidden = NO;
+        if (xDirection == PREVIOUS_DIRECTION) {
+            entryUnderneath = self.previousNoteDocument;
+        } else {
+            entryUnderneath = self.nextNoteDocument;
+        }
+        self.nextNoteViewController.note = entryUnderneath;
     }
 }
 
@@ -457,7 +566,6 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                      }];
 }
 
-
 - (void)animateCurrentOutToLeft
 {
     CGRect viewFrame = self.view.frame;
@@ -518,12 +626,8 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
 - (void)createDeletingViews
 {
     deletingViews = [NSMutableArray new];
-    CGRect rect = CGRectMake(0, 0, 320, 480);
-    UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    [self.currentNoteViewController.view.layer renderInContext:context];
-    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+    
+    UIImage *viewImage = [self imageFromViewController:self.currentNoteViewController forRect:CGRectMake(0, 0, 320, 480)];
     
     // Create and show the new image from bitmap data
     for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
