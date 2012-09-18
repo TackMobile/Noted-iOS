@@ -120,13 +120,13 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    CGFloat velocity = gesture.velocity;
+    //CGFloat velocity = gesture.velocity;
     CGFloat scale = gesture.scale;
+    ApplicationModel *model = [ApplicationModel sharedInstance];
     //[self logPinch:velocity scale:scale];
     
     
     if (gesture.state == UIGestureRecognizerStateBegan) {
-        //NSLog(@"began pinching");
         
         // get image from current view
         UIImage *image = [self imageFromViewController:self.currentNoteViewController forRect:self.view.bounds];
@@ -141,13 +141,14 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         [self.view addSubview:_currentNote];
         [self adjustCurrentNoteForStackingWithScale:scale];
         
-        //NSLog(@"View height scale should start at %f",_currentNote.bounds.size.height);
+        // temporarily set current note vc to show previous note
+        [self.currentNoteViewController setNote:self.previousNoteDocument];
         
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
-        //NSLog(@"changed pinching");
         
-        [self adjustCurrentNoteForStackingWithScale:scale];
         // animate up the next notes
+        [self adjustCurrentNoteForStackingWithScale:scale];
+        
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         //NSLog(@"ended pinching");
@@ -164,6 +165,9 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
                          }
                          completion:^(BOOL finished){
                              [_currentNote removeFromSuperview];
+                             // temporarily set current note vc to show next note
+                             
+                             [self.currentNoteViewController setNote:[model noteDocumentAtIndex:model.selectedNoteIndex]];
                          }];
         
         
@@ -282,6 +286,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
 }
+
 
 static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
