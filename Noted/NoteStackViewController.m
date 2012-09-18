@@ -174,22 +174,30 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 {
     static float totalHeight = 480.0;
     
-    float diff = 1.0-scale;
-    float multiplier = diff * 0.35;
+    // multiplier to speed up scaling by (kCellHeight + kMinimumDistanceBetweenTouches)
+    float multiplier = (1.0-scale) * (totalHeight/(totalHeight-(kCellHeight+kMinimumDistanceBetweenTouches)));
     
-    float neueHeight = (scale-multiplier)*(totalHeight+(diff*kCellHeight));
+    float adjustedScale = scale-multiplier;
     
-    float distanceToGoDown = (totalHeight-kCellHeight)*0.5;
-    float newY = (diff*distanceToGoDown);
+    // height we're scaling from varies from (0.0-kCellHeight) + totalHeight,
+    // based on how much we've scaled
+    float dyamicTotalHeight = (totalHeight+((1.0-adjustedScale)*kCellHeight));
     
-    if (neueHeight<=kCellHeight) {
-        neueHeight=kCellHeight;
+    float newHeight = adjustedScale*dyamicTotalHeight;
+    
+    float newY = (totalHeight-newHeight)*0.5;
+    if (newHeight<=kCellHeight) {
+        newHeight=kCellHeight;
     }
-    if (newY>=distanceToGoDown) {
-        newY=distanceToGoDown;
+
+    float absoluteMid = ((totalHeight-kCellHeight)*0.5);
+    if (newY >= absoluteMid) {
+        newY = absoluteMid;
+    } else if (newY <= 0) {
+        newY = 0.0;
     }
     
-    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, neueHeight);
+    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
     [_currentNote setFrame:newFrame];
     
 }
