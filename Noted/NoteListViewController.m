@@ -188,8 +188,11 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
         if (noteEntryCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
             noteEntryCell = [topLevelObjects objectAtIndex:0];
-            noteEntryCell.delegate = self;
             
+            UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
+            [panGesture setDelegate:self];
+            [noteEntryCell addGestureRecognizer:panGesture];
+
         }
         
         if (noteEntry.adding) {
@@ -213,6 +216,55 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
         
         return noteEntryCell;
     }
+}
+
+- (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
+{
+    UITableViewCell *view = (UITableViewCell *)recognizer.view;
+    
+    CGPoint point = [recognizer translationInView:view.contentView];
+    CGPoint velocity = [recognizer velocityInView:view.contentView];
+    CGRect viewFrame = view.contentView.frame;
+    //int xDirection = (velocity.x < 0) ? 1 : 0;
+    if (recognizer.state == UIGestureRecognizerStateChanged) {
+        if (velocity.x > 0) {
+            point = [recognizer translationInView:view.contentView];
+            CGRect newFrame;
+            newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
+            view.contentView.frame = newFrame;
+            NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
+        }
+        
+    } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+        if (point.x > CGRectGetMidX(view.bounds) && velocity.x > 200.0) {
+            [self didSwipeToDeleteCellWithIndexPath:view];
+            [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+            [UIView animateWithDuration:0.4
+                             animations:^{
+                                 [view.contentView setFrame:CGRectMake(viewFrame.size.width, 0.0, viewFrame.size.width, viewFrame.size.height)];
+                             }
+                             completion:^(BOOL finished){
+                                 
+                             }];
+            
+            
+        } else {
+            [UIView animateWithDuration:0.5
+                             animations:^{
+                                 [view.contentView setFrame:CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height)];
+                             }
+                             completion:^(BOOL finished){
+                                 
+                             }];
+        }
+    }
+ 
+    
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
 }
 
 - (NSString *)displayTitleForNoteEntry:(NoteEntry *)entry
@@ -268,7 +320,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
     [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 
-- (void)didSwipeToDeleteCellWithIndexPath:(NoteEntryCell *)cell
+- (void)didSwipeToDeleteCellWithIndexPath:(UIView *)cell
 {
     CGPoint correctedPoint = [cell convertPoint:cell.bounds.origin toView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:correctedPoint];
