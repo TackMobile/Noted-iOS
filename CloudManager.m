@@ -477,7 +477,8 @@ static CloudManager *sharedInstance;
         
         if (promised) {
             // promise kept
-            NSLog(@"Fulfilling promise for commitment: %@ [%d]",fileURL.absoluteString,__LINE__);
+            NSLog(@"\n\nFulfilling promise for commitment: %@ [%d]",fileURL.absoluteString,__LINE__);
+            NSLog(@"Number %d of %d\n\n",[docsList indexOfObject:doc],docsList.count);
             [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
         }
         

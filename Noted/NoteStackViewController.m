@@ -116,12 +116,14 @@ typedef enum {
 
 static const float kCellHeight = 66.0;
 static const float kPinchThreshold = 0.41;
+static const float kMinimumDistanceBetweenTouches = 20.0;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
     CGFloat velocity = gesture.velocity;
     CGFloat scale = gesture.scale;
-    [self logPinch:velocity scale:scale];
+    //[self logPinch:velocity scale:scale];
+    
     
     if (gesture.state == UIGestureRecognizerStateBegan) {
         //NSLog(@"began pinching");
@@ -170,25 +172,26 @@ static const float kPinchThreshold = 0.41;
 
 - (void)adjustCurrentNoteForStackingWithScale:(CGFloat)scale
 {
-    scale = scale*0.67;
     static float totalHeight = 480.0;
     
-    float newHeightTotal = totalHeight-((kCellHeight)*(1.0-scale));
-    float height = scale*newHeightTotal;
-    float newY = (1.0-scale)*((480.0-height)*0.5);
-    if (height<=kCellHeight) {
-        height=kCellHeight;
+    float diff = 1.0-scale;
+    float multiplier = diff * 0.35;
+    
+    float neueHeight = (scale-multiplier)*(totalHeight+(diff*kCellHeight));
+    
+    float distanceToGoDown = (totalHeight-kCellHeight)*0.5;
+    float newY = (diff*distanceToGoDown);
+    
+    if (neueHeight<=kCellHeight) {
+        neueHeight=kCellHeight;
     }
-    if (newY>(totalHeight-kCellHeight)*0.5) {
-        newY=(totalHeight-kCellHeight)*0.5;
+    if (newY>=distanceToGoDown) {
+        newY=distanceToGoDown;
     }
     
-    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, height);
+    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, neueHeight);
     [_currentNote setFrame:newFrame];
     
-    NSLog(@"height set to %f for adjusted scale of %f",height,scale);
-    
-    //[_currentNote setFrameY:newY];
 }
 
 - (UIView *)viewWithShadow
@@ -196,7 +199,7 @@ static const float kPinchThreshold = 0.41;
     UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
     
     view.layer.shadowColor = [[UIColor blackColor] CGColor];
-    view.layer.shadowOffset = CGSizeMake(0.0,-6.0);
+    //view.layer.shadowOffset = CGSizeMake(0.0,-6.0);
     view.layer.shadowOpacity = .70;
     view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     view.layer.shouldRasterize = YES;
