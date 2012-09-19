@@ -125,19 +125,9 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     ApplicationModel *model = [ApplicationModel sharedInstance];
     //[self logPinch:velocity scale:scale];
     
-    
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
-        // get image from current view
-        UIImage *image = [self imageFromViewController:self.currentNoteViewController forRect:self.view.bounds];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        [imageView setTag:101];
-        
-        _currentNote = [self viewWithShadow];
-        [_currentNote addSubview:imageView];
-        _currentNote.layer.borderColor = [UIColor redColor].CGColor;
-        _currentNote.layer.borderWidth = 1.0;
-        
+#warning TODO: update _currentNote when change is observed
         [self.view addSubview:_currentNote];
         [self adjustCurrentNoteForStackingWithScale:scale];
         
@@ -151,12 +141,10 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        //NSLog(@"ended pinching");
         
         // should look like list now
         // do clean up here
         
-        //NSLog(@"View height scale should end at at %f",kCellHeight);
         [UIView animateWithDuration:0.5
                          animations:^{
                              
@@ -169,7 +157,6 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
                              
                              [self.currentNoteViewController setNote:[model noteDocumentAtIndex:model.selectedNoteIndex]];
                          }];
-        
         
     }
 }
@@ -288,6 +275,17 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     
     self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
+    
+    // get image from current view
+    UIImage *image = [self imageFromViewController:self.currentNoteViewController forRect:self.view.bounds];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    [imageView setTag:101];
+    
+    _currentNote = [self viewWithShadow];
+    [_currentNote addSubview:imageView];
+    
+    _currentNote.layer.borderColor = [UIColor redColor].CGColor;
+    _currentNote.layer.borderWidth = 1.0;
 }
 
 
