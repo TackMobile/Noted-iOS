@@ -189,12 +189,14 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     
     float newHeight = adjustedScale*dyamicTotalHeight;
     
-    float newY = (totalHeight-newHeight)*0.5;
+    float targetOffset = 0.5;
+    
+    float newY = (totalHeight-newHeight)*targetOffset;
     if (newHeight<=kCellHeight) {
         newHeight=kCellHeight;
     }
 
-    float absoluteMid = ((totalHeight-kCellHeight)*0.5);
+    float absoluteMid = ((totalHeight-kCellHeight)*targetOffset);
     if (newY >= absoluteMid) {
         newY = absoluteMid;
     } else if (newY <= 0) {
@@ -215,6 +217,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     view.layer.shadowOpacity = .70;
     view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     view.layer.shouldRasterize = YES;
+    view.userInteractionEnabled = NO;
     CGRect frame = view.bounds;
     [view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:frame cornerRadius:6.5] CGPath]];
     view.layer.cornerRadius = 6.5;
