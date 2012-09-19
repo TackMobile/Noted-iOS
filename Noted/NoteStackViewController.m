@@ -30,8 +30,8 @@ typedef enum {
     
     NSMutableArray *deletingViews;
     
-    CALayer *_currentNoteMask;
     UIView *_currentNote;
+    NSMutableArray *stackingViews;
     
     BOOL shouldMakeNewNote;
     BOOL shouldDeleteNote;
@@ -117,6 +117,61 @@ typedef enum {
 static const float kCellHeight = 66.0;
 static const float kPinchThreshold = 0.41;
 static const float kMinimumDistanceBetweenTouches = 20.0;
+
+- (void)makeSnapshots
+{
+    _currentNote = nil;
+    NoteDocument *currentDoc = self.currentNoteViewController.note;
+    // get image from current view
+    UIImage *image = [self imageForDocument:currentDoc];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    [imageView setTag:101];
+    
+    _currentNote = [self viewWithShadow];
+    [_currentNote addSubview:imageView];
+    
+    _currentNote.layer.borderColor = [UIColor redColor].CGColor;
+    _currentNote.layer.borderWidth = 1.0;
+    return;
+    // make all the snapshots not on top
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
+    int count = allDocuments.count;
+    int currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
+    
+    NSLog(@"top note index: %d",currentNoteIndex);
+    
+    stackingViews = [[NSMutableArray alloc] initWithCapacity:count];
+    __block UIView *previousView = nil;
+    int i = 0;
+    for (NoteDocument *doc in allDocuments) {
+        
+        // get image from current view
+        UIImage *image = [self imageForDocument:doc];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        
+        UIView *noteView = [self viewWithShadow];
+        [noteView addSubview:imageView];
+        [stackingViews addObject:noteView];
+        
+        if (i == currentNoteIndex) {
+            continue;
+        }
+        
+        // 1st doc, just add it
+        if ([noteView isEqual:previousView] || i == currentNoteIndex) {
+            [self.view addSubview:noteView];
+        } else if (i < currentNoteIndex) {
+            [self.view insertSubview:noteView aboveSubview:previousView];
+        } else if (i > currentNoteIndex) {
+            [self.view insertSubview:noteView belowSubview:previousView];
+        }
+        
+        previousView = noteView;
+        i++;
+    }
+
+}
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
@@ -212,13 +267,21 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     return view;
 }
 
-- (UIImage *)imageFromViewController:(UIViewController *)viewController forRect:(CGRect)rect
+// use the hidden nextNoteVC's view to create a snapshot of doc
+- (UIImage *)imageForDocument:(NoteDocument *)document
 {
-    UIGraphicsBeginImageContextWithOptions(rect.size,YES,0.0f);
+    NoteDocument *previous = self.nextNoteViewController.note;
+    [self.nextNoteViewController setNote:document];
+    
+    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
-    [viewController.view.layer renderInContext:context];
+
+    [nextNoteViewController.view.layer renderInContext:context];
     UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
+    
+    // set back to actual current note
+    [self.nextNoteViewController setNote:previous];
     
     return viewImage;
 }
@@ -276,17 +339,10 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
     
-    // get image from current view
-    UIImage *image = [self imageFromViewController:self.currentNoteViewController forRect:self.view.bounds];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    [imageView setTag:101];
-    
-    _currentNote = [self viewWithShadow];
-    [_currentNote addSubview:imageView];
-    
-    _currentNote.layer.borderColor = [UIColor redColor].CGColor;
-    _currentNote.layer.borderWidth = 1.0;
+    [self makeSnapshots];
 }
+
+
 
 
 static const int NEXT_DIRECTION = 0;
@@ -389,7 +445,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
                 if (shouldCancelDelete) {
                     [self cancelDeletingNote];
                 } else {
-                    [self finishDeletingDocument:point];                    
+                    [self finishDeletingDocument:point];
                 }
             }
         }
@@ -644,7 +700,7 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
 {
     deletingViews = [NSMutableArray new];
     
-    UIImage *viewImage = [self imageFromViewController:self.currentNoteViewController forRect:CGRectMake(0, 0, 320, 480)];
+    UIImage *viewImage = [self imageForDocument:self.currentNoteViewController.note];
     
     // Create and show the new image from bitmap data
     for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
@@ -749,22 +805,22 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     //self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
     
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:index];
-    NSLog(@"previous doc %@",[self.previousNoteDocument text]);
+    //NSLog(@"previous doc %@",[self.previousNoteDocument text]);
     
     NoteDocument *docToShow = [model noteDocumentAtIndex:index];
-    NSLog(@"should show doc %@",[docToShow text]);
+    //NSLog(@"should show doc %@",[docToShow text]);
     
     self.nextNoteDocument = [model nextNoteDocInStackFromIndex:index];
-    NSLog(@"next doc %@",[self.nextNoteDocument text]);
+    //NSLog(@"next doc %@",[self.nextNoteDocument text]);
     
     self.currentNoteViewController.note = docToShow;
     [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
-    NSLog(@"%@ %d",[[self.currentNoteViewController noteEntry] text],__LINE__);
-    NSLog(@"%@ %d",self.currentNoteViewController.textView.text,__LINE__);
+    //NSLog(@"%@ %d",[[self.currentNoteViewController noteEntry] text],__LINE__);
+    //NSLog(@"%@ %d",self.currentNoteViewController.textView.text,__LINE__);
     
-    
+    [self makeSnapshots];
 }
 
 - (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
