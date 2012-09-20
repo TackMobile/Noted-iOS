@@ -73,8 +73,10 @@
         [self.view setBackgroundColor:[UIColor whiteColor]];
         [self setTextLabelColorsByBGColor:self.view.backgroundColor];
         [self setShadowForXOffset];
+        [self.optionsDot setHidden:YES];
     } else {
         [self updateUIForCurrentEntry];
+        [self.optionsDot setHidden:NO];
     }
 }
 
