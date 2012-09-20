@@ -27,6 +27,7 @@ static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
+static const float kCornerRadius = 6.5;
 
 @interface NoteStackViewController () {
     
@@ -36,6 +37,9 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     NSMutableArray *deletingViews;
     
     UIView *_currentNote;
+    UIImageView *_shadowView;
+    UIImageView *_shadowViewTop;
+    
     NSMutableArray *stackingViews;
     
     BOOL shouldMakeNewNote;
@@ -76,14 +80,17 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
     
     return self;
 }
+
 - (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
 {
     return [self init];
 }
 
+#pragma mark View lifecycle
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.layer.cornerRadius = 6.5;
+    self.view.layer.cornerRadius = kCornerRadius;
     
     self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
     self.keyboardViewController.delegate = self;
@@ -122,60 +129,44 @@ static const float FLIP_VELOCITY_THRESHOLD = 500;
 
 }
 
-static const float kCellHeight = 66.0;
-static const float kPinchThreshold = 0.41;
-static const float kMinimumDistanceBetweenTouches = 20.0;
-
-- (void)makeSnapshots
+- (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+    //[self presentNotes];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self presentNotes];
+}
+
+- (void)viewDidUnload {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.currentNoteViewController = nil;
+    self.nextNoteViewController = nil;
+    self.optionsViewController = nil;
+    self.keyboardViewController = nil;
+    self.overView = nil;
+    self.nextNoteEntry = nil;
+    self.previousNoteEntry = nil;
+    [super viewDidUnload];
+}
+
+- (void)presentNotes {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
-    int count = allDocuments.count;
-    int currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
-
-    // make all the snapshots that aren't on top
-    stackingViews = [[NSMutableArray alloc] initWithCapacity:count];
-    int i = 0;
-    for (NoteDocument *doc in allDocuments) {
-        if (i == currentNoteIndex) {
-            NSLog(@"skipped the current doc: %@",doc.text);
-            i++;
-            continue;
-        }
-        
-        NSLog(@"Generating image for %@",doc.text);
-
-        // get image from current view
-        UIImage *image = [self imageForDocument:doc];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        
-        UIView *noteView = [self viewWithShadow];
-        [noteView addSubview:imageView];
-        noteView.layer.borderColor = [UIColor blueColor].CGColor;
-        noteView.layer.borderWidth = 1.0;
-        //noteView.alpha = 0.5;
-        
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:i],@"index", nil];
-        
-        [stackingViews addObject:dict];
-        i++;
-    }
-
-    _currentNote = nil;
-    NoteDocument *currentDoc = self.currentNoteViewController.note;
     
-    // get image from current view
-    UIImage *image = [self imageForDocument:currentDoc];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    NSUInteger currentIndex = model.selectedNoteIndex;
     
-    _currentNote = [self viewWithShadow];
-    [_currentNote addSubview:imageView];
+    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    //NSLog(@"Current note %@",self.currentNoteViewController.note.text);
     
-    // debugging
-    _currentNote.alpha = 1.0;
-    _currentNote.layer.borderColor = [UIColor redColor].CGColor;
-    _currentNote.layer.borderWidth = 1.0;
-
+    self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
+    self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
+    
+    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
+    self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
+    
+    [self makeSnapshots];
 }
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
@@ -189,10 +180,14 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
         [self animateCurrentNoteForStackingWithScale:scale];
+        [self.currentNoteViewController setWithNoDataTemp:YES];
         
         if (stackingViews.count>0) {
             [self addStackedNotesInViewHeirarchy];
             [self animateStackedNotesForScale:scale];
+            
+            [self.view addSubview:_shadowView];
+            [self.view addSubview:_shadowViewTop];
         }
         
         [self.view addSubview:_currentNote];
@@ -229,6 +224,8 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     int currentNoteIndex = model.selectedNoteIndex;
     for (NSDictionary *dict in stackingViews) {
         UIView *noteView = [dict objectForKey:@"noteView"];
+        UIView *shadow = [dict objectForKey:@"shadow"];
+        
         int stackingIndex = [[dict objectForKey:@"index"] integerValue];
         // 1st doc, just add it
         if (!previousView) {
@@ -237,25 +234,12 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
             [self.view insertSubview:noteView aboveSubview:previousView];
         } else if (stackingIndex > currentNoteIndex) {
             [self.view insertSubview:noteView belowSubview:previousView];
+            shadow = [dict objectForKey:@"shadow"];
+            [self.view insertSubview:shadow belowSubview:noteView];
         }
         
         previousView = noteView;
     }
-}
-
-- (void)animateStackedNotesForScale:(CGFloat)scale
-{
-    for (int i = 0; i < stackingViews.count; i ++) {
-        [self animateNote:[stackingViews objectAtIndex:i] forStackingWithScale:scale];
-    }
-}
-
-- (float)indexOffsetForStackedNoteAtIndex:(int)index
-{
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    float offset = -(float)(model.selectedNoteIndex - index);
-    
-    return offset;
 }
 
 // generate a multiplier to speed up scaling
@@ -270,35 +254,232 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     return adjustedScale;
 }
 
-- (void)animateNote:(NSDictionary *)noteDict forStackingWithScale:(CGFloat)scale
+#pragma mark Stacked notes animations
+
+- (void)animateStackedNotesForScale:(CGFloat)scale
 {
-    int stackingIndex = [[noteDict objectForKey:@"index"] integerValue];
-    if (stackingIndex==2) {
-        NSLog(@"stop");
+    for (int i = 0; i < stackingViews.count; i ++) {
+        [self animateStackedNoteAtIndex:i withScale:scale];
     }
+}
+
+- (void)animateStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
+{
+    NSDictionary *noteDict = [stackingViews objectAtIndex:index];
+    
+    int stackingIndex = [[noteDict objectForKey:@"index"] integerValue];
+    
     float offset = [self indexOffsetForStackedNoteAtIndex:stackingIndex];
     float adjustedScale = [self adjustedScaleForPinch:scale];
     
-    float newY = [self stackedNoteYOriginForOffset:offset andScale:adjustedScale];
-    float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
+    float newY = [self yOriginForStackedNoteForOffset:offset andScale:adjustedScale];
     
-    UIView *note = [[stackingViews objectAtIndex:[stackingViews indexOfObject:noteDict]] objectForKey:@"noteView"];
+    float newHeight = 480.0;
+    if (index < stackingViews.count-1) {
+        newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
+    } else {
+        NSLog(@"this is the last note:");
+    }
+    int dictIndex = [stackingViews indexOfObject:noteDict];
+    UIView *note = [[stackingViews objectAtIndex:dictIndex] objectForKey:@"noteView"];
+    
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
     
-    if (stackingIndex==2) {
-        NSLog(@"new frame: %@",NSStringFromCGRect(newFrame));
+    UIView *noteShadow = [[stackingViews objectAtIndex:dictIndex] objectForKey:@"shadow"];
+    if (stackingIndex > [[ApplicationModel sharedInstance] selectedNoteIndex]) {
+        noteShadow.frame = CGRectMake(0.0, CGRectGetMaxY(newFrame), noteShadow.frame.size.width, noteShadow.frame.size.height);
     }
-    
+        
     [note setFrame:newFrame];
 }
 
-- (CGFloat)stackedNoteYOriginForOffset:(NSInteger)offsetIndex andScale:(CGFloat)adjustedScale
+- (void)animateCurrentNoteForStackingWithScale:(CGFloat)scale
+{
+    static float totalHeight = 480.0;
+    float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
+    float targetOffset = 0.5;
+    
+    float newY = (totalHeight-newHeight)*targetOffset;
+    float absoluteMid = ((totalHeight-kCellHeight)*targetOffset);
+    
+    if (newY >= absoluteMid) {
+        newY = absoluteMid;
+        _currentNote.layer.cornerRadius = scale*kCornerRadius;
+    } else if (newY <= 0) {
+        newY = 0.0;
+    }
+    
+    centerNoteFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
+    CGRect shadowFrame = _shadowView.frame;
+    _shadowView.frame = CGRectMake(0.0, CGRectGetMaxY(centerNoteFrame), shadowFrame.size.width, shadowFrame.size.height);
+    _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
+    
+    [_currentNote setFrame:centerNoteFrame];
+}
+
+#pragma mark Stacked note views setup
+
+static const float kCellHeight = 66.0;
+static const float kPinchThreshold = 0.41;
+static const float kMinimumDistanceBetweenTouches = 20.0;
+
+- (void)makeSnapshots
+{
+    if (stackingViews) {
+        [stackingViews removeAllObjects];
+        _currentNote = nil;
+    }
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
+    int count = allDocuments.count;
+    int currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
+    
+    // make all the snapshots that aren't on top
+    stackingViews = [[NSMutableArray alloc] initWithCapacity:count];
+    int i = 0;
+    for (NoteDocument *doc in allDocuments) {
+        if (i == currentNoteIndex) {
+            // skipped the current doc
+            i++;
+            continue;
+        }
+        
+        NSLog(@"Generating image for %@",doc.text);
+        
+        // get image from current view
+        UIImage *image = [self imageForDocument:doc];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        
+        UIView *noteView = [self makeNoteView];
+        [noteView addSubview:imageView];
+        noteView.layer.borderColor = [UIColor blueColor].CGColor;
+        //noteView.layer.cornerRadius = kCornerRadius;
+        noteView.layer.borderWidth = 1.0;
+        
+        UIImageView *shadow = [self shadowView];
+        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",shadow,@"shadow",[NSNumber numberWithInt:i],@"index", nil];
+        
+        [stackingViews addObject:dict];
+        i++;
+    }
+    
+    [self makeCurrentNote];
+}
+
+- (void)makeCurrentNote
+{
+    _currentNote = nil;
+    NoteDocument *currentDoc = self.currentNoteViewController.note;
+    
+    // get image from current view
+    UIImage *image = [self imageForDocument:currentDoc];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    //imageView.layer.cornerRadius = kCornerRadius;
+    
+    _currentNote = [self makeNoteView];
+    _currentNote.layer.masksToBounds = YES;
+    [self addShadow:CGSizeMake(0.0, -3.0) toView:_currentNote];
+    [_currentNote addSubview:imageView];
+    
+    _shadowView = [self shadowView];
+    _shadowViewTop = [self shadowView];
+    _shadowViewTop.image = [self flipImageVertically:_shadowViewTop.image];
+
+}
+
+- (UIImage *) flipImageVertically:(UIImage *)originalImage {
+    UIImageView *tempImageView = [[UIImageView alloc] initWithImage:originalImage];
+    
+    UIGraphicsBeginImageContext(tempImageView.frame.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGAffineTransform flipVertical = CGAffineTransformMake(
+                                                           1, 0, 0, -1, 0, tempImageView.frame.size.height
+                                                           );
+    CGContextConcatCTM(context, flipVertical);
+    
+    [tempImageView.layer renderInContext:context];
+    
+    UIImage *flipedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return flipedImage;
+}
+
+- (void)debugView:(UIView *)view
+{
+    // debugging
+    view.alpha = 1.0;
+    view.layer.borderColor = [UIColor redColor].CGColor;
+    view.layer.borderWidth = 1.0;
+}
+
+- (UIImageView *)shadowView
+{
+    return [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cellShadow"]];
+}
+
+- (void)addShadow:(CGSize)size toView:(UIView *)view
+{
+    view.layer.shadowColor = [[UIColor blackColor] CGColor];
+    view.layer.shadowOpacity = .70;
+    
+    CGRect frame = view.bounds;
+    frame.size.height += 20.0;
+    view.layer.shadowOffset = size;
+    [view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:frame cornerRadius:kCornerRadius] CGPath]];
+}
+
+- (UIView *)makeNoteView
+{
+    UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
+    
+    view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+    view.layer.shouldRasterize = YES;
+    view.userInteractionEnabled = NO;
+    view.clipsToBounds = YES;
+    
+    return view;
+}
+
+// use the hidden nextNoteVC's view to create a snapshot of doc
+- (UIImage *)imageForDocument:(NoteDocument *)document
+{
+    NoteDocument *previous = self.nextNoteViewController.note;
+    [self.nextNoteViewController setNote:document];
+    
+    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    [nextNoteViewController.view.layer renderInContext:context];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    // set back to actual current note
+    [self.nextNoteViewController setNote:previous];
+    
+    return viewImage;
+}
+
+#pragma mark Stacking animation helpers
+
+
+- (float)indexOffsetForStackedNoteAtIndex:(int)index
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    float offset = -(float)(model.selectedNoteIndex - index);
+    
+    return offset;
+}
+
+- (CGFloat)yOriginForStackedNoteForOffset:(NSInteger)offsetIndex andScale:(CGFloat)adjustedScale
 {
     float newY = 0.0;
+    int absOffset = abs(offsetIndex);
     if (offsetIndex < 0) {
         
-        newY = centerNoteFrame.origin.y + (offsetIndex * (100.0*adjustedScale));
-        int absOffset = abs(offsetIndex);
+        newY = CGRectGetMinY(centerNoteFrame) + (offsetIndex * (100.0*adjustedScale));
+        
         if (newY+(kCellHeight*absOffset) >= CGRectGetMinY(centerNoteFrame)){
             newY = CGRectGetMinY(centerNoteFrame)-(kCellHeight*absOffset);
         }
@@ -306,47 +487,14 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     } else {
         
         // pin it to max y of centerNoteFrame + offset for stacking index
-        newY = CGRectGetMaxY(centerNoteFrame) + (((1.0-adjustedScale)*kCellHeight)*(offsetIndex-1));
-        if (newY < CGRectGetMaxY(centerNoteFrame)) {
-            newY = CGRectGetMaxY(centerNoteFrame);
+        float bottomOffset = kCellHeight*(absOffset-1);
+        newY = CGRectGetMaxY(centerNoteFrame) + bottomOffset;//(((1.0-adjustedScale)*(kCellHeight*abs(offsetIndex-1))));
+        if (newY-bottomOffset < CGRectGetMaxY(centerNoteFrame)) {
+            newY = CGRectGetMaxY(centerNoteFrame)+bottomOffset;
         }
     }
     
     return newY;
-}
-
-- (void)resetCurrentNoteView
-{
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         
-                         [_currentNote setFrame:self.view.bounds];
-                         
-                     }
-                     completion:^(BOOL finished){
-                         if (_currentNote) {
-                             [_currentNote removeFromSuperview];
-                         }
-                       
-                     }];
-}
-
-- (void)resetStackedNoteView:(NSDictionary *)dict
-{
-    float offsetIndex = [self indexOffsetForStackedNoteAtIndex:[stackingViews indexOfObject:dict]];
-    float adjustedScale = [self adjustedScaleForPinch:1.0];
-    float newY = [self stackedNoteYOriginForOffset:offsetIndex andScale:adjustedScale];
-    
-    UIView *view = [dict objectForKey:@"noteView"];
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         CGRect newFrame = CGRectMake(0.0, newY, 320.0, 480.0);
-                         view.frame = newFrame;
-                     }
-                     completion:^(BOOL finished){
-                         [view removeFromSuperview];
-                     }];
-    
 }
 
 - (CGFloat)newHeightForScale:(CGFloat)scale andDestinationHeight:(CGFloat)destinationHeight
@@ -369,116 +517,51 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     return newHeight;
 }
 
-- (void)animateCurrentNoteForStackingWithScale:(CGFloat)scale
+#pragma mark Cleanup for pinch gesture state ended
+
+- (void)resetCurrentNoteView
 {
-    static float totalHeight = 480.0;
-    float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
-    float targetOffset = 0.5;
-    
-    float newY = (totalHeight-newHeight)*targetOffset;
-    float absoluteMid = ((totalHeight-kCellHeight)*targetOffset);
-    
-    if (newY >= absoluteMid) {
-        newY = absoluteMid;
-    } else if (newY <= 0) {
-        newY = 0.0;
-    }
-    
-    NSLog(@"new height for center = %f",newHeight);
-    
-    centerNoteFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-    [_currentNote setFrame:centerNoteFrame];
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         
+                         [_currentNote setFrame:self.view.bounds];
+                         [_shadowView setFrameY:self.view.bounds.size.height];
+                         [_shadowViewTop setFrameY:0.0-_shadowView.frame.size.height];
+                         
+                     }
+                     completion:^(BOOL finished){
+                         if (_currentNote) {
+                             [_shadowView removeFromSuperview];
+                             [_currentNote removeFromSuperview];
+                             [self.currentNoteViewController setWithNoDataTemp:NO];
+                         }
+                       
+                     }];
 }
 
-- (UIView *)viewWithShadow
+- (void)resetStackedNoteView:(NSDictionary *)dict
 {
-    UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
+    float offsetIndex = [self indexOffsetForStackedNoteAtIndex:[stackingViews indexOfObject:dict]];
+    float adjustedScale = [self adjustedScaleForPinch:1.0];
+    float newY = [self yOriginForStackedNoteForOffset:offsetIndex andScale:adjustedScale];
     
-    view.layer.shadowColor = [[UIColor blackColor] CGColor];
-    //view.layer.shadowOffset = CGSizeMake(0.0,-6.0);
-    view.layer.shadowOpacity = .70;
-    view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    view.layer.shouldRasterize = YES;
-    view.userInteractionEnabled = NO;
-    view.clipsToBounds = YES;
-    CGRect frame = view.bounds;
-    [view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:frame cornerRadius:6.5] CGPath]];
-    view.layer.cornerRadius = 6.5;
-    
-    return view;
-}
-
-// use the hidden nextNoteVC's view to create a snapshot of doc
-- (UIImage *)imageForDocument:(NoteDocument *)document
-{
-    NoteDocument *previous = self.nextNoteViewController.note;
-    [self.nextNoteViewController setNote:document];
-    
-    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-
-    [nextNoteViewController.view.layer renderInContext:context];
-    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    // set back to actual current note
-    [self.nextNoteViewController setNote:previous];
-    
-    return viewImage;
+    UIView *view = [dict objectForKey:@"noteView"];
+    UIView *shadow = [dict objectForKey:@"shadow"];
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         CGRect newFrame = CGRectMake(0.0, newY, 320.0, 480.0);
+                         view.frame = newFrame;
+                         [shadow setFrameY:CGRectGetMaxY(newFrame)];
+                     }
+                     completion:^(BOOL finished){
+                         [view removeFromSuperview];
+                         [shadow removeFromSuperview];
+                     }];
 }
 
 - (void)logPinch:(CGFloat)vel scale:(CGFloat)scale
 {
     NSLog(@"pinch velocity: %f, scale: %f",vel,scale);
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    //[self presentNotes];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    [self presentNotes];
-}
-
-- (void)viewDidUnload {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    self.currentNoteViewController = nil;
-    self.nextNoteViewController = nil;
-    self.optionsViewController = nil;
-    self.keyboardViewController = nil;
-    self.overView = nil;
-    self.nextNoteEntry = nil;
-    self.previousNoteEntry = nil;
-    [super viewDidUnload];
-}
-
-/*
- - (void)viewWillDisappear:(BOOL)animated
- {
- [super viewWillDisappear:animated];
- 
- NoteDocument *doc = self.currentNoteViewController.note;
- }
- */
-
-- (void)presentNotes {
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    
-    NSUInteger currentIndex = model.selectedNoteIndex;
-    
-    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
-    //NSLog(@"Current note %@",self.currentNoteViewController.note.text);
-    
-    self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
-    self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
-    
-    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
-    self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
-    
-    [self makeSnapshots];
 }
 
 - (void)setGestureState:(NoteStackGestureState)state
@@ -754,8 +837,8 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     int currentIndex = model.selectedNoteIndex;
     
     [self setGestureState:kGestureFinished];
-    //shouldMakeNewNote = NO;
     self.currentNoteViewController.view.hidden = NO;
+    [self makeSnapshots];
     
     CGRect viewFrame = self.view.frame;
     [UIView animateWithDuration:DURATION

@@ -61,7 +61,20 @@
         _note = newNote;
         
         [self setNoteEntry:_note.noteEntry];
-        
+    }
+}
+
+- (void)setWithNoDataTemp:(BOOL)val
+{
+    if (val) {
+        self.textView.text = @"";
+        self.absoluteTime.text = @"";
+        self.relativeTime.text = @"";
+        [self.view setBackgroundColor:[UIColor whiteColor]];
+        [self setTextLabelColorsByBGColor:self.view.backgroundColor];
+        [self setShadowForXOffset];
+    } else {
+        [self updateUIForCurrentEntry];
     }
 }
 
@@ -78,7 +91,6 @@
     } else {
         [self updateUIForCurrentEntry];
     }
-    
 }
 
 - (void) setNoteEntry:(NoteEntry *)entry {

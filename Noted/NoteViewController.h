@@ -34,6 +34,7 @@
 
 // helper when swiping to create new notes
 - (void)setWithPlaceholderData:(BOOL)val;
+- (void)setWithNoDataTemp:(BOOL)val;
 - (void)setShadowForXOffset:(CGFloat)xOffset;
 
 @end
