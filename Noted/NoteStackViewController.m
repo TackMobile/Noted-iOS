@@ -171,11 +171,23 @@ static const float kCornerRadius = 6.5;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    
+    if ([sender numberOfTouches] != 2)
+        return;
+
     CGFloat scale = gesture.scale;
     
     //CGFloat velocity = gesture.velocity;
     //[self logPinch:velocity scale:scale];
+
+   // Get the pinch points.
+
+   CGPoint p1 = [sender locationOfTouch:0 inView:[self collectionView]];
+   CGPoint p2 = [sender locationOfTouch:1 inView:[self collectionView]];
+
+   // Compute the new spread distance.
+    CGFloat xd = p1.x - p2.x;
+    CGFloat yd = p1.y - p2.y;
+    CGFloat distance = sqrt(xd*xd + yd*yd);
     
     if (gesture.state == UIGestureRecognizerStateBegan) {
         [self.view.layer setCornerRadius:kCornerRadius];
@@ -299,13 +311,13 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         _currentNote = nil;
     }
     
-    int maxCells = (int)floorf(self.view.bounds.size.height/kCellHeight);
-    
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
     int count = allDocuments.count;
     _currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
     
+    // establish range so we don't render more than is visible
+    int maxCells = (int)floorf(self.view.bounds.size.height/kCellHeight);
     int beginRange = (_currentNoteIndex-floorf((maxCells/2))) < 0 ? 0 : (_currentNoteIndex-floorf((maxCells/2)));
     int endRange = _currentNoteIndex < floorf((maxCells/2)) ? maxCells-_currentNoteIndex : _currentNoteIndex+floorf((maxCells/2));
     
