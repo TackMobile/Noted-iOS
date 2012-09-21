@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		2908B5B81576E6AF00A1CFB9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2908B5B71576E6AF00A1CFB9 /* libz.dylib */; };
-		2908B5BF1576E7C700A1CFB9 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2908B5BB1576E7C700A1CFB9 /* libTestFlight.a */; };
-		2908B5C01576E7C700A1CFB9 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2908B5BC1576E7C700A1CFB9 /* README.txt */; };
-		2908B5C11576E7C700A1CFB9 /* release_notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2908B5BD1576E7C700A1CFB9 /* release_notes.txt */; };
 		298EBFE31570073F00B72F5C /* NoteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EBFE21570073F00B72F5C /* NoteEntry.m */; };
 		298EBFEF157020DA00B72F5C /* NoteEntryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EBFEE157020DA00B72F5C /* NoteEntryCell.m */; };
 		298EBFF2157021CC00B72F5C /* NoteEntryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EBFF1157021CC00B72F5C /* NoteEntryCell.xib */; };
@@ -63,6 +60,9 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B50C98BA160CCD45002A3909 /* libTestFlight.a */; };
+		B50C98BF160CCD46002A3909 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BB160CCD45002A3909 /* README.md */; };
+		B50C98C0160CCD46002A3909 /* release_notes.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BC160CCD45002A3909 /* release_notes.md */; };
 		B531E8281608D2C900168AE5 /* UIView+position.m in Sources */ = {isa = PBXBuildFile; fileRef = B531E8261608D2C900168AE5 /* UIView+position.m */; };
 		B548666215F7F807005FBC60 /* FileStorageState.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666115F7F807005FBC60 /* FileStorageState.m */; };
 		B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -87,10 +87,6 @@
 
 /* Begin PBXFileReference section */
 		2908B5B71576E6AF00A1CFB9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		2908B5BB1576E7C700A1CFB9 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
-		2908B5BC1576E7C700A1CFB9 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		2908B5BD1576E7C700A1CFB9 /* release_notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.txt; sourceTree = "<group>"; };
-		2908B5BE1576E7C700A1CFB9 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		298EBFE11570073F00B72F5C /* NoteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteEntry.h; path = Noted/NoteEntry.h; sourceTree = "<group>"; };
 		298EBFE21570073F00B72F5C /* NoteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteEntry.m; path = Noted/NoteEntry.m; sourceTree = "<group>"; };
 		298EBFED157020DA00B72F5C /* NoteEntryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteEntryCell.h; sourceTree = "<group>"; };
@@ -164,6 +160,10 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		B50C98BA160CCD45002A3909 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
+		B50C98BB160CCD45002A3909 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		B50C98BC160CCD45002A3909 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.md; sourceTree = "<group>"; };
+		B50C98BD160CCD45002A3909 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		B531E8261608D2C900168AE5 /* UIView+position.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+position.m"; sourceTree = "<group>"; };
 		B531E8271608D2C900168AE5 /* UIView+position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+position.h"; sourceTree = "<group>"; };
 		B548666015F7F807005FBC60 /* FileStorageState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileStorageState.h; path = Noted/FileStorageState.h; sourceTree = "<group>"; };
@@ -213,25 +213,13 @@
 				29FC4918156EE0CD0007BBAD /* CoreGraphics.framework in Frameworks */,
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				2908B5B81576E6AF00A1CFB9 /* libz.dylib in Frameworks */,
-				2908B5BF1576E7C700A1CFB9 /* libTestFlight.a in Frameworks */,
+				B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2908B5BA1576E7C700A1CFB9 /* TestFlightSDK1 */ = {
-			isa = PBXGroup;
-			children = (
-				2908B5BB1576E7C700A1CFB9 /* libTestFlight.a */,
-				2908B5BC1576E7C700A1CFB9 /* README.txt */,
-				2908B5BD1576E7C700A1CFB9 /* release_notes.txt */,
-				2908B5BE1576E7C700A1CFB9 /* TestFlight.h */,
-			);
-			name = TestFlightSDK1;
-			path = Noted/TestFlightSDK1;
-			sourceTree = "<group>";
-		};
 		298EBFF715702B3200B72F5C /* Cells and Keys */ = {
 			isa = PBXGroup;
 			children = (
@@ -359,7 +347,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2908B5BA1576E7C700A1CFB9 /* TestFlightSDK1 */,
+				B50C98B9160CCD45002A3909 /* TestFlightSDK1.1 */,
 				2908B5B71576E6AF00A1CFB9 /* libz.dylib */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,
 				29FC4915156EE0CD0007BBAD /* Foundation.framework */,
@@ -417,6 +405,17 @@
 				B548666115F7F807005FBC60 /* FileStorageState.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		B50C98B9160CCD45002A3909 /* TestFlightSDK1.1 */ = {
+			isa = PBXGroup;
+			children = (
+				B50C98BA160CCD45002A3909 /* libTestFlight.a */,
+				B50C98BB160CCD45002A3909 /* README.md */,
+				B50C98BC160CCD45002A3909 /* release_notes.md */,
+				B50C98BD160CCD45002A3909 /* TestFlight.h */,
+			);
+			path = TestFlightSDK1.1;
 			sourceTree = "<group>";
 		};
 		EAD695FF15B7B8CA004A2494 /* New */ = {
@@ -515,14 +514,14 @@
 				29E326E2157556920013399B /* share-key@2x.png in Resources */,
 				29E326E3157556920013399B /* cell-background@2x.png in Resources */,
 				29E326E4157556920013399B /* cell-background.png in Resources */,
-				2908B5C01576E7C700A1CFB9 /* README.txt in Resources */,
-				2908B5C11576E7C700A1CFB9 /* release_notes.txt in Resources */,
 				EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */,
 				EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */,
 				EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */,
 				EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */,
 				B5AA89D9160B96320094299B /* cellShadow.png in Resources */,
 				B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */,
+				B50C98BF160CCD46002A3909 /* README.md in Resources */,
+				B50C98C0160CCD46002A3909 /* release_notes.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,6 +658,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Noted/TestFlightSDK1\"",
+					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -680,6 +680,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Noted/TestFlightSDK1\"",
+					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "607EAAD0-3F4F-4B6D-9184-9452FAA5FD2F";
