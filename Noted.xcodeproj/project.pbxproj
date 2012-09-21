@@ -343,7 +343,6 @@
 				29960C661573F4C50054347A /* Assets */,
 				29FC4939156EE1590007BBAD /* Model */,
 				29FC4919156EE0CD0007BBAD /* Noted */,
-				2908B5BA1576E7C700A1CFB9 /* TestFlightSDK1 */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
 			);
@@ -360,6 +359,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2908B5BA1576E7C700A1CFB9 /* TestFlightSDK1 */,
 				2908B5B71576E6AF00A1CFB9 /* libz.dylib */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,
 				29FC4915156EE0CD0007BBAD /* Foundation.framework */,
@@ -654,7 +654,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -675,7 +675,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",

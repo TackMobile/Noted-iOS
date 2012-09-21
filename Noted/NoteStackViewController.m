@@ -28,6 +28,7 @@ static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
 static const float kCornerRadius = 6.5;
+static const float kTotalHeight = 480.0;
 
 @interface NoteStackViewController () {
     
@@ -37,6 +38,7 @@ static const float kCornerRadius = 6.5;
     NSMutableArray *deletingViews;
     
     NSInteger _currentNoteIndex;
+	NSInteger _currentNoteOffsetFromCenter;
     UIView *_currentNote;
     UIImageView *_shadowView;
     UIImageView *_shadowViewTop;
@@ -171,7 +173,7 @@ static const float kCornerRadius = 6.5;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    if ([sender numberOfTouches] != 2)
+    if ([gesture numberOfTouches] != 2)
         return;
 
     CGFloat scale = gesture.scale;
@@ -181,8 +183,8 @@ static const float kCornerRadius = 6.5;
 
    // Get the pinch points.
 
-   CGPoint p1 = [sender locationOfTouch:0 inView:[self collectionView]];
-   CGPoint p2 = [sender locationOfTouch:1 inView:[self collectionView]];
+   CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
+   CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
 
    // Compute the new spread distance.
     CGFloat xd = p1.x - p2.x;
@@ -226,13 +228,12 @@ static const float kCornerRadius = 6.5;
     }
 }
 
-// generate a multiplier to speed up scaling
+// get a multiplier to speed up scaling
 // to account for (kCellHeight + kMinimumDistanceBetweenTouches)
+// otherwise we never get near enough to 'zero' scale
 - (double)adjustedScaleForPinch:(CGFloat)scale
 {
-    static float totalHeight = 480.0;
-    
-    float multiplier = (1.0-scale) * (totalHeight/(totalHeight-(kCellHeight+kMinimumDistanceBetweenTouches)));
+    float multiplier = (1.0-scale) * (kTotalHeight/(kTotalHeight-(kCellHeight+kMinimumDistanceBetweenTouches)));
     float adjustedScale = scale-multiplier;
     
     return adjustedScale;
@@ -277,12 +278,11 @@ static const float kCornerRadius = 6.5;
 
 - (void)animateCurrentNoteWithScale:(CGFloat)scale
 {
-    static float totalHeight = 480.0;
     float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
     float targetOffset = 0.5;
     
-    float newY = (totalHeight-newHeight)*targetOffset;
-    float absoluteMid = ((totalHeight-kCellHeight)*targetOffset);
+    float newY = (kTotalHeight-newHeight)*targetOffset;
+    float absoluteMid = ((kTotalHeight-kCellHeight)*targetOffset);
     
     if (newY >= absoluteMid) {
         newY = absoluteMid;
@@ -315,11 +315,19 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
     int count = allDocuments.count;
     _currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
+	
     
     // establish range so we don't render more than is visible
     int maxCells = (int)floorf(self.view.bounds.size.height/kCellHeight);
-    int beginRange = (_currentNoteIndex-floorf((maxCells/2))) < 0 ? 0 : (_currentNoteIndex-floorf((maxCells/2)));
-    int endRange = _currentNoteIndex < floorf((maxCells/2)) ? maxCells-_currentNoteIndex : _currentNoteIndex+floorf((maxCells/2));
+	int halfSpread = floorf(maxCells/2);
+    int beginRange = (_currentNoteIndex - halfSpread) < 0 ? 0 : (_currentNoteIndex - halfSpread);
+    int endRange = _currentNoteIndex < halfSpread ? maxCells - _currentNoteIndex : _currentNoteIndex + halfSpread;
+	int spread = endRange - beginRange;
+
+	// difference between center index (ie for spread of 7 notes, 3) and _currentNoteIndex
+	// spread of 4 -> 1 - 0 = 1
+	// spread of 2 -> 1 - 0 = 1
+	_currentNoteOffsetFromCenter = abs(halfSpread - _currentNoteIndex);
     
     [self makeCurrentNote];
     
@@ -501,14 +509,13 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 
 - (CGFloat)newHeightForScale:(CGFloat)scale andDestinationHeight:(CGFloat)destinationHeight
 {
-    static float totalHeight = 480.0;
     float adjustedScale = [self adjustedScaleForPinch:scale];
     
     // height we're scaling from varies
-    // from (0.0*destinationHeight) + totalHeight,
-    // to (1.0*destinationHeight) + totalHeight,
+    // from (0.0*destinationHeight) + kTotalHeight,
+    // to (1.0*destinationHeight) + kTotalHeight,
     // based on how much we've scaled
-    float dyamicTotalHeight = (totalHeight+((1.0-adjustedScale)*destinationHeight));
+    float dyamicTotalHeight = (kTotalHeight+((1.0-adjustedScale)*destinationHeight));
     
     float newHeight = adjustedScale*dyamicTotalHeight;
     
