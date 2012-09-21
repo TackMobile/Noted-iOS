@@ -19,12 +19,19 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
+static const NSUInteger kShadowViewTag = 56;
+
+typedef enum {
+    kNew,
+    kNoteItems
+} NoteListSections;
 
 @interface NoteListViewController ()
 {
     NoteEntryCell *_deletedCell;
     BOOL _viewingNoteStack;
     NSUInteger _previousRowCount;
+    BOOL _scrolling;
     
     BOOL _shouldAutoShowNote;
 }
@@ -42,6 +49,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
         _previousRowCount = 0;
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
+        _scrolling = NO;
     }
     
     return self;
@@ -137,7 +145,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == 0) {
+    if (indexPath.section == kNew) {
         return 44;
     } else {
         return 66;
@@ -145,7 +153,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section == 0) {
+    if (section == kNew) {
         return 1;
     } else {
         ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -154,7 +162,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
 }
 
 - (BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return (indexPath.section != 0);
+    return (indexPath.section != kNew);
 }
 
 
@@ -167,13 +175,14 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
         blueRowBgColor = [UIColor colorWithRed:0.05f green:0.54f blue:0.82f alpha:1.00f];
     }
     
-    if (indexPath.section == 0) {
+    if (indexPath.section == kNew) {
         NewNoteCell *newNoteCell = [tableView dequeueReusableCellWithIdentifier:NewNoteCellId];
         if (newNoteCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
             newNoteCell = [topLevelObjects objectAtIndex:0];
             newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
             newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
+            newNoteCell.label.textColor = [UIColor colorWithHexString:@"AAAAAA"];
             newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
             newNoteCell.contentView.backgroundColor = [UIColor whiteColor];
             //newNoteCell setTime
@@ -210,15 +219,34 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
             }];
             
         } else {
-            noteEntryCell.contentView.backgroundColor = blueRowBgColor;
+            noteEntryCell.contentView.backgroundColor = document.color;
         }
         
         noteEntryCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
+        
         return noteEntryCell;
     }
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section==kNoteItems) {
+        NoteEntryCell *noteCell = (NoteEntryCell *)cell;
+        UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
+        noteCell.subtitleLabel.textColor = tempColor;
+        noteCell.relativeTimeText.textColor = tempColor;
+        noteCell.absoluteTimeText.textColor = tempColor;
+        
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        UIView *shadow = [cell viewWithTag:kShadowViewTag];
+        if (indexPath.row == model.currentNoteEntries.count-1) {
+            [shadow setHidden:YES];
+        }
+    }
+    
 }
 
 - (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
@@ -229,13 +257,13 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
     CGPoint velocity = [recognizer velocityInView:view.contentView];
     CGRect viewFrame = view.contentView.frame;
     //int xDirection = (velocity.x < 0) ? 1 : 0;
+    NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
     if (recognizer.state == UIGestureRecognizerStateChanged) {
-        if (velocity.x > 0) {
+        if (velocity.x > 0 && !_scrolling) {
             point = [recognizer translationInView:view.contentView];
             CGRect newFrame;
             newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
             view.contentView.frame = newFrame;
-            NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
         }
         
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -260,11 +288,23 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
                                  
                              }];
         }
-    }
- 
-    
+    } 
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    _scrolling = YES;
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    _scrolling = NO;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _scrolling = NO;
+}
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     return YES;

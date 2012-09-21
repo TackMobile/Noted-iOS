@@ -319,7 +319,7 @@ static const float kSectionZeroHeight = 44.0;
 
 - (void)animateCurrentNoteWithScale:(CGFloat)scale
 {
-    BOOL noteIsFirst = _currentNoteOffsetLocation == 0.0 ? YES : NO;
+    //BOOL noteIsFirst = _currentNoteOffsetLocation == 0.0 ? YES : NO;
             
     float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
     float sectionZeroOffset = [self sectionZeroOffset];
@@ -335,10 +335,10 @@ static const float kSectionZeroHeight = 44.0;
     }
     
     centerNoteFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-    if (!noteIsFirst) {
-        CGRect shadowFrame = _shadowViewTop.frame;
-        _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
-    }
+    //if (!noteIsFirst) {
+    CGRect shadowFrame = _shadowViewTop.frame;
+    _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
+    //}
     
     [_currentNote setFrame:centerNoteFrame];
 }
@@ -430,7 +430,6 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     _currentNote = [self makeNoteView];
     [_currentNote addSubview:imageView];
     
-    
 }
 
 - (void)arrangeSubNotes
@@ -440,6 +439,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     int currentNoteIndex = model.selectedNoteIndex;
     if (_currentNoteIndex==0) {
         [self.view addSubview:_currentNote];
+        [self.view addSubview:_shadowViewTop];
     }
     for (NSDictionary *dict in stackingViews) {
         
