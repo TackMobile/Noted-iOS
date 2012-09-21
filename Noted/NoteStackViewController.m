@@ -15,11 +15,15 @@
 #import "UIImage+Crop.h"
 #import "UIView+position.h"
 
+#define USE_STACKED_NOTE_SHADOWS YES
+typedef void(^processShadowBlock)();
+
 typedef enum {
     kGestureFinished,
     kShouldExit,
     kShouldDelete,
     kShouldCreateNew,
+    kStackingPinch,
     kCycle
 } NoteStackGestureState;
 
@@ -27,8 +31,9 @@ static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
-static const float kCornerRadius = 6.5;
-static const float kTotalHeight = 480.0;
+static const float kCornerRadius = 6.0;
+static const float kTotalHeight = 414.0;
+static const float kSectionZeroHeight = 44.0;
 
 @interface NoteStackViewController () {
     
@@ -38,7 +43,8 @@ static const float kTotalHeight = 480.0;
     NSMutableArray *deletingViews;
     
     NSInteger _currentNoteIndex;
-	NSInteger _currentNoteOffsetFromCenter;
+    float adjustedScale;
+	float _currentNoteOffsetLocation;
     UIView *_currentNote;
     UIImageView *_shadowView;
     UIImageView *_shadowViewTop;
@@ -48,10 +54,13 @@ static const float kTotalHeight = 480.0;
     BOOL shouldMakeNewNote;
     BOOL shouldDeleteNote;
     BOOL shouldExitStack;
+    BOOL pinchComplete;
     
     CGRect centerNoteFrame;
     
     NoteStackGestureState _currentGestureState;
+    
+    void (^_shadowsBlock)(processShadowBlock);
 }
 
 - (void) presentNotes;
@@ -79,6 +88,12 @@ static const float kTotalHeight = 480.0;
         self.dismissBlock = dismiss;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
         centerNoteFrame = CGRectZero;
+        
+        _shadowsBlock = ^(processShadowBlock block){
+            if (USE_STACKED_NOTE_SHADOWS) {
+                block();
+            }
+        };
     }
     
     return self;
@@ -128,7 +143,8 @@ static const float kTotalHeight = 480.0;
     
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
-
+    
+    _shadowViewTop = [self shadowView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -168,30 +184,36 @@ static const float kTotalHeight = 480.0;
     self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
     
-    [self makeSnapshots];
+    [self makeNoteViewStackImages];
 }
+
+#pragma mark Pinch gesture to collapse notes stack
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    if ([gesture numberOfTouches] != 2)
-        return;
-
+    //if ([gesture numberOfTouches] != 2 && _currentGestureState == kGestureFinished)
+       // return;
+    
     CGFloat scale = gesture.scale;
+    adjustedScale = [self adjustedScaleForPinch:scale];
     
     //CGFloat velocity = gesture.velocity;
     //[self logPinch:velocity scale:scale];
 
    // Get the pinch points.
 
-   CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
-   CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
-
-   // Compute the new spread distance.
-    CGFloat xd = p1.x - p2.x;
-    CGFloat yd = p1.y - p2.y;
-    CGFloat distance = sqrt(xd*xd + yd*yd);
-    
+    /*
+     CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
+     CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
+     
+     // Compute the new spread distance.
+     CGFloat xd = p1.x - p2.x;
+     CGFloat yd = p1.y - p2.y;
+     CGFloat distance = sqrt(xd*xd + yd*yd);
+     
+     */
     if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self setGestureState:kStackingPinch];
         [self.view.layer setCornerRadius:kCornerRadius];
         [self.view setClipsToBounds:YES];
         [self animateCurrentNoteWithScale:scale];
@@ -212,32 +234,45 @@ static const float kTotalHeight = 480.0;
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         
-#warning TODO: allow permanence of collapsed state
-        
-        if (stackingViews.count>0) {
-            int i = 0;
-            for (NSDictionary *noteDict in stackingViews) {
-                [self resetStackedNoteViewAtIndex:i];
-                i++;
+        if (pinchComplete) {
+            self.dismissBlock(_currentNoteIndex);
+            [self dismissViewControllerAnimated:NO completion:nil];
+        } else {
+            if (stackingViews.count>0) {
+                int i = 0;
+                for (NSDictionary *noteDict in stackingViews) {
+                    [self resetStackedNoteViewAtIndex:i];
+                    i++;
+                }
+            } else {
+                NSLog(@"not animating out %d",__LINE__);
             }
+            
+            if (_currentNote) {
+                [self resetCurrentNoteView];
+            } else {
+                NSLog(@"not animating out %d",__LINE__);
+            }
+
         }
         
-        if (_currentNote) {
-            [self resetCurrentNoteView];
-        }
+                
+        [self setGestureState:kGestureFinished];
     }
 }
 
 // get a multiplier to speed up scaling
 // to account for (kCellHeight + kMinimumDistanceBetweenTouches)
 // otherwise we never get near enough to 'zero' scale
+
 - (double)adjustedScaleForPinch:(CGFloat)scale
 {
-    float multiplier = (1.0-scale) * (kTotalHeight/(kTotalHeight-(kCellHeight+kMinimumDistanceBetweenTouches)));
-    float adjustedScale = scale-multiplier;
+    float multiplier = (1.0-scale) * (kTotalHeight/(kTotalHeight-(kCellHeight+kMinimumDistanceBetweenTouches+kSectionZeroHeight)));
+    float newScale = scale-multiplier;
     
-    return adjustedScale;
+    return newScale;
 }
+ 
 
 #pragma mark Stacked notes animations
 
@@ -248,28 +283,34 @@ static const float kTotalHeight = 480.0;
     }
 }
 
+- (float)sectionZeroOffset
+{
+    float offset = (1.0-adjustedScale)*kSectionZeroHeight;
+    if (offset >= kSectionZeroHeight) {
+        offset = kSectionZeroHeight;
+    }
+    
+    return offset;
+}
+
 - (void)animateStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
     NSDictionary *noteDict = [stackingViews objectAtIndex:index];
     
     int stackingIndex = [[noteDict objectForKey:@"index"] integerValue];
+    UIView *note = [noteDict objectForKey:@"noteView"];
+    UIView *noteShadow = [noteDict objectForKey:@"shadow"];
     
     float offset = [self indexOffsetForStackedNoteAtIndex:stackingIndex];
-    float adjustedScale = [self adjustedScaleForPinch:scale];
-    
-    float newY = [self yOriginForStackedNoteForOffset:offset andScale:adjustedScale];
+    float newY = [self yOriginForStackedNoteForOffset:offset];
     
     float newHeight = 480.0;
     if (index < stackingViews.count-1) {
         newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
     }
     
-    int dictIndex = [stackingViews indexOfObject:noteDict];
-    UIView *note = [[stackingViews objectAtIndex:dictIndex] objectForKey:@"noteView"];
-    
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
     
-    UIView *noteShadow = [[stackingViews objectAtIndex:dictIndex] objectForKey:@"shadow"];
     CGRect shadowFrame = noteShadow.frame;
     noteShadow.frame = CGRectMake(0.0, CGRectGetMinY(newFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
         
@@ -278,22 +319,26 @@ static const float kTotalHeight = 480.0;
 
 - (void)animateCurrentNoteWithScale:(CGFloat)scale
 {
+    BOOL noteIsFirst = _currentNoteOffsetLocation == 0.0 ? YES : NO;
+            
     float newHeight = [self newHeightForScale:scale andDestinationHeight:kCellHeight];
-    float targetOffset = 0.5;
+    float sectionZeroOffset = [self sectionZeroOffset];
+    float newY = sectionZeroOffset + ((_currentNoteIndex*kSectionZeroHeight)*(1.0-adjustedScale));
     
-    float newY = (kTotalHeight-newHeight)*targetOffset;
-    float absoluteMid = ((kTotalHeight-kCellHeight)*targetOffset);
-    
-    if (newY >= absoluteMid) {
-        newY = absoluteMid;
+    float brakeLine = kSectionZeroHeight + (_currentNoteIndex*kCellHeight);
+    if (newY >= brakeLine) {
+        pinchComplete = YES;
+        newY = brakeLine;
         _currentNote.layer.cornerRadius = scale*kCornerRadius;
     } else if (newY <= 0) {
         newY = 0.0;
     }
     
     centerNoteFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-    CGRect shadowFrame = _shadowViewTop.frame;
-    _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
+    if (!noteIsFirst) {
+        CGRect shadowFrame = _shadowViewTop.frame;
+        _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
+    }
     
     [_currentNote setFrame:centerNoteFrame];
 }
@@ -304,7 +349,7 @@ static const float kCellHeight = 66.0;
 static const float kPinchThreshold = 0.41;
 static const float kMinimumDistanceBetweenTouches = 20.0;
 
-- (void)makeSnapshots
+- (void)makeNoteViewStackImages
 {
     if (stackingViews) {
         [stackingViews removeAllObjects];
@@ -312,30 +357,20 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
-    int count = allDocuments.count;
-    _currentNoteIndex = [allDocuments indexOfObject:self.currentNoteViewController.note];
+    _currentNoteIndex = [[model currentNoteEntries] indexOfObject:self.currentNoteViewController.note];
 	
+    NSRange range = [self stackedNotesRange];
+    NSLog(@"Stack notes from %d to %d",range.location,range.length);
     
-    // establish range so we don't render more than is visible
-    int maxCells = (int)floorf(self.view.bounds.size.height/kCellHeight);
-	int halfSpread = floorf(maxCells/2);
-    int beginRange = (_currentNoteIndex - halfSpread) < 0 ? 0 : (_currentNoteIndex - halfSpread);
-    int endRange = _currentNoteIndex < halfSpread ? maxCells - _currentNoteIndex : _currentNoteIndex + halfSpread;
-	int spread = endRange - beginRange;
-
-	// difference between center index (ie for spread of 7 notes, 3) and _currentNoteIndex
-	// spread of 4 -> 1 - 0 = 1
-	// spread of 2 -> 1 - 0 = 1
-	_currentNoteOffsetFromCenter = abs(halfSpread - _currentNoteIndex);
+	_currentNoteOffsetLocation = (float)_currentNoteIndex/range.length;
     
     [self makeCurrentNote];
     
     // make all the snapshots that aren't on top
-    stackingViews = [[NSMutableArray alloc] initWithCapacity:count];
+    stackingViews = [[NSMutableArray alloc] initWithCapacity:range.length];
     int i = 0;
-    for (int j = beginRange; j < endRange; j++) {
-        NoteDocument *doc = [allDocuments objectAtIndex:j];
+    for (int j = range.location; j < range.length; j++) {
+        NoteDocument *doc = [[model currentNoteEntries] objectAtIndex:j];
         
         if (j == _currentNoteIndex) {
             // skip the current doc
@@ -361,6 +396,27 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
    
 }
 
+- (NSRange)stackedNotesRange
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
+    
+    int count = allDocuments.count;
+    int displayableCellCount = (int)floorf(self.view.bounds.size.height/kCellHeight);
+    displayableCellCount = count < displayableCellCount ? count : displayableCellCount;
+	int spread = floorf(displayableCellCount/2);
+    
+    int beginRange = (_currentNoteIndex - spread)+displayableCellCount > displayableCellCount ? 0 : _currentNoteIndex - spread;
+    beginRange = beginRange < 0 ? 0 : beginRange;
+    
+    int endRange = (beginRange + displayableCellCount) > count ? count : (beginRange + displayableCellCount);
+    
+    _currentNoteOffsetLocation = (float)_currentNoteIndex/(displayableCellCount);
+    NSLog(@"_currentNoteOffsetLocation set to: %f",_currentNoteOffsetLocation);
+    
+    return NSMakeRange(beginRange, endRange);
+}
+
 - (void)makeCurrentNote
 {
     _currentNote = nil;
@@ -374,8 +430,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     _currentNote = [self makeNoteView];
     [_currentNote addSubview:imageView];
     
-    _shadowViewTop = [self shadowView];
-    _shadowViewTop.image = [self flipImageVertically:_shadowViewTop.image];
+    
 }
 
 - (void)arrangeSubNotes
@@ -383,6 +438,9 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     __block UIView *previousView = nil;
     ApplicationModel *model = [ApplicationModel sharedInstance];
     int currentNoteIndex = model.selectedNoteIndex;
+    if (_currentNoteIndex==0) {
+        [self.view addSubview:_currentNote];
+    }
     for (NSDictionary *dict in stackingViews) {
         
         UIView *noteView = [dict objectForKey:@"noteView"];
@@ -403,7 +461,6 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
             [self.view insertSubview:_currentNote aboveSubview:noteView];
             [self.view insertSubview:_shadowViewTop aboveSubview:_currentNote];
         }
-        
         [self.view addSubview:shadow];
         
         previousView = noteView;
@@ -482,13 +539,14 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     return offset;
 }
 
-- (CGFloat)yOriginForStackedNoteForOffset:(NSInteger)offsetIndex andScale:(CGFloat)adjustedScale
+- (CGFloat)yOriginForStackedNoteForOffset:(NSInteger)offsetIndex
 {
-    float newY = 0.0;
+    float sectionZero = [self sectionZeroOffset];
+    float newY = sectionZero;
     int absOffset = abs(offsetIndex);
     if (offsetIndex < 0) {
         
-        newY = CGRectGetMinY(centerNoteFrame) + (offsetIndex * (100.0*adjustedScale));
+        newY += CGRectGetMinY(centerNoteFrame) + (offsetIndex * (100.0*adjustedScale));
         
         if (newY+(kCellHeight*absOffset) >= CGRectGetMinY(centerNoteFrame)){
             newY = CGRectGetMinY(centerNoteFrame)-(kCellHeight*absOffset);
@@ -498,10 +556,8 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         
         // pin it to max y of centerNoteFrame + offset for stacking index
         float bottomOffset = kCellHeight*(absOffset-1);
-        newY = CGRectGetMaxY(centerNoteFrame) + bottomOffset;//(((1.0-adjustedScale)*(kCellHeight*abs(offsetIndex-1))));
-        if (newY-bottomOffset < CGRectGetMaxY(centerNoteFrame)) {
-            newY = CGRectGetMaxY(centerNoteFrame);
-        }
+        newY = CGRectGetMaxY(centerNoteFrame) + bottomOffset;
+        
     }
     
     return newY;
@@ -509,7 +565,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 
 - (CGFloat)newHeightForScale:(CGFloat)scale andDestinationHeight:(CGFloat)destinationHeight
 {
-    float adjustedScale = [self adjustedScaleForPinch:scale];
+    //float adjustedScale = [self adjustedScaleForPinch:scale];
     
     // height we're scaling from varies
     // from (0.0*destinationHeight) + kTotalHeight,
@@ -534,12 +590,18 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
                      animations:^{
                          
                          [_currentNote setFrame:self.view.bounds];
-                         [_shadowViewTop setFrameY:(CGRectGetMinY(self.view.bounds))-_shadowViewTop.frame.size.height];
+                         if (_currentNoteOffsetLocation > 0.0) {
+                             [_shadowViewTop setFrameY:(CGRectGetMinY(self.view.bounds))-_shadowViewTop.frame.size.height];
+                         }
+                         
                          
                      }
                      completion:^(BOOL finished){
                          if (_currentNote) {
-                             [_shadowViewTop removeFromSuperview];
+                             if (_currentNoteOffsetLocation > 0.0) {
+                                 [_shadowViewTop removeFromSuperview];
+                             }
+                             
                              [_currentNote removeFromSuperview];
                              [self.currentNoteViewController setWithNoDataTemp:NO];
                              [self.view.layer setCornerRadius:0.0];
@@ -551,19 +613,18 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 - (void)resetStackedNoteViewAtIndex:(int)index
 {
     NSDictionary *dict = [stackingViews objectAtIndex:index];
+#warning TODO: calculate this just once and store in dict
     float offsetIndex = [self indexOffsetForStackedNoteAtIndex:[stackingViews indexOfObject:dict]];
-    float adjustedScale = [self adjustedScaleForPinch:1.0];
-    //float newY = [self yOriginForStackedNoteForOffset:offsetIndex andScale:adjustedScale];
     
     float newY = offsetIndex < 0 ? 0.0 : 480.0;
-    
+
     UIView *view = [dict objectForKey:@"noteView"];
     UIView *shadow = [dict objectForKey:@"shadow"];
     [UIView animateWithDuration:0.5
                      animations:^{
                          CGRect newFrame = CGRectMake(0.0, newY, 320.0, 480.0);
                          view.frame = newFrame;
-                         [shadow setFrameY:CGRectGetMinY(newFrame)-shadow.frame.size.height];
+                         [shadow setFrameY:newY-shadow.frame.size.height];
                      }
                      completion:^(BOOL finished){
                          [view removeFromSuperview];
@@ -850,7 +911,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
-    [self makeSnapshots];
+    [self makeNoteViewStackImages];
     
     CGRect viewFrame = self.view.frame;
     [UIView animateWithDuration:DURATION
@@ -1046,7 +1107,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     //NSLog(@"%@ %d",[[self.currentNoteViewController noteEntry] text],__LINE__);
     //NSLog(@"%@ %d",self.currentNoteViewController.textView.text,__LINE__);
     
-    [self makeSnapshots];
+    [self makeNoteViewStackImages];
 }
 
 - (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
@@ -1057,6 +1118,11 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     NSLog(@"note is touched");
+    
+    if (_currentGestureState == kStackingPinch) {
+        return;
+    }
+    
     if(!self.optionsViewController.view.hidden) {
         // find the element that is being touched, if any.
         CGPoint currentLocation = [[touches anyObject] locationInView:self.view];

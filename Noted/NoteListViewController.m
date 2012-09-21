@@ -16,6 +16,7 @@
 #import "NewNoteCell.h"
 #import "FileStorageState.h"
 #import "CloudManager.h"
+#import <QuartzCore/QuartzCore.h>
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 
@@ -56,6 +57,8 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
     self.tableView.backgroundView  = backgroundView;
     self.tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight       = 60;
+    self.view.layer.cornerRadius = 6.0;
+    self.view.clipsToBounds = YES;
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(noteListChanged:)
@@ -172,7 +175,7 @@ NSString *const kEditingNoteIndex = @"editingNoteIndex";
             newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
             newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
             newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            newNoteCell.contentView.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
+            newNoteCell.contentView.backgroundColor = [UIColor whiteColor];
             //newNoteCell setTime
         }
         newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
