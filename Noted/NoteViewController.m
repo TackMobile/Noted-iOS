@@ -157,7 +157,7 @@
 }
 
 - (IBAction)optionsSelected{
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
+    [self.delegate showOptions];
 }
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
@@ -186,7 +186,24 @@
     if (![aTextView.text hasPrefix:@"\n"]) {
         aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
 
-    }    
+    }
+    
+    NSString *shorthand = @":time";
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+    [dateFormatter setDateStyle:NSDateFormatterNoStyle];
+    
+    [self checkForShorthand:shorthand withReplacement:[dateFormatter stringFromDate:[NSDate date]]];
+}
+
+- (void)checkForShorthand:(NSString *)shorthand withReplacement:(NSString *)replacement
+{
+    NSUInteger location = [self.textView.text rangeOfString:shorthand].location;
+    if (location != NSNotFound) {
+        self.textView.text = [self.textView.text stringByReplacingCharactersInRange:NSMakeRange(location, shorthand.length) withString:replacement];
+        [self.note setText:self.textView.text];
+    }
 }
 
 - (void)textViewDidEndEditing:(UITextView *)aTextView
@@ -252,11 +269,11 @@
 }
 
 - (void)handleTapFrom:(UIGestureRecognizer *)recognizer {
-    // You don't want to dismiss the keyboard if a tap is detected within the bounds of the search bar...
-    //CGPoint touchPoint = [recognizer locationInView:self.view];
-    //if (!CGRectContainsPoint(self.textView.frame, touchPoint)) {
-        [self.textView resignFirstResponder];
-    //}
+    [self.textView resignFirstResponder];
+    CGPoint touchPoint = [recognizer locationInView:self.view];
+    if (CGRectContainsPoint(self.optionsDot.frame, touchPoint)) {
+        [self.delegate showOptions];
+    } 
 }
 
 - (void)handlePanFrom:(UIGestureRecognizer *)recognizer {

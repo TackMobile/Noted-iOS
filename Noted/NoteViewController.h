@@ -14,7 +14,7 @@
 @protocol NoteViewControllerDelegate <NSObject>
 
 @required
--(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock;
+-(void)showOptions;
 
 @end
 

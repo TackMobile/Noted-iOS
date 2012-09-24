@@ -1160,7 +1160,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         CGRect frame = self.overView.frame;
         if(!CGRectContainsPoint(frame, currentLocation)) {
             NSLog(@"touch options panel");
-        }else {
+        } else {
             
             [self shiftCurrentNoteOriginToPoint:CGPointMake(0, 0) completion:^{
                 [self.optionsViewController reset];
@@ -1174,6 +1174,12 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 
 -(void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor {
     [self.currentNoteViewController setColors:color textColor:textColor];
+}
+
+- (void)showOptions
+{
+    [self.currentNoteViewController.textView resignFirstResponder];
+    [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock
