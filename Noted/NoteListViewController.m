@@ -236,7 +236,7 @@ typedef enum {
     if (indexPath.section==kNoteItems) {
         NoteEntryCell *noteCell = (NoteEntryCell *)cell;
         UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
-        noteCell.subtitleLabel.textColor = tempColor;
+        noteCell.subtitleLabel.textColor = [UIColor blackColor];
         noteCell.relativeTimeText.textColor = tempColor;
         noteCell.absoluteTimeText.textColor = tempColor;
         

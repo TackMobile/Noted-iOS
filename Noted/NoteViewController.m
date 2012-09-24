@@ -133,8 +133,6 @@
 {
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
     if (index==NSNotFound) {
-        // UICachedDeviceWhiteColor
-        //NSLog(@"color for note bg not found in NoteColor schemes, setting to white [%d]",__LINE__);
         index = 0;
     }
     if (index >= 4) {

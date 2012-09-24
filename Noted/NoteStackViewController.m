@@ -15,8 +15,7 @@
 #import "UIImage+Crop.h"
 #import "UIView+position.h"
 
-#define USE_STACKED_NOTE_SHADOWS YES
-typedef void(^processShadowBlock)();
+
 
 typedef enum {
     kGestureFinished,
@@ -60,7 +59,6 @@ static const float kSectionZeroHeight = 44.0;
     
     NoteStackGestureState _currentGestureState;
     
-    void (^_shadowsBlock)(processShadowBlock);
 }
 
 - (void) presentNotes;
@@ -89,11 +87,7 @@ static const float kSectionZeroHeight = 44.0;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
         centerNoteFrame = CGRectZero;
         
-        _shadowsBlock = ^(processShadowBlock block){
-            if (USE_STACKED_NOTE_SHADOWS) {
-                block();
-            }
-        };
+        
     }
     
     return self;
@@ -145,17 +139,17 @@ static const float kSectionZeroHeight = 44.0;
     [self.view addGestureRecognizer:pinch];
     
     _shadowViewTop = [self shadowView];
-}
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    //[self presentNotes];
+    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
     [self presentNotes];
+    
 }
 
 - (void)viewDidUnload {
@@ -171,13 +165,10 @@ static const float kSectionZeroHeight = 44.0;
 }
 
 - (void)presentNotes {
-    ApplicationModel *model = [ApplicationModel sharedInstance];
     
-    NSUInteger currentIndex = model.selectedNoteIndex;
-    
-    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
     //NSLog(@"Current note %@",self.currentNoteViewController.note.text);
-    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSUInteger currentIndex = model.selectedNoteIndex;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
     
@@ -185,6 +176,7 @@ static const float kSectionZeroHeight = 44.0;
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
     
     [self makeNoteViewStackImages];
+  
 }
 
 #pragma mark Pinch gesture to collapse notes stack
@@ -385,8 +377,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         UIView *noteView = [self makeNoteView];
         [noteView addSubview:imageView];
         
-        UIImageView *shadow = [self shadowView];
-        shadow = [[UIImageView alloc] initWithImage:_shadowViewTop.image];
+        UIImageView *shadow = [[UIImageView alloc] initWithImage:_shadowViewTop.image];
         
         NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",shadow,@"shadow",[NSNumber numberWithInt:i],@"index", nil];
         
@@ -512,18 +503,18 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 // use the hidden nextNoteVC's view to create a snapshot of doc
 - (UIImage *)imageForDocument:(NoteDocument *)document
 {
-    NoteDocument *previous = self.nextNoteViewController.note;
-    [self.nextNoteViewController setNote:document];
+    NoteDocument *previous = self.currentNoteViewController.note;
+    [self.currentNoteViewController setNote:document];
     
     UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    [nextNoteViewController.view.layer renderInContext:context];
+    [self.currentNoteViewController.view.layer renderInContext:context];
     UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
     // set back to actual current note
-    [self.nextNoteViewController setNote:previous];
+    [self.currentNoteViewController setNote:previous];
     
     return viewImage;
 }
