@@ -39,6 +39,7 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     
     if (![[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]) {
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:USE_STANDARD_SYSTEM_KEYBOARD];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HIDE_STATUS_BAR];
     }
         
     return YES;

@@ -10,3 +10,4 @@ static inline BOOL IsEmpty(id thing) {
 // user defaults
 
 #define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"
+#define HIDE_STATUS_BAR                         @"hideStatusBar"

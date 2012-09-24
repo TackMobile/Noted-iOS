@@ -11,6 +11,7 @@
 #import "UIColor+HexColor.h"
 
 #define KEYBOARD_SETTINGS_SWITCH 88
+#define STATUS_BAR_TOGGLE_SWITCH 89
 
 @interface OptionsViewController ()
 
@@ -32,7 +33,7 @@
     CGRect frame = CGRectMake(0, 74, 320, 163);
     self.shareSubview.frame = frame;
     self.aboutSubview.frame = frame;
-    self.settingsSubview.frame = frame;
+    self.settingsSubview.frame = CGRectMake(0, 74, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
     self.shareSubview.hidden = YES;
     self.aboutSubview.hidden = YES;
     self.settingsSubview.hidden = YES;
@@ -61,6 +62,10 @@
     UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
     BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
     [keyboardSwitch setOn:isOn];
+    
+    UISwitch *statusBarSwitch = (UISwitch *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
+    isOn = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
+    [statusBarSwitch setOn:isOn];
     // http://osiris.laya.com/projects/rcswitch/
 }
 
@@ -226,8 +231,8 @@
     [self disableMenu];
     
     subview.hidden = NO;
-    textView.userInteractionEnabled = YES;
-    
+    textView.userInteractionEnabled = NO;
+    [self.view addSubview:subview];
 }
 
 - (void)disableMenu
@@ -255,12 +260,23 @@
 - (IBAction)handleKeyboardToggle:(id)sender {
     UISwitch *switchControl = (UISwitch *)sender;
     BOOL isOn = switchControl.isOn;
-    [[NSUserDefaults standardUserDefaults] setBool:isOn forKey:@"useDefaultKeyboard"];
+    [[NSUserDefaults standardUserDefaults] setBool:isOn forKey:USE_STANDARD_SYSTEM_KEYBOARD];
     [[NSUserDefaults standardUserDefaults] synchronize];
      
     NSLog(@"standard keyboard turned %s",isOn ? "on":"off");
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"keyboardSettingChanged" object:nil userInfo:nil];
+}
+
+- (IBAction)handleStatusBarToggle:(id)sender {
+    BOOL show = [(UISwitch *)sender isOn];
+    [[UIApplication sharedApplication] setStatusBarHidden:!show withAnimation:YES];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:!show forKey:HIDE_STATUS_BAR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSLog(@"show status bar turned %s",show ? "on":"off");
+   
 }
 
 - (IBAction)sendEmail:(id)sender {

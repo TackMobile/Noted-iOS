@@ -360,7 +360,6 @@ typedef enum {
                                      [cellImg setFrame:cell.frame];
                                      [cellImg setHidden:YES];
                                  }];
-                
             } 
         }
                 
