@@ -10,6 +10,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIColor+HexColor.h"
 
+#define KEYBOARD_SETTINGS_SWITCH 88
+
 @interface OptionsViewController ()
 
 @end
@@ -27,14 +29,19 @@
     [self loadOptionColors];
     [self addAllGestures];
     
-    self.shareSubview.frame = CGRectMake(0, 74, 320, 163);
-    self.aboutSubview.frame = CGRectMake(0, 74, 320, 163);
+    CGRect frame = CGRectMake(0, 74, 320, 163);
+    self.shareSubview.frame = frame;
+    self.aboutSubview.frame = frame;
+    self.settingsSubview.frame = frame;
     self.shareSubview.hidden = YES;
     self.aboutSubview.hidden = YES;
+    self.settingsSubview.hidden = YES;
     [self.view addSubview:self.shareSubview];
     [self.view addSubview:self.aboutSubview];
+    [self.view addSubview:self.settingsSubview];
     
-    
+    UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
+    [keyboardSwitch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]];
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
     
@@ -63,6 +70,7 @@
     self.optionsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
     self.shareSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
     self.aboutSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
+    self.settingsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
     self.emailText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
     self.messageText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
     self.tweetText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
@@ -96,11 +104,19 @@
 
 
 -(void)returnToOptions {
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
+    
+    [self reset];
+    
+}
+
+- (void)reset
+{
     [self.cancelX removeFromSuperview];
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
-    self.shareSubview.hidden = YES;
-    self.aboutSubview.hidden = YES;
-    [UIView animateWithDuration:0.3 
+    
+    [self reenableMenu];
+    
+    [UIView animateWithDuration:0.3
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
@@ -115,14 +131,14 @@
                          self.aboutText.frame = CGRectMake(0, 108, 320, 53);
                          self.versionText.frame = CGRectMake(0, 162, 320, 53);
                      } completion:^(BOOL success){
-                         self.shareSubview.hidden = YES;
-                         self.aboutSubview.hidden = YES;
+                         [self reenableMenu];
                      }];
+
 }
 
 
 -(void)openShare:(id)sender {
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0)];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -140,14 +156,15 @@
                      } completion:^(BOOL success){
                          self.cancelX.frame = CGRectMake(80, 20, 36, 36);
                          [self.view addSubview:self.cancelX];
-                         self.shareSubview.hidden = NO;
-                         self.aboutSubview.hidden = YES;
+                         [self setSubviewVisible:self.shareSubview button:self.shareText];
                      }];
     
 }
 
+
+
 -(void)openAbout:(id)sender {
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0)];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -165,13 +182,75 @@
                      } completion:^(BOOL success){
                          self.cancelX.frame = CGRectMake(160, 20, 36, 36);
                          [self.view addSubview:self.cancelX];
-                         self.shareSubview.hidden = YES;
-                         self.aboutSubview.hidden = NO;
+                         [self setSubviewVisible:self.aboutSubview button:self.aboutText];
                      }];
 }
 
 -(void)openSettings:(id)sender {
     
+    
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
+    [UIView animateWithDuration:0.3
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.white.frame = CGRectMake(0, 0, 320, 1);
+                         self.sky.frame = CGRectMake(0, 2, 320, 1);
+                         self.lime.frame = CGRectMake(0, 4, 320, 1);
+                         self.kernal.frame = CGRectMake(0, 6, 320, 1);
+                         self.shadow.frame = CGRectMake(0, 8, 320, 1);
+                         self.tack.frame = CGRectMake(0, 10, 320, 1);
+                         self.shareText.frame = CGRectMake(0, -244, 320, 1);
+                         self.settingsText.frame = CGRectMake(0, -244, 320, 1);
+                         self.aboutText.frame = CGRectMake(0, -244, 320, 480);
+                         self.versionText.frame = CGRectMake(0, 322, 320, 53);
+                     } completion:^(BOOL success){
+                         self.cancelX.frame = CGRectMake(160, 20, 36, 36);
+                         [self.view addSubview:self.cancelX];
+                         [self setSubviewVisible:self.settingsSubview button:self.settingsText];
+                     }];
+
+}
+
+- (void)setSubviewVisible:(UIView *)subview button:(UITextView *)textView
+{
+    [self disableMenu];
+    
+    subview.hidden = NO;
+    textView.userInteractionEnabled = YES;
+    
+}
+
+- (void)disableMenu
+{
+    self.shareSubview.hidden = YES;
+    self.aboutSubview.hidden = YES;
+    self.settingsSubview.hidden = YES;
+    
+    self.settingsText.userInteractionEnabled = NO;
+    self.aboutText.userInteractionEnabled = NO;
+    self.settingsText.userInteractionEnabled = NO;
+}
+
+- (void)reenableMenu
+{
+    self.settingsText.userInteractionEnabled = YES;
+    self.aboutText.userInteractionEnabled = YES;
+    self.settingsText.userInteractionEnabled = YES;
+    
+    self.shareSubview.hidden = YES;
+    self.aboutSubview.hidden = YES;
+    self.settingsSubview.hidden = YES;
+}
+
+- (IBAction)handleKeyboardToggle:(id)sender {
+    UISwitch *switchControl = (UISwitch *)sender;
+    BOOL isOn = switchControl.isOn;
+    [[NSUserDefaults standardUserDefaults] setBool:isOn forKey:@"useDefaultKeyboard"];
+    
+    NSLog(@"standard keyboard turned %s",isOn ? "on":"off");
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"keyboardSettingChanged" object:nil userInfo:nil];
 }
 
 - (IBAction)sendEmail:(id)sender {
@@ -216,6 +295,7 @@
     [self setShadow:nil];
     [self setTack:nil];
     [self setScrollView:nil];
+    
     [super viewDidUnload];
 }
 

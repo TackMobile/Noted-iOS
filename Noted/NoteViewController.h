@@ -14,11 +14,11 @@
 @protocol NoteViewControllerDelegate <NSObject>
 
 @required
--(void)shiftCurrentNoteOriginToPoint:(CGPoint)point;
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock;
 
 @end
 
-@interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate>
+@interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>
 
 @property (strong, nonatomic) NoteDocument *note;
 @property(strong, nonatomic) id<NoteViewControllerDelegate> delegate;

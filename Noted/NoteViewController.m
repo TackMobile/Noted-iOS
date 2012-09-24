@@ -15,6 +15,9 @@
 
 @interface NoteViewController ()
 
+@property (nonatomic, retain) UITapGestureRecognizer *tapGestureRecognizer;
+@property (nonatomic, retain) UIPanGestureRecognizer *panGestureRecognizer;
+
 @end
 
 @implementation NoteViewController
@@ -154,7 +157,7 @@
 }
 
 - (IBAction)optionsSelected{
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0)];
+    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
 }
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
@@ -191,6 +194,50 @@
     [self.note setText:aTextView.text];
 }
 
+- (BOOL)usingDefaultKeyboard
+{
+    BOOL using = [[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"];
+    return using;
+}
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    if (![self usingDefaultKeyboard]) {
+        return YES;
+    }
+    
+    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
+    tap.delegate = self;
+    self.tapGestureRecognizer = tap;
+    
+    [keyWindow addGestureRecognizer:self.tapGestureRecognizer];
+    
+    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+    pan.delegate = self;
+    self.panGestureRecognizer = pan;
+    
+    [keyWindow addGestureRecognizer:self.panGestureRecognizer];
+    
+    return YES;
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView
+{
+    if (![self usingDefaultKeyboard]) {
+        return YES;
+    }
+    
+    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+    
+    // Remove the gesture recognizers when the keyboard is dismissed.
+    [keyWindow removeGestureRecognizer:self.tapGestureRecognizer];
+    [keyWindow removeGestureRecognizer:self.panGestureRecognizer];
+    
+    return YES;
+}
+
 #pragma mark - Touches
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 
@@ -202,6 +249,29 @@
     if (CGRectContainsPoint(self.optionsDot.frame, location)){
         [self optionsSelected];
     }
+}
+
+- (void)handleTapFrom:(UIGestureRecognizer *)recognizer {
+    // You don't want to dismiss the keyboard if a tap is detected within the bounds of the search bar...
+    //CGPoint touchPoint = [recognizer locationInView:self.view];
+    //if (!CGRectContainsPoint(self.textView.frame, touchPoint)) {
+        [self.textView resignFirstResponder];
+    //}
+}
+
+- (void)handlePanFrom:(UIGestureRecognizer *)recognizer {
+    // It's not likely the user will pan in the search bar, but we can capture that too.
+    //CGPoint touchPoint = [recognizer locationInView:self.view];
+    //if (!CGRectContainsPoint(self.textView.frame, touchPoint)) {
+    [self.textView resignFirstResponder];
+    
+    //[[NSNotificationCenter defaultCenter] postNotificationName:@"closeIt" object:nil userInfo:nil];
+    //}
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    // Return YES to prevent this gesture from interfering with, say, a pan on a map or table view, or a tap on a button in the tool bar.
+    return YES;
 }
 
 @end

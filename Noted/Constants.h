@@ -6,3 +6,7 @@ static inline BOOL IsEmpty(id thing) {
     || ([thing respondsToSelector:@selector(count)]
         && [(NSArray *)thing count] == 0);
 }
+
+// user defaults
+
+#define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"

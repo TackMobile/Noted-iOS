@@ -10,7 +10,7 @@
 @protocol OptionsViewDelegate <NSObject>
 @optional
 -(void)setNoteColor:(UIColor*)color textColor:(UIColor*)textColor;
--(void)shiftCurrentNoteOriginToPoint:(CGPoint)point;
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock;
 -(void)sendEmail;
 -(void)sendTweet;
 -(void)sendSMS;
@@ -38,12 +38,16 @@
 @property (weak, nonatomic) IBOutlet UITextView *emailText;
 @property (weak, nonatomic) IBOutlet UITextView *messageText;
 @property (weak, nonatomic) IBOutlet UITextView *tweetText;
+
 @property (strong, nonatomic) IBOutlet UIView *aboutSubview;
+@property (strong, nonatomic) IBOutlet UIView *settingsSubview;
+
 @property (weak, nonatomic) IBOutlet UITextView *builtText;
 @property (weak, nonatomic) IBOutlet UITextView *websiteText;
 @property (weak, nonatomic) IBOutlet UITextView *tackTwitterText;
 @property (nonatomic, retain) id delegate;
 
+- (IBAction)handleKeyboardToggle:(id)sender;
 
 - (IBAction)openAbout:(id)sender;
 - (IBAction)openShare:(id)sender;
@@ -53,7 +57,7 @@
 - (IBAction)sendTweet:(id)sender;
 - (IBAction)visitSite:(id)sender;
 - (IBAction)followTack:(id)sender;
--(void)returnToOptions;
-
+- (void)returnToOptions;
+- (void)reset;
 
 @end

@@ -36,6 +36,10 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
         NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
        
     }];
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]) {
+        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:USE_STANDARD_SYSTEM_KEYBOARD];
+    }
         
     return YES;
 }
