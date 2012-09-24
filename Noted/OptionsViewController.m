@@ -40,8 +40,7 @@
     [self.view addSubview:self.aboutSubview];
     [self.view addSubview:self.settingsSubview];
     
-    UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
-    [keyboardSwitch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]];
+    
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
     
@@ -53,6 +52,16 @@
 //    self.scrollView.layer.cornerRadius = 6.5;
 //    self.scrollView.layer.masksToBounds = YES;
     
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
+    BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
+    [keyboardSwitch setOn:isOn];
+    // http://osiris.laya.com/projects/rcswitch/
 }
 
 -(void)loadOptionColors {
@@ -247,7 +256,8 @@
     UISwitch *switchControl = (UISwitch *)sender;
     BOOL isOn = switchControl.isOn;
     [[NSUserDefaults standardUserDefaults] setBool:isOn forKey:@"useDefaultKeyboard"];
-    
+    [[NSUserDefaults standardUserDefaults] synchronize];
+     
     NSLog(@"standard keyboard turned %s",isOn ? "on":"off");
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"keyboardSettingChanged" object:nil userInfo:nil];

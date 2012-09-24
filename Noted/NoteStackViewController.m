@@ -108,15 +108,10 @@ static const float kSectionZeroHeight = 44.0;
         [self configureKeyboard];
     }];
     
-
-    
     self.currentNoteViewController = [[NoteViewController alloc] init];
     self.currentNoteViewController.delegate = self;
     [self.view addSubview:self.currentNoteViewController.view];
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"]) {
-        self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
-    }
+
     
     self.nextNoteViewController = [[NoteViewController alloc] init];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
@@ -145,10 +140,11 @@ static const float kSectionZeroHeight = 44.0;
 
 - (void)configureKeyboard
 {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"]) {
-        
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    
+    BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"];
+    if (!useSystem) {
         
         self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
         self.keyboardViewController.delegate = self;
@@ -162,10 +158,12 @@ static const float kSectionZeroHeight = 44.0;
                                                  selector: @selector(shiftViewDownAfterKeyboard:)
                                                      name: UIKeyboardWillHideNotification
                                                    object: nil];
+        
+        self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
+        
     } else {
         
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+        
         
         [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification object:self.currentNoteViewController queue:nil usingBlock:^(NSNotification *note){
             _keyboardShowing = YES;
@@ -173,6 +171,8 @@ static const float kSectionZeroHeight = 44.0;
         [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:self.currentNoteViewController queue:nil usingBlock:^(NSNotification *note){
             _keyboardShowing = NO;
         }];
+        
+        self.currentNoteViewController.textView.inputView = nil;
     }
 
 }
