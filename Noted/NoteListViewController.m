@@ -17,6 +17,7 @@
 #import "FileStorageState.h"
 #import "CloudManager.h"
 #import <QuartzCore/QuartzCore.h>
+#import "UIView+position.h"
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
@@ -336,9 +337,33 @@ typedef enum {
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
         
-        NoteEntryCell *placeholder = [self makePlaceholderForIndexPath:indexPath];//[[UIView alloc] initWithFrame:frameForCell];
+        NoteEntryCell *placeholder = [self makePlaceholderForIndexPath:indexPath];
         [self.view addSubview:placeholder];
         CGRect ogFrame = _placeholder.frame;
+        
+        // animate all the other cells
+        for (UITableViewCell *cell in self.tableView.visibleCells) {
+            NSIndexPath *cellIndex = [self.tableView indexPathForCell:cell];
+            
+            if (cellIndex.row != indexPath.row && cellIndex.section != 0) {
+
+                UIImageView *cellImg = [[UIImageView alloc] initWithImage:[self imageRepresentationForCell:cell]];
+                cellImg.frame = cell.frame;
+                [self.view addSubview:cellImg];
+                
+                [UIView animateWithDuration:0.5
+                                 animations:^{
+                                     float originY = cellIndex.row < indexPath.row ? -66.0 : 480.0;
+                                     [cellImg setFrameY:originY];
+                                 }
+                                 completion:^(BOOL finished){
+                                     [cellImg setFrame:cell.frame];
+                                     [cellImg setHidden:YES];
+                                 }];
+                
+            } 
+        }
+                
         [UIView animateWithDuration:0.5
                          animations:^{
                              [placeholder setFrame:self.view.bounds];
@@ -366,8 +391,6 @@ typedef enum {
     if (!_placeholder) {
         NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
         _placeholder = (NoteEntryCell *)[views lastObject];
-        
-
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -435,6 +458,21 @@ typedef enum {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
         block();
     });
+}
+
+#pragma mark Image utility
+#define radians(degrees) (degrees * M_PI/180)
+
+- (UIImage *)imageRepresentationForCell:(UITableViewCell *)cell
+{
+	UIGraphicsBeginImageContextWithOptions(cell.bounds.size, YES, 0.0f);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    [cell.contentView.layer renderInContext:context];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return viewImage;
 }
 
 
