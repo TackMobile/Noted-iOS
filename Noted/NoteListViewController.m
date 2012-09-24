@@ -34,6 +34,8 @@ typedef enum {
     BOOL _scrolling;
     
     BOOL _shouldAutoShowNote;
+    
+    NoteEntryCell *_placeholder;
 }
 
 @end
@@ -213,7 +215,8 @@ typedef enum {
             [self delayedCall:1.0 withBlock:^{
                 [UIView animateWithDuration:0.5
                                  animations:^{
-                                     [noteEntryCell.contentView setBackgroundColor:blueRowBgColor];
+                                     //[noteEntryCell.contentView setBackgroundColor:blueRowBgColor];
+                                     noteEntryCell.contentView.backgroundColor = document.color;
                                  }
                                  completion:nil];
             }];
@@ -333,17 +336,62 @@ typedef enum {
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
         
+        NoteEntryCell *placeholder = [self makePlaceholderForIndexPath:indexPath];//[[UIView alloc] initWithFrame:frameForCell];
+        [self.view addSubview:placeholder];
+        CGRect ogFrame = _placeholder.frame;
+        [UIView animateWithDuration:0.5
+                         animations:^{
+                             [placeholder setFrame:self.view.bounds];
+                         }
+                         completion:^(BOOL finished){
+                             [placeholder removeFromSuperview];
+                             [placeholder setFrame:ogFrame];
+                             [_placeholder viewWithTag:56].alpha = 1.0;
+                             
+                             NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
+                             if (![doc noteEntry].adding) {
+                                 [self showNoteStackForSelectedRow:indexPath.row animated:NO];
+                             }
+                         }];
+                
         // remember indexPath so we can reload this row
         // on return without round-trip to iCloud
         _viewingNoteStack = YES;
         
-        NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
-        NoteEntry *entry = [doc noteEntry];
-        
-        if (!entry.adding) {
-            [self showNoteStackForSelectedRow:indexPath.row animated:YES];
-        }
     }
+}
+
+- (NoteEntryCell *)makePlaceholderForIndexPath:(NSIndexPath *)indexPath
+{
+    if (!_placeholder) {
+        NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
+        _placeholder = (NoteEntryCell *)[views lastObject];
+        
+
+    }
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NoteDocument *document = [model.currentNoteEntries objectAtIndex:indexPath.row];
+    _placeholder.subtitleLabel.text = [self displayTitleForNoteEntry:[document noteEntry]];
+    _placeholder.relativeTimeText.text = [[document noteEntry] relativeDateString];
+    _placeholder.absoluteTimeText.text = [[document noteEntry] absoluteDateString];
+    
+    [_placeholder setFrame:[self.tableView cellForRowAtIndexPath:indexPath].frame];
+    
+    _placeholder.subtitleLabel.textColor = [UIColor blackColor];
+    [_placeholder.subtitleLabel setText:document.text];
+    _placeholder.contentView.backgroundColor = document.color;
+    
+    // fade the shadow
+    [UIView animateWithDuration:0.2
+                     animations:^{
+                         [_placeholder viewWithTag:56].alpha = 0.0;
+                     }
+                     completion:^(BOOL finished){
+
+                     }];
+    
+    return _placeholder;
 }
 
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
