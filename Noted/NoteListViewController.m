@@ -342,65 +342,17 @@ typedef enum {
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
     } else {
         
-        [_stackViewController updateForTableView:tv selectedIndexPath:indexPath];
+        [_stackViewController updateForTableView:tv selectedIndexPath:indexPath completion:^(){
+            [_stackViewController.view setFrameX:-320.0];
+            NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
+            if (![doc noteEntry].adding) {
+                [self showNoteStackForSelectedRow:indexPath.row animated:NO];
+            }
+        
+        }];
+        
         [_stackViewController.view setFrameX:0.0];
         
-        int64_t delayInSeconds = 2.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [UIView animateWithDuration:0.7
-                             animations:^{
-                                 [_stackViewController.view setAlpha:0.0];
-                             }
-                             completion:^(BOOL finished){
-                                 [_stackViewController.view setAlpha:1.0];
-                                 [_stackViewController.view setFrameX:-320.0];
-                             }];
-        });
-        
-        /* OLD
-         NoteEntryCell *placeholder = [self makePlaceholderForIndexPath:indexPath];
-         [self.view addSubview:placeholder];
-         CGRect ogFrame = _placeholder.frame;
-         
-         // animate all the other cells
-         for (UITableViewCell *cell in self.tableView.visibleCells) {
-         NSIndexPath *cellIndex = [self.tableView indexPathForCell:cell];
-         
-         if (cellIndex.row != indexPath.row && cellIndex.section != 0) {
-         
-         UIImageView *cellImg = [[UIImageView alloc] initWithImage:[self imageRepresentationForCell:cell]];
-         cellImg.frame = cell.frame;
-         [self.view addSubview:cellImg];
-         
-         [UIView animateWithDuration:0.5
-         animations:^{
-         float originY = cellIndex.row < indexPath.row ? -66.0 : 480.0;
-         [cellImg setFrameY:originY];
-         }
-         completion:^(BOOL finished){
-         [cellImg setFrame:cell.frame];
-         [cellImg setHidden:YES];
-         }];
-         }
-         }
-         
-         [UIView animateWithDuration:0.5
-         animations:^{
-         [placeholder setFrame:self.view.bounds];
-         }
-         completion:^(BOOL finished){
-         [placeholder removeFromSuperview];
-         [placeholder setFrame:ogFrame];
-         [_placeholder viewWithTag:56].alpha = 1.0;
-         
-         NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
-         if (![doc noteEntry].adding) {
-         [self showNoteStackForSelectedRow:indexPath.row animated:NO];
-         }
-         }];
-         
-         */
         // remember indexPath so we can reload this row
         // on return without round-trip to iCloud
         _viewingNoteStack = YES;
@@ -452,7 +404,7 @@ typedef enum {
         _viewingNoteStack = NO;
         _shouldAutoShowNote = NO;
         
-    }];
+    } andStackVC:_stackViewController];
     [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 

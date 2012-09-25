@@ -15,6 +15,7 @@
 typedef void(^DismissalBlock)(NSUInteger);
 
 @class NoteDocument;
+@class StackViewController;
 
 @interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate>
 
@@ -34,6 +35,6 @@ typedef void(^DismissalBlock)(NSUInteger);
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
-- (id)initWithDismissalBlock:(DismissalBlock)dismiss;
+- (id)initWithDismissalBlock:(DismissalBlock)dismiss andStackVC:(StackViewController *)stackVC;
 
 @end

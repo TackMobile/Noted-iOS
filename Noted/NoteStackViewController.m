@@ -14,6 +14,7 @@
 #import "NoteDocument.h"
 #import "UIImage+Crop.h"
 #import "UIView+position.h"
+#import "StackViewController.h"
 
 typedef enum {
     kGestureFinished,
@@ -57,7 +58,7 @@ static const float kSectionZeroHeight = 44.0;
     CGRect centerNoteFrame;
     
     NoteStackGestureState _currentGestureState;
-    
+    StackViewController *_stackVC;
 }
 
 - (void) presentNotes;
@@ -66,7 +67,7 @@ static const float kSectionZeroHeight = 44.0;
 
 @implementation NoteStackViewController
 
-@synthesize dismissBlock;
+@synthesize dismissBlock=_dismissBlock;
 @synthesize currentNoteViewController;
 @synthesize nextNoteViewController;
 @synthesize panGestureRecognizer;
@@ -78,11 +79,12 @@ static const float kSectionZeroHeight = 44.0;
 @synthesize previousNoteDocument;
 @synthesize nextNoteDocument;
 
-- (id)initWithDismissalBlock:(DismissalBlock)dismiss
+- (id)initWithDismissalBlock:(DismissalBlock)dismiss andStackVC:(StackViewController *)stackVC
 {
     self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
     if (self){
-        self.dismissBlock = dismiss;
+        _dismissBlock = dismiss;
+        _stackVC = stackVC;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
         centerNoteFrame = CGRectZero;
         
