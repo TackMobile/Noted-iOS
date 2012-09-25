@@ -94,8 +94,7 @@ typedef enum {
     }];
     
     _stackViewController = [[StackViewController alloc] init];
-    [self.view addSubview:_stackViewController.view];
-    [_stackViewController.view setFrameX:-320.0];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -109,6 +108,9 @@ typedef enum {
         _shouldAutoShowNote = NO;
         
     }
+    
+    [self.view addSubview:_stackViewController.view];
+    [_stackViewController.view setFrameX:-320.0];
     
     [self.tableView reloadData];
 }
@@ -266,7 +268,7 @@ typedef enum {
     CGPoint velocity = [recognizer velocityInView:view.contentView];
     CGRect viewFrame = view.contentView.frame;
     //int xDirection = (velocity.x < 0) ? 1 : 0;
-    NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
+    //NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
     if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (velocity.x > 0 && !_scrolling) {
             point = [recognizer translationInView:view.contentView];
@@ -353,42 +355,9 @@ typedef enum {
         
         [_stackViewController.view setFrameX:0.0];
         
-        // remember indexPath so we can reload this row
-        // on return without round-trip to iCloud
         _viewingNoteStack = YES;
         
     }
-}
-
-- (NoteEntryCell *)makePlaceholderForIndexPath:(NSIndexPath *)indexPath
-{
-    if (!_placeholder) {
-        NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
-        _placeholder = (NoteEntryCell *)[views lastObject];
-    }
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteDocument *document = [model.currentNoteEntries objectAtIndex:indexPath.row];
-    _placeholder.subtitleLabel.text = [self displayTitleForNoteEntry:[document noteEntry]];
-    _placeholder.relativeTimeText.text = [[document noteEntry] relativeDateString];
-    _placeholder.absoluteTimeText.text = [[document noteEntry] absoluteDateString];
-    
-    [_placeholder setFrame:[self.tableView cellForRowAtIndexPath:indexPath].frame];
-    
-    _placeholder.subtitleLabel.textColor = [UIColor blackColor];
-    [_placeholder.subtitleLabel setText:document.text];
-    _placeholder.contentView.backgroundColor = document.color;
-    
-    // fade the shadow
-    [UIView animateWithDuration:0.2
-                     animations:^{
-                         [_placeholder viewWithTag:56].alpha = 0.0;
-                     }
-                     completion:^(BOOL finished){
-
-                     }];
-    
-    return _placeholder;
 }
 
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
@@ -432,21 +401,6 @@ typedef enum {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
         block();
     });
-}
-
-#pragma mark Image utility
-#define radians(degrees) (degrees * M_PI/180)
-
-- (UIImage *)imageRepresentationForCell:(UITableViewCell *)cell
-{
-	UIGraphicsBeginImageContextWithOptions(cell.bounds.size, YES, 0.0f);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    [cell.contentView.layer renderInContext:context];
-    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return viewImage;
 }
 
 

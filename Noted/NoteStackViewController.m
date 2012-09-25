@@ -131,7 +131,7 @@ static const float kSectionZeroHeight = 44.0;
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
     
-    _shadowViewTop = [self shadowView];
+    //_shadowViewTop = [self shadowView];
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
 
@@ -198,9 +198,15 @@ static const float kSectionZeroHeight = 44.0;
     [super viewDidUnload];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    [_stackVC.view removeFromSuperview];
+}
+
 - (void)presentNotes {
     
-    //NSLog(@"Current note %@",self.currentNoteViewController.note.text);
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NSUInteger currentIndex = model.selectedNoteIndex;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
@@ -210,35 +216,20 @@ static const float kSectionZeroHeight = 44.0;
     self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
     
     [self makeNoteViewStackImages];
-  
+    [self.view addSubview:_stackVC.view];
+    [_stackVC.view setFrameX:-320.0];
 }
 
 #pragma mark Pinch gesture to collapse notes stack
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    //if ([gesture numberOfTouches] != 2 && _currentGestureState == kGestureFinished)
-       // return;
-    
     CGFloat scale = gesture.scale;
     adjustedScale = [self adjustedScaleForPinch:scale];
     
-    //CGFloat velocity = gesture.velocity;
-    //[self logPinch:velocity scale:scale];
-
-   // Get the pinch points.
-
-    /*
-     CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
-     CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
-     
-     // Compute the new spread distance.
-     CGFloat xd = p1.x - p2.x;
-     CGFloat yd = p1.y - p2.y;
-     CGFloat distance = sqrt(xd*xd + yd*yd);
-     
-     */
     if (gesture.state == UIGestureRecognizerStateBegan) {
+
+        [_stackVC.view setFrameX:0.0];
         [self setGestureState:kStackingPinch];
         [self.view.layer setCornerRadius:kCornerRadius];
         [self.view setClipsToBounds:YES];
@@ -246,7 +237,6 @@ static const float kSectionZeroHeight = 44.0;
         [self.currentNoteViewController setWithNoDataTemp:YES];
         
         if (stackingViews.count>0) {
-            [self arrangeSubNotes];
             [self animateStackedNotesForScale:scale];
         }
         
@@ -264,25 +254,10 @@ static const float kSectionZeroHeight = 44.0;
             self.dismissBlock(_currentNoteIndex);
             [self dismissViewControllerAnimated:NO completion:nil];
         } else {
-            if (stackingViews.count>0) {
-                int i = 0;
-                for (NSDictionary *noteDict in stackingViews) {
-                    [self resetStackedNoteViewAtIndex:i];
-                    i++;
-                }
-            } else {
-                NSLog(@"not animating out %d",__LINE__);
-            }
             
-            if (_currentNote) {
-                [self resetCurrentNoteView];
-            } else {
-                NSLog(@"not animating out %d",__LINE__);
-            }
-
+            [_stackVC resetToExpanded];
         }
         
-                
         [self setGestureState:kGestureFinished];
     }
 }
@@ -325,7 +300,6 @@ static const float kSectionZeroHeight = 44.0;
     
     int stackingIndex = [[noteDict objectForKey:@"index"] integerValue];
     UIView *note = [noteDict objectForKey:@"noteView"];
-    UIView *noteShadow = [noteDict objectForKey:@"shadow"];
     
     float offset = [self indexOffsetForStackedNoteAtIndex:stackingIndex];
     float newY = [self yOriginForStackedNoteForOffset:offset];
@@ -337,9 +311,6 @@ static const float kSectionZeroHeight = 44.0;
     
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
     
-    CGRect shadowFrame = noteShadow.frame;
-    noteShadow.frame = CGRectMake(0.0, CGRectGetMinY(newFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
-        
     [note setFrame:newFrame];
 }
 
@@ -361,10 +332,6 @@ static const float kSectionZeroHeight = 44.0;
     }
     
     centerNoteFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-    //if (!noteIsFirst) {
-    CGRect shadowFrame = _shadowViewTop.frame;
-    _shadowViewTop.frame = CGRectMake(0.0, CGRectGetMinY(centerNoteFrame)-shadowFrame.size.height, shadowFrame.size.width, shadowFrame.size.height);
-    //}
     
     [_currentNote setFrame:centerNoteFrame];
 }
@@ -379,7 +346,6 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 {
     if (stackingViews) {
         [stackingViews removeAllObjects];
-        _currentNote = nil;
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -400,7 +366,7 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
         if (model.currentNoteEntries.count > 30) {
             NSLog(@"wtf?!");
         }
-        NoteDocument *doc = [[model currentNoteEntries] objectAtIndex:j];
+        //NoteDocument *doc = [[model currentNoteEntries] objectAtIndex:j];
         
         if (j == _currentNoteIndex) {
             // skip the current doc
@@ -408,16 +374,13 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
             continue;
         }
         
-        // get image from current view
-        UIImage *image = [self imageForDocument:doc];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        ApplicationModel *model = [ApplicationModel sharedInstance];
         
-        UIView *noteView = [self makeNoteView];
-        [noteView addSubview:imageView];
+        int offset = -(float)(model.selectedNoteIndex - i);
+        NSLog(@"i is %d, offset for getting view from stackvc is %d",i,offset);
+        UIView *noteView = [_stackVC viewForIndexOffsetFromTop:offset];
         
-        UIImageView *shadow = [[UIImageView alloc] initWithImage:_shadowViewTop.image];
-        
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",shadow,@"shadow",[NSNumber numberWithInt:i],@"index", nil];
+        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:i],@"index", nil];
         
         [stackingViews addObject:dict];
         i++;
@@ -449,68 +412,12 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
 - (void)makeCurrentNote
 {
     _currentNote = nil;
-    NoteDocument *currentDoc = self.currentNoteViewController.note;
+    //NoteDocument *currentDoc = self.currentNoteViewController.note;
     
-    // get image from current view
-    UIImage *image = [self imageForDocument:currentDoc];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    //imageView.layer.cornerRadius = kCornerRadius;
-    
-    _currentNote = [self makeNoteView];
-    [_currentNote addSubview:imageView];
-    
-}
-
-- (void)arrangeSubNotes
-{
-    __block UIView *previousView = nil;
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    int currentNoteIndex = model.selectedNoteIndex;
-    if (_currentNoteIndex==0) {
-        [self.view addSubview:_currentNote];
-        [self.view addSubview:_shadowViewTop];
+    _currentNote = [_stackVC viewForIndexOffsetFromTop:0];
+    if (!_currentNote) {
+        NSLog(@"stop!");
     }
-    for (NSDictionary *dict in stackingViews) {
-        
-        UIView *noteView = [dict objectForKey:@"noteView"];
-        //noteView.alpha = 0.5;
-        UIImageView *shadow = (UIImageView *)[dict objectForKey:@"shadow"];
-
-        int stackingIndex = [[dict objectForKey:@"index"] integerValue];
-        // 1st doc, just add it
-        if (!previousView) {
-            [self.view addSubview:noteView];
-        } else if (stackingIndex < currentNoteIndex) {
-            [self.view insertSubview:noteView belowSubview:_currentNote];
-        } else if (stackingIndex > currentNoteIndex) {
-            [self.view insertSubview:noteView aboveSubview:previousView];
-        }
-        
-        if (stackingIndex==_currentNoteIndex-1) {
-            [self.view insertSubview:_currentNote aboveSubview:noteView];
-            [self.view insertSubview:_shadowViewTop aboveSubview:_currentNote];
-        }
-        [self.view addSubview:shadow];
-        
-        previousView = noteView;
-    }
-}
-
-- (UIImage *) flipImageVertically:(UIImage *)originalImage
-{
-    UIImageView *tempImageView = [[UIImageView alloc] initWithImage:originalImage];
-    
-    UIGraphicsBeginImageContext(tempImageView.frame.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, tempImageView.frame.size.height);
-    CGContextConcatCTM(context, flipVertical);
-    
-    [tempImageView.layer renderInContext:context];
-    
-    UIImage *flippedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return flippedImage;
 }
 
 - (void)debugView:(UIView *)view
@@ -648,16 +555,16 @@ static const float kMinimumDistanceBetweenTouches = 20.0;
     float newY = offsetIndex < 0 ? 0.0 : 480.0;
 
     UIView *view = [dict objectForKey:@"noteView"];
-    UIView *shadow = [dict objectForKey:@"shadow"];
+    //UIView *shadow = [dict objectForKey:@"shadow"];
     [UIView animateWithDuration:0.5
                      animations:^{
                          CGRect newFrame = CGRectMake(0.0, newY, 320.0, 480.0);
                          view.frame = newFrame;
-                         [shadow setFrameY:newY-shadow.frame.size.height];
+                         //[shadow setFrameY:newY-shadow.frame.size.height];
                      }
                      completion:^(BOOL finished){
                          [view removeFromSuperview];
-                         [shadow removeFromSuperview];
+                         //[shadow removeFromSuperview];
                      }];
 }
 

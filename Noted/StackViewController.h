@@ -15,5 +15,8 @@ typedef void(^animationCompleteBlock)();
 @interface StackViewController : UIViewController
 
 - (void)updateForTableView:(UITableView *)tableView selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
+- (UIView *)viewForIndexOffsetFromTop:(NSInteger)offset;
+- (void)setShadowsOnHighNotes;
+- (void)resetToExpanded;
 
 @end
