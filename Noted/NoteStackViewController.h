@@ -12,7 +12,7 @@
 #import "KeyboardViewController.h"
 #import "NoteEntry.h"
 
-typedef void(^TMDismissalBlock)(NSUInteger);
+typedef void(^TMDismissalBlock)(NSUInteger,float);
 
 @class NoteDocument;
 @class StackViewController;

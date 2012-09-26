@@ -363,10 +363,14 @@ typedef enum {
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:model.selectedNoteIndex] forKey:kEditingNoteIndex];
     
     _viewingNoteStack = YES;
-    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row){
+    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row,float currentNoteOffset){
+        
         [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
         _viewingNoteStack = NO;
         _shouldAutoShowNote = NO;
+        
+        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
+        [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
         
     } andStackVC:_stackViewController];
     [self presentViewController:stackViewController animated:animated completion:NULL];

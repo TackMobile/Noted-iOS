@@ -161,6 +161,8 @@ static const float  kExpandDuration = 0.5;
             NoteEntryCell *entryCell = (NoteEntryCell *)obj;
             int tag = tagOffset+(index-1);
             NoteEntryCell *noteCell = (NoteEntryCell *)[self.view viewWithTag:tag];
+            UIView *shadow = [noteCell viewWithTag:56];
+            float shadowHeight = 10.0;
             prevCell = (NoteEntryCell *)[self.view viewWithTag:tag-1];
             nextCell = (NoteEntryCell *)[self.view viewWithTag:tag+1];
             
@@ -174,9 +176,12 @@ static const float  kExpandDuration = 0.5;
             }
             
             BOOL isSelectedCell = [selectedIndexPath isEqual:indexPath];
-            if (isSelectedCell) {
-                [self.view addSubview:noteCell];
-            }
+            //if (isSelectedCell) {
+            //    [self.view addSubview:noteCell];
+            //}
+            
+            [shadow setFrameY:-shadowHeight];
+            [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
             
             NoteDocument *document = [model noteDocumentAtIndex:indexPath.row];
             
@@ -202,8 +207,8 @@ static const float  kExpandDuration = 0.5;
             circle.text = [NoteViewController optionsDotTextForColor:document.color];
             circle.font = [NoteViewController optionsDotFontForColor:document.color];
             
-            UIView *shadow = [noteCell viewWithTag:56];
-            float shadowHeight = 10.0;
+            
+            
             [circle setHidden:NO];
             
             BOOL isAbove = indexPath.row < selectedIndexPath.row;
@@ -212,27 +217,25 @@ static const float  kExpandDuration = 0.5;
                 _topViewTag = tag;
             }
             // stacking
-            if (!prevCell) {
-                [self.view addSubview:noteCell];
-            } else {
-                if (isAbove) {
-                    [self.view insertSubview:noteCell aboveSubview:prevCell];
-                } 
-            }
+            //if (!prevCell) {
+              //  [self.view addSubview:noteCell];
+            //} else {
+                [self.view insertSubview:noteCell aboveSubview:prevCell];
+            //}
         
             [UIView animateWithDuration:kExpandDuration
                              animations:^{
                                  if (isSelectedCell) {
                                      [noteCell setFrame:self.view.bounds];
                                      noteCell.layer.cornerRadius = 6.0;
+                                    
 
                                  } else {
                                      float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
                                      CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
                                      [noteCell setFrame:destinationFrame];
                                      
-                                     [shadow setFrameY:-shadowHeight];
-                                     [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
+                                     
                                      
                                      if (tag==11) {
                                          [noteCell setClipsToBounds:NO];
