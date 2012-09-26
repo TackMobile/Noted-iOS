@@ -1,8 +1,8 @@
 //
-//  NoteStackViewController.h
+//  AltNoteStackViewController.h
 //  Noted
 //
-//  Created by Tony Hillerson on 7/18/12.
+//  Created by Ben Pilcher on 9/26/12.
 //  Copyright (c) 2012 Tack Mobile. All rights reserved.
 //
 
@@ -12,14 +12,14 @@
 #import "KeyboardViewController.h"
 #import "NoteEntry.h"
 
-typedef void(^DismissalBlock)(NSUInteger);
+typedef void(^TMDismissalBlock)(NSUInteger);
 
 @class NoteDocument;
 @class StackViewController;
 
 @interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate>
 
-@property (nonatomic, copy) DismissalBlock dismissBlock;
+@property (nonatomic, copy) TMDismissalBlock dismissBlock;
 
 @property(nonatomic,strong) NoteViewController *currentNoteViewController;
 @property(nonatomic,strong) NoteViewController *nextNoteViewController;
@@ -35,6 +35,6 @@ typedef void(^DismissalBlock)(NSUInteger);
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
-- (id)initWithDismissalBlock:(DismissalBlock)dismiss andStackVC:(StackViewController *)stackVC;
+- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(StackViewController *)stackVC;
 
 @end

@@ -46,6 +46,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.scrollView.contentSize = self.view.frame.size;
+    self.view.layer.cornerRadius = 6.0;
 }
 
 - (void)viewDidUnload {
@@ -147,13 +148,38 @@
     self.absoluteTime.textColor = [[UIColor getHeaderColorSchemes] objectAtIndex:index];
     self.relativeTime.textColor = self.absoluteTime.textColor;
     self.optionsDot.textColor = self.absoluteTime.textColor;
+    
+    [self setOptionsDotForBGColor];
+}
+
+- (void)setOptionsDotForBGColor
+{
+    UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+    self.optionsDot.text = [NoteViewController optionsDotTextForColor:bgColor];
+    self.optionsDot.font = [NoteViewController optionsDotFontForColor:bgColor];
+}
+
++ (NSString *)optionsDotTextForColor:(UIColor *)color
+{
+    NSString *text = @"";
     if ([UIColor isWhiteColor:color] || [UIColor isShadowColor:color]) {
-        self.optionsDot.text = @"\u25CB";
-        self.optionsDot.font = [UIFont systemFontOfSize:10];
+        text = @"\u25CB";
     } else {
-        self.optionsDot.text = @"•";
-        self.optionsDot.font = [UIFont systemFontOfSize:40];
+        text = @"•";
     }
+    
+    return text;
+}
+
++ (UIFont *)optionsDotFontForColor:(UIColor *)color
+{
+    UIFont *font = [UIFont systemFontOfSize:10];
+    if ([UIColor isWhiteColor:color] || [UIColor isShadowColor:color]) {
+        font = [UIFont systemFontOfSize:10];
+    } else {
+        font = [UIFont systemFontOfSize:40];
+    }
+    return font;
 }
 
 - (IBAction)optionsSelected{

@@ -36,5 +36,7 @@
 - (void)setWithPlaceholderData:(BOOL)val;
 - (void)setWithNoDataTemp:(BOOL)val;
 - (void)setShadowForXOffset:(CGFloat)xOffset;
++ (NSString *)optionsDotTextForColor:(UIColor *)color;
++ (UIFont *)optionsDotFontForColor:(UIColor *)color;
 
 @end

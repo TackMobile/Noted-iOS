@@ -71,6 +71,7 @@
 		B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666715F7FEF7005FBC60 /* RIButtonItem.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* CloudManager.m */; };
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
 		B5AA89D9160B96320094299B /* cellShadow.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D7160B96320094299B /* cellShadow.png */; };
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
@@ -82,7 +83,6 @@
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
 		EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */; };
-		EAD6960815B7C5E9004A2494 /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960615B7C5E9004A2494 /* NoteStackViewController.m */; };
 		EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960715B7C5E9004A2494 /* NoteStackViewController.xib */; };
 		EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960B15B7C604004A2494 /* NoteViewController.m */; };
 		EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960C15B7C604004A2494 /* NoteViewController.xib */; };
@@ -182,6 +182,8 @@
 		B548668815F8F4B4005FBC60 /* CloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloudManager.m; sourceTree = "<group>"; };
 		B548669C15FA4CCD005FBC60 /* EZToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EZToastView.h; sourceTree = "<group>"; };
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
+		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
+		B58BD31D161374910095D22C /* NoteStackViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteStackViewController.h; sourceTree = "<group>"; };
 		B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
 		B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
 		B5A83BBD15FF937000CAE2E8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -201,8 +203,6 @@
 		EAD6960015B7B8FB004A2494 /* NoteListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteListViewController.h; sourceTree = "<group>"; };
 		EAD6960115B7B8FB004A2494 /* NoteListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteListViewController.m; sourceTree = "<group>"; };
 		EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteListViewController.xib; sourceTree = "<group>"; };
-		EAD6960515B7C5E9004A2494 /* NoteStackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteStackViewController.h; sourceTree = "<group>"; };
-		EAD6960615B7C5E9004A2494 /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
 		EAD6960715B7C5E9004A2494 /* NoteStackViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteStackViewController.xib; sourceTree = "<group>"; };
 		EAD6960A15B7C604004A2494 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		EAD6960B15B7C604004A2494 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
@@ -280,27 +280,7 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				B5AA89D7160B96320094299B /* cellShadow.png */,
-				B5AA89D8160B96320094299B /* cellShadow@2x.png */,
-				29E326C1157556920013399B /* Icon.png */,
-				29E326C2157556920013399B /* Icon@2x.png */,
-				29E326C3157556920013399B /* Default.png */,
-				29E326C4157556920013399B /* Default@2x.png */,
-				29E326C5157556920013399B /* keyboard-base.png */,
-				29E326C6157556920013399B /* english.png */,
-				29E326C7157556920013399B /* numeric.png */,
-				29E326C8157556920013399B /* numeric@2x.png */,
-				29E326C9157556920013399B /* punctuation.png */,
-				29E326CA157556920013399B /* punctuation@2x.png */,
-				29E326CB157556920013399B /* english@2x.png */,
-				29E326CC157556920013399B /* keyboard-base@2x.png */,
-				29E326CD157556920013399B /* about-key.png */,
-				29E326CE157556920013399B /* about-key@2x.png */,
-				29E326CF157556920013399B /* share-key.png */,
-				29E326D0157556920013399B /* share-key@2x.png */,
-				29E326D1157556920013399B /* cell-background@2x.png */,
-				29E326D2157556920013399B /* cell-background.png */,
-				29960C641573F4BF0054347A /* warning.png */,
+				B58BD31A1613537A0095D22C /* images */,
 			);
 			name = Assets;
 			sourceTree = "<group>";
@@ -428,14 +408,42 @@
 			path = TestFlightSDK1.1;
 			sourceTree = "<group>";
 		};
+		B58BD31A1613537A0095D22C /* images */ = {
+			isa = PBXGroup;
+			children = (
+				B5AA89D7160B96320094299B /* cellShadow.png */,
+				B5AA89D8160B96320094299B /* cellShadow@2x.png */,
+				29E326C1157556920013399B /* Icon.png */,
+				29E326C2157556920013399B /* Icon@2x.png */,
+				29E326C3157556920013399B /* Default.png */,
+				29E326C4157556920013399B /* Default@2x.png */,
+				29E326C5157556920013399B /* keyboard-base.png */,
+				29E326C6157556920013399B /* english.png */,
+				29E326C7157556920013399B /* numeric.png */,
+				29E326C8157556920013399B /* numeric@2x.png */,
+				29E326C9157556920013399B /* punctuation.png */,
+				29E326CA157556920013399B /* punctuation@2x.png */,
+				29E326CB157556920013399B /* english@2x.png */,
+				29E326CC157556920013399B /* keyboard-base@2x.png */,
+				29E326CD157556920013399B /* about-key.png */,
+				29E326CE157556920013399B /* about-key@2x.png */,
+				29E326CF157556920013399B /* share-key.png */,
+				29E326D0157556920013399B /* share-key@2x.png */,
+				29E326D1157556920013399B /* cell-background@2x.png */,
+				29E326D2157556920013399B /* cell-background.png */,
+				29960C641573F4BF0054347A /* warning.png */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
 		EAD695FF15B7B8CA004A2494 /* New */ = {
 			isa = PBXGroup;
 			children = (
 				EAD6960015B7B8FB004A2494 /* NoteListViewController.h */,
 				EAD6960115B7B8FB004A2494 /* NoteListViewController.m */,
 				EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */,
-				EAD6960515B7C5E9004A2494 /* NoteStackViewController.h */,
-				EAD6960615B7C5E9004A2494 /* NoteStackViewController.m */,
+				B58BD31D161374910095D22C /* NoteStackViewController.h */,
+				B58BD31716134E8D0095D22C /* NoteStackViewController.m */,
 				EAD6960715B7C5E9004A2494 /* NoteStackViewController.xib */,
 				EAD6960A15B7C604004A2494 /* NoteViewController.h */,
 				EAD6960B15B7C604004A2494 /* NoteViewController.m */,
@@ -566,7 +574,6 @@
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
 				EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */,
 				EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */,
-				EAD6960815B7C5E9004A2494 /* NoteStackViewController.m in Sources */,
 				EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */,
 				EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */,
 				EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */,
@@ -580,6 +587,7 @@
 				B531E8281608D2C900168AE5 /* UIView+position.m in Sources */,
 				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
 				B512B12D1611CE1800E0E8B5 /* StackViewController.m in Sources */,
+				B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

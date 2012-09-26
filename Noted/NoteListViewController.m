@@ -13,6 +13,7 @@
 #import "NoteDocument.h"
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
+#import "NoteStackViewController.h"
 #import "NewNoteCell.h"
 #import "FileStorageState.h"
 #import "CloudManager.h"
@@ -115,15 +116,9 @@ typedef enum {
     [self.tableView reloadData];
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewDidDisappear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-
-    /*
-     NSRange range = NSMakeRange(1, 1);
-     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:range];
-     [self.tableView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
-     */
+    [self.tableView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
 }
 
 - (void)viewDidUnload {
