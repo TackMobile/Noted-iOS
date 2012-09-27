@@ -56,14 +56,7 @@ static const float  kExpandDuration = 0.75;
 
 - (NSArray *)noteEntryViews
 {
-    NSMutableArray *cells = [[NSMutableArray alloc] initWithCapacity:self.view.subviews.count];
-    for (UIView *noteCell in self.view.subviews) {
-        if ([noteCell isKindOfClass:[NoteEntryCell class]]) {
-            [cells addObject:noteCell];
-        }
-    }
-    
-    return [cells copy];
+    return [_noteViews copy];
 }
 
 - (void)viewDidLoad
@@ -118,6 +111,11 @@ static const float  kExpandDuration = 0.75;
         [_noteViews addObject:noteCell];
 
     }
+}
+
+- (int)indexOfNoteView:(UIView *)view
+{
+    return [_noteViews indexOfObject:view];
 }
 
 - (void)debugView:(UIView *)view color:(UIColor *)color

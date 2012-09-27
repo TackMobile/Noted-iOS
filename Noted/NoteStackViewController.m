@@ -281,10 +281,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         
         if (pinchComplete) {
-            
             [self finishPinch];
         } else {
-            
             [_stackVC resetToExpanded];
         }
         
@@ -294,13 +292,23 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)finishPinch
 {
-    [self finishCenterNoteAnimationWithCompleteBlock:^{
+    void(^wrapUp)() = ^{
+        
         [self.view setUserInteractionEnabled:YES];
         initialPinchDistance = 0.0;
+        _currentGestureState = kGestureFinished;
+        
         self.dismissBlock(_currentNoteIndex,[self finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        _currentGestureState = kGestureFinished;
+        
+        [_stackVC.view setFrameX:-320.0];
+        
+    };
+    
+    [self finishCenterNoteAnimationWithCompleteBlock:^{
+        wrapUp();
     }];
+    
 }
 
 - (double)adjustedScaleForPinch:(CGFloat)scale
@@ -327,12 +335,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 {
     float minusAmount = self.view.bounds.size.height-kCellHeight;
     float newHeight = self.view.bounds.size.height-(minusAmount*pinchPercentComplete);
-//    BOOL isLast = YES;
-//    if (isLast) {
-//        newHeight = 320.0;
-//    }
-    NSLog(@"new height: %f",newHeight);
-    
+    BOOL isLast = [_stackVC indexOfNoteView:_currentNote]==[self documentCount]-1;
+    BOOL isFirst = [_stackVC indexOfNoteView:_currentNote]==0;
+    NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
+        
     [self updateSubviewsForNote:_currentNote scaled:YES];
     
     centerNoteFrame = CGRectMake(0.0, (self.view.bounds.size.height-newHeight)*0.5, 320.0, newHeight);
@@ -345,23 +351,26 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     NSDictionary *noteDict = [stackingViews objectAtIndex:index];
     
     UIView *note = [noteDict objectForKey:@"noteView"];
+    BOOL isLast = [_stackVC indexOfNoteView:note]==[self documentCount]-1;
+    BOOL isFirst = [_stackVC indexOfNoteView:note]==0;
+    NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
     
     int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
     int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
     float currentNoteOffset = 0.0;
+    
 
     float newHeight = kCellHeight;
     float newY = 0.0;
     if (offset<0) {
         currentNoteOffset = offset*kCellHeight;
         newY = CGRectGetMinY(_currentNote.frame) + currentNoteOffset;
-        NSLog(@"current note offset: %f",currentNoteOffset);
-    }else if (offset>0) {
-        
+    
+    } else if (offset>0) {
         currentNoteOffset = CGRectGetMaxY(_currentNote.frame) + (offset-1)*kCellHeight;
         newY = currentNoteOffset;
         newHeight = self.view.bounds.size.height-CGRectGetMaxY(_currentNote.frame);
-       
+        NSLog(@"Note with offset %d getting set to y Origin of %f (%f + (%d-1)*kCellHeight)",offset,newY,CGRectGetMaxY(_currentNote.frame),offset);
     }
     
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
@@ -413,8 +422,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)finishCenterNoteAnimationWithCompleteBlock:(void(^)())complete
 {
-    NSLog(@"telling to finish....");
-    [UIView animateWithDuration:2.0
+    BOOL done = _currentNote.frame.size.height==kCellHeight || pinchPercentComplete==1.0;
+    
+    [UIView animateWithDuration:0.5
                      animations:^{
                          float currentNoteY = (self.view.bounds.size.height-kCellHeight)*0.5;
                          centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
@@ -437,7 +447,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                                  
                              } else if (offset>0) {
                                  newHeight = self.view.bounds.size.height-CGRectGetMaxY(_currentNote.frame);
-                                 newY = currentNoteY+(offset+1*kCellHeight);
+                                 newY = (CGRectGetMaxY(centerNoteFrame))+((offset-1)*kCellHeight);
                              }
                              
                              CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
@@ -445,9 +455,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                          }
                      }
                      completion:^(BOOL finished){
-                         [_stackVC.view setFrameX:-320.0];
-                         self.dismissBlock(_currentNoteIndex,[self finalYOriginForCurrentNote]);
-                         [self dismissViewControllerAnimated:NO completion:nil];
+                         complete();
+                         
                      }];
 }
 
@@ -455,6 +464,11 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 static const float kCellHeight = 66.0;
 static const float kAverageMinimumDistanceBetweenTouches = 110.0;
+
+- (int)documentCount
+{
+    return [[ApplicationModel sharedInstance] currentNoteEntries].count;
+}
 
 - (void)setUpRangeForStacking
 {
@@ -533,7 +547,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     beginRange = beginRange < 0 ? 0 : beginRange;
     endRange = endRange > count ? count : endRange;
     
-    while (endRange-beginRange<displayableCellCount && beginRange>=0) {
+    while (endRange-beginRange<displayableCellCount && beginRange>0) {
         beginRange--;
     }
     

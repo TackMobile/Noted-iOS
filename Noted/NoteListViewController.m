@@ -410,12 +410,13 @@ typedef enum {
         _viewingNoteStack = NO;
         _shouldAutoShowNote = NO;
         
-        NSLog(@"Is %f greater than 480.0?",currentNoteOffset);
-        if (currentNoteOffset>self.view.bounds.size.height) {
-            CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
-            [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
-        }
-        
+        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
+        [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
+        int64_t delayInSeconds = 1.5;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self.tableView setContentOffset:CGPointZero animated:YES];
+        });
         
     } andStackVC:_stackViewController];
     [self presentViewController:stackViewController animated:animated completion:NULL];
