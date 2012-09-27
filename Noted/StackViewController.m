@@ -16,17 +16,21 @@
 #import "NoteEntry.h"
 #import "UIColor+HexColor.h"
 #import "NoteViewController.h"
+#import "NoteListViewController.h"
 
 static const int    kFirstView = 10;
-static const float  kExpandDuration = 0.5;
+static const float  kExpandDuration = 0.75;
 
 @interface StackViewController ()
 {
     UITableView *_tableView;
     
-    NSUInteger _topViewTag;
+    NSUInteger _currentIndex;
     
     BOOL _isPinching;
+    
+    NSMutableArray *_noteViews;
+    int _numCells;
 }
 
 @end
@@ -39,6 +43,7 @@ static const float  kExpandDuration = 0.5;
     self = [super initWithNibName:@"StackView" bundle:nil];
     if (self){
         _isPinching = NO;
+        _numCells = 0;
     }
     
     return self;
@@ -68,9 +73,35 @@ static const float  kExpandDuration = 0.5;
     
     [[self.view viewWithTag:kFirstView] setHidden:YES];
     
+    self.view.layer.borderColor = [UIColor orangeColor].CGColor;
+    self.view.layer.borderWidth = 2.0;
+    [self.view setUserInteractionEnabled:NO];
+    /*
+     NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:nil options:nil];
+     NewNoteCell *aView = (NewNoteCell *)[views lastObject];
+     [aView setTag:10];
+     aView.contentView.backgroundColor = [UIColor whiteColor];
+     aView.label.text = @"New Note";
+     [self.view addSubview:aView];
+     */
+}
+
+- (void)generateCells
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
+    if (_numCells == model.currentNoteEntries.count) {
+        return;
+    }
+    
+    _numCells = model.currentNoteEntries.count;
+    [_noteViews removeAllObjects];
+    
     float y = 44.0;
-    int tag = 11;
-    while (y < self.view.bounds.size.height) {
+
+    _noteViews = [[NSMutableArray alloc] init];
+    
+    while (y < self.view.bounds.size.height && _noteViews.count<=model.currentNoteEntries.count) {
         NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
         NoteEntryCell *noteCell = (NoteEntryCell *)[views lastObject];
         [noteCell setFrame:CGRectMake(0.0, y, 320.0, 66.0)];
@@ -82,48 +113,35 @@ static const float  kExpandDuration = 0.5;
         
         [self.view addSubview:noteCell];
         noteCell.contentView.backgroundColor = [UIColor whiteColor];
-        [noteCell setTag:tag];
+        [self debugView:noteCell color:[UIColor greenColor]];
         y += noteCell.frame.size.height;
-        tag ++;
+        [_noteViews addObject:noteCell];
+
     }
-    
-    /*
-     NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:nil options:nil];
-     NewNoteCell *aView = (NewNoteCell *)[views lastObject];
-     [aView setTag:10];
-     aView.contentView.backgroundColor = [UIColor whiteColor];
-     aView.label.text = @"New Note";
-     [self.view addSubview:aView];
-     */
 }
 
-- (void)setShadowsOnHighNotes
+- (void)debugView:(UIView *)view color:(UIColor *)color
 {
-    
-}
-- (NSArray *)notesHigherThanOffset:(NSInteger)offset
-{
-    NSArray *allNotes = [self noteEntryViews];
-    NSMutableArray *cells = [[NSMutableArray alloc] initWithCapacity:self.view.subviews.count];
-    for (UIView *view in allNotes) {
-        int tag = view.tag;
-        if (tag < _topViewTag) {
-            [cells addObject:view];
-        }
-    }
-    
-    return [cells copy];
+    // debugging
+    view.alpha = 1.0;
+    view.layer.borderColor = color.CGColor;
+    view.layer.borderWidth = 1.0;
 }
 
-- (UIView *)viewForIndexOffsetFromTop:(NSInteger)offset
+- (UIView *)viewAtIndex:(NSInteger)offset
 {
-    int offsetTag = _topViewTag;
-    int tag = offsetTag+offset;
+    NSLog(@"_currentIndex: %d",_currentIndex);
+    int tag = 11+offset;
+    NSLog(@"looking for view with index %d",tag);
     
-    //NoteEntryCell *cell = [self.view viewWithTag:tag];
-    //NSLog(@"%@",cell.subtitleLabel.text);
+    NoteEntryCell *cell = (NoteEntryCell *)[_noteViews objectAtIndex:offset];
+    NSLog(@"%@",cell.subtitleLabel.text);
     
-    return [self.view viewWithTag:tag];
+    if (!cell) {
+        NSLog(@"\n\n no view!\n\n");
+    }
+    
+    return cell;
 }
 
 - (UIColor *)randomColor
@@ -135,50 +153,46 @@ static const float  kExpandDuration = 0.5;
     return color;
 }
 
-- (void)updateForTableView:(UITableView *)tableView selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
+- (void)expandRowsForViewController:(NoteListViewController *)noteList selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
-    static int tagOffset = 11;
-    _tableView = tableView;
-    
-        NSLog(@"selected index path %@",selectedIndexPath);
-    
-    BOOL autoReverse = NO;
-    
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    
+    _currentIndex = model.selectedNoteIndex;
+    _tableView = noteList.tableView;
+
+    NSLog(@"\n\n\nselected index path %@",selectedIndexPath);
+    NSLog(@"stack frame: %@",NSStringFromCGRect(self.view.frame));
+    for (UIView *view in _noteViews) {
+        NSLog(@"frame: %@",NSStringFromCGRect(view.frame));
+    }
+    NSLog(@"\n\n\n");
+    NSAssert(self.view.frame.origin.x>=0, @"Stack must be visible!");
+            
     NSArray *cells = _tableView.visibleCells;
-    __block NoteEntryCell *prevCell = nil;
-    __block NoteEntryCell *nextCell = nil;
     __block int animatedCellCount = 0;
-    [cells enumerateObjectsUsingBlock:^(id obj, NSUInteger index, BOOL *stop){
-        
-        NSIndexPath *indexPath = [tableView indexPathForCell:(UITableViewCell *)obj];
+    int index = 0;
+    NSAssert(cells.count>0, @"No cells to animate!");
+    for (NoteEntryCell *entryCell in cells) {
+        NSIndexPath *indexPath = [noteList.tableView indexPathForCell:entryCell];
         
         if (indexPath.section==0) {
-            return;
+            continue;
         } else {
             
-            NoteEntryCell *entryCell = (NoteEntryCell *)obj;
-            int tag = tagOffset+(index-1);
-            NoteEntryCell *noteCell = (NoteEntryCell *)[self.view viewWithTag:tag];
+            NoteEntryCell *noteCell = [_noteViews objectAtIndex:indexPath.row];
             UIView *shadow = [noteCell viewWithTag:56];
             float shadowHeight = 10.0;
-            prevCell = (NoteEntryCell *)[self.view viewWithTag:tag-1];
-            nextCell = (NoteEntryCell *)[self.view viewWithTag:tag+1];
             
             [noteCell setHidden:NO];
-            CGRect frame = [tableView convertRect:entryCell.frame toView:[tableView superview]];
+            CGRect frame = [_tableView convertRect:entryCell.frame toView:[_tableView superview]];
             noteCell.frame = frame;
-            if (indexPath.row == 2) {
+            if (indexPath.row == 1) {
                 NSLog(@"starting frame for row 2: %@",NSStringFromCGRect(frame));
                 NSLog(@"bounds %@",NSStringFromCGRect(self.view.bounds));
                 NSLog(@"frame %@",NSStringFromCGRect(self.view.frame));
             }
             
             BOOL isSelectedCell = [selectedIndexPath isEqual:indexPath];
-            //if (isSelectedCell) {
-            //    [self.view addSubview:noteCell];
-            //}
+            BOOL isLastCell = indexPath.row == cells.count-2; // minus 2 to account for section 0
             
             [shadow setFrameY:-shadowHeight];
             [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
@@ -191,7 +205,7 @@ static const float  kExpandDuration = 0.5;
             noteCell.relativeTimeText.textColor = tempColor;
             noteCell.absoluteTimeText.textColor = tempColor;
             noteCell.contentView.backgroundColor = document.color;
-                        
+            
             [noteCell.subtitleLabel setText:document.text];
             noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:[document noteEntry]];
             noteCell.relativeTimeText.text = [[document noteEntry] relativeDateString];
@@ -199,49 +213,43 @@ static const float  kExpandDuration = 0.5;
             
             [noteCell setClipsToBounds:NO];
             
-            CGRect absTimeFrame = noteCell.absoluteTimeText.frame;
             UILabel *absTimeLabel = noteCell.absoluteTimeText;
             UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
             
             circle.textColor = tempColor;
             circle.text = [NoteViewController optionsDotTextForColor:document.color];
             circle.font = [NoteViewController optionsDotFontForColor:document.color];
-            
-            
-            
             [circle setHidden:NO];
             
-            BOOL isAbove = indexPath.row < selectedIndexPath.row;
             BOOL isBelow = indexPath.row > selectedIndexPath.row;
-            if (!isAbove && !isBelow) {
-                _topViewTag = tag;
-            }
-            // stacking
-            //if (!prevCell) {
-              //  [self.view addSubview:noteCell];
-            //} else {
-                [self.view insertSubview:noteCell aboveSubview:prevCell];
-            //}
-        
+            
+            [self.view addSubview:noteCell];
+            
             [UIView animateWithDuration:kExpandDuration
                              animations:^{
+                                 
                                  if (isSelectedCell) {
+                                     
+                                     NSLog(@"current frame of note cell: %@",NSStringFromCGRect(noteCell.frame));
+                                     NSAssert(!CGRectEqualToRect(noteCell.frame, self.view.bounds), @"Rects are equal, so there's no animation to perform!");;
                                      [noteCell setFrame:self.view.bounds];
                                      noteCell.layer.cornerRadius = 6.0;
-                                    
-
+                                     
                                  } else {
-                                     float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
-                                     CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
-                                     [noteCell setFrame:destinationFrame];
                                      
-                                     
-                                     
-                                     if (tag==11) {
-                                         [noteCell setClipsToBounds:NO];
+                                     if (isLastCell && !isSelectedCell) {
+                                         CGRect destinationFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 200.0); // arbitrary height?
+                                         NSLog(@"noteCell frame: %@",NSStringFromCGRect(noteCell.frame));
+                                         NSAssert(!CGRectEqualToRect(noteCell.frame, destinationFrame), @"You need to reset!");
+                                         [noteCell setFrame:destinationFrame];
+                                         [noteList.lastRowExtenderView setFrameY:CGRectGetMaxY(self.view.bounds)+66.0];
+                                     } else {
+                                         float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
+                                         CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
+                                         [noteCell setFrame:destinationFrame];
                                      }
                                  }
-
+                                 
                                  // transistion its subviews
                                  [absTimeLabel setFrameX:135];
                                  circle.alpha = 1.0;
@@ -250,62 +258,59 @@ static const float  kExpandDuration = 0.5;
                              }
                              completion:^(BOOL finished){
                                  
-                                 if (autoReverse) {
-                                     [noteCell setFrame:frame];
-                                     [absTimeLabel setFrame:absTimeFrame];
-                                     circle.alpha = 0.0;
-                                     [circle setFrameX:305];
-                                     [noteCell setClipsToBounds:YES];
-
-                                 }
-                                 
                                  // debug
                                  //noteCell.contentView.backgroundColor = [self randomColor];
                                  
-                                 animatedCellCount ++;
                                  NSLog(@"animationCount == %d and cell count: %d",animatedCellCount,cells.count);
-                                 if (animatedCellCount==cells.count-1) {
+                                 if (animatedCellCount==cells.count-2) { // -2 to account for section 0 row 1
                                      completeBlock();
+                                 } else {
+                                     animatedCellCount ++;
                                  }
+                                 
                              }];
         }
-        
-    }];
+        index ++;
+    }
+    
 }
 
 - (void)resetToExpanded
 {
     // animate current note back to self.view.bounds
-    UIView *current = [self.view viewWithTag:_topViewTag];
+    UIView *current = [_noteViews objectAtIndex:_currentIndex];
     [UIView animateWithDuration:kExpandDuration
                      animations:^{
                          [current setFrame:self.view.bounds];
                      }
                      completion:^(BOOL finished){
-                         NSLog(@"finished animating");
+                         NSLog(@"finished resetToExpanded");
                      }];
     
     
     
-    /*
-     NSArray *noteCells = [self noteEntryViews];
-     for (UIView *noteCell in noteCells) {
-     [UIView animateWithDuration:kExpandDuration
-     animations:^{
-     if (noteCell.tag < _topViewTag) {
-     CGRect destinationFrame = CGRectMake(0.0, 0.0, 320.0, 480.0);
-     [noteCell setFrame:destinationFrame];
-     } else if (noteCell.tag > _topViewTag) {
-     CGRect destinationFrame = CGRectMake(0.0, 480.0, 320.0, 480.0);
-     [noteCell setFrame:destinationFrame];
-     }
-     }
-     completion:^(BOOL finished){
-     NSLog(@"finished animating");
-     }];
-     }
+    
+#warning TODO needs testing
+    NSArray *noteCells = [self noteEntryViews];
+    int index = 0;
+    for (UIView *noteCell in noteCells) {
+        [UIView animateWithDuration:kExpandDuration
+                         animations:^{
+                             if (index < _currentIndex) {
+                                 CGRect destinationFrame = CGRectMake(0.0, 0.0, 320.0, 480.0);
+                                 [noteCell setFrame:destinationFrame];
+                             } else if (index > _currentIndex) {
+                                 CGRect destinationFrame = CGRectMake(0.0, 480.0, 320.0, 480.0);
+                                 [noteCell setFrame:destinationFrame];
+                             }
+                         }
+                         completion:^(BOOL finished){
+                             NSLog(@"finished animating");
+                         }];
+        index++;
+    }
+    
      
-     */
 }
 
 #warning TODO: this is duplicated in NoteListViewController

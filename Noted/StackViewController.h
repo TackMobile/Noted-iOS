@@ -11,12 +11,14 @@
 typedef void(^animationCompleteBlock)();
 
 @class NoteDocument;
+@class NoteListViewController;
 
 @interface StackViewController : UIViewController
 
-- (void)updateForTableView:(UITableView *)tableView selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
-- (UIView *)viewForIndexOffsetFromTop:(NSInteger)offset;
+- (void)expandRowsForViewController:(NoteListViewController *)noteList selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
+- (UIView *)viewAtIndex:(NSInteger)offset;
 - (void)setShadowsOnHighNotes;
 - (void)resetToExpanded;
+- (void)generateCells;
 
 @end

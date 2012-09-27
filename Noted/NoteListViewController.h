@@ -12,5 +12,6 @@
 @interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate>
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
+@property (strong, nonatomic) UIView *lastRowExtenderView;
 
 @end

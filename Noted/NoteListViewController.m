@@ -40,13 +40,14 @@ typedef enum {
     
     NoteEntryCell *_placeholder;
     StackViewController *_stackViewController;
+    BOOL _animating;
 }
 
 @end
 
 @implementation NoteListViewController
 
-@synthesize tableView;
+@synthesize tableView,lastRowExtenderView;
 
 - (id)init
 {
@@ -56,6 +57,7 @@ typedef enum {
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
         _scrolling = NO;
+        _animating = NO;
     }
     
     return self;
@@ -94,8 +96,6 @@ typedef enum {
         _shouldAutoShowNote = NO;
     }];
     
-    _stackViewController = [[StackViewController alloc] init];
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -109,11 +109,12 @@ typedef enum {
         _shouldAutoShowNote = NO;
         
     }
-    
-    [self.view addSubview:_stackViewController.view];
-    [_stackViewController.view setFrameX:-320.0];
-    
+
     [self.tableView reloadData];
+    if (_stackViewController) {
+        [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
+        [self configureLastRowExtenderView];
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -129,19 +130,57 @@ typedef enum {
 
 - (void) noteListChanged:(NSNotification *)notification {
     
-    int noteCount = [ApplicationModel sharedInstance].currentNoteDocuments.count;
-    NSLog(@"noteListChanged, count: %d [%d]",noteCount,__LINE__);
+    int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
+    //NSLog(@"noteListChanged, count: %d [%d]",noteCount,__LINE__);
     [self.tableView reloadData];
     
-    if (_shouldAutoShowNote && noteCount > 0) {
-        NSUInteger row = [[[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] integerValue];
-        if (row < noteCount-1) {
-            [self showNoteStackForSelectedRow:row animated:NO];
+    if (noteCount>0) {
+        if (!_stackViewController) {
+            _stackViewController = [[StackViewController alloc] init];
+            
         }
         
-        _shouldAutoShowNote = NO;
+        if (!_animating) {
+            [_stackViewController.view setFrameX:-320.0];
+        }
+        
+        [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
+        [_stackViewController generateCells];
+        [self configureLastRowExtenderView];
+    }
+    
+}
+
+- (void)configureLastRowExtenderView
+{
+    // find out if bottom of last row is visible
+    UITableViewCell *lastCell = [[self.tableView visibleCells] lastObject];
+    CGRect frame = [self.tableView convertRect:lastCell.frame toView:self.view];
+    CGRect bounds = self.view.bounds;
+    CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSIndexPath *lastIndexPath = [self.tableView indexPathForCell:lastCell];
+    NoteDocument *document = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
+    if (CGRectGetMaxY(frame) < bounds.size.height) {
+        if (!self.lastRowExtenderView) {
+            self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
+            [self.view addSubview:self.lastRowExtenderView];
+            
+            //UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+            //[_las]
+            [self.lastRowExtenderView setUserInteractionEnabled:NO];
+        }
+        
+        CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
+        [self.lastRowExtenderView setFrame:newFrame];
+        [self.lastRowExtenderView setBackgroundColor:document.color];
+    } else {
+        // hide it
+        [self.lastRowExtenderView setFrame:hiddenFrame];
     }
 }
+
 
 #pragma mark - Table View methods
 
@@ -300,6 +339,7 @@ typedef enum {
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     _scrolling = YES;
+    [self configureLastRowExtenderView];
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
@@ -337,9 +377,13 @@ typedef enum {
     if (indexPath.section == 0) {
         [model createNote];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
+        [self configureLastRowExtenderView];
     } else {
         
-        [_stackViewController updateForTableView:tv selectedIndexPath:indexPath completion:^(){
+        [_stackViewController.view setFrameX:0.0];
+        _animating = YES;
+        [_stackViewController expandRowsForViewController:self selectedIndexPath:indexPath completion:^(){
+            _animating = NO;
             [_stackViewController.view setFrameX:-320.0];
             NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
             if (![doc noteEntry].adding) {
@@ -348,10 +392,7 @@ typedef enum {
         
         }];
         
-        [_stackViewController.view setFrameX:0.0];
-        
         _viewingNoteStack = YES;
-        
     }
 }
 
@@ -369,8 +410,12 @@ typedef enum {
         _viewingNoteStack = NO;
         _shouldAutoShowNote = NO;
         
-        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
-        [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
+        NSLog(@"Is %f greater than 480.0?",currentNoteOffset);
+        if (currentNoteOffset>self.view.bounds.size.height) {
+            CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
+            [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
+        }
+        
         
     } andStackVC:_stackViewController];
     [self presentViewController:stackViewController animated:animated completion:NULL];
@@ -388,9 +433,11 @@ typedef enum {
     }];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [self configureLastRowExtenderView];
     
     [self delayedCall:0.35 withBlock:^{
         [self.tableView reloadData];
+        
     }];
 
 }
