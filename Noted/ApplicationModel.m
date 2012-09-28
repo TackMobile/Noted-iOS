@@ -15,6 +15,13 @@
 #import "FileStorageState.h"
 #import "UIAlertView+Blocks.h"
 
+@interface ApplicationModel()
+{
+    BOOL _refreshingiCloudData;
+}
+
+@end
+
 @implementation ApplicationModel
 
 @synthesize currentNoteEntries=_currentNoteEntries;
@@ -31,6 +38,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     if (nil == noteFileManager) {
         noteFileManager = [[NoteFileManager alloc] init];
         noteFileManager.delegate = self;
+        _refreshingiCloudData = NO;
     }
     return noteFileManager;
 }
@@ -79,15 +87,20 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)refreshNotes {
     
+    if (_refreshingiCloudData) {
+        return;
+    }
+    
+    _refreshingiCloudData = YES;
+    
     void(^refreshBlock)() = ^{
-        [EZToastView showToastMessage:@"refreshing notes explicitly"];
         [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
     };
     if ([FileStorageState shouldPrompt]) {
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:@"createNote" object:nil queue:nil usingBlock:^(NSNotification *note){
+        [[NSNotificationCenter defaultCenter] addObserverForName:SHOULD_CREATE_NOTE object:nil queue:nil usingBlock:^(NSNotification *note){
             [self createNote];
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:@"createNote" object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:SHOULD_CREATE_NOTE object:nil];
             
         }];
         
@@ -193,6 +206,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 {
     [EZToastView showToastMessage:@"create note called"];
     NSString *uniqueName = [NoteDocument uniqueNoteName];
+    NSLog(@"Unique name for doc: %@",uniqueName);
     
     NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
     
@@ -206,25 +220,12 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
 }
 
-- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock {
+- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
+{
     
-    // in-memory model updated, notify ui
     [self.currentNoteEntries removeObject:noteDoc];
-    
     [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
-    
-    /*
-     NSURL* fileURL = noteDoc.fileURL;
-     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-     NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-     [fileCoordinator coordinateWritingItemAtURL:fileURL options:NSFileCoordinatorWritingForDeleting
-     error:nil byAccessor:^(NSURL* writingURL) {
-     NSFileManager* fileManager = [[NSFileManager alloc] init];
-     [fileManager removeItemAtURL:writingURL error:nil];
-     }];
-     });
-     
-     */
+  
 }
 
 #pragma mark - Note File Manager Delegate
@@ -232,8 +233,13 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {
     
     self.currentNoteEntries = noteEntries;
+    _refreshingiCloudData = NO;
     NSLog(@"currentNoteDocuments count: %d",self.currentNoteDocuments.count);
     NSLog(@"currentNoteEntries count: %d",self.currentNoteEntries.count);
+    
+    if (self.currentNoteDocuments.count==0 && self.currentNoteEntries.count>0) {
+        NSLog(@"you should delete the currentNoteDocuments property!\n");
+    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
 }

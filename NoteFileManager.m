@@ -42,14 +42,10 @@
     TKPreferredStorage storage = [FileStorageState preferredStorage];
     
     if (storage==kTKiCloud) {
-        [self loadAllNoteEntriesFromICloud];
+        [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
     } else if (storage==kTKlocal) {
-        [self loadAllNoteEntriesFromLocal];
+        [self performSelectorInBackground:@selector(loadLocalNoteEntriesInBackground) withObject:nil];
     }
-}
-
-- (void) loadAllNoteEntriesFromICloud {
-    [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
 }
 
 - (void)copyFromCloudAndLoadLocalNoteEntries
@@ -57,9 +53,6 @@
     //
 }
 
-- (void) loadAllNoteEntriesFromLocal {
-    [self performSelectorInBackground:@selector(loadLocalNoteEntriesInBackground) withObject:nil];
-}
 
 - (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries {
     if (entries.count==0) {
@@ -87,6 +80,7 @@
 - (NoteDocument *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     
     NSURL *fileURL = [self URLForFileNamed:noteName];
+    NSLog(@"fileURL for new doc: %@",fileURL);
     NoteDocument *doc = nil;
     if ([FileStorageState preferredStorage]==kTKiCloud) {
         // have CloudManager do it
@@ -179,7 +173,7 @@
         if (IsEmpty(docs)) {
             // if 1st use, create one
             if ([FileStorageState isFirstUse]) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"createNote" object:nil];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SHOULD_CREATE_NOTE object:nil];
             }
             
         } else {

@@ -19,7 +19,7 @@
     if (self = [super init]) {
         //
         self.noteColor = [UIColor whiteColor];
-        self.noteText = @"lorem ipsum";
+        self.noteText = @"";
         self.dateCreated = [NSDate date];
         self.noteLocation = @"0";
         

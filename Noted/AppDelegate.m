@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-
+#import "FileStorageState.h"
+#import "NSUserDefaults+Convenience.h"
 #import "NoteListViewController.h"
 #import "MasterViewController.h"
 #import "NoteFileManager.h"
@@ -33,24 +34,27 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     [self.window makeKeyAndVisible];
     
     [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
-        NSLog(@"%s iCloud availability check done [%d]",__PRETTY_FUNCTION__,__LINE__);
-       
+        
+        if ([FileStorageState isFirstUse]) {
+            [[NSUserDefaults standardUserDefaults] saveBool:NO forKey:USE_STANDARD_SYSTEM_KEYBOARD];
+            [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:HIDE_STATUS_BAR];
+            
+        }
+        
     }];
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]) {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:USE_STANDARD_SYSTEM_KEYBOARD];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HIDE_STATUS_BAR];
-    }
+
         
     return YES;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    NSLog(@"did become active");
-    
-    
-    
+    [[ApplicationModel sharedInstance] refreshNotes];
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    [[NSUserDefaults standardUserDefaults] saveBool:NO forKey:kFirstUse];
 }
 
 @end

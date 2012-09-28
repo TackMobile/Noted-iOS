@@ -17,8 +17,8 @@
 {
     NSMetadataQuery * _query;
     
-    NSMutableArray * _iCloudURLs;
-    BOOL _iCloudURLsReady;
+    NSMutableArray * documents;
+    BOOL documentsReady;
     BOOL _moveLocalToiCloud;
     BOOL _copyiCloudToLocal;
     BOOL _iCloudAvailable;
@@ -55,13 +55,13 @@ static CloudManager *sharedInstance;
 - (id)init
 {
     if (self == [super init]) {
-        _iCloudURLsReady = NO;
+        documentsReady = NO;
         _moveLocalToiCloud = NO;
         _copyiCloudToLocal = NO;
         _iCloudAvailable = NO;
         
         _objects = [[NSMutableArray alloc] init];
-        _iCloudURLs = [[NSMutableArray alloc] init];
+        documents = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -74,16 +74,19 @@ static CloudManager *sharedInstance;
         if (_iCloudRoot != nil) {
             [FileStorageState setiCloudOn:YES];
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"iCloud available at: %@", _iCloudRoot);
-                available(YES);
+                if (available) {
+                    available(YES);
+                }
+                
             });
         }
         else {
             [FileStorageState setiCloudOn:NO];
             //[FileStorageState setiCloudWasOn:NO];
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"iCloud not available. Loading files from local docs directory");
-                available(NO);
+                if (available) {
+                    available(NO);
+                }
                 
             });
         }
@@ -103,8 +106,8 @@ static CloudManager *sharedInstance;
     
     self.loadingComplete = complete;
     
-    _iCloudURLsReady = NO;
-    [_iCloudURLs removeAllObjects];
+    documentsReady = NO;
+    [documents removeAllObjects];
     [_objects removeAllObjects];
     
     [self initializeiCloudAccessWithCompletion:^(BOOL available) {
@@ -113,20 +116,7 @@ static CloudManager *sharedInstance;
         
         if (!_iCloudAvailable) {
             
-            // If iCloud isn't available, set prompted to NO (so we can ask them next time it becomes available)
-            [FileStorageState setiCloudPrompted:NO];
-            
-            // If iCloud was toggled on previously, warn user that the docs will be loaded locally
-            if ([FileStorageState iCloudWasOn]) {
-                UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"You're Not Using iCloud" message:@"Your documents were loaded only locally but remain stored in iCloud." delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-                [alertView show];
-            }
-            
-            // No matter what, iCloud isn't available so switch it to off.
-            [FileStorageState setiCloudOn:NO];
-            [FileStorageState setiCloudWasOn:NO];
-            
-            //[self copyFromCloudToLocal];
+            [self handleRefreshForCloudUnavailable];
             
         } else {
             
@@ -143,13 +133,15 @@ static CloudManager *sharedInstance;
             
             // If iCloud newly switched on, move local docs to iCloud
             BOOL iCloudOn = [FileStorageState iCloudOn];
+            NSLog(@"iCloudOn: %s",iCloudOn ? "YES" : "NO");
             BOOL iCloudWasOn = [FileStorageState iCloudWasOn];
+            NSLog(@"iCloudWasOn: %s",iCloudWasOn ? "YES" : "NO");
             if (iCloudOn && !iCloudWasOn) {
                 [self localToiCloud];
             }
             
             // If iCloud newly switched off, move iCloud docs to local
-            if (![FileStorageState iCloudOn] && [FileStorageState iCloudWasOn]) {
+            if (!iCloudOn && iCloudWasOn) {
                 [self iCloudToLocal];
             }
             
@@ -169,6 +161,24 @@ static CloudManager *sharedInstance;
     }];
 }
 
+- (void)handleRefreshForCloudUnavailable
+{
+    // If iCloud isn't available, set prompted to NO (so we can ask them next time it becomes available)
+    [FileStorageState setiCloudPrompted:NO];
+    
+    // If iCloud was toggled on previously, warn user that the docs will be loaded locally
+    if ([FileStorageState iCloudWasOn]) {
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"You're Not Using iCloud" message:@"Your documents were loaded only locally but remain stored in iCloud." delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        [alertView show];
+    }
+    
+    // No matter what, iCloud isn't available so switch it to off.
+    [FileStorageState setiCloudOn:NO];
+    [FileStorageState setiCloudWasOn:NO];
+    
+    //[self copyFromCloudToLocal];
+}
+
 #pragma mark iCloud Query
 
 - (void)startQuery {
@@ -180,11 +190,11 @@ static CloudManager *sharedInstance;
     _query = [self documentQuery];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(processiCloudFiles:)
+                                             selector:@selector(processFiles:)
                                                  name:NSMetadataQueryDidFinishGatheringNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(processiCloudFilesFromUpdate:)
+                                             selector:@selector(processFiles:)
                                                  name:NSMetadataQueryDidUpdateNotification
                                                object:nil];
     
@@ -240,12 +250,12 @@ static CloudManager *sharedInstance;
         NSLog(@"fileUrl not found in list");
     }
     
-    if ([_iCloudURLs indexOfObject:fileURL] != NSNotFound){
-        [_iCloudURLs removeObject:fileURL];
+    if ([documents indexOfObject:fileURL] != NSNotFound){
+        [documents removeObject:fileURL];
     }
     
     NSLog(@"%d is count of _objects after delete of %@",_objects.count,shortStr);
-    NSLog(@"%d is count of _iCloudURLs after delete of %@",_iCloudURLs.count,shortStr);
+    NSLog(@"%d is count of documents after delete of %@",documents.count,shortStr);
     
     return index;
 }
@@ -319,16 +329,9 @@ static CloudManager *sharedInstance;
 
 #pragma mark File management
 
-- (void)processiCloudFilesFromUpdate:(NSNotification *)notification
+- (NSString *)fileURLShorthand:(NSURL *)fileURL
 {
-    //[EZToastView showToastMessage:@"did query iCloud after update"];
-    [self processFiles:notification];
-}
-
-- (void)processiCloudFiles:(NSNotification *)notification {
-    
-    //[EZToastView showToastMessage:@"did query iCloud for refresh request"];
-    [self processFiles:notification];
+    return [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-10];
 }
 
 - (void)processFiles:(NSNotification *)notification
@@ -336,14 +339,12 @@ static CloudManager *sharedInstance;
     // Always disable updates while processing results
     [_query disableUpdates];
     
-    
-    for (NSURL *url in _iCloudURLs) {
-        NSString *shorty = [url.absoluteString substringFromIndex:url.absoluteString.length-10];
-        NSLog(@"found %@",shorty);
+    for (NSURL *url in documents) {
+        NSLog(@"found %@",[self fileURLShorthand:url]);
     }
     
-    [_iCloudURLs removeAllObjects];
-    //[EZToastView showToastMessage:@"processing iCloud URLS"];
+    NSMutableArray *discoveredFiles = [NSMutableArray array];
+    
     
     // The query reports all files found, every time.
     NSArray * queryResults = [_query results];
@@ -354,18 +355,18 @@ static CloudManager *sharedInstance;
         // Don't include hidden files
         [fileURL getResourceValue:&aBool forKey:NSURLIsHiddenKey error:nil];
         if (aBool && ![aBool boolValue]) {
-            NSString *shortyy = [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-10];
-            NSLog(@"adding %@",shortyy);
-            [_iCloudURLs addObject:fileURL];
+            NSLog(@"adding %@",[self fileURLShorthand:fileURL]);
+            [discoveredFiles addObject:fileURL];
         }
     }
     
-    NSLog(@"Found %d iCloud files.", _iCloudURLs.count);
     
-    _iCloudURLsReady = YES;
+    [documents removeAllObjects];
+    [documents addObjectsFromArray:discoveredFiles];
+    NSLog(@"Found %d iCloud files.", documents.count);
+    documentsReady = YES;
     
     if ([FileStorageState iCloudOn]) {
-        NSLog(@"found %d files and cloud is on",_iCloudURLs.count);
         // Remove deleted files
         // Iterate backwards because we need to remove items from the array
         for (int i = _objects.count -1; i >= 0; --i) {
@@ -374,12 +375,12 @@ static CloudManager *sharedInstance;
                 return;
             }
             NoteEntry *entry = [_objects objectAtIndex:i];
-            if (![_iCloudURLs containsObject:entry.fileURL]) {
+            if (![documents containsObject:entry.fileURL]) {
                 [self removeEntryWithURL:entry.fileURL];
             }
         }
         
-        if (_iCloudURLs.count==0) {
+        if (documents.count==0) {
             // no docs found
             [_query enableUpdates];
             self.loadingComplete(nil);
@@ -390,7 +391,7 @@ static CloudManager *sharedInstance;
             
             // open the documents, and when they're all done
             // pass an NSMutableOrderedSet of NoteDocuments to a notification (didLoadNoteEntries:)
-            NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
+            // NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
             NSMutableOrderedSet *noteDocsList = [NSMutableOrderedSet orderedSet];
             // we don't need a predicate to filter for docs with kNoteExtension
             // like we do when we load local files cause these urls are filtered
@@ -407,11 +408,14 @@ static CloudManager *sharedInstance;
                     
                     self.loadingComplete(noteDocsList);
                 });
+                
+                [_query enableUpdates];
             };
             TKPromiseFailedBlock promiseFailedBlock = ^{
                 //TODO can we get an error here?
                 //TODO do this on the main thread, right?
                 NSLog(@"promise failed %s [%d]",__PRETTY_FUNCTION__,__LINE__);
+                [_query enableUpdates];
             };
             TKPromiseResolvedBlock promiseResolvedBlock = ^{
                 iCloudFileLoadPromise = nil;
@@ -420,18 +424,17 @@ static CloudManager *sharedInstance;
                                                              promiseFailedBlock:promiseFailedBlock
                                                            promiseResolvedBlock:promiseResolvedBlock
                                                                     commitments:nil];
-            NSArray *absoluteFileURLs = [_iCloudURLs valueForKeyPath:@"absoluteString"];
+            NSArray *absoluteFileURLs = [documents valueForKeyPath:@"absoluteString"];
             [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
             
-            for (NSURL * fileURL in _iCloudURLs) {
+            for (NSURL * fileURL in documents) {
                 NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
-                [self loadDocAtURL:fileURL intoList:noteEntriesList docsList:noteDocsList promised:YES];
+                [self loadDocAtURL:fileURL intoDocumentsList:noteDocsList promised:YES];
             }
             
         }
-    } else {
-        NSLog(@"found %d files and cloud is NOT on!!!!!!!!",_iCloudURLs.count);
     }
+    
     // just got everything from iCloud
     // so don't need to move anything local back up
     if (_moveLocalToiCloud) {
@@ -441,7 +444,8 @@ static CloudManager *sharedInstance;
         _copyiCloudToLocal = NO;
         [self iCloudToLocalImpl];
     }
-    [_query enableUpdates];
+    
+    
 }
 
 /*
@@ -453,7 +457,7 @@ static CloudManager *sharedInstance;
 
 #pragma mark File management methods
 
-- (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list docsList:(NSMutableOrderedSet *)docsList promised:(BOOL)promised {
+- (void)loadDocAtURL:(NSURL *)fileURL intoDocumentsList:(NSMutableOrderedSet *)docsList promised:(BOOL)promised {
     
     // Open doc so we can read metadata
     NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
@@ -469,19 +473,10 @@ static CloudManager *sharedInstance;
         }
         
         NoteEntry *entry = doc.noteEntry;
-        NSLog(@"did it crash after this? %s [%d]",__PRETTY_FUNCTION__,__LINE__);
-        if (list && docsList) {
-            [list addObject:entry];
+        if (docsList) {
             [docsList addObject:doc];
         }
-        
-        if (promised) {
-            // promise kept
-            NSLog(@"\n\nFulfilling promise for commitment: %@ [%d]",fileURL.absoluteString,__LINE__);
-            NSLog(@"Number %d of %d\n\n",[docsList indexOfObject:doc],docsList.count);
-            [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
-        }
-        
+ 
         // Close since we're done with it
         [doc closeWithCompletionHandler:^(BOOL success) {
             
@@ -489,6 +484,13 @@ static CloudManager *sharedInstance;
             if (!success) {
                 NSLog(@"Failed to close %@", fileURL);
                 // Continue anyway...
+            }
+            
+            if (promised) {
+                // promise kept
+                NSLog(@"\n\nFulfilling promise for commitment: %@ [%d]",fileURL.absoluteString,__LINE__);
+                NSLog(@"Number %d of %d\n\n",[docsList indexOfObject:doc],docsList.count);
+                [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
             }
             
             // Add to the list of files on main thread
@@ -568,7 +570,7 @@ static CloudManager *sharedInstance;
     
     NSLog(@"iCloud => local impl");
     
-    for (NSURL * fileURL in _iCloudURLs) {
+    for (NSURL * fileURL in documents) {
         
         NSString * fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
         NSURL *destURL = [self getDocURL:[self getDocFilename:fileName uniqueInLocalObjects:YES]];
@@ -583,7 +585,7 @@ static CloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Copied %@ to %@ (%d)", fileURL, destURL, [FileStorageState iCloudOn]);
 #warning test this
-                    [self loadDocAtURL:destURL intoList:nil docsList:nil promised:NO];
+                    [self loadDocAtURL:destURL intoDocumentsList:nil promised:NO];
                 } else {
                     NSLog(@"Failed to copy %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }
@@ -622,7 +624,7 @@ static CloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Moved %@ to %@", fileURL, destURL);
 #warning test this
-                    [self loadDocAtURL:fileURL intoList:nil docsList:nil promised:NO];
+                    [self loadDocAtURL:fileURL intoDocumentsList:nil promised:NO];
                 } else {
                     NSLog(@"Failed to move %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }
@@ -637,7 +639,7 @@ static CloudManager *sharedInstance;
     NSLog(@"local => iCloud");
     
     // If we have a valid list of iCloud files, proceed
-    if (_iCloudURLsReady) {
+    if (documentsReady) {
         [self localToiCloudImpl];
     }
     // Have to wait for list of iCloud files to refresh
@@ -715,7 +717,7 @@ static CloudManager *sharedInstance;
 
 - (BOOL)docNameExistsIniCloudURLs:(NSString *)docName {
     BOOL nameExists = NO;
-    for (NSURL * fileURL in _iCloudURLs) {
+    for (NSURL * fileURL in documents) {
         if ([[fileURL lastPathComponent] isEqualToString:docName]) {
             nameExists = YES;
             break;
@@ -726,8 +728,8 @@ static CloudManager *sharedInstance;
 
 - (NSURL *)getDocURL:(NSString *)filename {
     if ([FileStorageState iCloudOn]) {
-        NSURL * docsDir = [_iCloudRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
-        NSString *docURL = [docsDir URLByAppendingPathComponent:filename];
+        NSURL *docsDir = [_iCloudRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
+        NSURL *docURL = [docsDir URLByAppendingPathComponent:filename];
         return docURL;
     } else {
         return [self.localRoot URLByAppendingPathComponent:filename];

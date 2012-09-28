@@ -24,7 +24,7 @@ NSString *const kDataFilename = @"note.data";
 
 @synthesize data = _data;
 @synthesize fileWrapper = _fileWrapper;
-@synthesize noteEntry;
+@synthesize noteEntry = _noteEntry;
 
 
 - (id)initWithFileURL:(NSURL *)url
@@ -44,6 +44,17 @@ NSString *const kDataFilename = @"note.data";
     }
     
     return self;
+}
+
+- (NoteEntry *)noteEntry
+{
+    if (!_noteEntry) {
+        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:self.fileURL];
+        _noteEntry = [[NoteEntry alloc] initWithFileURL:self.fileURL noteData:nil state:self.documentState version:version];
+
+    }
+    
+    return _noteEntry;
 }
 
 - (NoteData*)data {
@@ -77,12 +88,13 @@ NSString *const kDataFilename = @"note.data";
 }
 
 // Called whenever the application (auto)saves the content of a note
+// Returns a snapshot of the document’s data to UIDocument, which then writes it to the document file
 - (id)contentsForType:(NSString *)typeName error:(NSError*__autoreleasing*)outError {
-    NSLog(@"Saving current Document");
-    if (self.data == nil) {        
-        return nil;    
+
+    if (self.data == nil) {
+        return nil;
     }
-        
+    
     NSMutableDictionary *wrappers = [NSMutableDictionary dictionary];
     [self encodeObject:self.data toWrappers:wrappers preferredFilename:kDataFilename];   
     NSFileWrapper *fileWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:wrappers];
@@ -178,30 +190,6 @@ NSString *const kDataFilename = @"note.data";
     return uniqueName;
 }
 
-/*
- - (NoteEntry *)noteEntry
- {
- NoteData *noteData = [NoteData new];
- noteData.noteText = self.text;
- noteData.noteLocation = self.location;
- noteData.noteColor = self.color;
- noteData.dateCreated = [NSDate date];
- 
- NSURL * fileURL = self.fileURL;
- UIDocumentState state = self.documentState;
- NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
- [dateFormatter setDoesRelativeDateFormatting:YES];
- [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
- [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
- NSFileVersion * version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
- //NSLog(@"Loaded File URL: %@, State: %@, Last Modified: %@", [self.fileURL lastPathComponent], [NoteDocument stringForState:state], [dateFormatter stringFromDate:version.modificationDate]);
- 
- NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
- 
- return entry;
- }
- 
- */
 + (NSString *)stringForState:(UIDocumentState)state
 {
     NSMutableArray * states = [NSMutableArray array];

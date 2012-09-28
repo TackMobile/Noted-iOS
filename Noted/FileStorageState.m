@@ -7,6 +7,7 @@
 //
 
 #import "FileStorageState.h"
+#import "NSUserDefaults+Convenience.h"
 
 NSString *const kPreferredStorage =         @"preferredStorage";
 NSString *const kPreferredStoragePrompted = @"preferredStoragePrompted";
@@ -18,15 +19,7 @@ NSString *const kFirstUse =                 @"firstUse";
 
 + (BOOL)isFirstUse
 {
-    BOOL first = YES;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:kFirstUse]) {
-        first = NO;
-    }
-    
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFirstUse];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    
-    return first;
+    return ![[NSUserDefaults standardUserDefaults] hasValueForKey:kFirstUse];
 }
 
 + (BOOL)iCloudOn {

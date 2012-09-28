@@ -235,6 +235,7 @@
 - (void)textViewDidEndEditing:(UITextView *)aTextView
 {
     [self.note setText:aTextView.text];
+    [self.note updateChangeCount:UIDocumentChangeDone];
 }
 
 - (BOOL)usingDefaultKeyboard

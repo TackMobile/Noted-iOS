@@ -83,17 +83,18 @@ typedef enum {
     
     
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-     
-         if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
-             _shouldAutoShowNote = YES;
-         }
+
+#warning TODO: reimplement using iCloud syncing
+//         if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
+//             _shouldAutoShowNote = YES;
+//         }
          
-         ApplicationModel *model = [ApplicationModel sharedInstance];
-         [model refreshNotes];
+         
      }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-        _shouldAutoShowNote = NO;
+#warning TODO: reimplement using iCloud syncing
+        //_shouldAutoShowNote = NO;
     }];
     
 }
@@ -101,18 +102,18 @@ typedef enum {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
-    if (_viewingNoteStack) {
-        
-        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
-        _viewingNoteStack = NO;
-        _shouldAutoShowNote = NO;
-        
-    }
+#warning TODO: reimplement using iCloud syncing    
+//    if (_viewingNoteStack) {
+//        
+//        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
+//        _viewingNoteStack = NO;
+//        _shouldAutoShowNote = NO;
+//        
+//    }
 
     [self.tableView reloadData];
     if (_stackViewController) {
-        [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
+        [self.view addSubview:_stackViewController.view];
         [self configureLastRowExtenderView];
     }
 }
@@ -131,7 +132,7 @@ typedef enum {
 - (void) noteListChanged:(NSNotification *)notification {
     
     int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
-    //NSLog(@"noteListChanged, count: %d [%d]",noteCount,__LINE__);
+
     [self.tableView reloadData];
     
     if (noteCount>0) {
@@ -155,6 +156,9 @@ typedef enum {
 {
     // find out if bottom of last row is visible
     UITableViewCell *lastCell = [[self.tableView visibleCells] lastObject];
+    if (!lastCell) {
+        return;
+    }
     CGRect frame = [self.tableView convertRect:lastCell.frame toView:self.view];
     CGRect bounds = self.view.bounds;
     CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
