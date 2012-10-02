@@ -14,7 +14,7 @@ typedef void(^CloudManagerDocSaveCompleteBlock)();
 @class NoteEntry;
 
 typedef void(^iCloudAvailableBlock)(BOOL available);
-typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *noteDocs);
+typedef void(^iCloudLoadingComplete)(NSMutableArray *noteEntries);
 typedef void(^iCloudLoadingFailed)();
 
 @interface CloudManager : NSObject

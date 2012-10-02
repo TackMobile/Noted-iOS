@@ -17,7 +17,7 @@ typedef void (^DeleteNoteCompletionBlock)();
 
 @protocol NoteFileManagerDelegate <NSObject>
 @optional
-- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries;
+- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableArray *)noteEntries;
 - (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesFromICloudWithLocalNoteEntries:(NSMutableOrderedSet *)noteEntries;
 - (void) fileManager:(NoteFileManager *)fileManager failedToLoadNoteEntriesWithError:(NSError *)error;
 

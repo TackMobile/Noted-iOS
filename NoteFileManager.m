@@ -53,11 +53,11 @@
     //
 }
 
-- (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries {
-    if (entries.count==0) {
+- (void) didLoadNoteEntries:(NSMutableArray *)noteEntries {
+    if (noteEntries.count==0) {
         NSLog(@"Error loading entries [%d]",__LINE__);
     }
-    [self.delegate fileManager:self didLoadNoteEntries:entries];
+    [self.delegate fileManager:self didLoadNoteEntries:noteEntries];
 }
 
 - (NSURL *)URLForFileNamed:(NSString *)filename {
@@ -194,9 +194,9 @@
 - (void) loadICloudNoteEntriesInBackground {
 
     // check what's there
-    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableOrderedSet *docs){
+    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableArray *noteEntries){
         
-        if (IsEmpty(docs)) {
+        if (IsEmpty(noteEntries)) {
             // if 1st use, create one
             if ([FileStorageState isFirstUse]) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:SHOULD_CREATE_NOTE object:nil];
@@ -205,7 +205,7 @@
         } else {
             
             // show them
-            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:docs waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:noteEntries waitUntilDone:NO];
         }
         
     } failBlock:^{
@@ -216,7 +216,7 @@
 
 - (void)loadLocalNoteEntriesInBackground
 {
-    NSMutableOrderedSet *list = [NSMutableOrderedSet orderedSet];
+    NSMutableArray *list = [NSMutableArray array];
     // array of urls from NSFileManager
     NSArray *localDocuments = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:localDocumentRoot includingPropertiesForKeys:nil options:0 error:nil];
     NSPredicate *notedDocsPredicate = [NSPredicate predicateWithFormat:@"%K == %@", @"pathExtension", kNoteExtension];
@@ -261,7 +261,7 @@
     }];
 }
 
-- (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableOrderedSet *)list
+- (void)loadDocAtURL:(NSURL *)fileURL intoList:(NSMutableArray *)list
 {
     NoteDocument *savedDocument = [[NoteDocument alloc] initWithFileURL:fileURL];
     [savedDocument openWithCompletionHandler:^(BOOL success) {

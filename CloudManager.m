@@ -363,17 +363,13 @@ static CloudManager *sharedInstance;
     
     [documents removeAllObjects];
     [documents addObjectsFromArray:discoveredFiles];
-    NSLog(@"Found %d iCloud files.", documents.count);
+    NSLog(@"Found %d iCloud file URLS", documents.count);
     documentsReady = YES;
     
     if ([FileStorageState iCloudOn]) {
         // Remove deleted files
-        // Iterate backwards because we need to remove items from the array
+        // Iterate backwards because we need to remove items from the NoteEntries array
         for (int i = _objects.count -1; i >= 0; --i) {
-            if ([[_objects objectAtIndex:i] isKindOfClass:[NSString class]]) {
-                NSLog(@"This is an error with the object stored in the table view");
-                return;
-            }
             NoteEntry *entry = [_objects objectAtIndex:i];
             if (![documents containsObject:entry.fileURL]) {
                 [self removeEntryWithURL:entry.fileURL];
@@ -390,23 +386,19 @@ static CloudManager *sharedInstance;
         } else {
             
             // open the documents, and when they're all done
-            // pass an NSMutableOrderedSet of NoteDocuments to a notification (didLoadNoteEntries:)
-            // NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
-            NSMutableOrderedSet *noteDocsList = [NSMutableOrderedSet orderedSet];
+            // pass an NSMutableOrderedSet of NoteEntries to a notification (didLoadNoteEntries:)
+            //NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
             // we don't need a predicate to filter for docs with kNoteExtension
             // like we do when we load local files cause these urls are filtered
             // in the metadata query
             TKPromiseKeptBlock promiseKeptBlock = ^{
-                // now we can pass to tableview and reload
-                //[self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:openedDocsList waitUntilDone:NO];
+
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    NSLog(@"Number of docs: %d [%d]",noteDocsList.count,__LINE__);
                     
-                    if (noteDocsList.count==0) {
-                        NSLog(@"wtf??");
-                    }
+                    NSLog(@"Count of note entries in _objects: %d",_objects.count);
+                    NSLog(@"1st object in _objects: %@, %@",[_objects objectAtIndex:0],NSStringFromClass([[_objects objectAtIndex:0] class]));
                     
-                    self.loadingComplete(noteDocsList);
+                    self.loadingComplete(_objects);
                 });
                 
                 [_query enableUpdates];
@@ -429,7 +421,7 @@ static CloudManager *sharedInstance;
             
             for (NSURL * fileURL in documents) {
                 NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
-                [self loadDocAtURL:fileURL intoDocumentsList:noteDocsList promised:YES];
+                [self loadDocAtURL:fileURL promised:YES];
             }
             
         }
@@ -457,7 +449,7 @@ static CloudManager *sharedInstance;
 
 #pragma mark File management methods
 
-- (void)loadDocAtURL:(NSURL *)fileURL intoDocumentsList:(NSMutableOrderedSet *)list promised:(BOOL)promised {
+- (void)loadDocAtURL:(NSURL *)fileURL promised:(BOOL)promised {
     
     // Open doc so we can read metadata
     NoteDocument * savedDocument = [[NoteDocument alloc] initWithFileURL:fileURL];
@@ -470,32 +462,28 @@ static CloudManager *sharedInstance;
             return;
         }
         
-        
         NoteData *noteData = savedDocument.data; // decodes from file wrapper or creates brand new
         
         NSURL *fileURL = savedDocument.fileURL;
         UIDocumentState state = savedDocument.documentState;
         NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
         
-        NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
+        //NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
         
-        if (entry) {
-            [list addObject:entry];
-            
-            if (promised) {
-                [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
-            }
-            
-            // Add to the list of files on main thread
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self addOrUpdateEntryWithURL:fileURL noteData:entry.noteData state:entry.state version:entry.version];
-            });
-            
-        } else {
-#warning TODO: report error
-            NSLog(@"Couldn't make note entry [%d]",__LINE__);
+        [self addOrUpdateEntryWithURL:fileURL noteData:noteData state:state version:version];
+        if (promised) {
+            [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
         }
- 
+        
+        /*
+         // Add to the list of files on main thread
+         dispatch_async(dispatch_get_main_queue(), ^{
+         
+         NSLog(@"Count of note entries in _objects: %d",_objects.count);
+         NSLog(@"1st object in _objects: %@, %@",[_objects objectAtIndex:0],NSStringFromClass([[_objects objectAtIndex:0] class]));
+         });
+         */
+        
         // Close since we're done with it
         [savedDocument closeWithCompletionHandler:^(BOOL success) {
             
@@ -579,7 +567,7 @@ static CloudManager *sharedInstance;
     
     for (NSURL * fileURL in documents) {
         
-        NSString * fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
+        NSString *fileName = [[fileURL lastPathComponent] stringByDeletingPathExtension];
         NSURL *destURL = [self getDocURL:[self getDocFilename:fileName uniqueInLocalObjects:YES]];
         
         // Perform copy on background thread
@@ -592,7 +580,7 @@ static CloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Copied %@ to %@ (%d)", fileURL, destURL, [FileStorageState iCloudOn]);
 #warning test this
-                    [self loadDocAtURL:destURL intoDocumentsList:nil promised:NO];
+                    [self loadDocAtURL:destURL promised:NO];
                 } else {
                     NSLog(@"Failed to copy %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }
@@ -631,7 +619,7 @@ static CloudManager *sharedInstance;
                 if (success) {
                     NSLog(@"Moved %@ to %@", fileURL, destURL);
 #warning test this
-                    [self loadDocAtURL:fileURL intoDocumentsList:nil promised:NO];
+                    [self loadDocAtURL:fileURL promised:NO];
                 } else {
                     NSLog(@"Failed to move %@ to %@: %@", fileURL, destURL, error.localizedDescription);
                 }

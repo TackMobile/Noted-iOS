@@ -227,9 +227,9 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 #pragma mark - Note File Manager Delegate
 
-- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableOrderedSet *)noteEntries {
+- (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableArray *)noteEntries {
     
-    self.currentNoteEntries = noteEntries;
+    self.currentNoteEntries = [NSMutableOrderedSet orderedSetWithArray:noteEntries];
     _refreshingiCloudData = NO;
     NSLog(@"currentNoteEntries count: %d",self.currentNoteEntries.count);
     
