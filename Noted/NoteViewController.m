@@ -63,8 +63,8 @@
 {
     if (_note != newNote) {
         _note = newNote;
-        
-        [self setNoteEntry:_note.noteEntry];
+#warning TODO: reimplement!!!!!!
+        //[self setNoteEntry:_note.noteEntry];
     }
 }
 

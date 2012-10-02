@@ -154,31 +154,31 @@ typedef enum {
 
 - (void)configureLastRowExtenderView
 {
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
     // find out if bottom of last row is visible
     UITableViewCell *lastCell = [[self.tableView visibleCells] lastObject];
-    if (!lastCell) {
+    if (model.currentNoteEntries.count==0 || !lastCell) {
         return;
     }
     CGRect frame = [self.tableView convertRect:lastCell.frame toView:self.view];
     CGRect bounds = self.view.bounds;
     CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
     
-    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
     NSIndexPath *lastIndexPath = [self.tableView indexPathForCell:lastCell];
-    NoteDocument *document = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
+    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
     if (CGRectGetMaxY(frame) < bounds.size.height) {
         if (!self.lastRowExtenderView) {
             self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
             [self.view addSubview:self.lastRowExtenderView];
             
-            //UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
-            //[_las]
             [self.lastRowExtenderView setUserInteractionEnabled:NO];
         }
         
         CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
         [self.lastRowExtenderView setFrame:newFrame];
-        [self.lastRowExtenderView setBackgroundColor:document.color];
+        [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
     } else {
         // hide it
         [self.lastRowExtenderView setFrame:hiddenFrame];
@@ -242,8 +242,7 @@ typedef enum {
         NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
         ApplicationModel *model = [ApplicationModel sharedInstance];
         
-        NoteDocument *document = [model.currentNoteEntries objectAtIndex:indexPath.row];
-        NoteEntry *noteEntry = [document noteEntry];
+        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
         
         if (noteEntryCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
@@ -261,20 +260,18 @@ typedef enum {
             [self delayedCall:1.0 withBlock:^{
                 [UIView animateWithDuration:0.5
                                  animations:^{
-                                     //[noteEntryCell.contentView setBackgroundColor:blueRowBgColor];
-                                     noteEntryCell.contentView.backgroundColor = document.color;
+                                     noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
                                  }
                                  completion:nil];
             }];
             
         } else {
-            noteEntryCell.contentView.backgroundColor = document.color;
+            noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
         }
         
         noteEntryCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
-        
         
         return noteEntryCell;
     }
@@ -291,11 +288,11 @@ typedef enum {
         
         ApplicationModel *model = [ApplicationModel sharedInstance];
         UIView *shadow = [cell viewWithTag:kShadowViewTag];
-        if (indexPath.row == model.currentNoteEntries.count-1) {
+        int count = model.currentNoteEntries.count;
+        if (indexPath.row == count-1) {
             [shadow setHidden:YES];
         }
     }
-    
 }
 
 - (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
@@ -378,8 +375,12 @@ typedef enum {
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    if (indexPath.section == 0) {
-        [model createNote];
+    if (indexPath.section == kNew) {
+        [model createNoteWithCompletionBlock:^(NoteEntry *entry){
+            // new note entry should always appear at row 0, right?
+            NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
         [self configureLastRowExtenderView];
     } else {
@@ -389,8 +390,8 @@ typedef enum {
         [_stackViewController expandRowsForViewController:self selectedIndexPath:indexPath completion:^(){
             _animating = NO;
             [_stackViewController.view setFrameX:-320.0];
-            NoteDocument *doc = [model noteDocumentAtIndex:indexPath.row];
-            if (![doc noteEntry].adding) {
+            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
+            if (!noteEntry.adding) {
                 [self showNoteStackForSelectedRow:indexPath.row animated:NO];
             }
         
@@ -423,6 +424,7 @@ typedef enum {
         });
         
     } andStackVC:_stackViewController];
+    
     [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 

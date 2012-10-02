@@ -11,20 +11,23 @@
 #import "NoteEntry.h"
 #import "NSString+Digest.h"
 
+// file extension for NSFileWrapper directory
 NSString *const kNoteExtension = @"ntd";
+// filename for the single sub-file that
+// will be inside our directory/NSFileWrapper
 NSString *const kDataFilename = @"note.data";
 
 @interface NoteDocument ()
 
-@property (strong, nonatomic) NoteData *data;
 @property (strong, nonatomic) NSFileWrapper *fileWrapper;
+
 @end
 
 @implementation NoteDocument
 
 @synthesize data = _data;
 @synthesize fileWrapper = _fileWrapper;
-@synthesize noteEntry = _noteEntry;
+//@synthesize noteEntry = _noteEntry;
 
 
 - (id)initWithFileURL:(NSURL *)url
@@ -40,42 +43,35 @@ NSString *const kDataFilename = @"note.data";
         
         [entry setNoteData:noteData];
         
-        self.noteEntry = entry;
+        //self.noteEntry = entry;
     }
     
     return self;
 }
 
-- (NoteEntry *)noteEntry
-{
-    if (!_noteEntry) {
-        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:self.fileURL];
-        _noteEntry = [[NoteEntry alloc] initWithFileURL:self.fileURL noteData:nil state:self.documentState version:version];
+/*
+ - (NoteEntry *)noteEntry
+ {
+ if (!_noteEntry) {
+ NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:self.fileURL];
+ _noteEntry = [[NoteEntry alloc] initWithFileURL:self.fileURL noteData:nil state:self.documentState version:version];
+ 
+ }
+ 
+ return _noteEntry;
+ }
+ */
 
-    }
-    
-    return _noteEntry;
-}
+/*
+ - (void)setEntryClosed
+ {
+ self.noteEntry.state = self.documentState;
+ self.noteEntry.version = [NSFileVersion currentVersionOfItemAtURL:self.fileURL];
+ self.noteEntry.adding = NO;
+ }
+ */
 
-- (NoteData*)data {
-    if (self.noteEntry.noteData == nil) {
-        if (self.fileWrapper != nil) {
-            self.noteEntry.noteData = [self decodeObjectFromWrapperWithPreferredFilename:kDataFilename];
-        } else {
-            // brand new object
-            self.noteEntry.noteData = [[NoteData alloc] init];
-        }
-    }
-    return self.noteEntry.noteData;
-}
-
-- (void)setEntryClosed
-{
-    self.noteEntry.state = self.documentState;
-    self.noteEntry.version = [NSFileVersion currentVersionOfItemAtURL:self.fileURL];
-    self.noteEntry.adding = NO;
-}
-
+// code to write the UIDocument to disk
 - (void)encodeObject:(id<NSCoding>)object toWrappers:(NSMutableDictionary*)wrappers preferredFilename:(NSString*)preferredFilename {
     @autoreleasepool {            
         NSMutableData *data = [NSMutableData data];
@@ -102,7 +98,7 @@ NSString *const kDataFilename = @"note.data";
     return fileWrapper;
 }
 
-// get data from file wrapper
+// Reading data from file wrapper
 - (id)decodeObjectFromWrapperWithPreferredFilename:(NSString*)preferredFilename {
     
     NSFileWrapper *fileWrapper = [self.fileWrapper.fileWrappers objectForKey:preferredFilename];
@@ -112,12 +108,21 @@ NSString *const kDataFilename = @"note.data";
     }
     
     NSData *data = [fileWrapper regularFileContents];
-    if (!data){
-        NSLog(@"data was nil %s [%d]",__PRETTY_FUNCTION__,__LINE__);
-    }
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     
     return [unarchiver decodeObjectForKey:@"data"];
+}
+
+- (NoteData*)data {
+    if (_data == nil) {
+        if (self.fileWrapper != nil) {
+            self.data = [self decodeObjectFromWrapperWithPreferredFilename:kDataFilename];
+        } else {
+            // brand new object
+            self.data = [[NoteData alloc] init];
+        }
+    }
+    return _data;
 }
 
 // called by the background queue whenever the read operation has been completed.
@@ -126,23 +131,9 @@ NSString *const kDataFilename = @"note.data";
     self.fileWrapper = (NSFileWrapper*) contents;    
     
     // The rest will be lazy loaded...
-    self.noteEntry.noteData = nil;
+    self.data = nil;
     
     return YES;
-}
-
-
-- (NSString *) description {
-    return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
-}
-
-- (NSString *)debugDescription
-{
-    /*
-     NoteEntry *entry = self.noteEntry;
-     return [NSString stringWithFormat:@"\n\ntext: %@, color: %@, abs time: %@",self.text,self.color,entry.absoluteDateString];
-     */
-    return @"";
 }
 
 #pragma mark Accessors
@@ -155,18 +146,16 @@ NSString *const kDataFilename = @"note.data";
 -(NSString*)text {
     return self.data.noteText;
 }
--(UIColor*)color {
-    return self.data.noteColor;
-}
--(NSString*)location {
-    return self.data.noteLocation;
-}
 
 -(void)setText:(NSString *)text {
     if([self.data.noteText isEqual:text]) return;
     NSString *oldText = self.data.noteText;
     self.data.noteText = text;
     [self.undoManager registerUndoWithTarget:self selector:@selector(setText:) object:oldText];
+}
+
+-(UIColor*)color {
+    return self.data.noteColor;
 }
 
 -(void)setColor:(UIColor*)color {
@@ -176,11 +165,21 @@ NSString *const kDataFilename = @"note.data";
     [self.undoManager registerUndoWithTarget:self selector:@selector(setColor:) object:oldColor];
 }
 
+-(NSString*)location {
+    return self.data.noteLocation;
+}
+
 -(void)setLocation:(NSString *)location {
     if ([self.data.noteLocation isEqual:location]) return;
     NSString *oldLocation = self.data.noteLocation;
     self.data.noteLocation = location;
     [self.undoManager registerUndoWithTarget:self selector:@selector(setLocation:) object:oldLocation];
+}
+
+#pragma mark Helpers
+
+- (NSString *) description {
+    return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }
 
 + (NSString *)uniqueNoteName

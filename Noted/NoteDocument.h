@@ -8,29 +8,32 @@
 
 #import <UIKit/UIKit.h>
 
+@class NoteData;
 @class NoteEntry;
 
 extern NSString *const kNoteExtension;
 
 @interface NoteDocument : UIDocument
 
-@property (nonatomic, strong) NoteEntry *noteEntry;
+@property (strong, nonatomic) NoteData *data;
+//@property (nonatomic, strong) NoteEntry *noteEntry;
 
-- (NSString*)description;
+// proxy to NoteData
 - (NSString*)text;
-- (UIColor*)color;
-- (NSString*)location;
-- (NSDate *)dateCreated;// no getter needed
 - (void)setText:(NSString*)text;
+- (UIColor*)color;
 - (void)setColor:(UIColor*)color;
+- (NSString*)location;
 - (void)setLocation:(NSString*)location;
+- (NSDate *)dateCreated;// no getter needed
 
+// helpers
+- (NSString*)description;
 + (NSString *)uniqueNoteName;
 + (NSString *)stringForState:(UIDocumentState)state;
 
+//#warning TODO: get rid of this
 // update the entry's state after closing doc
-- (void)setEntryClosed;
-
-- (NSString *)debugDescription;
+//- (void)setEntryClosed;
 
 @end

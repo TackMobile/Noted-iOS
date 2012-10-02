@@ -7,10 +7,11 @@
 //  Copyright (c) 2012 Tack Mobile. All rights reserved.
 //
 
+typedef void(^CloudManagerDocSaveCompleteBlock)();
+
 #import <Foundation/Foundation.h>
 
 @class NoteEntry;
-@class NoteDocument;
 
 typedef void(^iCloudAvailableBlock)(BOOL available);
 typedef void(^iCloudLoadingComplete)(NSMutableOrderedSet *noteDocs);
@@ -21,7 +22,7 @@ typedef void(^iCloudLoadingFailed)();
 + (CloudManager *)sharedInstance;
 - (void)initializeiCloudAccessWithCompletion:(iCloudAvailableBlock)available;
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
-- (NoteDocument *)insertNewEntryWithURL:(NSURL *)fileURL atIndex:(int)index completion:(void(^)(NoteDocument *entry))completion;
+- (void)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion;
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion;
 - (NSURL *)getDocURL:(NSString *)filename;
 

@@ -30,6 +30,12 @@
     return self;
 }
 
+-(NSString*) description {
+    return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
+}
+
+#pragma mark Metadata
+
 - (NSString *) title {
     return [[self.noteData.noteText componentsSeparatedByString:@"\n"] objectAtIndex:0];
 }
@@ -49,10 +55,6 @@
 - (UIColor *)noteColor
 {
     return self.noteData.noteColor;
-}
-
--(NSString*) description {
-    return [[self.fileURL lastPathComponent] stringByDeletingPathExtension];
 }
 
 - (NSDate *)dateCreated

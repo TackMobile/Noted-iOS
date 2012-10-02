@@ -15,4 +15,6 @@
 @property (strong) NSString *noteLocation;
 @property (nonatomic, strong) NSDate *dateCreated;
 
++ (NoteData *)noteDataWithLocation:(NSString *)location;
+
 @end

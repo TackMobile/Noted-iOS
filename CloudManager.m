@@ -457,39 +457,32 @@ static CloudManager *sharedInstance;
 
 #pragma mark File management methods
 
-- (void)loadDocAtURL:(NSURL *)fileURL intoDocumentsList:(NSMutableOrderedSet *)docsList promised:(BOOL)promised {
+- (void)loadDocAtURL:(NSURL *)fileURL intoDocumentsList:(NSMutableOrderedSet *)list promised:(BOOL)promised {
     
     // Open doc so we can read metadata
-    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
-    doc.noteEntry.adding = NO;
-    [doc openWithCompletionHandler:^(BOOL success) {
+    NoteDocument * savedDocument = [[NoteDocument alloc] initWithFileURL:fileURL];
+    //doc.noteEntry.adding = NO;
+    [savedDocument openWithCompletionHandler:^(BOOL success) {
         
         // Check status
         if (!success) {
             NSLog(@"Failed to open %@", fileURL);
             return;
-        } else {
-            NSLog(@"successfully opened a doc [%d]",__LINE__);
         }
         
-        NoteEntry *entry = doc.noteEntry;
-        if (docsList) {
-            [docsList addObject:doc];
-        }
- 
-        // Close since we're done with it
-        [doc closeWithCompletionHandler:^(BOOL success) {
-            
-            // Check status
-            if (!success) {
-                NSLog(@"Failed to close %@", fileURL);
-                // Continue anyway...
-            }
+        
+        NoteData *noteData = savedDocument.data; // decodes from file wrapper or creates brand new
+        
+        NSURL *fileURL = savedDocument.fileURL;
+        UIDocumentState state = savedDocument.documentState;
+        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
+        
+        NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:fileURL noteData:noteData state:state version:version];
+        
+        if (entry) {
+            [list addObject:entry];
             
             if (promised) {
-                // promise kept
-                NSLog(@"\n\nFulfilling promise for commitment: %@ [%d]",fileURL.absoluteString,__LINE__);
-                NSLog(@"Number %d of %d\n\n",[docsList indexOfObject:doc],docsList.count);
                 [iCloudFileLoadPromise keepCommitment:fileURL.absoluteString];
             }
             
@@ -497,31 +490,46 @@ static CloudManager *sharedInstance;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self addOrUpdateEntryWithURL:fileURL noteData:entry.noteData state:entry.state version:entry.version];
             });
+            
+        } else {
+#warning TODO: report error
+            NSLog(@"Couldn't make note entry [%d]",__LINE__);
+        }
+ 
+        // Close since we're done with it
+        [savedDocument closeWithCompletionHandler:^(BOOL success) {
+            
+            // Check status
+            if (!success) {
+                NSLog(@"Failed to close %@", fileURL);
+                // Continue anyway...
+            }
+            
         }];
     }];
     
 }
 
-- (NoteDocument *)insertNewEntryWithURL:(NSURL *)fileURL atIndex:(int)index completion:(void(^)(NoteDocument *entry))completion
+- (void)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion
 {
     
     [_query disableUpdates];
     [self stopQuery];
     
-    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:noteEntry.fileURL];
     
-    [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
+    [doc saveToURL:noteEntry.fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
         
         if (!success) {
-            NSLog(@"Failed to create file at %@", fileURL);
+            NSLog(@"Failed to create file at %@", noteEntry.fileURL);
             return;
         }
         
         // Add to the list of files on main thread
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            [doc setEntryClosed];
-            [_objects insertObject:doc.noteEntry atIndex:index];
+            //[doc setEntryClosed];
+            [_objects insertObject:noteEntry atIndex:index];
             [_query enableUpdates];
             
             if (completion) {
@@ -531,7 +539,6 @@ static CloudManager *sharedInstance;
         });
     }];
     
-    return doc;
 }
 
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion

@@ -25,7 +25,6 @@
 @implementation ApplicationModel
 
 @synthesize currentNoteEntries=_currentNoteEntries;
-@synthesize currentNoteDocuments;
 @synthesize noteFileManager;
 @synthesize selectedNoteIndex;
 
@@ -136,11 +135,11 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 }
 
 - (NoteEntry *) noteAtIndex:(int)index {
-    return [[self noteDocumentAtIndex:index] noteEntry];
+    return [self.currentNoteEntries objectAtIndex:index];
 }
 
 - (NoteEntry *) noteAtSelectedNoteIndex {
-    return [[self noteDocumentAtIndex:selectedNoteIndex] noteEntry];
+    return [self noteAtIndex:selectedNoteIndex];
 }
 
 - (NoteDocument *)noteDocumentAtIndex:(int)index
@@ -204,27 +203,25 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion
 {
-    [EZToastView showToastMessage:@"create note called"];
     NSString *uniqueName = [NoteDocument uniqueNoteName];
     NSLog(@"Unique name for doc: %@",uniqueName);
     
-    NoteDocument *noteDoc = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
-    
-    [self.currentNoteEntries insertObject:noteDoc atIndex:0];
-    NSLog(@"done %d",__LINE__);
+    NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
+
+    [self.currentNoteEntries insertObject:noteEntry atIndex:0];
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {
-    NoteDocument *noteDoc = [self.currentNoteEntries objectAtIndex:index];
-    [self deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
+    NoteEntry *noteEntry = [self.currentNoteEntries objectAtIndex:index];
+    [self deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
 }
 
-- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
+- (void) deleteNoteEntry:(NoteEntry *)noteEntry withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {
     
-    [self.currentNoteEntries removeObject:noteDoc];
-    [self.noteFileManager deleteNoteEntry:noteDoc withCompletionBlock:callersCompletionBlock];
+    [self.currentNoteEntries removeObject:noteEntry];
+    [self.noteFileManager deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
   
 }
 
@@ -234,12 +231,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     
     self.currentNoteEntries = noteEntries;
     _refreshingiCloudData = NO;
-    NSLog(@"currentNoteDocuments count: %d",self.currentNoteDocuments.count);
     NSLog(@"currentNoteEntries count: %d",self.currentNoteEntries.count);
-    
-    if (self.currentNoteDocuments.count==0 && self.currentNoteEntries.count>0) {
-        NSLog(@"you should delete the currentNoteDocuments property!\n");
-    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
 }

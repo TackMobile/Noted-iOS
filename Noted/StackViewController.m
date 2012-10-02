@@ -195,19 +195,19 @@ static const float  kExpandDuration = 0.75;
             [shadow setFrameY:-shadowHeight];
             [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
             
-            NoteDocument *document = [model noteDocumentAtIndex:indexPath.row];
+            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
             
 #warning TODO: this needs to come from model
             UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
             noteCell.subtitleLabel.textColor = [UIColor blackColor];
             noteCell.relativeTimeText.textColor = tempColor;
             noteCell.absoluteTimeText.textColor = tempColor;
-            noteCell.contentView.backgroundColor = document.color;
+            noteCell.contentView.backgroundColor = noteEntry.noteColor;
             
-            [noteCell.subtitleLabel setText:document.text];
-            noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:[document noteEntry]];
-            noteCell.relativeTimeText.text = [[document noteEntry] relativeDateString];
-            noteCell.absoluteTimeText.text = [[document noteEntry] absoluteDateString];
+            [noteCell.subtitleLabel setText:noteEntry.text];
+            noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
+            noteCell.relativeTimeText.text = [noteEntry relativeDateString];
+            noteCell.absoluteTimeText.text = [noteEntry absoluteDateString];
             
             [noteCell setClipsToBounds:NO];
             
@@ -215,8 +215,8 @@ static const float  kExpandDuration = 0.75;
             UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
             
             circle.textColor = tempColor;
-            circle.text = [NoteViewController optionsDotTextForColor:document.color];
-            circle.font = [NoteViewController optionsDotFontForColor:document.color];
+            circle.text = [NoteViewController optionsDotTextForColor:noteEntry.noteColor];
+            circle.font = [NoteViewController optionsDotFontForColor:noteEntry.noteColor];
             [circle setHidden:NO];
             
             BOOL isBelow = indexPath.row > selectedIndexPath.row;

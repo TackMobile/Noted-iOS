@@ -940,7 +940,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model createNoteWithCompletionBlock:^(NoteDocument *doc){
+    [model createNoteWithCompletionBlock:^(NoteEntry *doc){
         
     }];
     

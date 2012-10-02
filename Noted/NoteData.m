@@ -9,32 +9,6 @@
 #import "NoteData.h"
 #import "ApplicationModel.h"
 
-@implementation NoteData
-
-
-@synthesize noteColor,noteText,noteLocation,dateCreated;
-
-- (id)init
-{
-    if (self = [super init]) {
-        //
-        self.noteColor = [UIColor whiteColor];
-        self.noteText = @"";
-        self.dateCreated = [NSDate date];
-        self.noteLocation = @"0";
-        
-#ifdef DEBUG
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        int count = model.currentNoteEntries.count? model.currentNoteEntries.count+1 : 0;
-        
-        self.noteText = [NSString stringWithFormat:@"lorem ipsum [%d]",count];
-#endif
-        self.noteText = [NSString stringWithFormat:@"\n%@", self.noteText];
-    }
-    
-    return self;
-}
-
 #pragma mark NSCoding
 
 #define kVersionKey @"Version"
@@ -42,6 +16,10 @@
 #define kColorKey @"Color"
 #define kLocationKey @"Location"
 #define kDateCreatedKey @"Created"
+
+@implementation NoteData
+
+@synthesize noteColor,noteText,noteLocation,dateCreated;
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
@@ -64,6 +42,21 @@
     data.dateCreated = [decoder decodeObjectForKey:kDateCreatedKey];
     
     return data;
+}
+
++ (NoteData *)noteDataWithLocation:(NSString *)location
+{
+    NoteData *noteData = [[NoteData alloc] init];
+    noteData.noteColor = [UIColor whiteColor];
+    noteData.noteText = @"";
+    noteData.dateCreated = [NSDate date];
+    if (!IsEmpty(location)) {
+        noteData.noteLocation = location;
+    } else {
+        noteData.noteLocation = @"0";
+    }
+    
+    return noteData;
 }
 
 @end

@@ -20,7 +20,6 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 @property(nonatomic,readonly) NoteFileManager *noteFileManager;
 @property(nonatomic,strong) NSMutableOrderedSet *currentNoteEntries;
-@property(nonatomic,strong) NSMutableOrderedSet *currentNoteDocuments;
 @property(nonatomic,assign) NSInteger selectedNoteIndex;
 
 - (void) refreshNotes;
@@ -55,6 +54,6 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void)createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion;
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
-- (void) deleteNoteEntry:(NoteDocument *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
+- (void) deleteNoteEntry:(NoteEntry *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
     
 @end

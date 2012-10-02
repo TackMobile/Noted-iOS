@@ -22,9 +22,13 @@
 
 - (id)initWithFileURL:(NSURL*)fileURL noteData:(NoteData*)noteData state:(UIDocumentState) state version:(NSFileVersion*)version;
 
+// metadata
 - (NSString *)title;
 - (NSString *)relativeDateString;
 - (NSString *)absoluteDateString;
+
+// so our main list can imitate the document
+// without loading it into memory
 - (NSString *)text;
 - (UIColor *)noteColor;
 - (NSDate *)dateCreated;
