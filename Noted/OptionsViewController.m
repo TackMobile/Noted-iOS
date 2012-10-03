@@ -9,9 +9,12 @@
 #import "OptionsViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIColor+HexColor.h"
+#import "FileStorageState.h"
+#import "ApplicationModel.h"
 
 #define KEYBOARD_SETTINGS_SWITCH 88
 #define STATUS_BAR_TOGGLE_SWITCH 89
+#define ICLOUD_TOGGLE_SWITCH     90
 
 @interface OptionsViewController ()
 
@@ -66,6 +69,10 @@
     UISwitch *statusBarSwitch = (UISwitch *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
     isOn = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
     [statusBarSwitch setOn:isOn];
+    
+    UISwitch *cloudStorageSwitch = (UISwitch *)[self.settingsSubview viewWithTag:ICLOUD_TOGGLE_SWITCH];
+    isOn = [FileStorageState preferredStorage] == kTKiCloud ? YES : NO;
+    [cloudStorageSwitch setOn:isOn];
     // http://osiris.laya.com/projects/rcswitch/
 }
 
@@ -277,6 +284,14 @@
     
     NSLog(@"show status bar turned %s",show ? "on":"off");
    
+}
+
+- (IBAction)toggleCloudStorage:(id)sender {
+    BOOL useICloud = [(UISwitch *)sender isOn];
+    
+    [FileStorageState setPreferredStorage:useICloud ? kTKiCloud : kTKlocal];
+    
+    [[ApplicationModel sharedInstance] refreshNotes];
 }
 
 - (IBAction)sendEmail:(id)sender {

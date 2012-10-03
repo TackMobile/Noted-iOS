@@ -129,27 +129,32 @@ typedef enum {
     [super viewDidUnload];
 }
 
-- (void) noteListChanged:(NSNotification *)notification {
+- (void)noteListChanged:(NSNotification *)notification {
     
     int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
 
     [self.tableView reloadData];
     
     if (noteCount>0) {
-        if (!_stackViewController) {
-            _stackViewController = [[StackViewController alloc] init];
-            
-        }
-        
-        if (!_animating) {
-            [_stackViewController.view setFrameX:-320.0];
-        }
-        
-        [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
-        [_stackViewController generateCells];
-        [self configureLastRowExtenderView];
+        [self listDidUpdate];
     }
     
+}
+
+- (void)listDidUpdate
+{
+    if (!_stackViewController) {
+        _stackViewController = [[StackViewController alloc] init];
+        
+    }
+    
+    if (!_animating) {
+        [_stackViewController.view setFrameX:-320.0];
+    }
+    
+    [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
+    [_stackViewController generateCells];
+    [self configureLastRowExtenderView];
 }
 
 - (void)configureLastRowExtenderView
@@ -382,7 +387,7 @@ typedef enum {
             [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
         }];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
-        [self configureLastRowExtenderView];
+        [self listDidUpdate];
     } else {
         
         [_stackViewController.view setFrameX:0.0];

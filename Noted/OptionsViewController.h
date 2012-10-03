@@ -49,6 +49,7 @@
 
 - (IBAction)handleKeyboardToggle:(id)sender;
 - (IBAction)handleStatusBarToggle:(id)sender;
+- (IBAction)toggleCloudStorage:(id)sender;
 
 - (IBAction)openAbout:(id)sender;
 - (IBAction)openShare:(id)sender;

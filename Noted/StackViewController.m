@@ -283,6 +283,7 @@ static const float  kExpandDuration = 0.75;
                      }
                      completion:^(BOOL finished){
                          NSLog(@"finished resetToExpanded");
+                         [self.view setFrameX:-320.0];
                      }];
     
     

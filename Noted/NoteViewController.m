@@ -227,7 +227,13 @@
 
 - (void)textViewDidEndEditing:(UITextView *)aTextView
 {
+    if (self.noteDocument.documentState!=UIDocumentStateNormal ) {
+        NSLog(@"couldn't save!");
+    }
     [self.noteDocument setText:aTextView.text];
+    // update the presentation model
+    [self.noteEntry setNoteData:self.noteDocument.data];
+    
     [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 

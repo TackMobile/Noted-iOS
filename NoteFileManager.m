@@ -226,6 +226,7 @@
 #warning TODO: create first doc
         if ([FileStorageState isFirstUse]) {
             NSLog(@"Create the first doc if this is first use");
+            [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
         }
         
         return;
