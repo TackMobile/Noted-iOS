@@ -37,13 +37,13 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 // Note Stack Helpers
 - (NoteEntry *) noteAtIndex:(int)index;
 - (NoteEntry *) noteAtSelectedNoteIndex;
-- (NoteDocument *)noteDocumentAtIndex:(int)index;
+- (NoteDocument *)noteDocumentAtIndex:(int)index completion:(void(^)())completion;
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index;
-- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index;
+//- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index;
 
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index;
-- (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index;
+//- (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index;
 
 - (void) setCurrentNoteIndexToNext;
 - (void) setCurrentNoteIndexToPrevious;

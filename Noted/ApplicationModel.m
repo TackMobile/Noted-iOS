@@ -142,18 +142,28 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [self noteAtIndex:selectedNoteIndex];
 }
 
-- (NoteDocument *)noteDocumentAtIndex:(int)index
+- (NoteDocument *)noteDocumentAtIndex:(int)index completion:(void(^)())completion
 {
-    return [self.currentNoteEntries objectAtIndex:index];
+    NoteEntry *entry = [self.currentNoteEntries objectAtIndex:index];
+    NoteDocument *selectedDocument = [[NoteDocument alloc] initWithFileURL:entry.fileURL];
+    [selectedDocument openWithCompletionHandler:^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+        });
+    }];
+     
+    return selectedDocument;
 }
 
-- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index {
-    int count = [self.currentNoteEntries count];
-    assert(index <= count);
-    assert(index >= 0);
-    NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
-    return [self noteDocumentAtIndex:previousIndex];
-}
+/*
+ - (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index {
+ int count = [self.currentNoteEntries count];
+ assert(index <= count);
+ assert(index >= 0);
+ NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
+ return [self noteDocumentAtIndex:previousIndex];
+ }
+ */
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
     int count = [self.currentNoteEntries count];
@@ -163,13 +173,15 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [self noteAtIndex:previousIndex];
 }
 
-- (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index {
-    int count = [self.currentNoteEntries count];
-    assert(index <= count);
-    assert(index >= 0);
-    NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
-    return [self noteDocumentAtIndex:nextIndex];;
-}
+/*
+ - (NoteDocument *) nextNoteDocInStackFromIndex:(NSInteger)index {
+ int count = [self.currentNoteEntries count];
+ assert(index <= count);
+ assert(index >= 0);
+ NSInteger nextIndex = (index == count - 1) ? 0 : index + 1;
+ return [self noteDocumentAtIndex:nextIndex];;
+ }
+ */
 
 - (NoteEntry *) nextNoteInStackFromIndex:(NSInteger)index {
     int count = [self.currentNoteEntries count];

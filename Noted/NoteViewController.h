@@ -20,10 +20,11 @@
 
 @interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>
 
-@property (strong, nonatomic) NoteDocument *note;
 @property(strong, nonatomic) id<NoteViewControllerDelegate> delegate;
-@property(strong, nonatomic) IBOutlet UITextView *textView;
 @property(strong, nonatomic) NoteEntry *noteEntry;
+@property (strong, nonatomic) NoteDocument *noteDocument;
+
+@property(strong, nonatomic) IBOutlet UITextView *textView;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) IBOutlet UILabel *optionsDot;
 @property (strong, nonatomic) IBOutlet UILabel *relativeTime;
@@ -35,7 +36,7 @@
 // helper when swiping to create new notes
 - (void)setWithPlaceholderData:(BOOL)val;
 - (void)setWithNoDataTemp:(BOOL)val;
-- (void)setShadowForXOffset:(CGFloat)xOffset;
+- (void)setShadowForXOffset;
 + (NSString *)optionsDotTextForColor:(UIColor *)color;
 + (UIFont *)optionsDotFontForColor:(UIColor *)color;
 

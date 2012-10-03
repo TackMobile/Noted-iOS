@@ -26,13 +26,15 @@
 @synthesize optionsDot;
 @synthesize relativeTime;
 @synthesize absoluteTime;
-@synthesize delegate, textView, noteEntry;
+@synthesize delegate, textView;
+@synthesize noteEntry=_noteEntry;
+@synthesize noteDocument=c;
 
 - (id)init
 {
     self = [super initWithNibName:@"NoteViewController" bundle:nil];
     if (self){
-        // init
+
     }
     
     return self;
@@ -57,15 +59,6 @@
     [self setAbsoluteTime:nil];
     [super viewDidUnload];
 
-}
-
--(void)setNote:(NoteDocument *)newNote
-{
-    if (_note != newNote) {
-        _note = newNote;
-#warning TODO: reimplement!!!!!!
-        //[self setNoteEntry:_note.noteEntry];
-    }
 }
 
 - (void)setWithNoDataTemp:(BOOL)val
@@ -100,19 +93,19 @@
 }
 
 - (void) setNoteEntry:(NoteEntry *)entry {
-    if (entry != noteEntry) {
-        noteEntry = entry;
+    if (_noteEntry != entry) {
+        _noteEntry = entry;
         [self updateUIForCurrentEntry];
     }
 }
 
 - (void)updateUIForCurrentEntry
 {
-    self.textView.text = [noteEntry text];
-    self.absoluteTime.text = [noteEntry absoluteDateString];
-    self.relativeTime.text = [noteEntry relativeDateString];
+    self.textView.text = [_noteEntry text];
+    self.absoluteTime.text = [_noteEntry absoluteDateString];
+    self.relativeTime.text = [_noteEntry relativeDateString];
     
-    UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+    UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
     [self.view setBackgroundColor:bgColor];
     
     [self setTextLabelColorsByBGColor:bgColor];
@@ -154,7 +147,7 @@
 
 - (void)setOptionsDotForBGColor
 {
-    UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+    UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
     self.optionsDot.text = [NoteViewController optionsDotTextForColor:bgColor];
     self.optionsDot.font = [NoteViewController optionsDotFontForColor:bgColor];
 }
@@ -188,9 +181,9 @@
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor{
     
-    if (![self.note.color isEqual:color]) {
+    if (![_noteEntry.noteColor isEqual:color]) {
         // update the model, but avoid unecessary updates
-        [self.note setColor:color];
+        [self.noteDocument setColor:color];
     }
     
     /*
@@ -228,14 +221,14 @@
     NSUInteger location = [self.textView.text rangeOfString:shorthand].location;
     if (location != NSNotFound) {
         self.textView.text = [self.textView.text stringByReplacingCharactersInRange:NSMakeRange(location, shorthand.length) withString:replacement];
-        [self.note setText:self.textView.text];
+        [self.noteDocument setText:self.textView.text];
     }
 }
 
 - (void)textViewDidEndEditing:(UITextView *)aTextView
 {
-    [self.note setText:aTextView.text];
-    [self.note updateChangeCount:UIDocumentChangeDone];
+    [self.noteDocument setText:aTextView.text];
+    [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 
 - (BOOL)usingDefaultKeyboard

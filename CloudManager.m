@@ -385,45 +385,8 @@ static CloudManager *sharedInstance;
             
         } else {
             
-            // open the documents, and when they're all done
-            // pass an NSMutableOrderedSet of NoteEntries to a notification (didLoadNoteEntries:)
-            //NSMutableOrderedSet *noteEntriesList = [NSMutableOrderedSet orderedSet];
-            // we don't need a predicate to filter for docs with kNoteExtension
-            // like we do when we load local files cause these urls are filtered
-            // in the metadata query
-            TKPromiseKeptBlock promiseKeptBlock = ^{
-
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    
-                    NSLog(@"Count of note entries in _objects: %d",_objects.count);
-                    NSLog(@"1st object in _objects: %@, %@",[_objects objectAtIndex:0],NSStringFromClass([[_objects objectAtIndex:0] class]));
-                    
-                    self.loadingComplete(_objects);
-                });
-                
-                [_query enableUpdates];
-            };
-            TKPromiseFailedBlock promiseFailedBlock = ^{
-                //TODO can we get an error here?
-                //TODO do this on the main thread, right?
-                NSLog(@"promise failed %s [%d]",__PRETTY_FUNCTION__,__LINE__);
-                [_query enableUpdates];
-            };
-            TKPromiseResolvedBlock promiseResolvedBlock = ^{
-                iCloudFileLoadPromise = nil;
-            };
-            iCloudFileLoadPromise = [[TKPromise alloc] initWithPromiseKeptBlock:promiseKeptBlock
-                                                             promiseFailedBlock:promiseFailedBlock
-                                                           promiseResolvedBlock:promiseResolvedBlock
-                                                                    commitments:nil];
-            NSArray *absoluteFileURLs = [documents valueForKeyPath:@"absoluteString"];
-            [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
-            
-            for (NSURL * fileURL in documents) {
-                NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
-                [self loadDocAtURL:fileURL promised:YES];
-            }
-            
+            [self loadDocuments];
+                        
         }
     }
     
@@ -437,15 +400,44 @@ static CloudManager *sharedInstance;
         [self iCloudToLocalImpl];
     }
     
-    
 }
 
-/*
- - (void) didLoadNoteEntries:(NSMutableOrderedSet *)entries
- {
- self.loadingComplete(entries,nil);
- }
- */
+- (void)loadDocuments
+{
+    // we don't need a predicate to filter for docs with kNoteExtension
+    // like we do when we load local files cause these urls are filtered
+    // in the metadata query
+    TKPromiseKeptBlock promiseKeptBlock = ^{
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            NSLog(@"Count of note entries in _objects: %d",_objects.count);
+            self.loadingComplete(_objects);
+        });
+        
+        [_query enableUpdates];
+    };
+    TKPromiseFailedBlock promiseFailedBlock = ^{
+        //TODO can we get an error here?
+        //TODO do this on the main thread, right?
+        NSLog(@"promise failed %s [%d]",__PRETTY_FUNCTION__,__LINE__);
+        [_query enableUpdates];
+    };
+    TKPromiseResolvedBlock promiseResolvedBlock = ^{
+        iCloudFileLoadPromise = nil;
+    };
+    iCloudFileLoadPromise = [[TKPromise alloc] initWithPromiseKeptBlock:promiseKeptBlock
+                                                     promiseFailedBlock:promiseFailedBlock
+                                                   promiseResolvedBlock:promiseResolvedBlock
+                                                            commitments:nil];
+    NSArray *absoluteFileURLs = [documents valueForKeyPath:@"absoluteString"];
+    [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
+    
+    for (NSURL *fileURL in documents) {
+        NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
+        [self loadDocAtURL:fileURL promised:YES];
+    }
+}
 
 #pragma mark File management methods
 

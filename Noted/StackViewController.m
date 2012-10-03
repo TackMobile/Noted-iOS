@@ -202,7 +202,7 @@ static const float  kExpandDuration = 0.75;
             noteCell.subtitleLabel.textColor = [UIColor blackColor];
             noteCell.relativeTimeText.textColor = tempColor;
             noteCell.absoluteTimeText.textColor = tempColor;
-            noteCell.contentView.backgroundColor = noteEntry.noteColor;
+            noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
             
             [noteCell.subtitleLabel setText:noteEntry.text];
             noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];

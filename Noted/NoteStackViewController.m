@@ -145,7 +145,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
-    self.currentNoteViewController.note = [model noteDocumentAtIndex:model.selectedNoteIndex];
+    [self.currentNoteViewController setNoteEntry:[model noteAtSelectedNoteIndex]];
+    self.currentNoteViewController.noteDocument = [model noteDocumentAtIndex:model.selectedNoteIndex completion:^{
+        NSLog(@"now you can save changes using undo/redo");
+    }];
     
 }
 
@@ -212,8 +215,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
     
-    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
-    self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
+    //self.nextNoteDocument = [model nextNoteDocInStackFromIndex:currentIndex];
+    //self.previousNoteDocument = [model previousNoteDocInStackFromIndex:currentIndex];
     
     [self setUpRangeForStacking];
     [self.view addSubview:_stackVC.view];
@@ -477,14 +480,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    _currentNoteIndex = [[model currentNoteEntries] indexOfObject:self.currentNoteViewController.note];
+    _currentNoteIndex = [[model currentNoteEntries] indexOfObject:self.currentNoteViewController.noteEntry];
+    NSLog(@"%d",_currentNoteIndex);
 	
     NSRange range = [self stackedNotesRange];
     NSLog(@"Stack notes from %d to %d",range.location,range.length);
     
-    
     [self makeCurrentNote];
-    
 
     stackingViews = [[NSMutableArray alloc] initWithCapacity:range.length];
     int stackingIndex = 0;
@@ -589,10 +591,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 }
 
 // use the hidden nextNoteVC's view to create a snapshot of doc
-- (UIImage *)imageForDocument:(NoteDocument *)document
+- (UIImage *)imageForDocument:(NoteEntry *)noteEntry
 {
-    NoteDocument *previous = self.currentNoteViewController.note;
-    [self.currentNoteViewController setNote:document];
+    NoteEntry *previous = self.currentNoteViewController.noteEntry;
+    [self.currentNoteViewController setNoteEntry:noteEntry];
     
     UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -602,7 +604,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     UIGraphicsEndImageContext();
     
     // set back to actual current note
-    [self.currentNoteViewController setNote:previous];
+    [self.currentNoteViewController setNoteEntry:previous];
     
     return viewImage;
 }
@@ -788,8 +790,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 
                 self.currentNoteViewController.view.hidden = YES;
                 
-                NoteDocument *nextDocument = [model nextNoteDocInStackFromIndex:model.selectedNoteIndex];
-                self.nextNoteViewController.note = nextDocument;
+                NoteEntry *nextNote = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
+                [self.nextNoteViewController setNoteEntry:nextNote];
                 [self animateDeletingViewsForPoint:point];
             }
             // else user is wanting to create a new note
@@ -807,17 +809,17 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
     int xDirection = (velocity.x > 0) ? PREVIOUS_DIRECTION : NEXT_DIRECTION;
     
-    NoteDocument *entryUnderneath;
+    NoteEntry *entryUnderneath;
     if (noteCount == 1) {
         self.nextNoteViewController.view.hidden = YES;
     } else {
         self.nextNoteViewController.view.hidden = NO;
         if (xDirection == PREVIOUS_DIRECTION) {
-            entryUnderneath = self.previousNoteDocument;
+            entryUnderneath = self.previousNoteEntry;
         } else {
-            entryUnderneath = self.nextNoteDocument;
+            entryUnderneath = self.nextNoteEntry;
         }
-        self.nextNoteViewController.note = entryUnderneath;
+        self.nextNoteViewController.noteEntry = entryUnderneath;
     }
 }
 
@@ -825,7 +827,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     // shredding animations for deletion
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteDocument *toDelete = currentNoteViewController.note;
+    NoteEntry *toDelete = currentNoteViewController.noteEntry;
     [self setGestureState:kGestureFinished];
     
     //NSLog(@"should delete %@",toDelete.text);
@@ -904,7 +906,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGRect viewFrame = self.view.frame;
     
     self.currentNoteViewController.view.frame = newFrame;
-    NoteDocument *entryUnderneath = nil;
+    NoteEntry *entryUnderneath = nil;
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     int noteCount = [model.currentNoteEntries count];
@@ -912,14 +914,14 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
         // if user has moved it far enough to what's behind on the left side
         if (currentNoteFrame.origin.x + currentNoteFrame.size.width > viewFrame.size.width) {
-            entryUnderneath = self.previousNoteDocument;
+            entryUnderneath = self.previousNoteEntry;
             self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
-            self.nextNoteViewController.note = entryUnderneath;
+            self.nextNoteViewController.noteEntry = entryUnderneath;
             // else if user has moved it far enough to what's behind on the right side
         } else if (currentNoteFrame.origin.x < viewFrame.origin.x) {
-            entryUnderneath = self.nextNoteDocument;
+            entryUnderneath = self.nextNoteEntry;
             self.nextNoteViewController.view.hidden = (entryUnderneath == nil);
-            self.nextNoteViewController.note = entryUnderneath;
+            self.nextNoteViewController.noteEntry = entryUnderneath;
         }
     }
 }
@@ -1025,7 +1027,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     deletingViews = [NSMutableArray new];
     
-    UIImage *viewImage = [self imageForDocument:self.currentNoteViewController.note];
+    UIImage *viewImage = [self imageForDocument:self.currentNoteViewController.noteEntry];
     
     // Create and show the new image from bitmap data
     for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
@@ -1126,19 +1128,19 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
-    //self.previousNoteEntry = [model previousNoteInStackFromIndex:index];
-    //self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
+    self.previousNoteEntry = [model previousNoteInStackFromIndex:index];
+    self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
     
-    self.previousNoteDocument = [model previousNoteDocInStackFromIndex:index];
+    //self.previousNoteDocument = [model previousNoteDocInStackFromIndex:index];
     //NSLog(@"previous doc %@",[self.previousNoteDocument text]);
     
-    NoteDocument *docToShow = [model noteDocumentAtIndex:index];
+    NoteEntry *entryToShow = [model noteAtIndex:index];
     //NSLog(@"should show doc %@",[docToShow text]);
     
-    self.nextNoteDocument = [model nextNoteDocInStackFromIndex:index];
+    //self.nextNoteDocument = [model nextNoteDocInStackFromIndex:index];
     //NSLog(@"next doc %@",[self.nextNoteDocument text]);
     
-    self.currentNoteViewController.note = docToShow;
+    [self.currentNoteViewController setNoteEntry:entryToShow];
     [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
