@@ -850,6 +850,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     CGRect viewFrame = self.view.frame;
     CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
+    int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
+    if (noteCount==1) {
+        [self snapBackCurrentNote];
+        return;
+    }
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
