@@ -11,13 +11,17 @@
 #import "OptionsViewController.h"
 #import "KeyboardViewController.h"
 #import "NoteEntry.h"
+#import <Accounts/Accounts.h>
+#import <MessageUI/MessageUI.h>
+#import <MessageUI/MFMailComposeViewController.h>
+#import <Twitter/Twitter.h>
 
 typedef void(^TMDismissalBlock)(NSUInteger,float);
 
 @class NoteDocument;
 @class StackViewController;
 
-@interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate>
+@interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic, copy) TMDismissalBlock dismissBlock;
 

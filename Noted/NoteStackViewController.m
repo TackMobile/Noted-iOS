@@ -70,6 +70,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     CGFloat initialPinchDistance;
 }
 
+@property (strong,nonatomic)MFMailComposeViewController *mailVC;
+@property (strong,nonatomic)MFMessageComposeViewController *messageVC;
+
 - (void) presentNotes;
 
 @end
@@ -87,6 +90,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize previousNoteEntry;
 @synthesize previousNoteDocument;
 @synthesize nextNoteDocument;
+@synthesize mailVC,messageVC;
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(StackViewController *)stackVC
 {
@@ -1276,6 +1280,96 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         //self.nextNoteViewController.textView.inputView = nil;
     }
     
+}
+
+#pragma mark OptionsViewDelegate
+
+- (void)sendEmail
+{
+    self.mailVC = [[MFMailComposeViewController alloc] init];
+    self.mailVC.mailComposeDelegate = self;
+    
+    NSArray* lines = [[ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text componentsSeparatedByString: @"\n"];
+    NSString* noteTitle = [lines objectAtIndex:0];
+    NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",[self getNoteTextAsMessage],@"Sent from Noted"];
+	[self.mailVC setSubject:noteTitle];
+	[self.mailVC setMessageBody:body isHTML:NO];
+    [self presentViewController:self.mailVC animated:YES completion:nil];
+}
+
+- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSString *)getNoteTextAsMessage
+{
+    NSString *noteText = [ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text;
+    noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    if ([noteText length] > 140) {
+        noteText = [noteText substringToIndex:140];
+    }
+    return noteText;
+}
+
+- (void)sendTweet
+{
+    NSString *noteText = [self getNoteTextAsMessage];
+    
+    if (SYSTEM_VERSION_LESS_THAN(@"6")){
+        if([TWTweetComposeViewController canSendTweet])
+        {
+            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
+            [tweetViewController setInitialText:noteText];
+            
+            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
+            {
+                // Dismiss the controller
+                [self dismissViewControllerAnimated:YES completion:nil];
+            };
+            [self presentViewController:tweetViewController animated:YES completion:nil];
+            
+        }else {
+            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
+            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+            [alertView show];
+        }
+    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
+        // 3
+        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+        {
+            // 4
+            //[self.tweetText setAlpha:0.5f];
+        } else {
+            // 5
+            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+            [composeViewController setInitialText:noteText];
+            [self presentViewController:composeViewController animated:YES completion:nil];
+        }
+    }
+
+}
+
+- (void)sendSMS
+{
+    if([MFMessageComposeViewController canSendText])
+    {
+        MFMessageComposeViewController *messageViewController = [[MFMessageComposeViewController alloc] init];
+        messageViewController.body = [self getNoteTextAsMessage];
+        messageViewController.messageComposeDelegate = self;
+        messageViewController.wantsFullScreenLayout = NO;
+        [self presentViewController:messageViewController animated:YES completion:nil];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }
+    else {
+        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send text messages."];
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        [alertView show];
+    }
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 

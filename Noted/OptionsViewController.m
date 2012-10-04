@@ -13,18 +13,13 @@
 #import "FileStorageState.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
-#import <Twitter/Twitter.h>
-#import <Accounts/Accounts.h>
 
 #define KEYBOARD_SETTINGS_SWITCH 88
 #define STATUS_BAR_TOGGLE_SWITCH 89
 #define ICLOUD_TOGGLE_SWITCH     90
 
-@interface OptionsViewController ()
-
-@end
-
 @implementation OptionsViewController
+
 @synthesize scrollView;
 
 @synthesize colorSubView,white,sky,lime,kernal,shadow,tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText;
@@ -299,52 +294,20 @@
 }
 
 - (IBAction)sendEmail:(id)sender {
-//    [self.delegate sendEmail];
+    if ([delegate respondsToSelector:@selector(sendEmail)]) {
+        [delegate sendEmail];
+    }
 }
 
 - (IBAction)sendSMS:(id)sender {
-//    [self.delegate sendSMS];
+    if ([delegate respondsToSelector:@selector(sendSMS)]) {
+        [delegate sendSMS];
+    }
 }
 
 - (IBAction)sendTweet:(id)sender {
-    
-    NSString *noteText = [ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text;
-    noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    if ([noteText length] > 140) {
-        noteText = [noteText substringToIndex:140];
-    }
-    
-    if (SYSTEM_VERSION_LESS_THAN(@"6")){
-        if([TWTweetComposeViewController canSendTweet])
-        {
-            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
-            [tweetViewController setInitialText:noteText];
-            
-            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
-            {
-                // Dismiss the controller
-                [self dismissModalViewControllerAnimated:NO];
-            };
-            
-            [self presentModalViewController:tweetViewController animated:NO];
-            
-        }else {
-            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
-            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-            [alertView show];
-        }
-    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
-        // 3
-        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-        {
-            // 4
-            [self.tweetText setAlpha:0.5f];
-        } else {
-            // 5
-            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-            [composeViewController setInitialText:noteText];
-            [self presentViewController:composeViewController animated:YES completion:nil];
-        }
+    if ([delegate respondsToSelector:@selector(sendTweet)]) {
+        [delegate sendTweet];
     }
 }
 

@@ -48,9 +48,9 @@
 {
     NoteData *noteData = [[NoteData alloc] init];
     noteData.noteColor = [UIColor whiteColor];
-    noteData.noteText = @"";
+    noteData.noteText = @"\n";
 #ifdef DEBUG
-    noteData.noteText = @"dev: new note";
+    noteData.noteText = @"\ndev: new note";
 #endif
     
     noteData.dateCreated = [NSDate date];
