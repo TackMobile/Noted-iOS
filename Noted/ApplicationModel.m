@@ -148,6 +148,9 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NoteDocument *selectedDocument = [[NoteDocument alloc] initWithFileURL:entry.fileURL];
     [selectedDocument openWithCompletionHandler:^(BOOL success) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion();
+            }
             
         });
     }];
@@ -219,8 +222,10 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSLog(@"Unique name for doc: %@",uniqueName);
     
     NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
+    NSAssert(noteEntry, @"note entru should be non-nil");
 
     [self.currentNoteEntries insertObject:noteEntry atIndex:0];
+    
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock

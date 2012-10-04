@@ -49,6 +49,10 @@
     NoteData *noteData = [[NoteData alloc] init];
     noteData.noteColor = [UIColor whiteColor];
     noteData.noteText = @"";
+#ifdef DEBUG
+    noteData.noteText = @"dev: new note";
+#endif
+    
     noteData.dateCreated = [NSDate date];
     if (!IsEmpty(location)) {
         noteData.noteLocation = location;

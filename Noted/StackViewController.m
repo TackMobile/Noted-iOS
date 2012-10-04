@@ -82,19 +82,19 @@ static const float  kExpandDuration = 0.75;
 - (void)generateCells
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    
     if (_numCells == model.currentNoteEntries.count) {
         return;
     }
-    
     _numCells = model.currentNoteEntries.count;
-    [_noteViews removeAllObjects];
+    
+    if (_noteViews) {
+        [_noteViews removeAllObjects];
+    }
+    _noteViews = [[NSMutableArray alloc] init];
     
     float y = 44.0;
 
-    _noteViews = [[NSMutableArray alloc] init];
-    
-    while (y < self.view.bounds.size.height && _noteViews.count<=model.currentNoteEntries.count) {
+    while (y < self.view.bounds.size.height && _noteViews.count<model.currentNoteEntries.count) {
         NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
         NoteEntryCell *noteCell = (NoteEntryCell *)[views lastObject];
         [noteCell setFrame:CGRectMake(0.0, y, 320.0, 66.0)];
@@ -109,8 +109,10 @@ static const float  kExpandDuration = 0.75;
         [self debugView:noteCell color:[UIColor greenColor]];
         y += noteCell.frame.size.height;
         [_noteViews addObject:noteCell];
-
     }
+    
+    NSLog(@"Created %d views",_noteViews.count);
+    [self updateCellsWithModels];
 }
 
 - (int)indexOfNoteView:(UIView *)view
@@ -121,18 +123,22 @@ static const float  kExpandDuration = 0.75;
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
     // debugging
+    return;
     view.alpha = 1.0;
     view.layer.borderColor = color.CGColor;
     view.layer.borderWidth = 1.0;
 }
 
-- (UIView *)viewAtIndex:(NSInteger)offset
+- (UIView *)viewAtIndex:(NSInteger)index
 {
     NSLog(@"_currentIndex: %d",_currentIndex);
-    int tag = 11+offset;
-    NSLog(@"looking for view with index %d",tag);
+    //int tag = 11+offset;
+    //if (tag < 0 || tag > 50) {
+    //    NSLog(@"oh no");
+    //}
+    NSLog(@"looking for view with index %d",index);
     
-    NoteEntryCell *cell = (NoteEntryCell *)[_noteViews objectAtIndex:offset];
+    NoteEntryCell *cell = (NoteEntryCell *)[_noteViews objectAtIndex:index];
     NSLog(@"%@",cell.subtitleLabel.text);
     
     if (!cell) {
@@ -150,6 +156,41 @@ static const float  kExpandDuration = 0.75;
     UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
     return color;
 }
+
+- (void)updateCellsWithModels
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
+    NSLog(@"Count of model objects: %d",model.currentNoteEntries.count);
+    
+    for (int i = 0; i<model.currentNoteEntries.count; i++) {
+        NoteEntry *noteEntry = [model noteAtIndex:i];
+        NoteEntryCell *noteCell = [[self noteEntryViews] objectAtIndex:i];
+        
+        UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
+        noteCell.subtitleLabel.textColor = [UIColor blackColor];
+        noteCell.relativeTimeText.textColor = tempColor;
+        noteCell.absoluteTimeText.textColor = tempColor;
+        noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+        
+        [noteCell.subtitleLabel setText:noteEntry.text];
+        noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
+        noteCell.relativeTimeText.text = [noteEntry relativeDateString];
+        noteCell.absoluteTimeText.text = [noteEntry absoluteDateString];
+        
+        [noteCell setClipsToBounds:NO];
+        
+        UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
+        
+        circle.textColor = tempColor;
+        circle.text = [NoteViewController optionsDotTextForColor:noteEntry.noteColor];
+        circle.font = [NoteViewController optionsDotFontForColor:noteEntry.noteColor];
+        [circle setHidden:NO];
+        i++;
+
+    }
+}
+
 
 - (void)expandRowsForViewController:(NoteListViewController *)noteList selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
@@ -276,8 +317,9 @@ static const float  kExpandDuration = 0.75;
 - (void)resetToExpanded
 {
     // animate current note back to self.view.bounds
-    UIView *current = [_noteViews objectAtIndex:_currentIndex];
-    [UIView animateWithDuration:kExpandDuration
+    int selected = [ApplicationModel sharedInstance].selectedNoteIndex;
+    UIView *current = [_noteViews objectAtIndex:selected];
+    [UIView animateWithDuration:3.0
                      animations:^{
                          [current setFrame:self.view.bounds];
                      }
@@ -289,16 +331,19 @@ static const float  kExpandDuration = 0.75;
     
     
     
-#warning TODO needs testing
     NSArray *noteCells = [self noteEntryViews];
     int index = 0;
     for (UIView *noteCell in noteCells) {
-        [UIView animateWithDuration:kExpandDuration
+        if (index==selected) {
+            index++;
+            continue;
+        }
+        [UIView animateWithDuration:3.0
                          animations:^{
-                             if (index < _currentIndex) {
+                             if (index < selected) {
                                  CGRect destinationFrame = CGRectMake(0.0, 0.0, 320.0, 480.0);
                                  [noteCell setFrame:destinationFrame];
-                             } else if (index > _currentIndex) {
+                             } else if (index > selected) {
                                  CGRect destinationFrame = CGRectMake(0.0, 480.0, 320.0, 480.0);
                                  [noteCell setFrame:destinationFrame];
                              }

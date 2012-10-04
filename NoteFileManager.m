@@ -84,6 +84,7 @@
     
     // object to pass back to main thread for tableview
     __block NoteEntry *entry = [[NoteEntry alloc] init];
+
     entry.fileURL = fileURL;
     entry.adding = YES;
     
@@ -92,12 +93,10 @@
     void(^docSaveCompleteBlock)() = ^(){
         // get default data for a new note
         // ie white background, now for creation date, etc
-        NoteData *noteData = [NoteData noteDataWithLocation:@"0"];
         
         UIDocumentState state = doc.documentState;
         NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:fileURL];
         
-        entry.noteData = noteData;
         entry.state = state;
         entry.version = version;
         entry.adding = NO;
@@ -108,7 +107,7 @@
         // have CloudManager do it
         NSLog(@"Want to create file at %@", fileURL);
         
-        [[CloudManager sharedInstance] insertNewEntry:entry atIndex:0 completion:docSaveCompleteBlock];
+        doc = [[CloudManager sharedInstance] insertNewEntry:entry atIndex:0 completion:docSaveCompleteBlock];
         
     } else {
 
@@ -140,6 +139,8 @@
     
     // we can immediately return just an
     // object with basic document metadata
+    entry.noteData = doc.data;
+    NSLog(@"New note text: %@",entry.noteData.noteText);
     return entry;
 }
 

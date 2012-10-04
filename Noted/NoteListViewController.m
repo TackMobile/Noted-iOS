@@ -75,14 +75,19 @@ typedef enum {
     self.tableView.rowHeight       = 60;
     self.view.layer.cornerRadius = 6.0;
     self.view.clipsToBounds = YES;
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kNoteListChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
+        [self.tableView reloadData];
+        
+        if (noteCount>0) {
+            [self listDidUpdate];
+        }
+        
+    }];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(noteListChanged:)
-                                                 name:kNoteListChangedNotification
-                                               object:nil];
-    
-    
-     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
 
 #warning TODO: reimplement using iCloud syncing
 //         if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
@@ -129,17 +134,7 @@ typedef enum {
     [super viewDidUnload];
 }
 
-- (void)noteListChanged:(NSNotification *)notification {
-    
-    int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
 
-    [self.tableView reloadData];
-    
-    if (noteCount>0) {
-        [self listDidUpdate];
-    }
-    
-}
 
 - (void)listDidUpdate
 {

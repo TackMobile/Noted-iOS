@@ -490,14 +490,14 @@ static CloudManager *sharedInstance;
     
 }
 
-- (void)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion
+- (NoteDocument *)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion
 {
     
     [_query disableUpdates];
     [self stopQuery];
     
-    NoteDocument * doc = [[NoteDocument alloc] initWithFileURL:noteEntry.fileURL];
-    
+    NoteDocument *doc = [[NoteDocument alloc] initWithFileURL:noteEntry.fileURL];
+
     [doc saveToURL:noteEntry.fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
         
         if (!success) {
@@ -508,7 +508,6 @@ static CloudManager *sharedInstance;
         // Add to the list of files on main thread
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            //[doc setEntryClosed];
             [_objects insertObject:noteEntry atIndex:index];
             [_query enableUpdates];
             
@@ -519,6 +518,7 @@ static CloudManager *sharedInstance;
         });
     }];
     
+    return doc;
 }
 
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion

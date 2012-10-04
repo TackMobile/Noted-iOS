@@ -34,15 +34,17 @@ NSString *const kDataFilename = @"note.data";
 {
     if (self = [super initWithFileURL:url]) {
         
-        NoteData *noteData = [[NoteData alloc] init];
-        NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:url];
-        NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:url noteData:noteData state:self.documentState version:version];
-        
-        entry.fileURL = url;
-        entry.adding = YES;
-        
-        [entry setNoteData:noteData];
-        
+        //NoteData *noteData = [[NoteData alloc] init];
+        //NSFileVersion *version = [NSFileVersion currentVersionOfItemAtURL:url];
+        /*
+         NoteEntry *entry = [[NoteEntry alloc] initWithFileURL:url noteData:noteData state:self.documentState version:version];
+         
+         entry.fileURL = url;
+         entry.adding = YES;
+         
+         [entry setNoteData:noteData];
+         
+         */
         //self.noteEntry = entry;
     }
     
@@ -119,7 +121,7 @@ NSString *const kDataFilename = @"note.data";
             self.data = [self decodeObjectFromWrapperWithPreferredFilename:kDataFilename];
         } else {
             // brand new object
-            self.data = [[NoteData alloc] init];
+            self.data = [NoteData noteDataWithLocation:@"0"];
         }
     }
     return _data;

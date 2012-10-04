@@ -12,6 +12,7 @@ typedef void(^CloudManagerDocSaveCompleteBlock)();
 #import <Foundation/Foundation.h>
 
 @class NoteEntry;
+@class NoteDocument;
 
 typedef void(^iCloudAvailableBlock)(BOOL available);
 typedef void(^iCloudLoadingComplete)(NSMutableArray *noteEntries);
@@ -22,7 +23,7 @@ typedef void(^iCloudLoadingFailed)();
 + (CloudManager *)sharedInstance;
 - (void)initializeiCloudAccessWithCompletion:(iCloudAvailableBlock)available;
 - (void)refreshWithCompleteBlock:(iCloudLoadingComplete)complete failBlock:(iCloudLoadingFailed)failed;
-- (void)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion;
+- (NoteDocument *)insertNewEntry:(NoteEntry *)noteEntry atIndex:(int)index completion:(CloudManagerDocSaveCompleteBlock)completion;
 - (void)deleteEntry:(NoteEntry *)entry withCompletion:(void (^)())completion;
 - (NSURL *)getDocURL:(NSString *)filename;
 

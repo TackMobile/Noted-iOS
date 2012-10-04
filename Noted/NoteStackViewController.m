@@ -148,15 +148,21 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
     
-    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [self setCurrentNoteToModel];
     
+    
+    
+}
+
+// on first view of note as well as right after creating note by pan getsure
+- (void)setCurrentNoteToModel
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
     [self.currentNoteViewController setNoteEntry:[model noteAtSelectedNoteIndex]];
     self.currentNoteViewController.noteDocument = [model noteDocumentAtIndex:model.selectedNoteIndex completion:^{
         NSLog(@"now you can save changes using undo/redo");
     }];
-    
 }
-
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -192,6 +198,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
+    [self.currentNoteViewController.textView resignFirstResponder];
+    
     CGFloat scale = gesture.scale;
     adjustedScale = [self adjustedScaleForPinch:scale];
         
@@ -447,7 +455,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    _currentNoteIndex = [[model currentNoteEntries] indexOfObject:self.currentNoteViewController.noteEntry];
+    _currentNoteIndex = model.selectedNoteIndex;//[[model currentNoteEntries] indexOfObject:self.currentNoteViewController.noteEntry];
     NSLog(@"%d",_currentNoteIndex);
 	
     NSRange range = [self stackedNotesRange];
@@ -527,6 +535,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)makeCurrentNote
 {
     _currentNote = nil;
+    NSLog(@"current index %d %d",_currentNoteIndex,__LINE__);
     _currentNote = [_stackVC viewAtIndex:_currentNoteIndex];
     //[self debugView:_currentNote color:[UIColor blueColor]];
 }
@@ -867,16 +876,24 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSLog(@"before count: %d",_currentNoteIndex);
     [model createNoteWithCompletionBlock:^(NoteEntry *doc){
+        //[[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
         
     }];
+    
+    
+    NSLog(@"New note entry with text: %@",model.noteAtSelectedNoteIndex.text);
     
     [model setSelectedNoteIndex:0];
     int currentIndex = model.selectedNoteIndex;
     
+    [_stackVC generateCells];
+    [self updateNoteDocumentsForIndex:currentIndex];
+    [self setUpRangeForStacking];
+        
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
-    [self setUpRangeForStacking];
     
     CGRect viewFrame = self.view.frame;
     [UIView animateWithDuration:DURATION
@@ -887,7 +904,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      }
                      completion:^(BOOL success) {
                          [self.view addSubview:self.currentNoteViewController.view];
-                         [self updateNoteDocumentsForIndex:currentIndex];
+                         
                      }];
 }
 

@@ -21,6 +21,8 @@ typedef void(^animationCompleteBlock)();
 - (void)generateCells;
 
 - (int)indexOfNoteView:(UIView *)view;
-- (UIView *)viewAtIndex:(NSInteger)offset;
+- (UIView *)viewAtIndex:(NSInteger)index;
+
+- (void)updateCellsWithModels;
 
 @end
