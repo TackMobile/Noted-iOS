@@ -8,9 +8,13 @@
 
 #import "OptionsViewController.h"
 #import <QuartzCore/QuartzCore.h>
+#import <Social/Social.h>
 #import "UIColor+HexColor.h"
 #import "FileStorageState.h"
 #import "ApplicationModel.h"
+#import "NoteEntry.h"
+#import <Twitter/Twitter.h>
+#import <Accounts/Accounts.h>
 
 #define KEYBOARD_SETTINGS_SWITCH 88
 #define STATUS_BAR_TOGGLE_SWITCH 89
@@ -303,7 +307,45 @@
 }
 
 - (IBAction)sendTweet:(id)sender {
-//    [self.delegate sendTweet];
+    
+    NSString *noteText = [ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text;
+    noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    if ([noteText length] > 140) {
+        noteText = [noteText substringToIndex:140];
+    }
+    
+    if (SYSTEM_VERSION_LESS_THAN(@"6")){
+        if([TWTweetComposeViewController canSendTweet])
+        {
+            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
+            [tweetViewController setInitialText:noteText];
+            
+            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
+            {
+                // Dismiss the controller
+                [self dismissModalViewControllerAnimated:NO];
+            };
+            
+            [self presentModalViewController:tweetViewController animated:NO];
+            
+        }else {
+            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
+            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+            [alertView show];
+        }
+    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
+        // 3
+        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+        {
+            // 4
+            [self.tweetText setAlpha:0.5f];
+        } else {
+            // 5
+            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+            [composeViewController setInitialText:noteText];
+            [self presentViewController:composeViewController animated:YES completion:nil];
+        }
+    }
 }
 
 - (IBAction)visitSite:(id)sender {

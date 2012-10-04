@@ -19,7 +19,6 @@
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29914F11157530A70029D170 /* NoteKeyOpViewController.m */; };
 		29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29914F12157530A70029D170 /* NoteKeyOpViewController.xib */; };
-		29914F16157535060029D170 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C5B1573E2860054347A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 29960C5A1573E2860054347A /* Settings.bundle */; };
 		29960C651573F4BF0054347A /* warning.png in Resources */ = {isa = PBXBuildFile; fileRef = 29960C641573F4BF0054347A /* warning.png */; };
@@ -73,6 +72,8 @@
 		B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* CloudManager.m */; };
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
+		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
+		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
 		B5AA89D9160B96320094299B /* cellShadow.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D7160B96320094299B /* cellShadow.png */; };
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
@@ -187,6 +188,7 @@
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
 		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
 		B58BD31D161374910095D22C /* NoteStackViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteStackViewController.h; sourceTree = "<group>"; };
+		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
 		B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
 		B5A83BBD15FF937000CAE2E8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -217,8 +219,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */,
+				B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */,
 				29914F181575350C0029D170 /* MessageUI.framework in Frameworks */,
-				29914F16157535060029D170 /* Twitter.framework in Frameworks */,
 				29FC4914156EE0CD0007BBAD /* UIKit.framework in Frameworks */,
 				29FC4916156EE0CD0007BBAD /* Foundation.framework in Frameworks */,
 				29FC4918156EE0CD0007BBAD /* CoreGraphics.framework in Frameworks */,
@@ -342,6 +345,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B5961BC2161E3581001F02F0 /* Social.framework */,
 				B50C98B9160CCD45002A3909 /* TestFlightSDK1.1 */,
 				2908B5B71576E6AF00A1CFB9 /* libz.dylib */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,

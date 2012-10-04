@@ -8,7 +8,9 @@
 #import <UIKit/UIKit.h>
 
 @protocol OptionsViewDelegate <NSObject>
+
 @optional
+
 -(void)setNoteColor:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock;
 -(void)sendEmail;

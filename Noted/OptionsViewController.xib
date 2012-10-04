@@ -324,7 +324,7 @@
 				<reference key="IBUIFont" ref="1004263462"/>
 			</object>
 			<object class="IBUIView" id="87428552">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUITextView" id="68509629">
@@ -332,6 +332,7 @@
 						<int key="NSvFlags">258</int>
 						<string key="NSFrame">{{0, 1}, {320, 53}}</string>
 						<reference key="NSSuperview" ref="87428552"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="169731362"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<reference key="IBUIBackgroundColor" ref="384928509"/>
@@ -363,6 +364,7 @@
 						<int key="NSvFlags">258</int>
 						<string key="NSFrame">{{0, 55}, {320, 53}}</string>
 						<reference key="NSSuperview" ref="87428552"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="43245343"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<reference key="IBUIBackgroundColor" ref="384928509"/>
@@ -391,6 +393,8 @@
 						<int key="NSvFlags">258</int>
 						<string key="NSFrame">{{0, 109}, {320, 53}}</string>
 						<reference key="NSSuperview" ref="87428552"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<reference key="IBUIBackgroundColor" ref="384928509"/>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -415,6 +419,8 @@
 					</object>
 				</array>
 				<string key="NSFrameSize">{320, 163}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="68509629"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<reference key="IBUIBackgroundColor" ref="1055596310"/>
@@ -1145,6 +1151,7 @@
 							<reference ref="68509629"/>
 						</array>
 						<reference key="parent" ref="0"/>
+						<string key="objectName">Share</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">8</int>
@@ -1201,6 +1208,7 @@
 							<reference ref="815318622"/>
 						</array>
 						<reference key="parent" ref="0"/>
+						<string key="objectName">About</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">73</int>
@@ -1471,7 +1479,6 @@
 					<string key="className">OptionsViewController</string>
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="changeColor:">UITapGestureRecognizer</string>
 						<string key="followTack:">id</string>
 						<string key="handleKeyboardToggle:">id</string>
 						<string key="handleStatusBarToggle:">id</string>
@@ -1485,10 +1492,6 @@
 						<string key="visitSite:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="changeColor:">
-							<string key="name">changeColor:</string>
-							<string key="candidateClassName">UITapGestureRecognizer</string>
-						</object>
 						<object class="IBActionInfo" key="followTack:">
 							<string key="name">followTack:</string>
 							<string key="candidateClassName">id</string>
