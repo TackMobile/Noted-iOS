@@ -444,6 +444,9 @@ typedef enum {
     
     [self delayedCall:0.35 withBlock:^{
         [self.tableView reloadData];
+        if (_stackViewController) {
+            [_stackViewController generateCells];
+        }
         
     }];
 

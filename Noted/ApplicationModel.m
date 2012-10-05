@@ -222,7 +222,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSLog(@"Unique name for doc: %@",uniqueName);
     
     NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
-    NSAssert(noteEntry, @"note entru should be non-nil");
+    NSAssert(noteEntry, @"note entry should be non-nil");
 
     [self.currentNoteEntries insertObject:noteEntry atIndex:0];
     

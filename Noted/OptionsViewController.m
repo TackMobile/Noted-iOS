@@ -22,7 +22,13 @@
 
 @synthesize scrollView;
 
-@synthesize colorSubView,white,sky,lime,kernal,shadow,tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText;
+@synthesize colorSubView;
+@synthesize white;
+@synthesize sky;
+@synthesize lime;
+@synthesize kernal;
+@synthesize shadow;
+@synthesize tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText;
 @synthesize delegate;
 
 - (void)viewDidLoad
@@ -146,7 +152,7 @@
                          self.kernal.frame = CGRectMake(0, 132, 320, 43);
                          self.shadow.frame = CGRectMake(0, 176, 320, 43);
                          self.tack.frame = CGRectMake(0, 220, 320, 43);
-                         self.shareText.frame = CGRectMake(0, 0, 320, 53);
+                         self.shareText.frame = CGRectMake(0, 1, 320, 53);
                          self.settingsText.frame = CGRectMake(0, 54, 320, 53);
                          self.aboutText.frame = CGRectMake(0, 108, 320, 53);
                          self.versionText.frame = CGRectMake(0, 162, 320, 53);
@@ -158,6 +164,7 @@
 
 
 -(void)openShare:(id)sender {
+    NSLog(@"%@",NSStringFromCGRect(self.shareText.frame));
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
     [UIView animateWithDuration:0.3 
                           delay:0.0
@@ -174,14 +181,18 @@
                          self.aboutText.frame = CGRectMake(0, 269, 320, 53);
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
-                         self.cancelX.frame = CGRectMake(80, 20, 36, 36);
+                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:120.0];
                          [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.shareSubview button:self.shareText];
                      }];
     
 }
 
-
+- (CGRect)frameForCancelButtonWithXOffset:(CGFloat)xPos
+{
+    float widthHeight = 36.0;
+    return CGRectMake(xPos-widthHeight, self.view.frame.size.height-widthHeight, widthHeight, widthHeight);
+}
 
 -(void)openAbout:(id)sender {
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
@@ -200,7 +211,7 @@
                          self.aboutText.frame = CGRectMake(0, -244, 320, 480);
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
-                         self.cancelX.frame = CGRectMake(160, 20, 36, 36);
+                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
                          [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.aboutSubview button:self.aboutText];
                      }];
@@ -225,7 +236,7 @@
                          self.aboutText.frame = CGRectMake(0, -244, 320, 480);
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
-                         self.cancelX.frame = CGRectMake(160, 20, 36, 36);
+                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
                          [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.settingsSubview button:self.settingsText];
                      }];
@@ -247,14 +258,14 @@
     self.aboutSubview.hidden = YES;
     self.settingsSubview.hidden = YES;
     
-    self.settingsText.userInteractionEnabled = NO;
+    self.shareText.userInteractionEnabled = NO;
     self.aboutText.userInteractionEnabled = NO;
     self.settingsText.userInteractionEnabled = NO;
 }
 
 - (void)reenableMenu
 {
-    self.settingsText.userInteractionEnabled = YES;
+    self.shareText.userInteractionEnabled = YES;
     self.aboutText.userInteractionEnabled = YES;
     self.settingsText.userInteractionEnabled = YES;
     

@@ -491,10 +491,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
         UIView *noteView = [_stackVC viewAtIndex:stackingIndex];
                 if (offset==-1) {
-            [self debugView:noteView color:[UIColor redColor]];
+            //[self debugView:noteView color:[UIColor redColor]];
         }
         if (offset==1) {
-            [self debugView:noteView color:[UIColor greenColor]];
+            //[self debugView:noteView color:[UIColor greenColor]];
         }
         NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
         
@@ -547,7 +547,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
     // debugging
-    view.alpha = 1.0;
     view.layer.borderColor = color.CGColor;
     view.layer.borderWidth = 1.0;
 }
