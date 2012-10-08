@@ -16,7 +16,6 @@
 @synthesize subtitleLabel;
 @synthesize warningImageView;
 @synthesize relativeTimeText;
-@synthesize absoluteTimeText;
 @synthesize deleteButton;
 @synthesize delegate;
 
@@ -26,7 +25,6 @@
     self.textLabel.adjustsFontSizeToFitWidth = YES;
     self.subtitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.textLabel.backgroundColor = [UIColor clearColor];
-    self.absoluteTimeText.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
     [self setTimeLabelsForNew];
 }
@@ -36,7 +34,6 @@
     // immediately set time fields
     NSDate *now = [NSDate date];
     self.relativeTimeText.text = [Utilities formatRelativeDate:now];
-    self.absoluteTimeText.text = [Utilities formatDate:now];
     
 }
 

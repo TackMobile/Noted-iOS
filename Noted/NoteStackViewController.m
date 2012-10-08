@@ -15,6 +15,7 @@
 #import "UIImage+Crop.h"
 #import "UIView+position.h"
 #import "StackViewController.h"
+#import "NoteEntryCell.h"
 
 typedef enum {
     kGestureFinished,
@@ -210,6 +211,28 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.view addSubview:_stackVC.view];
 }
 
+- (void)popAndFormatCurrentTextFieldForParentView:(UIView *)parentView
+{
+    UITextView *textField = self.currentNoteViewController.textView;
+    
+    [parentView addSubview:textField];
+    
+    if ([parentView isKindOfClass:[NoteEntryCell class]]) {
+        CGRect frame = textField.frame;
+        UILabel *subtitle = [(NoteEntryCell *)_currentNote subtitleLabel];
+        [subtitle setHidden:YES];
+        frame.origin.y = subtitle.frame.origin.y - 29.0;
+        frame.origin.x = subtitle.frame.origin.x - 8.0;
+        textField.frame = frame;
+        
+    } else  {
+        
+        textField.frame = CGRectMake(0.0, 0.0, 320.0, 460.0);
+        textField.text = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].text;
+    }
+    
+}
+
 #pragma mark Pinch gesture to collapse notes stack
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
@@ -245,8 +268,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.view.layer setCornerRadius:kCornerRadius];
         [self.view setClipsToBounds:YES];
         [self animateCurrentNoteWithScale:scale];
-        [self.currentNoteViewController setWithNoDataTemp:YES];
-        
+        //[self.currentNoteViewController setWithNoDataTemp:YES];
+        [self popAndFormatCurrentTextFieldForParentView:_currentNote];
         [self animateCurrentNoteWithScale:scale];
         [self animateStackedNotesForScale:scale];
         
@@ -265,7 +288,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
             pinchComplete = NO;
         }
         
-        // an aggressive pinch should finish things immediately
+        // a strong pinch should finish things immediately
         if (pinchVelocity < -0.8 && pinchComplete) {
             [self.view setUserInteractionEnabled:NO];
             [self finishPinch];
@@ -275,9 +298,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         
         if (pinchComplete) {
             [self finishPinch];
+            
         } else {
-            [_stackVC resetToExpanded];
-            [self.currentNoteViewController setWithNoDataTemp:NO];
+            [_stackVC resetToExpanded:^{
+                [self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
+                [self.currentNoteViewController setWithNoDataTemp:NO];
+            }];
+            
         }
         
         [self setGestureState:kGestureFinished];
@@ -294,7 +321,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.currentNoteViewController setWithNoDataTemp:NO];
         self.dismissBlock(_currentNoteIndex,[self finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        
+        //[self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
         [_stackVC.view setFrameX:-320.0];
         
     };
@@ -395,30 +422,19 @@ static const float labelOffset = 24.0;
 - (void)updateSubviewsForNote:(UIView *)note scaled:(BOOL)scaled
 {
     UIView *littleCircle = [note viewWithTag:78];
-    UIView *absTimeLabel = [note viewWithTag:79];
     
     if (!scaled) {
         
-        [littleCircle setFrameX:circleXStart+circleOffset];
         littleCircle.alpha = 0.0;
-        [absTimeLabel setFrameX:labelStart+labelOffset];
-        
         return;
     }
     
-    //float scale = [self displayFloat:pinchPercentComplete];
-    int newX = circleXStart+(pinchPercentComplete*circleOffset);
-    int newLabelX = labelStart+(pinchPercentComplete*labelOffset);
-    [littleCircle setFrameX:circleXStart+(pinchPercentComplete*circleOffset)];
-    NSLog(@"x loc: %f",circleXStart+(pinchPercentComplete*circleOffset));
-    NSLog(@"x as int: %d",newX);
     littleCircle.alpha = 1.0-(pinchPercentComplete*1.1);
-    [absTimeLabel setFrameX:newLabelX];
 }
 
 - (void)finishCenterNoteAnimationWithCompleteBlock:(void(^)())complete
 {
-    BOOL done = _currentNote.frame.size.height==kCellHeight || pinchPercentComplete==1.0;
+    //BOOL done = _currentNote.frame.size.height==kCellHeight || pinchPercentComplete==1.0;
     
     [UIView animateWithDuration:0.5
                      animations:^{
@@ -1227,11 +1243,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.currentNoteViewController.textView.undoManager undo];
     NSLog(@"Undo Detected");
 }
+
 -(void)redoEdit {
     [self.currentNoteViewController.textView.undoManager redo];
     NSLog(@"Redo Detected");
 }
-
 
 -(void)panKeyboard:(CGPoint)point {
     CGRect frame = self.keyboardViewController.view.frame;
@@ -1271,7 +1287,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                                    object: nil];
         
         self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
-        //self.nextNoteViewController.textView.inputView = self.keyboardViewController.view;
         
     } else {
         
@@ -1283,7 +1298,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         }];
         
         self.currentNoteViewController.textView.inputView = nil;
-        //self.nextNoteViewController.textView.inputView = nil;
+        [self.currentNoteViewController.textView setKeyboardAppearance:UIKeyboardAppearanceAlert];
     }
     
 }

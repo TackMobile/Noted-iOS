@@ -1004,7 +1004,6 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
             }
             if (entry.version) {
                 cell.relativeTimeText.text = [Utilities formatRelativeDate:entry.version.modificationDate];
-                cell.absoluteTimeText.text = [Utilities formatDate:entry.version.modificationDate];
                 cell.textLabel.textColor = [UIColor whiteColor];
                 cell.contentView.backgroundColor = backgroundColor;
            

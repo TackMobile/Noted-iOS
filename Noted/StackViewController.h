@@ -17,7 +17,7 @@ typedef void(^animationCompleteBlock)();
 
 - (void)expandRowsForViewController:(NoteListViewController *)noteList selectedIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 
-- (void)resetToExpanded;
+- (void)resetToExpanded:(void(^)())completion;
 - (void)generateCells;
 
 - (int)indexOfNoteView:(UIView *)view;

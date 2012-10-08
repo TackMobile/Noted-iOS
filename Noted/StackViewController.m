@@ -146,23 +146,30 @@ static const float  kExpandDuration = 0.5;
         NoteEntry *noteEntry = [model noteAtIndex:i];
         NoteEntryCell *noteCell = [[self noteEntryViews] objectAtIndex:i];
         
-        UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
-        noteCell.subtitleLabel.textColor = [UIColor blackColor];
-        noteCell.relativeTimeText.textColor = tempColor;
-        noteCell.absoluteTimeText.textColor = tempColor;
+        UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+        int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
+        if (index==NSNotFound) {
+            index = 0;
+        }
+        if (index >= 4) {
+            [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
+        } else {
+            [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        }
+        
+        noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
+        
         noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
         NSLog(@"%@",noteEntry.title);
         [noteCell.subtitleLabel setText:noteEntry.title];
         noteCell.relativeTimeText.text = [noteEntry relativeDateString];
-        noteCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
         UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
         
-        circle.textColor = tempColor;
+        circle.textColor = noteCell.subtitleLabel.textColor;
         circle.text = [NoteViewController optionsDotTextForColor:noteEntry.noteColor];
         circle.font = [NoteViewController optionsDotFontForColor:noteEntry.noteColor];
         
-        //i++;
     }
 }
 
@@ -215,9 +222,7 @@ static const float  kExpandDuration = 0.5;
             
             [noteCell setClipsToBounds:NO];
             
-            UILabel *absTimeLabel = noteCell.absoluteTimeText;
             UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
-            
             [circle setHidden:NO];
             
             BOOL isBelow = indexPath.row > selectedIndexPath.row;
@@ -252,9 +257,7 @@ static const float  kExpandDuration = 0.5;
                                  }
                                  
                                  // transistion its subviews
-                                 [absTimeLabel setFrameX:135];
                                  circle.alpha = 1.0;
-                                 [circle setFrameX:285];
                                  
                              }
                              completion:^(BOOL finished){
@@ -276,18 +279,19 @@ static const float  kExpandDuration = 0.5;
     
 }
 
-- (void)resetToExpanded
+- (void)resetToExpanded:(void(^)())completion
 {
     // animate current note back to self.view.bounds
     int selected = [ApplicationModel sharedInstance].selectedNoteIndex;
     UIView *current = [_noteViews objectAtIndex:selected];
-    [UIView animateWithDuration:3.0
+    [UIView animateWithDuration:0.5
                      animations:^{
                          [current setFrame:self.view.bounds];
                      }
                      completion:^(BOOL finished){
                          NSLog(@"finished resetToExpanded");
                          [self.view setFrameX:-320.0];
+                         completion();
                      }];
     
     

@@ -289,7 +289,6 @@ typedef enum {
         
         noteEntryCell.subtitleLabel.text = noteEntry.title;
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
-        noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
         return noteEntryCell;
     }
@@ -299,12 +298,22 @@ typedef enum {
 {
     if (indexPath.section==kNoteItems) {
         NoteEntryCell *noteCell = (NoteEntryCell *)cell;
-        UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
-        noteCell.subtitleLabel.textColor = [UIColor blackColor];
-        noteCell.relativeTimeText.textColor = tempColor;
-        noteCell.absoluteTimeText.textColor = tempColor;
-        
         ApplicationModel *model = [ApplicationModel sharedInstance];
+        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+                
+        UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+        int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
+        if (index==NSNotFound) {
+            index = 0;
+        }
+        if (index >= 4) {
+            [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
+        } else {
+            [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        }
+
+        noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
+        
         UIView *shadow = [cell viewWithTag:kShadowViewTag];
         int count = model.currentNoteEntries.count;
         if (indexPath.row == count-1) {
@@ -460,7 +469,7 @@ typedef enum {
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     [self configureLastRowExtenderView];
     
-    [self delayedCall:0.35 withBlock:^{
+    [self delayedCall:0.1 withBlock:^{
         [self.tableView reloadData];
         if (_stackViewController) {
             [_stackViewController generateCells];

@@ -25,7 +25,6 @@
 @synthesize scrollView;
 @synthesize optionsDot;
 @synthesize relativeTime;
-@synthesize absoluteTime;
 @synthesize delegate, textView;
 @synthesize noteEntry=_noteEntry;
 @synthesize noteDocument=c;
@@ -56,7 +55,6 @@
     [self setScrollView:nil];
     [self setOptionsDot:nil];
     [self setRelativeTime:nil];
-    [self setAbsoluteTime:nil];
     [super viewDidUnload];
 
 }
@@ -65,7 +63,6 @@
 {
     if (val) {
         self.textView.text = @"";
-        self.absoluteTime.text = @"";
         self.relativeTime.text = @"";
         [self.view setBackgroundColor:[UIColor whiteColor]];
         [self setTextLabelColorsByBGColor:self.view.backgroundColor];
@@ -82,7 +79,6 @@
     if (val) {
         NoteData *placeholder = [[NoteData alloc] init];
         self.textView.text = [placeholder noteText];
-        self.absoluteTime.text = [Utilities formatDate:[NSDate date]];
         self.relativeTime.text = [Utilities formatRelativeDate:[NSDate date]];
         [self.view setBackgroundColor:[UIColor whiteColor]];
         [self setTextLabelColorsByBGColor:self.view.backgroundColor];
@@ -102,7 +98,6 @@
 - (void)updateUIForCurrentEntry
 {
     self.textView.text = [_noteEntry text];
-    self.absoluteTime.text = [_noteEntry absoluteDateString];
     self.relativeTime.text = [_noteEntry relativeDateString];
     
     UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
@@ -135,12 +130,11 @@
     if (index >= 4) {
         [self.textView setTextColor:[UIColor whiteColor]];
     } else {
-        [self.textView setTextColor:[UIColor blackColor]];
+        [self.textView setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
     }
     
-    self.absoluteTime.textColor = [[UIColor getHeaderColorSchemes] objectAtIndex:index];
-    self.relativeTime.textColor = self.absoluteTime.textColor;
-    self.optionsDot.textColor = self.absoluteTime.textColor;
+    self.relativeTime.textColor = self.textView.textColor;
+    self.optionsDot.textColor = self.textView.textColor;
     
     [self setOptionsDotForBGColor];
 }
@@ -186,13 +180,6 @@
         [self.noteDocument setColor:color];
     }
     
-    /*
-     if (textColor) {
-     self.textView.textColor = textColor;
-     } else {
-     self.textView.textColor = [UIColor blackColor];
-     }
-     */
     self.view.backgroundColor = color;
     [self setTextLabelColorsByBGColor:color];
 }
