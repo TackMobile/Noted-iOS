@@ -19,7 +19,7 @@
 #import "NoteListViewController.h"
 
 static const int    kFirstView = 10;
-static const float  kExpandDuration = 0.75;
+static const float  kExpandDuration = 0.5;
 
 @interface StackViewController ()
 {
@@ -194,7 +194,7 @@ static const float  kExpandDuration = 0.75;
             
             NoteEntryCell *noteCell = [_noteViews objectAtIndex:indexPath.row];
             UIView *shadow = [noteCell viewWithTag:56];
-            float shadowHeight = 10.0;
+            float shadowHeight = 7.0;
             
             [noteCell setHidden:NO];
             CGRect frame = [_tableView convertRect:entryCell.frame toView:[_tableView superview]];

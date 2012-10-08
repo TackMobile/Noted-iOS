@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1536</int>
-		<string key="IBDocument.SystemVersion">12C54</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2840</string>
+		<string key="IBDocument.SystemVersion">12C60</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2843</string>
 		<string key="IBDocument.AppKitVersion">1187.34</string>
 		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-			<string key="NS.object.0">1926</string>
+			<string key="NS.object.0">1929</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>IBProxyObject</string>
@@ -73,7 +73,7 @@
 							<object class="IBUIImageView" id="591978910">
 								<reference key="NSNextResponder" ref="370014182"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{0, 34}, {320, 10}}</string>
+								<string key="NSFrame">{{0, 37}, {320, 7}}</string>
 								<reference key="NSSuperview" ref="370014182"/>
 								<reference key="NSNextKeyView" ref="303051960"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -191,8 +191,8 @@
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="NS.key.0">cellShadow.png</string>
-			<string key="NS.object.0">{320, 10}</string>
+			<string key="NS.object.0">{640, 14}</string>
 		</object>
-		<string key="IBCocoaTouchPluginVersion">1926</string>
+		<string key="IBCocoaTouchPluginVersion">1929</string>
 	</data>
 </archive>

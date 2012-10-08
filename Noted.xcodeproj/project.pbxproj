@@ -77,6 +77,8 @@
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
 		B5AA89D9160B96320094299B /* cellShadow.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D7160B96320094299B /* cellShadow.png */; };
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
+		B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B116233C6700DD85CE /* topCornerShadows.png */; };
+		B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */; };
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
 		EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5FF43E15BD90BD003C481E /* TKPromise.m */; };
@@ -194,6 +196,8 @@
 		B5A83BBD15FF937000CAE2E8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		B5AA89D7160B96320094299B /* cellShadow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cellShadow.png; sourceTree = "<group>"; };
 		B5AA89D8160B96320094299B /* cellShadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cellShadow@2x.png"; sourceTree = "<group>"; };
+		B5B826B116233C6700DD85CE /* topCornerShadows.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = topCornerShadows.png; sourceTree = "<group>"; };
+		B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "topCornerShadows@2x.png"; sourceTree = "<group>"; };
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
 		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
 		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
@@ -420,6 +424,8 @@
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5B826B116233C6700DD85CE /* topCornerShadows.png */,
+				B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */,
 				B5AA89D7160B96320094299B /* cellShadow.png */,
 				B5AA89D8160B96320094299B /* cellShadow@2x.png */,
 				29E326C1157556920013399B /* Icon.png */,
@@ -553,6 +559,8 @@
 				B50C98BF160CCD46002A3909 /* README.md in Resources */,
 				B50C98C0160CCD46002A3909 /* release_notes.md in Resources */,
 				B512B12E1611CE1800E0E8B5 /* StackView.xib in Resources */,
+				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
+				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
