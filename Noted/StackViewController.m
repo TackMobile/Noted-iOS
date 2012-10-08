@@ -151,15 +151,18 @@ static const float  kExpandDuration = 0.75;
         noteCell.relativeTimeText.textColor = tempColor;
         noteCell.absoluteTimeText.textColor = tempColor;
         noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
-        
-        [noteCell.subtitleLabel setText:noteEntry.text];
-        noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
+        NSLog(@"%@",noteEntry.title);
+        [noteCell.subtitleLabel setText:noteEntry.title];
         noteCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
+        UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
         
+        circle.textColor = tempColor;
+        circle.text = [NoteViewController optionsDotTextForColor:noteEntry.noteColor];
+        circle.font = [NoteViewController optionsDotFontForColor:noteEntry.noteColor];
         
-        i++;
+        //i++;
     }
 }
 
@@ -208,28 +211,13 @@ static const float  kExpandDuration = 0.75;
             [shadow setFrameY:-shadowHeight];
             [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
             
-            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
-            
-#warning TODO: this needs to come from model
-            UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
-            noteCell.subtitleLabel.textColor = [UIColor blackColor];
-            noteCell.relativeTimeText.textColor = tempColor;
-            noteCell.absoluteTimeText.textColor = tempColor;
-            noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
-            
-            [noteCell.subtitleLabel setText:noteEntry.text];
-            noteCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
-            noteCell.relativeTimeText.text = [noteEntry relativeDateString];
-            noteCell.absoluteTimeText.text = [noteEntry absoluteDateString];
+            [self updateCellsWithModels];
             
             [noteCell setClipsToBounds:NO];
             
             UILabel *absTimeLabel = noteCell.absoluteTimeText;
             UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
             
-            circle.textColor = tempColor;
-            circle.text = [NoteViewController optionsDotTextForColor:noteEntry.noteColor];
-            circle.font = [NoteViewController optionsDotFontForColor:noteEntry.noteColor];
             [circle setHidden:NO];
             
             BOOL isBelow = indexPath.row > selectedIndexPath.row;
@@ -312,7 +300,7 @@ static const float  kExpandDuration = 0.75;
             index++;
             continue;
         }
-        [UIView animateWithDuration:3.0
+        [UIView animateWithDuration:0.5
                          animations:^{
                              if (index < selected) {
                                  CGRect destinationFrame = CGRectMake(0.0, 0.0, 320.0, 480.0);
@@ -329,22 +317,6 @@ static const float  kExpandDuration = 0.75;
     }
     
      
-}
-
-#warning TODO: this is duplicated in NoteListViewController
-- (NSString *)displayTitleForNoteEntry:(NoteEntry *)entry
-{
-    NSString *title = nil;
-    if (!IsEmpty([entry text]) && ![entry.text isEqualToString:@"\n"]){
-        title = [entry text];
-        if ([entry.text hasPrefix:@"\n"]) {
-            title = [title stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        }
-    } else {
-        title = @"...";
-    }
-    
-    return title;
 }
 
 - (void)didReceiveMemoryWarning

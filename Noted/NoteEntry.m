@@ -37,7 +37,18 @@
 #pragma mark Metadata
 
 - (NSString *) title {
-    return [[self.noteData.noteText componentsSeparatedByString:@"\n"] objectAtIndex:0];
+    NSString *titleText = self.noteData.noteText;
+    if (!IsEmpty(titleText) && ![titleText isEqualToString:@"\n"]){
+        titleText = [[titleText componentsSeparatedByString:@"\n"] objectAtIndex:1];
+    } else {
+        titleText = @"...";
+    }
+    
+    if (titleText.length==0) {
+        NSLog(@"stop");
+    }
+    
+    return titleText;
 }
 
 - (NSString *) relativeDateString {

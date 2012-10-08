@@ -287,7 +287,7 @@ typedef enum {
             noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
         }
         
-        noteEntryCell.subtitleLabel.text = [self displayTitleForNoteEntry:noteEntry];
+        noteEntryCell.subtitleLabel.text = noteEntry.title;
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         noteEntryCell.absoluteTimeText.text = [noteEntry absoluteDateString];
         
@@ -381,7 +381,7 @@ typedef enum {
     if (!IsEmpty([entry text]) && ![entry.text isEqualToString:@"\n"]){
         title = [entry text];
         if ([entry.text hasPrefix:@"\n"]) {
-            title = [title stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+            title = [entry title];
         }
     } else {
         title = @"...";
