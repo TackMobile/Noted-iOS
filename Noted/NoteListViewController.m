@@ -41,6 +41,7 @@ typedef enum {
     NoteEntryCell *_placeholder;
     StackViewController *_stackViewController;
     BOOL _animating;
+    
 }
 
 @end
@@ -69,7 +70,6 @@ typedef enum {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
     self.tableView.backgroundView  = backgroundView;
@@ -115,7 +115,6 @@ typedef enum {
         }
     }];
     
-    //
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -411,9 +410,10 @@ typedef enum {
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
         [self listDidUpdate];
     } else {
-        
+        model.selectedNoteIndex = indexPath.row;
         [_stackViewController.view setFrameX:0.0];
         _animating = YES;
+
         [_stackViewController expandRowsForViewController:self selectedIndexPath:indexPath completion:^(){
             _animating = NO;
             [_stackViewController.view setFrameX:-320.0];
@@ -431,7 +431,7 @@ typedef enum {
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    model.selectedNoteIndex = row;
+    
     
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:model.selectedNoteIndex] forKey:kEditingNoteIndex];
     

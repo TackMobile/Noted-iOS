@@ -19,7 +19,7 @@
 #import "NoteListViewController.h"
 
 static const int    kFirstView = 10;
-static const float  kExpandDuration = 0.5;
+static const float  kExpandDuration = 0.3;
 
 @interface StackViewController ()
 {
@@ -31,6 +31,7 @@ static const float  kExpandDuration = 0.5;
     
     NSMutableArray *_noteViews;
     int _numCells;
+    UITextView *placeholderText;
 }
 
 @end
@@ -68,6 +69,11 @@ static const float  kExpandDuration = 0.5;
     [[self.view viewWithTag:kFirstView] setHidden:YES];
     
     [self.view setUserInteractionEnabled:NO];
+    
+    placeholderText = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 460.0)];
+    placeholderText.text = @"piecemeal beats oatmeal";
+    placeholderText.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    placeholderText.backgroundColor = [UIColor clearColor];
 }
 
 - (void)generateCells
@@ -146,6 +152,14 @@ static const float  kExpandDuration = 0.5;
         NoteEntry *noteEntry = [model noteAtIndex:i];
         NoteEntryCell *noteCell = [[self noteEntryViews] objectAtIndex:i];
         
+        
+        if (i == model.selectedNoteIndex) {
+            //NSLog(@"%@",noteEntry.text);
+            //placeholderText.text = noteEntry.text;
+            placeholderText.textColor = noteCell.subtitleLabel.textColor;
+        }
+        
+        
         UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
         int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
         if (index==NSNotFound) {
@@ -213,6 +227,13 @@ static const float  kExpandDuration = 0.5;
             }
             
             BOOL isSelectedCell = [selectedIndexPath isEqual:indexPath];
+            if (isSelectedCell) {
+                [noteCell addSubview:placeholderText];
+                [placeholderText setHidden:NO];
+                [noteCell.subtitleLabel setHidden:YES];
+                NSLog(@"%@",model.noteAtSelectedNoteIndex.text);
+                placeholderText.text = model.noteAtSelectedNoteIndex.text;
+            }
             BOOL isLastCell = indexPath.row == cells.count-2; // minus 2 to account for section 0
             
             [shadow setFrameY:-shadowHeight];
@@ -264,6 +285,14 @@ static const float  kExpandDuration = 0.5;
                                  
                                  // debug
                                  //noteCell.contentView.backgroundColor = [self randomColor];
+                                 [placeholderText removeFromSuperview];
+                                 if (isSelectedCell) {
+                                     [placeholderText setHidden:YES];
+                                     [noteCell.subtitleLabel setHidden:NO];
+                                 }
+                                 if (!placeholderText) {
+                                     NSLog(@"whoops");
+                                 }
                                  
                                  NSLog(@"animationCount == %d and cell count: %d",animatedCellCount,cells.count);
                                  if (animatedCellCount==cells.count-2) { // -2 to account for section 0 row 1
@@ -276,7 +305,6 @@ static const float  kExpandDuration = 0.5;
         }
         index ++;
     }
-    
 }
 
 - (void)resetToExpanded:(void(^)())completion
@@ -289,14 +317,9 @@ static const float  kExpandDuration = 0.5;
                          [current setFrame:self.view.bounds];
                      }
                      completion:^(BOOL finished){
-                         NSLog(@"finished resetToExpanded");
                          [self.view setFrameX:-320.0];
                          completion();
-                     }];
-    
-    
-    
-    
+                     }];    
     NSArray *noteCells = [self noteEntryViews];
     int index = 0;
     for (UIView *noteCell in noteCells) {
