@@ -42,7 +42,6 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
         }
         
     }];
-
         
     return YES;
 }
@@ -50,11 +49,16 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     [[ApplicationModel sharedInstance] refreshNotes];
+    BOOL hideStatusBar = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
+    [[UIApplication sharedApplication] setStatusBarHidden:hideStatusBar withAnimation:NO];
+    
+    self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     [[NSUserDefaults standardUserDefaults] saveBool:NO forKey:kFirstUse];
 }
+
 
 @end

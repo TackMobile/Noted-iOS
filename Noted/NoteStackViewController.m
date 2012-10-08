@@ -135,7 +135,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [[NSNotificationCenter defaultCenter] addObserverForName:@"keyboardSettingChanged" object:nil queue:nil usingBlock:^(NSNotification *note){
         [self configureKeyboard];
     }];
-    
+  
     self.nextNoteViewController = [[NoteViewController alloc] init];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
     
@@ -154,7 +154,19 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     [self setCurrentNoteToModel];
     
-    
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
+        newFrame.origin.x = self.currentNoteViewController.view.frame.origin.x;
+        [UIView animateWithDuration:0.5
+                         animations:^{
+                             self.currentNoteViewController.view.frame = newFrame;
+                             self.nextNoteViewController.view.frame = newFrame;
+                         }
+                         completion:^(BOOL finished){
+                             NSLog(@"finished animating");
+                         }];
+    }];
     
 }
 
@@ -319,7 +331,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     float newHeight = self.view.bounds.size.height-(minusAmount*pinchPercentComplete);
     BOOL isLast = [_stackVC indexOfNoteView:_currentNote]==[self documentCount]-1;
     BOOL isFirst = [_stackVC indexOfNoteView:_currentNote]==0;
-    NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
+    //NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
         
     [self updateSubviewsForNote:_currentNote scaled:YES];
     
@@ -375,14 +387,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     return [newVal floatValue];
 }
 
+static const float circleXStart = 285.0;
+static const float circleOffset = 20.0;
+static const float labelStart = 135.0;
+static const float labelOffset = 24.0;
+
 - (void)updateSubviewsForNote:(UIView *)note scaled:(BOOL)scaled
 {
-    float circleXStart = 285.0;
-    float circleOffset = 20.0;
-    
-    float labelStart = 135.0;
-    float labelOffset = 24.0;
-    
     UIView *littleCircle = [note viewWithTag:78];
     UIView *absTimeLabel = [note viewWithTag:79];
     
@@ -395,11 +406,14 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         return;
     }
     
-    float scale = [self displayFloat:pinchPercentComplete];
-    
-    [littleCircle setFrameX:circleXStart+(scale*circleOffset)];
-    littleCircle.alpha = 1.0-(scale*1.1);
-    [absTimeLabel setFrameX:labelStart+(scale*labelOffset)];
+    //float scale = [self displayFloat:pinchPercentComplete];
+    int newX = circleXStart+(pinchPercentComplete*circleOffset);
+    int newLabelX = labelStart+(pinchPercentComplete*labelOffset);
+    [littleCircle setFrameX:circleXStart+(pinchPercentComplete*circleOffset)];
+    NSLog(@"x loc: %f",circleXStart+(pinchPercentComplete*circleOffset));
+    NSLog(@"x as int: %d",newX);
+    littleCircle.alpha = 1.0-(pinchPercentComplete*1.1);
+    [absTimeLabel setFrameX:newLabelX];
 }
 
 - (void)finishCenterNoteAnimationWithCompleteBlock:(void(^)())complete
@@ -471,31 +485,23 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int stackingIndex = 0;
     for (int i = range.location; i < range.length; i++) {
         
-        if (model.currentNoteEntries.count > 30) {
-            NSLog(@"error with note entries count %s",__PRETTY_FUNCTION__);
-        }
-        
         if (i == _currentNoteIndex) {
             // skip the current doc
             stackingIndex++;
             continue;
         }
-        
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        
-        int offset = -(float)(model.selectedNoteIndex - stackingIndex);
-        NSLog(@"i is %d, offset for getting view from stackvc is %d",i,offset);
-        if (![_stackVC viewAtIndex:stackingIndex]) {
-            NSLog(@"Couldn't find view for index %d",stackingIndex);
-        }
+
+        /*
+         ApplicationModel *model = [ApplicationModel sharedInstance];
+         int offset = -(float)(model.selectedNoteIndex - stackingIndex);
+         NSLog(@"i is %d, offset for getting view from stackvc is %d",i,offset);
+         if (![_stackVC viewAtIndex:stackingIndex]) {
+         NSLog(@"Couldn't find view for index %d",stackingIndex);
+         }
+         */
 
         UIView *noteView = [_stackVC viewAtIndex:stackingIndex];
-                if (offset==-1) {
-            //[self debugView:noteView color:[UIColor redColor]];
-        }
-        if (offset==1) {
-            //[self debugView:noteView color:[UIColor greenColor]];
-        }
+        
         NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
         
         [stackingViews addObject:dict];
@@ -638,7 +644,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
@@ -835,7 +841,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     // move the current note vc with the touch location
     CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
     CGRect newFrame = CGRectMake(0 + point.x, 0, currentNoteFrame.size.width, currentNoteFrame.size.height);
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
     self.currentNoteViewController.view.frame = newFrame;
     NoteEntry *entryUnderneath = nil;
@@ -860,7 +866,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)handleSingleTouchPanEndedForVelocity:(CGPoint)velocity
 {
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
     int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
     if (noteCount==1) {
@@ -898,7 +904,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
     
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -913,7 +919,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)animateCurrentOutToLeft
 {
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [UIView animateWithDuration:DURATION
                           delay:0.0
@@ -936,7 +942,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)animateCurrentOutToRight
 {
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [UIView animateWithDuration:DURATION
                           delay:0.0
@@ -1023,7 +1029,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)snapBackCurrentNote
 {
     // snap back
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -1036,7 +1042,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)snapBackNextNote
 {
     // snap back
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -1051,7 +1057,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)slideOffCurrentNoteToLeftWithCompletion:(void(^)())completion
 {
-    CGRect viewFrame = self.view.frame;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -1136,7 +1142,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.currentNoteViewController.view.frame = CGRectMake(point.x, point.y, 320, 480);
+                         CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+                         self.currentNoteViewController.view.frame = CGRectMake(point.x, self.currentNoteViewController.view.frame.origin.y, appFrame.size.width, appFrame.size.height);
                      } completion:^(BOOL success){
                          if (point.x == 0) {
                              [self.overView removeFromSuperview];

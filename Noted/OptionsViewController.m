@@ -38,10 +38,7 @@
     [self loadOptionColors];
     [self addAllGestures];
     
-    CGRect frame = CGRectMake(0, 74, 320, 163);
-    self.shareSubview.frame = frame;
-    self.aboutSubview.frame = frame;
-    self.settingsSubview.frame = CGRectMake(0, 74, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
+    [self setInitialPositionForColors];
     self.shareSubview.hidden = YES;
     self.aboutSubview.hidden = YES;
     self.settingsSubview.hidden = YES;
@@ -61,6 +58,19 @@
 //    self.scrollView.layer.cornerRadius = 6.5;
 //    self.scrollView.layer.masksToBounds = YES;
     
+    CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
+    self.view.frame = newFrame;
+    
+    
+}
+
+- (void)setInitialPositionForColors
+{
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    CGRect frame = CGRectMake(0, 74+appFrame.origin.y, 320, 163);
+    self.shareSubview.frame = frame;
+    self.aboutSubview.frame = frame;
+    self.settingsSubview.frame = CGRectMake(0, 74, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -72,8 +82,8 @@
     [keyboardSwitch setOn:isOn];
     
     UISwitch *statusBarSwitch = (UISwitch *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
-    isOn = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
-    [statusBarSwitch setOn:isOn];
+    BOOL hide = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
+    [statusBarSwitch setOn:!hide];
     
     UISwitch *cloudStorageSwitch = (UISwitch *)[self.settingsSubview viewWithTag:ICLOUD_TOGGLE_SWITCH];
     isOn = [FileStorageState preferredStorage] == kTKiCloud ? YES : NO;
@@ -128,7 +138,6 @@
     
 }
 
-
 -(void)returnToOptions {
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
     
@@ -166,16 +175,11 @@
 -(void)openShare:(id)sender {
     NSLog(@"%@",NSStringFromCGRect(self.shareText.frame));
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
+    [self setColorsToCollapsedStateWithDuration:0.3];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.white.frame = CGRectMake(0, 0, 320, 1);
-                         self.sky.frame = CGRectMake(0, 2, 320, 1);
-                         self.lime.frame = CGRectMake(0, 4, 320, 1);
-                         self.kernal.frame = CGRectMake(0, 6, 320, 1);
-                         self.shadow.frame = CGRectMake(0, 8, 320, 1);
-                         self.tack.frame = CGRectMake(0, 10, 320, 1);
                          self.shareText.frame = CGRectMake(0, -244, 320, 480);
                          self.settingsText.frame = CGRectMake(0, 216, 320, 53);
                          self.aboutText.frame = CGRectMake(0, 269, 320, 53);
@@ -191,21 +195,36 @@
 - (CGRect)frameForCancelButtonWithXOffset:(CGFloat)xPos
 {
     float widthHeight = 36.0;
-    return CGRectMake(xPos-widthHeight, self.view.frame.size.height-widthHeight, widthHeight, widthHeight);
+    CGRect frame = [[UIScreen mainScreen] applicationFrame];
+    return CGRectMake(xPos-widthHeight, frame.size.height-widthHeight, widthHeight, widthHeight);
+}
+
+- (void)setColorsToCollapsedStateWithDuration:(float)duration
+{
+    CGRect frame = [[UIScreen mainScreen] applicationFrame];
+    float baselineY = frame.origin.y;
+    [UIView animateWithDuration:duration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.white.frame = CGRectMake(0, baselineY+0, 320, 1);
+                         self.sky.frame = CGRectMake(0, baselineY+2, 320, 1);
+                         self.lime.frame = CGRectMake(0, baselineY+4, 320, 1);
+                         self.kernal.frame = CGRectMake(0, baselineY+6, 320, 1);
+                         self.shadow.frame = CGRectMake(0, baselineY+8, 320, 1);
+                         self.tack.frame = CGRectMake(0, baselineY+10, 320, 1);
+                     } completion:^(BOOL success){
+                         
+                     }];
 }
 
 -(void)openAbout:(id)sender {
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
+    [self setColorsToCollapsedStateWithDuration:0.3];
     [UIView animateWithDuration:0.3 
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.white.frame = CGRectMake(0, 0, 320, 1);
-                         self.sky.frame = CGRectMake(0, 2, 320, 1);
-                         self.lime.frame = CGRectMake(0, 4, 320, 1);
-                         self.kernal.frame = CGRectMake(0, 6, 320, 1);
-                         self.shadow.frame = CGRectMake(0, 8, 320, 1);
-                         self.tack.frame = CGRectMake(0, 10, 320, 1);
                          self.shareText.frame = CGRectMake(0, -244, 320, 1);
                          self.settingsText.frame = CGRectMake(0, -244, 320, 1);
                          self.aboutText.frame = CGRectMake(0, -244, 320, 480);
@@ -219,18 +238,12 @@
 
 -(void)openSettings:(id)sender {
     
-    
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
+    [self setColorsToCollapsedStateWithDuration:0.3];
     [UIView animateWithDuration:0.3
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.white.frame = CGRectMake(0, 0, 320, 1);
-                         self.sky.frame = CGRectMake(0, 2, 320, 1);
-                         self.lime.frame = CGRectMake(0, 4, 320, 1);
-                         self.kernal.frame = CGRectMake(0, 6, 320, 1);
-                         self.shadow.frame = CGRectMake(0, 8, 320, 1);
-                         self.tack.frame = CGRectMake(0, 10, 320, 1);
                          self.shareText.frame = CGRectMake(0, -244, 320, 1);
                          self.settingsText.frame = CGRectMake(0, -244, 320, 1);
                          self.aboutText.frame = CGRectMake(0, -244, 320, 480);
@@ -293,6 +306,19 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     NSLog(@"show status bar turned %s",show ? "on":"off");
+    CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
+    [self setColorsToCollapsedStateWithDuration:0.5];
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         self.view.frame = newFrame;
+                         float widthHeight = self.cancelX.frame.size.height;
+                         self.cancelX.frame = CGRectMake(self.cancelX.frame.origin.x, newFrame.size.height-widthHeight, widthHeight, widthHeight);
+                     }
+                     completion:^(BOOL finished){
+                         NSLog(@"finished animating");
+                     }];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"didToggleStatusBar" object:nil userInfo:nil];
    
 }
 

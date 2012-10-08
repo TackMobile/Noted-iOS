@@ -69,6 +69,8 @@ typedef enum {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
     self.tableView.backgroundView  = backgroundView;
     self.tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
@@ -86,36 +88,52 @@ typedef enum {
         }
         
     }];
-
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-
 #warning TODO: reimplement using iCloud syncing
-//         if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
-//             _shouldAutoShowNote = YES;
-//         }
-         
-         
+    /*
+     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+     
+     
+     if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
+     _shouldAutoShowNote = YES;
+     }
+     
+     
      }];
+     
+     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+     _shouldAutoShowNote = NO;
+     }];
+     
+     */
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-#warning TODO: reimplement using iCloud syncing
-        //_shouldAutoShowNote = NO;
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        CGRect newFrame =  [[UIApplication sharedApplication] statusBarFrame];
+        float height = newFrame.size.height;
+        if (height==20.0) {
+            
+        }
     }];
     
+    //
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
 #warning TODO: reimplement using iCloud syncing    
-//    if (_viewingNoteStack) {
-//        
-//        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
-//        _viewingNoteStack = NO;
-//        _shouldAutoShowNote = NO;
-//        
-//    }
-
+    /*
+     if (_viewingNoteStack) {
+     
+     [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
+     _viewingNoteStack = NO;
+     _shouldAutoShowNote = NO;
+     
+     }
+     
+     */
+    
+    
     [self.tableView reloadData];
     if (_stackViewController) {
         [self.view addSubview:_stackViewController.view];

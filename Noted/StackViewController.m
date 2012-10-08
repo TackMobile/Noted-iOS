@@ -67,17 +67,7 @@ static const float  kExpandDuration = 0.75;
     
     [[self.view viewWithTag:kFirstView] setHidden:YES];
     
-    //self.view.layer.borderColor = [UIColor orangeColor].CGColor;
-    //self.view.layer.borderWidth = 2.0;
     [self.view setUserInteractionEnabled:NO];
-    /*
-     NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:nil options:nil];
-     NewNoteCell *aView = (NewNoteCell *)[views lastObject];
-     [aView setTag:10];
-     aView.contentView.backgroundColor = [UIColor whiteColor];
-     aView.label.text = @"New Note";
-     [self.view addSubview:aView];
-     */
 }
 
 - (void)generateCells
@@ -89,24 +79,14 @@ static const float  kExpandDuration = 0.75;
     
     _numCells = model.currentNoteEntries.count;
     
-    NSLog(@"Num of models: %d",model.currentNoteEntries.count);
-    NSLog(@"Num of existing views: %d",_noteViews.count);
-    
     for (int i = 0; i < _noteViews.count; i++) {
         if (i>model.currentNoteEntries.count-1) {
             [[_noteViews objectAtIndex:i] removeFromSuperview];
             [_noteViews removeObjectAtIndex:i];
-            NSLog(@"removed a view");
         }
     }
     
-    NSLog(@"Num of existing views after: %d",_noteViews.count);
-    
-    
-    
     float y = 44.0;
-    NSLog(@"Num of models: %d",model.currentNoteEntries.count);
-    NSLog(@"Num of existing views: %d",_noteViews.count);
     int numcreated = 0;
     while (y < self.view.bounds.size.height && _noteViews.count<model.currentNoteEntries.count) {
         NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
@@ -122,13 +102,11 @@ static const float  kExpandDuration = 0.75;
         
         [self.view addSubview:noteCell];
         noteCell.contentView.backgroundColor = [UIColor whiteColor];
-        //[self debugView:noteCell color:[UIColor greenColor]];
         y += noteCell.frame.size.height;
         [_noteViews addObject:noteCell];
         numcreated++;
     }
     
-    NSLog(@"Created %d views",numcreated);
     [self updateCellsWithModels];
 }
 
@@ -139,8 +117,6 @@ static const float  kExpandDuration = 0.75;
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
-    // debugging
-    return;
     view.alpha = 1.0;
     view.layer.borderColor = color.CGColor;
     view.layer.borderWidth = 1.0;
@@ -148,21 +124,7 @@ static const float  kExpandDuration = 0.75;
 
 - (UIView *)viewAtIndex:(NSInteger)index
 {
-    NSLog(@"_currentIndex: %d",_currentIndex);
-    //int tag = 11+offset;
-    //if (tag < 0 || tag > 50) {
-    //    NSLog(@"oh no");
-    //}
-    NSLog(@"looking for view with index %d",index);
-    
-    NoteEntryCell *cell = (NoteEntryCell *)[_noteViews objectAtIndex:index];
-    NSLog(@"%@",cell.subtitleLabel.text);
-    
-    if (!cell) {
-        NSLog(@"\n\n no view!\n\n");
-    }
-    
-    return cell;
+    return (NoteEntryCell *)[_noteViews objectAtIndex:index];
 }
 
 - (UIColor *)randomColor
@@ -280,8 +242,10 @@ static const float  kExpandDuration = 0.75;
                                  if (isSelectedCell) {
                                      
                                      NSLog(@"current frame of note cell: %@",NSStringFromCGRect(noteCell.frame));
+                                     CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+                                     appFrame.origin.y = 0.0;
                                      NSAssert(!CGRectEqualToRect(noteCell.frame, self.view.bounds), @"Rects are equal, so there's no animation to perform!");;
-                                     [noteCell setFrame:self.view.bounds];
+                                     [noteCell setFrame:appFrame];
                                      noteCell.layer.cornerRadius = 6.0;
                                      
                                  } else {
