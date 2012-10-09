@@ -178,6 +178,7 @@
     if (![_noteEntry.noteColor isEqual:color]) {
         // update the model, but avoid unecessary updates
         [self.noteDocument setColor:color];
+        [self.noteEntry setNoteData:self.noteDocument.data];
     }
     
     self.view.backgroundColor = color;

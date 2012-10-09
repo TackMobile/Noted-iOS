@@ -165,7 +165,7 @@ typedef enum {
     }
     
     [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
-    [_stackViewController generateCells];
+    [_stackViewController update];
     [self configureLastRowExtenderView];
 }
 
@@ -414,9 +414,9 @@ typedef enum {
         [_stackViewController.view setFrameX:0.0];
         _animating = YES;
 
-        [_stackViewController expandRowsForViewController:self selectedIndexPath:indexPath completion:^(){
+        [_stackViewController animateOpenForController:self indexPath:indexPath completion:^(){
             _animating = NO;
-            [_stackViewController.view setFrameX:-320.0];
+            
             NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
             if (!noteEntry.adding) {
                 [self showNoteStackForSelectedRow:indexPath.row animated:NO];
@@ -431,7 +431,6 @@ typedef enum {
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    
     
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:model.selectedNoteIndex] forKey:kEditingNoteIndex];
     
@@ -472,7 +471,7 @@ typedef enum {
     [self delayedCall:0.1 withBlock:^{
         [self.tableView reloadData];
         if (_stackViewController) {
-            [_stackViewController generateCells];
+            [_stackViewController update];
         }
         
     }];

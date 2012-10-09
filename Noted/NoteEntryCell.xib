@@ -149,7 +149,6 @@
 								<string key="NSFrame">{{0, 58}, {320, 7}}</string>
 								<reference key="NSSuperview" ref="822118860"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<int key="IBUITag">56</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -165,7 +164,6 @@
 								<string key="NSFrameSize">{320, 15}</string>
 								<reference key="NSSuperview" ref="822118860"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -305,7 +303,6 @@
 					<string key="className">NoteEntryCell</string>
 					<string key="superclassName">UITableViewCell</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="additionalText">UILabel</string>
 						<string key="deleteButton">UIButton</string>
 						<string key="relativeTimeText">UITextView</string>
 						<string key="subtitleLabel">UILabel</string>
@@ -313,10 +310,6 @@
 						<string key="warningImageView">UIImageView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="additionalText">
-							<string key="name">additionalText</string>
-							<string key="candidateClassName">UILabel</string>
-						</object>
 						<object class="IBToOneOutletInfo" key="deleteButton">
 							<string key="name">deleteButton</string>
 							<string key="candidateClassName">UIButton</string>

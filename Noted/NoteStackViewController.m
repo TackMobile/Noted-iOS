@@ -61,12 +61,11 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     NoteStackGestureState _currentGestureState;
     StackViewController *_stackVC;
     
-    float totalHeight;
     CGFloat pinchYTarget;
     CGFloat pinchDistance;
     CGFloat pinchVelocity;
     
-    float adjustedScale;
+    //float adjustedScale;
     float pinchPercentComplete;
     CGFloat initialPinchDistance;
 }
@@ -118,7 +117,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    totalHeight = self.view.bounds.size.height - kSectionZeroHeight;
+    [self.view.layer setCornerRadius:kCornerRadius];
+    [self.view setClipsToBounds:YES];
+
     initialPinchDistance = 0.0;
     self.view.layer.cornerRadius = kCornerRadius;
     
@@ -165,7 +166,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                              self.nextNoteViewController.view.frame = newFrame;
                          }
                          completion:^(BOOL finished){
-                             NSLog(@"finished animating");
+                             //NSLog(@"finished animating");
                          }];
     }];
     
@@ -207,8 +208,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
     
-    [self setUpRangeForStacking];
-    [self.view addSubview:_stackVC.view];
+    [_stackVC prepareForCollapseAnimationForView:self.view];
 }
 
 - (void)popAndFormatCurrentTextFieldForParentView:(UIView *)parentView
@@ -219,10 +219,11 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     if ([parentView isKindOfClass:[NoteEntryCell class]]) {
         CGRect frame = textField.frame;
-        UILabel *subtitle = [(NoteEntryCell *)_currentNote subtitleLabel];
+        UILabel *subtitle = [(NoteEntryCell *)parentView subtitleLabel];
         [subtitle setHidden:YES];
         frame.origin.y = subtitle.frame.origin.y - 29.0;
         frame.origin.x = subtitle.frame.origin.x - 8.0;
+        NSLog(@"setting frame for textField %f",frame.origin.y);
         textField.frame = frame;
         
     } else  {
@@ -230,23 +231,28 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         textField.frame = CGRectMake(0.0, 0.0, 320.0, 460.0);
         textField.text = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].text;
     }
-    
 }
 
 #pragma mark Pinch gesture to collapse notes stack
 
+- (void)setPinchPercentComplete:(float)percent
+{
+    pinchPercentComplete = percent;
+    
+    if (pinchPercentComplete>=1.0) {
+        pinchPercentComplete = 1.0;
+    } else if (pinchPercentComplete<0.0) {
+        pinchPercentComplete = 0.0;
+    }
+}
+
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
-    [self.currentNoteViewController.textView resignFirstResponder];
-    
     CGFloat scale = gesture.scale;
-    adjustedScale = [self adjustedScaleForPinch:scale];
         
     pinchYTarget = [gesture locationInView:self.view].y;
     pinchVelocity = gesture.velocity;
-    
-    //NSLog(@"velocity: %f",pinchVelocity);
-    
+
     if ([gesture numberOfTouches] == 2 && _currentGestureState==kStackingPinch) {
         CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
         CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
@@ -261,29 +267,19 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         }
     }
     
+    [self setPinchPercentComplete:(initialPinchDistance-pinchDistance)/(initialPinchDistance-kPinchDistanceCompleteThreshold)];
+    
     if (gesture.state == UIGestureRecognizerStateBegan) {
-                
-        [_stackVC.view setFrameX:0.0];
-        [self setGestureState:kStackingPinch];
-        [self.view.layer setCornerRadius:kCornerRadius];
-        [self.view setClipsToBounds:YES];
-        [self animateCurrentNoteWithScale:scale];
-        //[self.currentNoteViewController setWithNoDataTemp:YES];
-        [self popAndFormatCurrentTextFieldForParentView:_currentNote];
-        [self animateCurrentNoteWithScale:scale];
-        [self animateStackedNotesForScale:scale];
         
+        [self pinchToCollapseBegun:YES];
+        [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
+      
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         
-        [self animateCurrentNoteWithScale:scale];
-        [self animateStackedNotesForScale:scale];
+        [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
         
-        pinchPercentComplete = (initialPinchDistance-pinchDistance)/(initialPinchDistance-kPinchDistanceCompleteThreshold);
         if (pinchPercentComplete>=1.0) {
-            pinchPercentComplete = 1.0;
             pinchComplete = YES;
-        } else if (pinchPercentComplete<0.0) {
-            pinchPercentComplete = 0.0;
         } else {
             pinchComplete = NO;
         }
@@ -296,180 +292,50 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         
+        [self pinchToCollapseBegun:NO];
+        
         if (pinchComplete) {
             [self finishPinch];
             
         } else {
             [_stackVC resetToExpanded:^{
-                [self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
                 [self.currentNoteViewController setWithNoDataTemp:NO];
             }];
-            
         }
+    }
+}
+
+
+- (void)pinchToCollapseBegun:(BOOL)val
+{
+    pinchPercentComplete = 0.0;
+    
+    if (val) {
+        [self popAndFormatCurrentTextFieldForParentView:[_stackVC currentNote]];
+        [self.currentNoteViewController.textView resignFirstResponder];
+        [self.currentNoteViewController.textView setScrollEnabled:NO];
+        [self setGestureState:kStackingPinch];
         
+    } else {
+        [self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
+        [self.currentNoteViewController.textView setScrollEnabled:YES];
         [self setGestureState:kGestureFinished];
+        
     }
 }
 
 - (void)finishPinch
 {
-    void(^wrapUp)() = ^{
+    [_stackVC finishCollapse:^{
         
         [self.view setUserInteractionEnabled:YES];
         initialPinchDistance = 0.0;
         _currentGestureState = kGestureFinished;
         [self.currentNoteViewController setWithNoDataTemp:NO];
-        self.dismissBlock(_currentNoteIndex,[self finalYOriginForCurrentNote]);
+        self.dismissBlock(_currentNoteIndex,[_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        //[self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
-        [_stackVC.view setFrameX:-320.0];
         
-    };
-    
-    [self finishCenterNoteAnimationWithCompleteBlock:^{
-        wrapUp();
     }];
-    
-}
-
-- (double)adjustedScaleForPinch:(CGFloat)scale
-{
-    float newScale = 1.0 - pinchPercentComplete;
-    if (newScale<=0.0) {
-        newScale = 0.0;
-    }
-    
-    return 1.0 - pinchPercentComplete;
-}
-
-
-#pragma mark Stacked notes animations
-
-- (void)animateStackedNotesForScale:(CGFloat)scale
-{
-    for (int i = 0; i < stackingViews.count; i ++) {
-        [self animateStackedNoteAtIndex:i withScale:scale];
-    }
-}
-
-- (void)animateCurrentNoteWithScale:(CGFloat)scale
-{
-    float minusAmount = self.view.bounds.size.height-kCellHeight;
-    float newHeight = self.view.bounds.size.height-(minusAmount*pinchPercentComplete);
-    BOOL isLast = [_stackVC indexOfNoteView:_currentNote]==[self documentCount]-1;
-    BOOL isFirst = [_stackVC indexOfNoteView:_currentNote]==0;
-    //NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
-        
-    [self updateSubviewsForNote:_currentNote scaled:YES];
-    
-    centerNoteFrame = CGRectMake(0.0, (self.view.bounds.size.height-newHeight)*0.5, 320.0, newHeight);
-    
-    [_currentNote setFrame:centerNoteFrame];
-}
-
-- (void)animateStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
-{
-    NSDictionary *noteDict = [stackingViews objectAtIndex:index];
-    
-    UIView *note = [noteDict objectForKey:@"noteView"];
-    BOOL isLast = [_stackVC indexOfNoteView:note]==[self documentCount]-1;
-    BOOL isFirst = [_stackVC indexOfNoteView:note]==0;
-    NSLog(@"Is first: %s, is last: %s",isFirst ? "YES" : "NO",isLast ? "YES" : "NO");
-    
-    int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
-    int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
-    float currentNoteOffset = 0.0;
-    
-
-    float newHeight = kCellHeight;
-    float newY = 0.0;
-    if (offset<0) {
-        currentNoteOffset = offset*kCellHeight;
-        newY = CGRectGetMinY(_currentNote.frame) + currentNoteOffset;
-    
-    } else if (offset>0) {
-        currentNoteOffset = CGRectGetMaxY(_currentNote.frame) + (offset-1)*kCellHeight;
-        newY = currentNoteOffset;
-        newHeight = self.view.bounds.size.height-CGRectGetMaxY(_currentNote.frame);
-        NSLog(@"Note with offset %d getting set to y Origin of %f (%f + (%d-1)*kCellHeight)",offset,newY,CGRectGetMaxY(_currentNote.frame),offset);
-    }
-    
-    CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-    
-    [self updateSubviewsForNote:note scaled:YES];
-     
-    [note setFrame:newFrame];
-}
-
-- (float)finalYOriginForCurrentNote
-{
-    float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
-    
-    return finalY;
-}
-
-- (float)displayFloat:(float)val
-{
-    NSString *newVal = [NSString stringWithFormat:@"%0.2f",val];
-    return [newVal floatValue];
-}
-
-static const float circleXStart = 285.0;
-static const float circleOffset = 20.0;
-static const float labelStart = 135.0;
-static const float labelOffset = 24.0;
-
-- (void)updateSubviewsForNote:(UIView *)note scaled:(BOOL)scaled
-{
-    UIView *littleCircle = [note viewWithTag:78];
-    
-    if (!scaled) {
-        
-        littleCircle.alpha = 0.0;
-        return;
-    }
-    
-    littleCircle.alpha = 1.0-(pinchPercentComplete*1.1);
-}
-
-- (void)finishCenterNoteAnimationWithCompleteBlock:(void(^)())complete
-{
-    //BOOL done = _currentNote.frame.size.height==kCellHeight || pinchPercentComplete==1.0;
-    
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         float currentNoteY = (self.view.bounds.size.height-kCellHeight)*0.5;
-                         centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
-                         [_currentNote setFrame:centerNoteFrame];
-                         
-                         for (int i = 0; i < stackingViews.count; i ++) {
-                             NSDictionary *noteDict = [stackingViews objectAtIndex:i];
-                             
-                             UIView *note = [noteDict objectForKey:@"noteView"];
-                             int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
-                             
-                             int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
-                             
-                             float newHeight = kCellHeight;
-                             float newY = 0.0;
-                             if (offset < 0) {
-                                 float finalCY = [self finalYOriginForCurrentNote];
-                                 float balh = offset*kCellHeight;
-                                 newY = finalCY + balh;
-                                 
-                             } else if (offset>0) {
-                                 newHeight = self.view.bounds.size.height-CGRectGetMaxY(_currentNote.frame);
-                                 newY = (CGRectGetMaxY(centerNoteFrame))+((offset-1)*kCellHeight);
-                             }
-                             
-                             CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
-                             [note setFrame:newFrame];
-                         }
-                     }
-                     completion:^(BOOL finished){
-                         complete();
-                         
-                     }];
 }
 
 #pragma mark Stacked note views setup
@@ -482,112 +348,15 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     return [[ApplicationModel sharedInstance] currentNoteEntries].count;
 }
 
-- (void)setUpRangeForStacking
-{
-    if (stackingViews) {
-        [stackingViews removeAllObjects];
-    }
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    _currentNoteIndex = model.selectedNoteIndex;//[[model currentNoteEntries] indexOfObject:self.currentNoteViewController.noteEntry];
-    NSLog(@"%d",_currentNoteIndex);
-	
-    NSRange range = [self stackedNotesRange];
-    NSLog(@"Stack notes from %d to %d",range.location,range.length);
-    
-    [self makeCurrentNote];
-
-    stackingViews = [[NSMutableArray alloc] initWithCapacity:range.length];
-    int stackingIndex = 0;
-    for (int i = range.location; i < range.length; i++) {
-        
-        if (i == _currentNoteIndex) {
-            // skip the current doc
-            stackingIndex++;
-            continue;
-        }
-
-        /*
-         ApplicationModel *model = [ApplicationModel sharedInstance];
-         int offset = -(float)(model.selectedNoteIndex - stackingIndex);
-         NSLog(@"i is %d, offset for getting view from stackvc is %d",i,offset);
-         if (![_stackVC viewAtIndex:stackingIndex]) {
-         NSLog(@"Couldn't find view for index %d",stackingIndex);
-         }
-         */
-
-        UIView *noteView = [_stackVC viewAtIndex:stackingIndex];
-        
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
-        
-        [stackingViews addObject:dict];
-        stackingIndex++;
-    }
-    
-}
-
-// 0 1 2 3 [4] 5 6 7 [8] 9 
-// [zero] 1 2 3 4 5 [6] 7 8 9 10 11
-// 0 1 2 3 4 [5] 6 7 8 9 10 [eleven]
-// [zero] 1 [2]
-- (NSRange)stackedNotesRange
-{
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    NSMutableOrderedSet *allDocuments = [model currentNoteEntries];
-    
-    int count = allDocuments.count;
-    int displayableCellCount = (int)ceilf((self.view.bounds.size.height/kCellHeight));
-    displayableCellCount = displayableCellCount > count ? count : displayableCellCount;
-    
-    int beginRange = _currentNoteIndex;
-    int endRange = _currentNoteIndex;
-    while (endRange-beginRange<=displayableCellCount) {
-        beginRange--;
-        endRange++;
-    }
-    
-    beginRange = beginRange < 0 ? 0 : beginRange;
-    endRange = endRange > count ? count : endRange;
-    
-    while (endRange-beginRange<displayableCellCount && beginRange>0) {
-        beginRange--;
-    }
-    
-    NSLog(@"begin: %d, end: %d",beginRange,endRange);
-    
-    return NSMakeRange(beginRange, endRange);
-}
-
-- (void)makeCurrentNote
-{
-    _currentNote = nil;
-    NSLog(@"current index %d %d",_currentNoteIndex,__LINE__);
-    _currentNote = [_stackVC viewAtIndex:_currentNoteIndex];
-    //[self debugView:_currentNote color:[UIColor blueColor]];
-}
-
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
-    // debugging
     view.layer.borderColor = color.CGColor;
-    view.layer.borderWidth = 1.0;
+    view.layer.borderWidth = 2.0;
 }
 
 - (UIImageView *)shadowView
 {
     return [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cellShadow"]];
-}
-
-- (UIView *)makeNoteView
-{
-    UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
-    
-    view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    view.layer.shouldRasterize = YES;
-    view.userInteractionEnabled = NO;
-    view.clipsToBounds = YES;
-    
-    return view;
 }
 
 // use the hidden nextNoteVC's view to create a snapshot of doc
@@ -907,15 +676,14 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
     }];
     
-    
     NSLog(@"New note entry with text: %@",model.noteAtSelectedNoteIndex.text);
     
     [model setSelectedNoteIndex:0];
     int currentIndex = model.selectedNoteIndex;
-    
-    [_stackVC generateCells];
     [self updateNoteDocumentsForIndex:currentIndex];
-    [self setUpRangeForStacking];
+    
+    [_stackVC update];
+    [_stackVC prepareForCollapseAnimationForView:self.view];
         
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
@@ -1087,7 +855,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)popToNoteList:(int)index
 {
-    self.dismissBlock(index,[self finalYOriginForCurrentNote]);
+    self.dismissBlock(index,[_stackVC finalYOriginForCurrentNote]);
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -1104,7 +872,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
-    [self setUpRangeForStacking];
+    [_stackVC prepareForCollapseAnimationForView:self.view];
 }
 
 - (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
