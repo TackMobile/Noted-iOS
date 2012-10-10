@@ -37,18 +37,25 @@
 #pragma mark Metadata
 
 - (NSString *) title {
+    
     NSString *titleText = self.noteData.noteText;
-    if (!IsEmpty(titleText) && ![titleText isEqualToString:@"\n"]){
-        titleText = [[titleText componentsSeparatedByString:@"\n"] objectAtIndex:1];
-    } else {
-        titleText = @"...";
-    }
-    
-    if (titleText.length==0) {
-        NSLog(@"stop");
-    }
-    
+    if (!IsEmpty(titleText)){
+        // remove newline if necessary
+        titleText = [self removeLeadingNewline:titleText];
+        
+        NSArray *components = [titleText componentsSeparatedByString:@"\n"];
+        titleText = [components objectAtIndex:0];
+    }     
     return titleText;
+}
+
+- (NSString *)removeLeadingNewline:(NSString *)text
+{
+    if ([text hasPrefix:@"\n"]) {
+        text = [text substringFromIndex:1];
+    }
+    
+    return text;
 }
 
 - (NSString *) relativeDateString {
@@ -61,6 +68,16 @@
 
 - (NSString *) text {
     return self.noteData.noteText;
+}
+
+- (NSString *)displayText
+{
+    NSString *text = nil;
+    if (![self.noteData.noteText hasPrefix:@"\n"]) {
+        text = [NSString stringWithFormat:@"\n%@", self.noteData.noteText];
+    }
+    
+    return text;
 }
 
 - (UIColor *)noteColor

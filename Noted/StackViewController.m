@@ -26,22 +26,17 @@ static const float  kCellHeight = 66.0;
 @interface StackViewController ()
 {
     UITableView *_tableView;
-    
-    NSUInteger _currentIndex;
+    UITextView *placeholderText;
     
     BOOL _isPinching;
-    
-    NSMutableArray *_noteViews;
+    BOOL _animating;
+    float pinchPercentComplete;
     int _numCells;
-    UITextView *placeholderText;
+    
     CGRect centerNoteFrame;
     
-    float pinchPercentComplete;
-    
-    NSInteger _currentNoteIndex;
     NSMutableArray *stackingViews;
-    
-    BOOL _animating;
+    NSMutableArray *_noteViews;
 }
 
 @property (weak, nonatomic) IBOutlet UIView *bottomExtender;
@@ -97,17 +92,6 @@ static const float  kCellHeight = 66.0;
 
 - (void)finishExpansion
 {    
-    if (DEBUG_ANIMATIONS) {
-        [UIView animateWithDuration:0.5
-                         animations:^{
-                             [self.view setFrameX:-320.0];
-                         }
-                         completion:^(BOOL finished){
-                             NSLog(@"finished animating");
-                         }];
-        return;
-    }
-    
     [self.view setFrameX:-320.0];
 }
 
@@ -183,8 +167,8 @@ static const float  kCellHeight = 66.0;
                              float newY = 0.0;
                              if (offset < 0) {
                                  float finalCY = [self finalYOriginForCurrentNote];
-                                 float balh = offset*kCellHeight;
-                                 newY = finalCY + balh;
+                                 float correction = offset*kCellHeight;
+                                 newY = finalCY + correction;
                                  
                              } else if (offset>0) {
                                  newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
@@ -288,7 +272,6 @@ static const float  kCellHeight = 66.0;
     }
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    _currentNoteIndex = model.selectedNoteIndex;
 	
     NSRange range = [self stackedNotesRange];
     NSLog(@"Stack notes from %d to %d",range.location,range.length);
@@ -297,7 +280,7 @@ static const float  kCellHeight = 66.0;
     int stackingIndex = 0;
     for (int i = range.location; i < range.length; i++) {
         
-        if (i == _currentNoteIndex) {
+        if (i == model.selectedNoteIndex) {
             // skip the current doc
             stackingIndex++;
             continue;
@@ -351,7 +334,6 @@ static const float  kCellHeight = 66.0;
     [self.view setFrameX:0.0];
     _animating = YES;
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    _currentIndex = model.selectedNoteIndex;
     _tableView = noteList.tableView;
     NSArray *cells = _tableView.visibleCells;
     __block int animatedCellCount = 0;
@@ -383,8 +365,7 @@ static const float  kCellHeight = 66.0;
                 [noteCell.contentView addSubview:placeholderText];
                 [placeholderText setHidden:NO];
                 [noteCell.subtitleLabel setHidden:YES];
-                NSLog(@"%@",model.noteAtSelectedNoteIndex.text);
-                placeholderText.text = model.noteAtSelectedNoteIndex.text;
+                placeholderText.text = model.noteAtSelectedNoteIndex.displayText;
             }
         
             BOOL isLastCell = indexPath.row == cells.count-2; // minus 2 to account for section 0
@@ -555,9 +536,6 @@ static const float  kCellHeight = 66.0;
             placeholderText.textColor = noteCell.subtitleLabel.textColor;
             if (DEBUG_ANIMATIONS) {
                 placeholderText.textColor = [UIColor redColor];
-                CGRect frame = placeholderText.frame;
-                frame.origin.x += 5.0;
-                placeholderText.frame = frame;
             }
         }
         
@@ -605,8 +583,8 @@ static const float  kCellHeight = 66.0;
     int displayableCellCount = (int)ceilf((self.view.bounds.size.height/kCellHeight));
     displayableCellCount = displayableCellCount > count ? count : displayableCellCount;
     
-    int beginRange = _currentNoteIndex;
-    int endRange = _currentNoteIndex;
+    int beginRange = model.selectedNoteIndex;
+    int endRange = model.selectedNoteIndex;
     while (endRange-beginRange<=displayableCellCount) {
         beginRange--;
         endRange++;

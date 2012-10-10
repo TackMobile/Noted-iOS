@@ -24,6 +24,8 @@
 
 // metadata
 - (NSString *)title;
+- (NSString *)displayTitle;
+- (NSString *)displayText;
 - (NSString *)relativeDateString;
 - (NSString *)absoluteDateString;
 

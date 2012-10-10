@@ -97,7 +97,9 @@
 
 - (void)updateUIForCurrentEntry
 {
-    self.textView.text = [_noteEntry text];
+    // prepend a newline for display
+    self.textView.text = [_noteEntry displayText];
+    
     self.relativeTime.text = [_noteEntry relativeDateString];
     
     UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
@@ -189,11 +191,11 @@
     self.scrollView.contentOffset = aScrollView.contentOffset;
 }
 
-- (void)textViewDidChange:(UITextView *)aTextView{
-    if (![aTextView.text hasPrefix:@"\n"]) {
-        aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
-
-    }
+- (void)textViewDidChange:(UITextView *)aTextView {
+//    if ([aTextView.text hasPrefix:@"\n"]) {
+//        aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
+//
+//    }
     
     NSString *shorthand = @":time";
     
@@ -213,12 +215,23 @@
     }
 }
 
+- (NSString *)removeLeadingNewline:(NSString *)text
+{
+    if ([text hasPrefix:@"\n"]) {
+        text = [text substringFromIndex:1];
+    }
+    
+    return text;
+}
+
 - (void)textViewDidEndEditing:(UITextView *)aTextView
 {
     if (self.noteDocument.documentState!=UIDocumentStateNormal ) {
         NSLog(@"couldn't save!");
     }
-    [self.noteDocument setText:aTextView.text];
+    
+    NSString *text = [self removeLeadingNewline:aTextView.text];
+    [self.noteDocument setText:text];
     // update the presentation model
     [self.noteEntry setNoteData:self.noteDocument.data];
     

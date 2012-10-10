@@ -174,25 +174,32 @@ typedef enum {
     CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
     
     NSIndexPath *lastIndexPath = [self.tableView indexPathForCell:lastCell];
-    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
-    if (CGRectGetMaxY(frame) < bounds.size.height) {
-        if (!self.lastRowExtenderView) {
-            self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
-            [self.view addSubview:self.lastRowExtenderView];
-            [self.lastRowExtenderView setUserInteractionEnabled:NO];
+    if (lastIndexPath) {
+        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
+        if (CGRectGetMaxY(frame) < bounds.size.height) {
+            if (!self.lastRowExtenderView) {
+                self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
+                [self.view addSubview:self.lastRowExtenderView];
+                [self.lastRowExtenderView setUserInteractionEnabled:NO];
+            }
+            
+            CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
+            
+            [self.lastRowExtenderView setFrame:newFrame];
+            
+        } else {
+            // hide it
+            [self.lastRowExtenderView setFrame:hiddenFrame];
         }
         
-        CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
-        
-        [self.lastRowExtenderView setFrame:newFrame];
+        [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
         
     } else {
-        // hide it
         [self.lastRowExtenderView setFrame:hiddenFrame];
     }
     
     [self.view addSubview:self.lastRowExtenderView];
-    [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
+    
 }
 
 
@@ -280,6 +287,9 @@ typedef enum {
         }
         
         noteEntryCell.subtitleLabel.text = noteEntry.title;
+        NSLog(@"noteEntryCell.subtitleLabel.text: %@",noteEntryCell.subtitleLabel.text);
+        
+        
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         
         return noteEntryCell;
