@@ -40,8 +40,6 @@ typedef enum {
     
     NoteEntryCell *_placeholder;
     StackViewController *_stackViewController;
-    BOOL _animating;
-    
 }
 
 @end
@@ -58,7 +56,7 @@ typedef enum {
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
         _scrolling = NO;
-        _animating = NO;
+        
     }
     
     return self;
@@ -129,15 +127,14 @@ typedef enum {
      _shouldAutoShowNote = NO;
      
      }
-     
      */
-    
     
     [self.tableView reloadData];
     if (_stackViewController) {
-        [self.view addSubview:_stackViewController.view];
-        [self configureLastRowExtenderView];
+        [_stackViewController prepareForExpandAnimationForView:self.view];
     }
+    
+    [self configureLastRowExtenderView];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -151,21 +148,15 @@ typedef enum {
     [super viewDidUnload];
 }
 
-
-
 - (void)listDidUpdate
 {
     if (!_stackViewController) {
         _stackViewController = [[StackViewController alloc] init];
         
     }
+
+    [_stackViewController prepareForExpandAnimationForView:self.view];
     
-    if (!_animating) {
-        [_stackViewController.view setFrameX:-320.0];
-    }
-    
-    [self.view insertSubview:_stackViewController.view aboveSubview:self.tableView];
-    [_stackViewController update];
     [self configureLastRowExtenderView];
 }
 
@@ -182,24 +173,26 @@ typedef enum {
     CGRect bounds = self.view.bounds;
     CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
     
-    
     NSIndexPath *lastIndexPath = [self.tableView indexPathForCell:lastCell];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
     if (CGRectGetMaxY(frame) < bounds.size.height) {
         if (!self.lastRowExtenderView) {
             self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
             [self.view addSubview:self.lastRowExtenderView];
-            
             [self.lastRowExtenderView setUserInteractionEnabled:NO];
         }
         
         CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
+        
         [self.lastRowExtenderView setFrame:newFrame];
-        [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
+        
     } else {
         // hide it
         [self.lastRowExtenderView setFrame:hiddenFrame];
     }
+    
+    [self.view addSubview:self.lastRowExtenderView];
+    [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
 }
 
 
@@ -372,6 +365,7 @@ typedef enum {
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
     _scrolling = NO;
+    [self configureLastRowExtenderView];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -411,11 +405,8 @@ typedef enum {
         [self listDidUpdate];
     } else {
         model.selectedNoteIndex = indexPath.row;
-        [_stackViewController.view setFrameX:0.0];
-        _animating = YES;
-
+        
         [_stackViewController animateOpenForController:self indexPath:indexPath completion:^(){
-            _animating = NO;
             
             NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
             if (!noteEntry.adding) {
@@ -428,6 +419,15 @@ typedef enum {
     }
 }
 
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
+    if (interfaceOrientation==UIInterfaceOrientationPortrait ) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -435,7 +435,7 @@ typedef enum {
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:model.selectedNoteIndex] forKey:kEditingNoteIndex];
     
     _viewingNoteStack = YES;
-    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(NSUInteger row,float currentNoteOffset){
+    NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(float currentNoteOffset){
         
         [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
         _viewingNoteStack = NO;

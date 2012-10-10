@@ -22,7 +22,6 @@ typedef void(^animationCompleteBlock)();
 
 - (void)prepareForCollapseAnimationForView:(UIView *)view;
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent;
-- (void)resetToCollapsed:(void(^)())completion;
 - (void)finishCollapse:(void(^)())complete;
 
 - (void)prepareForExpandAnimationForView:(UIView *)view;
@@ -31,6 +30,5 @@ typedef void(^animationCompleteBlock)();
 - (void)finishExpansion:(void(^)())complete;
 
 - (void)update;
-
 
 @end

@@ -16,7 +16,7 @@
 #import <MessageUI/MFMailComposeViewController.h>
 #import <Twitter/Twitter.h>
 
-typedef void(^TMDismissalBlock)(NSUInteger,float);
+typedef void(^TMDismissalBlock)(float);
 
 @class NoteDocument;
 @class StackViewController;

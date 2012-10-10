@@ -42,8 +42,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     NSMutableArray *deletingViews;
     
-    NSInteger _currentNoteIndex;
-    
     UIView *_currentNote;
     UIImageView *_shadowView;
     UIImageView *_shadowViewTop;
@@ -305,7 +303,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
 }
 
-
 - (void)pinchToCollapseBegun:(BOOL)val
 {
     pinchPercentComplete = 0.0;
@@ -332,7 +329,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         initialPinchDistance = 0.0;
         _currentGestureState = kGestureFinished;
         [self.currentNoteViewController setWithNoDataTemp:NO];
-        self.dismissBlock(_currentNoteIndex,[_stackVC finalYOriginForCurrentNote]);
+        self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
         
     }];
@@ -670,7 +667,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    NSLog(@"before count: %d",_currentNoteIndex);
     [model createNoteWithCompletionBlock:^(NoteEntry *doc){
         //[[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
         
@@ -855,7 +851,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)popToNoteList:(int)index
 {
-    self.dismissBlock(index,[_stackVC finalYOriginForCurrentNote]);
+    self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
