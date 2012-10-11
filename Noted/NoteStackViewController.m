@@ -209,28 +209,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [_stackVC prepareForCollapseAnimationForView:self.view];
 }
 
-- (void)popAndFormatCurrentTextFieldForParentView:(UIView *)parentView
-{
-    UITextView *textField = self.currentNoteViewController.textView;
-    
-    [parentView addSubview:textField];
-    
-    if ([parentView isKindOfClass:[NoteEntryCell class]]) {
-        CGRect frame = textField.frame;
-        UILabel *subtitle = [(NoteEntryCell *)parentView subtitleLabel];
-        [subtitle setHidden:YES];
-        frame.origin.y = subtitle.frame.origin.y - 29.0;
-        frame.origin.x = subtitle.frame.origin.x - 8.0;
-        NSLog(@"setting frame for textField %f",frame.origin.y);
-        textField.frame = frame;
-        
-    } else  {
-        
-        textField.frame = CGRectMake(0.0, 0.0, 320.0, 460.0);
-        textField.text = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].text;
-    }
-}
-
 #pragma mark Pinch gesture to collapse notes stack
 
 - (void)setPinchPercentComplete:(float)percent
@@ -308,13 +286,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     pinchPercentComplete = 0.0;
     
     if (val) {
-        [self popAndFormatCurrentTextFieldForParentView:[_stackVC currentNote]];
+
         [self.currentNoteViewController.textView resignFirstResponder];
         [self.currentNoteViewController.textView setScrollEnabled:NO];
         [self setGestureState:kStackingPinch];
         
     } else {
-        [self popAndFormatCurrentTextFieldForParentView:self.currentNoteViewController.view];
+        
         [self.currentNoteViewController.textView setScrollEnabled:YES];
         [self setGestureState:kGestureFinished];
         

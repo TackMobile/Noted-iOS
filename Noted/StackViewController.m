@@ -18,22 +18,23 @@
 #import "NoteViewController.h"
 #import "NoteListViewController.h"
 
-#define DEBUG_ANIMATIONS 1
+#define DEBUG_ANIMATIONS 0
 
-static const float  kAnimationDuration = 0.5;
-static const float  kCellHeight = 66.0;
+static const float  kAnimationDuration      = 0.5;
+static const float  kDebugAnimationDuration = 2.5;
+static const float  kCellHeight             = 66.0;
 
 @interface StackViewController ()
 {
     UITableView *_tableView;
-    UITextView *placeholderText;
+    UITextView *_placeholderText;
     
     BOOL _isPinching;
     BOOL _animating;
-    float pinchPercentComplete;
+    float _pinchPercentComplete;
     int _numCells;
     
-    CGRect centerNoteFrame;
+    CGRect _centerNoteFrame;
     
     NSMutableArray *stackingViews;
     NSMutableArray *_noteViews;
@@ -54,7 +55,7 @@ static const float  kCellHeight = 66.0;
         _isPinching = NO;
         _numCells = 0;
         _noteViews = [[NSMutableArray alloc] init];
-        centerNoteFrame = CGRectZero;
+        _centerNoteFrame = CGRectZero;
         _animating = NO;
     }
     
@@ -66,38 +67,43 @@ static const float  kCellHeight = 66.0;
     return [self init];
 }
 
-- (float)finalYOriginForCurrentNote
-{
-    float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
-    
-    return finalY;
-}
-
-- (UIView *)currentNote
-{
-    return [self viewAtIndex:[ApplicationModel sharedInstance].selectedNoteIndex];
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
     [self.view setUserInteractionEnabled:NO];
     
-    placeholderText = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 460.0)];
-    placeholderText.text = @"piecemeal beats oatmeal";
-    placeholderText.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
-    placeholderText.backgroundColor = [UIColor clearColor];
+    /*
+     _placeholderText = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 460.0)];
+     _placeholderText.text = @"piecemeal beats oatmeal";
+     _placeholderText.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+     _placeholderText.backgroundColor = [UIColor clearColor];
+     */
 }
 
-- (void)finishExpansion
-{    
-    [self.view setFrameX:-320.0];
-}
+#pragma mark Pinch to collapse animation
 
-- (int)indexOfNoteView:(UIView *)view
+- (void)prepareForCollapseAnimationForView:(UIView *)view
 {
-    return [_noteViews indexOfObject:view];
+    [self setUpRangeForStacking];
+    
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    
+    if (![[self.view superview] isEqual:view]) {
+        [view addSubview:self.view];
+    }
+}
+
+- (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent
+{
+    _pinchPercentComplete = pinchPercent;
+    if (self.view.frame.origin.x != 0.0) {
+        [self.view setFrameX:0.0];
+        [self toggleFullNoteText:[self currentNoteEntry].text inCell:(UITableViewCell *)[self currentNote]];
+    }
+    
+    [self animateCurrentNoteWithScale:scale];
+    [self animateStackedNotesForScale:scale];
 }
 
 - (void)animateStackedNotesForScale:(CGFloat)scale
@@ -105,99 +111,6 @@ static const float  kCellHeight = 66.0;
     for (int i = 0; i < stackingViews.count; i ++) {
         [self animateStackedNoteAtIndex:i withScale:scale];
     }
-}
-
-- (void)animateCurrentNoteWithScale:(CGFloat)scale
-{
-    NSLog(@"self.view.bounds.height: %@",NSStringFromCGRect(self.view.bounds));
-    NSLog(@"frame: %@",NSStringFromCGRect(self.view.frame));
-    
-    float minusAmount = self.view.bounds.size.height-kCellHeight;
-    float newHeight = self.view.bounds.size.height-(minusAmount*pinchPercentComplete);
-        
-    BOOL isLast = [self indexOfNoteView:[self currentNote]] == _noteViews.count-1;
-    NSLog(@"is last: %s",isLast ? "yes" : "no");
-    
-    
-    [self updateSubviewsForNote:[self currentNote] scaled:YES];
-    
-    float newY = (self.view.bounds.size.height-newHeight)*0.5;
-    if (newY < 0) {
-        newY = 0;
-    }
-    
-    if (isLast) {
-        newHeight = self.view.bounds.size.height - newY;
-    }
-    
-    NSLog(@"");
-    
-    centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
-    //NSLog(@"centerNoteFrame: %@",NSStringFromCGRect(centerNoteFrame));
-    float safety = 3.0;
-    self.bottomExtender.frame = CGRectMake(0.0, CGRectGetMaxY(centerNoteFrame)-safety, self.view.bounds.size.width, self.view.bounds.size.height-CGRectGetMaxY(centerNoteFrame)+safety);
-    
-    [[self currentNote] setFrame:centerNoteFrame];
-}
-
-- (void)finishCollapse:(void(^)())complete
-{
-    float duration = DEBUG_ANIMATIONS ? 3.0 : kAnimationDuration;
-    [UIView animateWithDuration:duration
-                     animations:^{
-                         
-                         float currentNoteY = centerNoteFrame.origin.y;
-                         if ([self currentNoteIsLast]) {
-                             centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, self.view.bounds.size.height-currentNoteY);
-                         } else {
-                             centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
-                         }
-                         
-                         [[self currentNote] setFrame:centerNoteFrame];
-                         
-                         for (int i = 0; i < stackingViews.count; i ++) {
-                             NSDictionary *noteDict = [stackingViews objectAtIndex:i];
-                             
-                             UIView *note = [noteDict objectForKey:@"noteView"];
-                             int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
-                             
-                             int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
-                             
-                             float newHeight = kCellHeight;
-                             float newY = 0.0;
-                             if (offset < 0) {
-                                 float finalCY = [self finalYOriginForCurrentNote];
-                                 float correction = offset*kCellHeight;
-                                 newY = finalCY + correction;
-                                 
-                             } else if (offset>0) {
-                                 newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
-                                 newY = (CGRectGetMaxY(centerNoteFrame))+((offset-1)*kCellHeight);
-                             }
-                             
-                             CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
-                             [note setFrame:newFrame];
-                         }
-                     }
-     
-                     completion:^(BOOL finished){
-                         [self.view setFrameX:-320.0];
-                         complete();
-                         
-                     }];
-}
-
-- (int)documentCount
-{
-    return [[ApplicationModel sharedInstance] currentNoteEntries].count;
-}
-
-
-
-- (BOOL)currentNoteIsLast
-{
-    int viewIndex = [self indexOfNoteView:[self currentNote]];
-    return viewIndex == _noteViews.count-1;
 }
 
 - (void)animateStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
@@ -230,25 +143,108 @@ static const float  kCellHeight = 66.0;
     [note setFrame:newFrame];
 }
 
-- (void)prepareForCollapseAnimationForView:(UIView *)view
+- (void)animateCurrentNoteWithScale:(CGFloat)scale
 {
-    [self setUpRangeForStacking];
+    float minusAmount = self.view.bounds.size.height-kCellHeight;
+    float newHeight = self.view.bounds.size.height-(minusAmount*_pinchPercentComplete);
     
-    if (![[self.view superview] isEqual:view]) {
-        [view addSubview:self.view];
+    [self updateSubviewsForNote:[self currentNote] scaled:YES];
+    
+    float newY = (self.view.bounds.size.height-newHeight)*0.5;
+    if (newY < 0) {
+        newY = 0;
     }
+    
+    if ([self currentNoteIsLast]) {
+        newHeight = self.view.bounds.size.height - newY;
+    }
+    
+    _centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
+    
+    float safety = 3.0;
+    self.bottomExtender.frame = CGRectMake(0.0, CGRectGetMaxY(_centerNoteFrame)-safety, self.view.bounds.size.width, self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame)+safety);
+    
+    [[self currentNote] setFrame:_centerNoteFrame];
 }
 
-- (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent
+- (void)finishCollapse:(void(^)())complete
 {
-    pinchPercentComplete = pinchPercent;
-    if (self.view.frame.origin.x != 0.0) {
-        [self.view setFrameX:0.0];
+    float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
+    [UIView animateWithDuration:duration
+                     animations:^{
+                         
+                         float currentNoteY = _centerNoteFrame.origin.y;
+                         if ([self currentNoteIsLast]) {
+                             _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, self.view.bounds.size.height-currentNoteY);
+                         } else {
+                             _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
+                         }
+                         
+                         [[self currentNote] setFrame:_centerNoteFrame];
+                         
+                         for (int i = 0; i < stackingViews.count; i ++) {
+                             NSDictionary *noteDict = [stackingViews objectAtIndex:i];
+                             
+                             UIView *note = [noteDict objectForKey:@"noteView"];
+                             int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
+                             
+                             int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
+                             
+                             float newHeight = kCellHeight;
+                             float newY = 0.0;
+                             if (offset < 0) {
+                                 float finalCY = [self finalYOriginForCurrentNote];
+                                 float correction = offset*kCellHeight;
+                                 newY = finalCY + correction;
+                                 
+                             } else if (offset>0) {
+                                 newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
+                                 newY = (CGRectGetMaxY(_centerNoteFrame))+((offset-1)*kCellHeight);
+                             }
+                             
+                             CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
+                             [note setFrame:newFrame];
+                         }
+                     }
+     
+                     completion:^(BOOL finished){
+                         
+                         complete();
+                         [self.view setFrameX:-320.0];
+                         [self toggleFullNoteText:@"" inCell:(UITableViewCell *)[self currentNote]];
+
+                     }];
+}
+
+#define FULL_TEXT_TAG   190
+#define LABEL_TAG       200
+
+- (void)toggleFullNoteText:(NSString *)text inCell:(UITableViewCell *)cell
+{
+    UITextView *textView = (UITextView *)[cell viewWithTag:FULL_TEXT_TAG];
+    UIView *subtitle = [cell.contentView viewWithTag:LABEL_TAG];
+    
+    if (!textView) { // if it doesn't have it, add it and hide title text
+        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+        textView.text = text;
+        textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+        textView.backgroundColor = [UIColor clearColor];
+        textView.tag = FULL_TEXT_TAG;
+        [cell.contentView addSubview:textView];
+        
+        [subtitle setHidden:YES];
+
+    } else { // if it has it, hide it and show title text
+        
+        [textView removeFromSuperview];
+        textView = nil;
+        [subtitle setHidden:NO];
     }
     
-    [self animateCurrentNoteWithScale:scale];
-    [self animateStackedNotesForScale:scale];
+    //[self debugView:textView color:[UIColor redColor]];
 }
+
+#pragma mark Tap to open animation
 
 - (void)prepareForExpandAnimationForView:(UIView *)view
 {
@@ -265,78 +261,15 @@ static const float  kCellHeight = 66.0;
     }
 }
 
-- (void)setUpRangeForStacking
-{
-    if (stackingViews) {
-        [stackingViews removeAllObjects];
-    }
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-	
-    NSRange range = [self stackedNotesRange];
-    NSLog(@"Stack notes from %d to %d",range.location,range.length);
-    
-    stackingViews = [[NSMutableArray alloc] initWithCapacity:range.length];
-    int stackingIndex = 0;
-    for (int i = range.location; i < range.length; i++) {
-        
-        if (i == model.selectedNoteIndex) {
-            // skip the current doc
-            stackingIndex++;
-            continue;
-        }
-        
-        UIView *noteView = [_noteViews objectAtIndex:stackingIndex];
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
-        
-        [stackingViews addObject:dict];
-        stackingIndex++;
-    }
-    
-    UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
-    [self.view setBackgroundColor:bottomColor];
-}
-
-- (void)debugView:(UIView *)view color:(UIColor *)color
-{
-    view.layer.borderColor = color.CGColor;
-    view.layer.borderWidth = 2.0;
-}
-
-- (UIView *)viewAtIndex:(NSInteger)index
-{
-    return (NoteEntryCell *)[_noteViews objectAtIndex:index];
-}
-
-- (UIColor *)randomColor
-{
-    CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
-    CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
-    CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
-    UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-    return color;
-}
-
-- (void)updateSubviewsForNote:(UIView *)note scaled:(BOOL)scaled
-{
-    UIView *littleCircle = [note viewWithTag:78];
-    if (!scaled) {
-        littleCircle.alpha = 0.0;
-        return;
-    }
-    
-    littleCircle.alpha = 1.0-(pinchPercentComplete*1.1);
-}
-
 - (void)animateOpenForController:(NoteListViewController *)noteList indexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
     
     [self.view setFrameX:0.0];
     _animating = YES;
-    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
     _tableView = noteList.tableView;
     NSArray *cells = _tableView.visibleCells;
-    __block int animatedCellCount = 0;
+
     int index = 0;
     for (NoteEntryCell *entryCell in cells) {
         NSIndexPath *indexPath = [noteList.tableView indexPathForCell:entryCell];
@@ -346,96 +279,119 @@ static const float  kCellHeight = 66.0;
         } else {
             
             NoteEntryCell *noteCell = [_noteViews objectAtIndex:indexPath.row];
+            BOOL isLastCell = [self noteIsLast:indexPath.row]; // minus 2 to account for section 0
+            BOOL isSelectedCell = [selectedIndexPath isEqual:indexPath];
+            
             UIView *shadow = [noteCell viewWithTag:56];
             float shadowHeight = 7.0;
-            
-            [noteCell setHidden:NO];
-            CGRect frame = [_tableView convertRect:entryCell.frame toView:[_tableView superview]];
-            noteCell.frame = frame;
-            /*
-             if (indexPath.row == 1) {
-             NSLog(@"starting frame for row 2: %@",NSStringFromCGRect(frame));
-             NSLog(@"bounds %@",NSStringFromCGRect(self.view.bounds));
-             NSLog(@"frame %@",NSStringFromCGRect(self.view.frame));
-             }
-             */
-            
-            BOOL isSelectedCell = [selectedIndexPath isEqual:indexPath];
-            if (isSelectedCell) {
-                [noteCell.contentView addSubview:placeholderText];
-                [placeholderText setHidden:NO];
-                [noteCell.subtitleLabel setHidden:YES];
-                placeholderText.text = model.noteAtSelectedNoteIndex.displayText;
-            }
-        
-            BOOL isLastCell = indexPath.row == cells.count-2; // minus 2 to account for section 0
-            
             [shadow setFrameY:-shadowHeight];
             [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
+            
+            CGRect frame = [_tableView convertRect:entryCell.frame toView:[_tableView superview]];
+            noteCell.frame = frame;
             
             UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
             [circle setHidden:NO];
             
             BOOL isBelow = indexPath.row > selectedIndexPath.row;
             
-            [self.view addSubview:noteCell];
+            if (isSelectedCell) {
+                [self openCurrentNoteWithCompletion:completeBlock];
+            } else {
+                [self openNote:noteCell isLast:isLastCell isBelow:isBelow];
+            }
             
-            float duration = DEBUG_ANIMATIONS ? 3.0 : kAnimationDuration;
-            [UIView animateWithDuration:duration
+            [UIView animateWithDuration:[self animationDuration]
                              animations:^{
-                                 
-                                 if (isSelectedCell) {
-                                     
-                                    // NSLog(@"current frame of note cell: %@",NSStringFromCGRect(noteCell.frame));
-                                     CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-                                     appFrame.origin.y = 0.0;
-                                     NSAssert(!CGRectEqualToRect(noteCell.frame, self.view.bounds), @"Rects are equal, so there's no animation to perform!");;
-                                     [noteCell setFrame:appFrame];
-                                     noteCell.layer.cornerRadius = 6.0;
-                                     
+                                 if ([self currentNoteIsLast]) {
+                                     [noteList.lastRowExtenderView setFrameY:CGRectGetMaxY([self currentNote].frame)];
                                  } else {
-                                     
-                                     if (isLastCell && !isSelectedCell) {
-                                         CGRect destinationFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 200.0); // arbitrary height?
-                                         
-                                         [noteCell setFrame:destinationFrame];
-                                         [noteList.lastRowExtenderView setFrameY:CGRectGetMaxY(self.view.bounds)+66.0];
-                                     } else {
-                                         float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
-                                         CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
-                                         [noteCell setFrame:destinationFrame];
-                                     }
+                                     [noteList.lastRowExtenderView setFrameY:CGRectGetMaxY([self lastNote].frame)];
                                  }
-                                 
-                                 // transistion its subviews
-                                 circle.alpha = 1.0;
-                                 
+             
                              }
-                             completion:^(BOOL finished){
-                                 
-                                 // debug
-                                 //noteCell.contentView.backgroundColor = [self randomColor];
-                                                                  
-                                 if (isSelectedCell) {
-                                     [placeholderText setHidden:YES];
-                                     [placeholderText removeFromSuperview];
-                                     [noteCell.subtitleLabel setHidden:NO];
-                                 }
-                                 
-                                 NSLog(@"animationCount == %d and cell count: %d",animatedCellCount,cells.count);
-                                 if (animatedCellCount==cells.count-2) { // -2 to account for section 0 row 1
-                                     _animating = NO;
-                                     completeBlock();
-                                     [self finishExpansion];
-                                 } else {
-                                     animatedCellCount ++;
-                                 }
-                                                                
-                             }];
+                             completion:nil];
         }
         
         index ++;
     }
+}
+
+- (float)animationDuration
+{
+    return DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
+}
+
+- (void)openCurrentNoteWithCompletion:(animationCompleteBlock)completeBlock
+{
+    NoteEntryCell *noteCell = (NoteEntryCell *)[self currentNote];
+    
+    NSString *text = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].displayText;
+    [self toggleFullNoteText:text inCell:noteCell];
+    
+    [UIView animateWithDuration:[self animationDuration]
+                     animations:^{
+                         
+                         // NSLog(@"current frame of note cell: %@",NSStringFromCGRect(noteCell.frame));
+                         CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+                         appFrame.origin.y = 0.0;
+                         NSLog(@"cell label frame %@",NSStringFromCGRect(noteCell.subtitleLabel.frame));
+                         NSLog(@"subtitleLabel is hidden: %s",noteCell.subtitleLabel.isHidden ? "yes" : "no");
+                         NSLog(@"subtitleLabel text: %@",noteCell.subtitleLabel.text);
+                         
+                         [noteCell setFrame:appFrame];
+                         noteCell.layer.cornerRadius = 6.0;
+                         
+                         
+                         // transistion its subviews
+                         UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
+                         [circle setHidden:NO];
+                         circle.alpha = 1.0;
+                         
+                     }
+                     completion:^(BOOL finished){
+                         
+                         // debug
+                         //noteCell.contentView.backgroundColor = [self randomColor];
+                         
+                         _animating = NO;
+                         completeBlock();
+                         [self finishExpansion];
+                         [self toggleFullNoteText:@"" inCell:noteCell];
+                         
+                     }];
+}
+
+- (void)openNote:(NoteEntryCell *)noteCell isLast:(bool)isLast isBelow:(BOOL)isBelow
+{
+    float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
+    [UIView animateWithDuration:duration
+                     animations:^{
+                         
+                         if (isLast) {
+                             CGRect destinationFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 200.0); // arbitrary height?
+                             
+                             [noteCell setFrame:destinationFrame];
+                             //[extenderView setFrameY:CGRectGetMaxY(self.view.bounds)+66.0];
+                         } else {
+                             float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
+                             CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
+                             [noteCell setFrame:destinationFrame];
+                         }
+                         
+                         // transistion its subviews
+                         UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
+                         circle.alpha = 1.0;
+                     }
+                     completion:^(BOOL finished){
+                         // debug
+                         //noteCell.contentView.backgroundColor = [self randomColor];
+                     }];
+}
+
+- (void)finishExpansion
+{
+    [self.view setFrameX:-320.0];
 }
 
 - (void)resetToExpanded:(void(^)())completion
@@ -476,7 +432,78 @@ static const float  kCellHeight = 66.0;
     
 }
 
+- (void)setUpRangeForStacking
+{
+    if (stackingViews) {
+        [stackingViews removeAllObjects];
+    }
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+	
+    NSRange range = [self stackedNotesRange];
+    NSLog(@"Stack notes from %d to %d",range.location,range.length);
+    
+    stackingViews = [[NSMutableArray alloc] initWithCapacity:range.length];
+    int stackingIndex = 0;
+    for (int i = range.location; i < range.length; i++) {
+        
+        if (i == model.selectedNoteIndex) {
+            // skip the current doc
+            stackingIndex++;
+            continue;
+        }
+        
+        UIView *noteView = [_noteViews objectAtIndex:stackingIndex];
+        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
+        
+        [stackingViews addObject:dict];
+        stackingIndex++;
+    }
+    
+    UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
+    [self.view setBackgroundColor:bottomColor];
+}
+
+- (void)debugView:(UIView *)view color:(UIColor *)color
+{
+    view.layer.borderColor = color.CGColor;
+    view.layer.borderWidth = 2.0;
+}
+
+- (void)updateSubviewsForNote:(UIView *)note scaled:(BOOL)scaled
+{
+    UIView *littleCircle = [note viewWithTag:78];
+    if (!scaled) {
+        littleCircle.alpha = 0.0;
+        return;
+    }
+    
+    littleCircle.alpha = 1.0-(_pinchPercentComplete*1.1);
+}
+
 #pragma mark Data source
+
+- (float)finalYOriginForCurrentNote
+{
+    float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
+    
+    return finalY;
+}
+
+- (UIView *)currentNote
+{
+    return [self viewAtIndex:[ApplicationModel sharedInstance].selectedNoteIndex];
+}
+
+- (UIView *)lastNote
+{
+    return (UIView *)[_noteViews lastObject];
+}
+
+- (NoteEntry *)currentNoteEntry
+{
+    return [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex];
+}
 
 - (void)update
 {
@@ -509,10 +536,11 @@ static const float  kCellHeight = 66.0;
         
         if (NO) {
             [noteCell.layer setBorderColor:[self randomColor].CGColor];
-            [noteCell.layer setBorderWidth:1.0];
+            [noteCell.layer setBorderWidth:3.0];
         }
         
         [noteCell setClipsToBounds:NO];
+        //[self debugView:noteCell.subtitleLabel color:[UIColor greenColor]];
         
         [self.view addSubview:noteCell];
         noteCell.contentView.backgroundColor = [UIColor whiteColor];
@@ -522,23 +550,15 @@ static const float  kCellHeight = 66.0;
     }
     
 }
+
 - (void)updateCellsWithModels
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    
-    NSLog(@"Count of model objects: %d",model.currentNoteEntries.count);
-    
+        
     for (int i = 0; i<model.currentNoteEntries.count; i++) {
         NoteEntry *noteEntry = [model noteAtIndex:i];
         NoteEntryCell *noteCell = [_noteViews objectAtIndex:i];
-        
-        if (i == model.selectedNoteIndex) {
-            placeholderText.textColor = noteCell.subtitleLabel.textColor;
-            if (DEBUG_ANIMATIONS) {
-                placeholderText.textColor = [UIColor redColor];
-            }
-        }
-        
+                
         UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
         int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
         if (index==NSNotFound) {
@@ -550,9 +570,16 @@ static const float  kCellHeight = 66.0;
             [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
         }
         
+        /*
+         if (i == model.selectedNoteIndex) {
+         _placeholderText.textColor = noteCell.subtitleLabel.textColor;
+         }
+         */
+                
         noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
         
         noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+        NSLog(@"Note cell subtitle was: %@, now it's: %@:",noteCell.subtitleLabel.text,noteEntry.title);
         [noteCell.subtitleLabel setText:noteEntry.title];
         noteCell.relativeTimeText.text = [noteEntry relativeDateString];
         
@@ -572,6 +599,32 @@ static const float  kCellHeight = 66.0;
     }
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
+}
+
+- (int)indexOfNoteView:(UIView *)view
+{
+    return [_noteViews indexOfObject:view];
+}
+
+- (UIView *)viewAtIndex:(NSInteger)index
+{
+    return (NoteEntryCell *)[_noteViews objectAtIndex:index];
+}
+
+- (int)documentCount
+{
+    return [[ApplicationModel sharedInstance] currentNoteEntries].count;
+}
+
+- (BOOL)currentNoteIsLast
+{
+    int viewIndex = [self indexOfNoteView:[self currentNote]];
+    return viewIndex == _noteViews.count-1;
+}
+
+- (BOOL)noteIsLast:(int)index
+{
+    return index == _noteViews.count-1;
 }
 
 - (NSRange)stackedNotesRange
@@ -600,6 +653,15 @@ static const float  kCellHeight = 66.0;
     NSLog(@"begin: %d, end: %d",beginRange,endRange);
     
     return NSMakeRange(beginRange, endRange);
+}
+
+- (UIColor *)randomColor
+{
+    CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
+    CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
+    CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
+    UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+    return color;
 }
 
 

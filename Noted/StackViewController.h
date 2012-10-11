@@ -27,7 +27,6 @@ typedef void(^animationCompleteBlock)();
 - (void)prepareForExpandAnimationForView:(UIView *)view;
 - (void)animateOpenForController:(NoteListViewController *)noteList indexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 - (void)resetToExpanded:(void(^)())completion;
-- (void)finishExpansion:(void(^)())complete;
 
 - (void)update;
 
