@@ -24,6 +24,9 @@
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
 
+#define FULL_TEXT_TAG       190
+#define LABEL_TAG           200
+
 typedef enum {
     kNew,
     kNoteItems
@@ -38,8 +41,10 @@ typedef enum {
     
     BOOL _shouldAutoShowNote;
     
-    NoteEntryCell *_placeholder;
+    NoteEntryCell *_lastRow;
+    NSIndexPath *_lastIndexPath;
     StackViewController *_stackViewController;
+    
 }
 
 @end
@@ -134,7 +139,6 @@ typedef enum {
         [_stackViewController prepareForExpandAnimationForView:self.view];
     }
     
-    [self configureLastRowExtenderView];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -157,51 +161,15 @@ typedef enum {
 
     [_stackViewController prepareForExpandAnimationForView:self.view];
     
-    [self configureLastRowExtenderView];
 }
 
-- (void)configureLastRowExtenderView
+
+
+- (void)debugView:(UIView *)view color:(UIColor *)color
 {
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    
-    // find out if bottom of last row is visible
-    UITableViewCell *lastCell = [[self.tableView visibleCells] lastObject];
-    if (model.currentNoteEntries.count==0 || !lastCell) {
-        return;
-    }
-    CGRect frame = [self.tableView convertRect:lastCell.frame toView:self.view];
-    CGRect bounds = self.view.bounds;
-    CGRect hiddenFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0);
-    
-    NSIndexPath *lastIndexPath = [self.tableView indexPathForCell:lastCell];
-    if (lastIndexPath) {
-        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:lastIndexPath.row];
-        if (CGRectGetMaxY(frame) < bounds.size.height) {
-            if (!self.lastRowExtenderView) {
-                self.lastRowExtenderView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.view.bounds.size.height, 320.0, 66.0)];
-                [self.view addSubview:self.lastRowExtenderView];
-                [self.lastRowExtenderView setUserInteractionEnabled:NO];
-            }
-            
-            CGRect newFrame = CGRectMake(0.0, CGRectGetMaxY(frame), 320.0, bounds.size.height-CGRectGetMaxY(frame));
-            
-            [self.lastRowExtenderView setFrame:newFrame];
-            
-        } else {
-            // hide it
-            [self.lastRowExtenderView setFrame:hiddenFrame];
-        }
-        
-        [self.lastRowExtenderView setBackgroundColor:noteEntry.noteColor];
-        
-    } else {
-        [self.lastRowExtenderView setFrame:hiddenFrame];
-    }
-    
-    [self.view addSubview:self.lastRowExtenderView];
-    
+    view.layer.borderColor = color.CGColor;
+    view.layer.borderWidth = 2.0;
 }
-
 
 #pragma mark - Table View methods
 
@@ -213,6 +181,14 @@ typedef enum {
     if (indexPath.section == kNew) {
         return 44;
     } else {
+        int count = [ApplicationModel sharedInstance].currentNoteEntries.count;
+        if (indexPath.row == count-1) {
+            
+            float maxVisibleHeight = self.view.bounds.size.height-44;
+            float height = maxVisibleHeight - ((indexPath.row)*66);
+            
+            return height;
+        }
         return 66;
     }
 }
@@ -288,7 +264,11 @@ typedef enum {
         
         noteEntryCell.subtitleLabel.text = noteEntry.title;
         NSLog(@"noteEntryCell.subtitleLabel.text: %@",noteEntryCell.subtitleLabel.text);
-        
+        BOOL isLastNote = indexPath.row==[ApplicationModel sharedInstance].currentNoteEntries.count-1;
+        UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
+        if (textView && !isLastNote) {
+            [textView removeFromSuperview];
+        }
         
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         
@@ -321,7 +301,44 @@ typedef enum {
         if (indexPath.row == count-1) {
             [shadow setHidden:YES];
         }
+        
+        if (indexPath.row==[ApplicationModel sharedInstance].currentNoteEntries.count-1) {
+            [self willDisplayLastRowCell:cell atIndexPath:indexPath];
+        }
     }
+}
+
+- (void)willDisplayLastRowCell:(UITableViewCell *)lastCell atIndexPath:(NSIndexPath *)lastIndexPath
+{
+    _lastRow = (NoteEntryCell *)lastCell;
+    _lastIndexPath = lastIndexPath;
+    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NoteEntry *noteEntry = [model.currentNoteEntries lastObject];
+    UITextView *textView = (UITextView *)[lastCell.contentView viewWithTag:FULL_TEXT_TAG];
+    UILabel *subtitle = (UILabel *)[lastCell.contentView viewWithTag:LABEL_TAG];
+    if (!textView) {
+        
+        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+        
+        textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+        textView.backgroundColor = [UIColor clearColor];
+        textView.tag = FULL_TEXT_TAG;
+        [textView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+        [textView setFrameY:21.0];
+        
+        textView.textColor = subtitle.textColor;
+        NSLog(@"noteEntry.tex: %@",noteEntry.text);
+        textView.text = noteEntry.text;
+        [textView setEditable:NO];
+        [textView setUserInteractionEnabled:NO];
+        
+        [subtitle setHidden:YES];
+        [lastCell.contentView addSubview:textView];
+        
+      
+    }
+ 
 }
 
 - (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
@@ -331,8 +348,7 @@ typedef enum {
     CGPoint point = [recognizer translationInView:view.contentView];
     CGPoint velocity = [recognizer velocityInView:view.contentView];
     CGRect viewFrame = view.contentView.frame;
-    //int xDirection = (velocity.x < 0) ? 1 : 0;
-    //NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
+    
     if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (velocity.x > 0 && !_scrolling) {
             point = [recognizer translationInView:view.contentView];
@@ -369,13 +385,11 @@ typedef enum {
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     _scrolling = YES;
-    [self configureLastRowExtenderView];
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
     _scrolling = NO;
-    [self configureLastRowExtenderView];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -415,6 +429,8 @@ typedef enum {
         [self listDidUpdate];
     } else {
         model.selectedNoteIndex = indexPath.row;
+        
+        [self debugView:[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].currentNoteEntries.count-1 inSection:1]].contentView viewWithTag:FULL_TEXT_TAG] description:@"last row fulltext view" line:__LINE__];
         
         [_stackViewController animateOpenForController:self indexPath:indexPath completion:^(){
             
@@ -459,9 +475,26 @@ typedef enum {
             [self.tableView setContentOffset:CGPointZero animated:YES];
         });
         
+        [self debugView:[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].currentNoteEntries.count-1 inSection:1]].contentView viewWithTag:FULL_TEXT_TAG] description:@"last row fulltext view" line:__LINE__];
+        
     } andStackVC:_stackViewController];
     
     [self presentViewController:stackViewController animated:animated completion:NULL];
+}
+
+- (void)debugView:(UIView *)view description:(NSString *)desc line:(int)line
+{
+    if (!view) {
+        NSLog(@"%@ doesn't exist!",desc);
+    }
+    NSLog(@"view: %@",view);
+    NSLog(@"view class: %@\n\n",[view.superview class]);
+    NSLog(@"\n\n%@ is hidden: %s",desc,view.isHidden ? "yes" : "no");
+    NSLog(@"alpha: %f",view.alpha);
+    NSLog(@"frame: %@",NSStringFromCGRect(view.frame));
+    NSLog(@"superview: %@",view.superview);
+    NSLog(@"superview class: %@\n\n",[view.superview class]);
+    
 }
 
 - (void)didSwipeToDeleteCellWithIndexPath:(UIView *)cell
@@ -476,7 +509,6 @@ typedef enum {
     }];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    [self configureLastRowExtenderView];
     
     [self delayedCall:0.1 withBlock:^{
         [self.tableView reloadData];

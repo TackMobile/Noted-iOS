@@ -18,7 +18,10 @@
 #import "NoteViewController.h"
 #import "NoteListViewController.h"
 
-#define DEBUG_ANIMATIONS 0
+
+#define FULL_TEXT_TAG       190
+#define LABEL_TAG           200
+#define DEBUG_ANIMATIONS    0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 2.5;
@@ -99,7 +102,7 @@ static const float  kCellHeight             = 66.0;
     _pinchPercentComplete = pinchPercent;
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
-        [self toggleFullNoteText:[self currentNoteEntry].text inCell:(UITableViewCell *)[self currentNote]];
+        [[[self currentNote] viewWithTag:FULL_TEXT_TAG] setHidden:NO];
     }
     
     [self animateCurrentNoteWithScale:scale];
@@ -133,7 +136,7 @@ static const float  kCellHeight             = 66.0;
         currentNoteOffset = CGRectGetMaxY([self currentNote].frame) + (offset-1)*kCellHeight;
         newY = currentNoteOffset;
         newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
-        NSLog(@"Note with offset %d getting set to y Origin of %f (%f + (%d-1)*kCellHeight)",offset,newY,CGRectGetMaxY([self currentNote].frame),offset);
+        //NSLog(@"Note with offset %d getting set to y Origin of %f (%f + (%d-1)*kCellHeight)",offset,newY,CGRectGetMaxY([self currentNote].frame),offset);
     }
     
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
@@ -155,13 +158,20 @@ static const float  kCellHeight             = 66.0;
         newY = 0;
     }
     
+    NoteEntryCell *currentNoteCell = (NoteEntryCell *)[self currentNote];
+    UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
     if ([self currentNoteIsLast]) {
         newHeight = self.view.bounds.size.height - newY;
+        fullText.alpha = 1.0;
+        currentNoteCell.subtitleLabel.alpha = 0.0;
+    } else {        
+        fullText.alpha = 1.0-_pinchPercentComplete;
+        currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete;
     }
     
     _centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
     
-    float safety = 3.0;
+    float safety = 0.0;
     self.bottomExtender.frame = CGRectMake(0.0, CGRectGetMaxY(_centerNoteFrame)-safety, self.view.bounds.size.width, self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame)+safety);
     
     [[self currentNote] setFrame:_centerNoteFrame];
@@ -211,36 +221,50 @@ static const float  kCellHeight             = 66.0;
                          
                          complete();
                          [self.view setFrameX:-320.0];
-                         [self toggleFullNoteText:@"" inCell:(UITableViewCell *)[self currentNote]];
+                         //[self toggleFullTextForNoteOpening:NO inCell:(UITableViewCell *)[self currentNote]];
 
                      }];
 }
 
-#define FULL_TEXT_TAG   190
-#define LABEL_TAG       200
-
-- (void)toggleFullNoteText:(NSString *)text inCell:(UITableViewCell *)cell
+- (void)toggleFullTextForNoteOpening:(BOOL)opening inCell:(UITableViewCell *)cell
 {
-    UITextView *textView = (UITextView *)[cell viewWithTag:FULL_TEXT_TAG];
-    UIView *subtitle = [cell.contentView viewWithTag:LABEL_TAG];
+    UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
+    UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
     
+    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex];;
     if (!textView) { // if it doesn't have it, add it and hide title text
         textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
-        textView.text = text;
+        textView.text = noteEntry.text;
         textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
         textView.backgroundColor = [UIColor clearColor];
         textView.tag = FULL_TEXT_TAG;
+        [textView setFrameY:21.0];
+        [textView setEditable:NO];
+        [textView setUserInteractionEnabled:NO];
+        
+        textView.textColor = subtitle.textColor;
         [cell.contentView addSubview:textView];
-        
-        [subtitle setHidden:YES];
-
-    } else { // if it has it, hide it and show title text
-        
-        [textView removeFromSuperview];
-        textView = nil;
-        [subtitle setHidden:NO];
     }
     
+    if ([self currentNoteIsLast]) {
+        textView.alpha = 1.0;
+        subtitle.alpha = 0.0;
+    } else {
+        textView.alpha = 0.0;
+        [UIView animateWithDuration:[self animationDuration]*1.3
+                         animations:^{
+                             
+                             textView.alpha = 1.0;
+                             subtitle.alpha = 0.0;
+                             
+                         }
+                         completion:^(BOOL finished){
+                             subtitle.alpha = 1.0;
+                         }];
+    }
+    
+    
+
     //[self debugView:textView color:[UIColor redColor]];
 }
 
@@ -326,8 +350,7 @@ static const float  kCellHeight             = 66.0;
 {
     NoteEntryCell *noteCell = (NoteEntryCell *)[self currentNote];
     
-    NSString *text = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].displayText;
-    [self toggleFullNoteText:text inCell:noteCell];
+    [self toggleFullTextForNoteOpening:YES inCell:noteCell];
     
     [UIView animateWithDuration:[self animationDuration]
                      animations:^{
@@ -336,12 +359,14 @@ static const float  kCellHeight             = 66.0;
                          CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
                          appFrame.origin.y = 0.0;
                          NSLog(@"cell label frame %@",NSStringFromCGRect(noteCell.subtitleLabel.frame));
-                         NSLog(@"subtitleLabel is hidden: %s",noteCell.subtitleLabel.isHidden ? "yes" : "no");
-                         NSLog(@"subtitleLabel text: %@",noteCell.subtitleLabel.text);
+                         UIView *fullText = [noteCell.contentView viewWithTag:FULL_TEXT_TAG];
+                         NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
+                         NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
+                         NSLog(@"alpha of fulltext is %f",fullText.alpha);
+                         
                          
                          [noteCell setFrame:appFrame];
                          noteCell.layer.cornerRadius = 6.0;
-                         
                          
                          // transistion its subviews
                          UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
@@ -357,7 +382,6 @@ static const float  kCellHeight             = 66.0;
                          _animating = NO;
                          completeBlock();
                          [self finishExpansion];
-                         [self toggleFullNoteText:@"" inCell:noteCell];
                          
                      }];
 }
@@ -398,10 +422,15 @@ static const float  kCellHeight             = 66.0;
 {
     // animate current note back to self.view.bounds
     int selected = [ApplicationModel sharedInstance].selectedNoteIndex;
-    UIView *current = [_noteViews objectAtIndex:selected];
+    NoteEntryCell *current = (NoteEntryCell *)[_noteViews objectAtIndex:selected];
     [UIView animateWithDuration:0.5
                      animations:^{
                          [current setFrame:self.view.bounds];
+                         if (![self currentNoteIsLast]) {
+                             [[current viewWithTag:FULL_TEXT_TAG] setAlpha:1.0];
+                             [[current viewWithTag:LABEL_TAG] setAlpha:0.0];
+                         }
+                         
                      }
                      completion:^(BOOL finished){
                          [self finishExpansion];
@@ -596,6 +625,16 @@ static const float  kCellHeight             = 66.0;
     [self.bottomExtender setBackgroundColor:color];
     if (DEBUG_ANIMATIONS) {
         [self.bottomExtender setBackgroundColor:[UIColor redColor]];
+        CGRect frame = self.bottomExtender.frame;
+        UILabel *label = (UILabel *)[self.bottomExtender viewWithTag:567];
+        if (!label) {
+            label = [[UILabel alloc] initWithFrame:CGRectMake(10.0, frame.size.height-40.0, 320.0, 40.0)];
+            label.text = @"bottom extender view";
+            label.tag = 567;
+            label.backgroundColor = [UIColor clearColor];
+        }
+        
+        [self.bottomExtender addSubview:label];
     }
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
