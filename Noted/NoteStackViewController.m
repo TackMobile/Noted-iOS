@@ -52,7 +52,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     BOOL shouldDeleteNote;
     BOOL shouldExitStack;
     BOOL pinchComplete;
-    BOOL _keyboardShowing;
     
     CGRect centerNoteFrame;
     
@@ -99,7 +98,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
         centerNoteFrame = CGRectZero;
         
-        _keyboardShowing = NO;
     }
     
     return self;
@@ -263,7 +261,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         // a strong pinch should finish things immediately
         if (pinchVelocity < -0.8 && pinchComplete) {
             [self.view setUserInteractionEnabled:NO];
-            [self finishPinch];
+            //[self finishPinch];
         }
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
@@ -395,11 +393,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
     
-    BOOL useDefaultKeyboard = [[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"];
-    if (_keyboardShowing && useDefaultKeyboard) {
-        return;
-    }
-    
     ApplicationModel *model = [ApplicationModel sharedInstance];
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
@@ -477,8 +470,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
-            
-            [self handleSingleTouchPanChangedForPoint:point];
+                [self handleSingleTouchPanChangedForPoint:point];
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
             
@@ -931,6 +923,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize.height, 0.0);
     self.currentNoteViewController.textView.contentInset = contentInsets;
     self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
+    
+    //_keyboardShowing = YES;
 }
 
 - (void) shiftViewDownAfterKeyboard:(NSNotification*)theNotification;
@@ -939,6 +933,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     UIEdgeInsets contentInsets = UIEdgeInsetsZero;
     self.currentNoteViewController.textView.contentInset = contentInsets;
     self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
+    
 }
 
 #pragma mark - Keyboard Delegate
@@ -1008,6 +1003,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     
     BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
     if (!useSystem) {
@@ -1032,18 +1028,21 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
     } else {
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification object:self.currentNoteViewController queue:nil usingBlock:^(NSNotification *note){
-            _keyboardShowing = YES;
-        }];
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:self.currentNoteViewController queue:nil usingBlock:^(NSNotification *note){
-            _keyboardShowing = NO;
-        }];
-        
         self.currentNoteViewController.textView.inputView = nil;
         [self.currentNoteViewController.textView setKeyboardAppearance:UIKeyboardAppearanceAlert];
     }
     
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        [self.view addGestureRecognizer:self.panGestureRecognizer];
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        [self.view removeGestureRecognizer:self.panGestureRecognizer];
+    }];
+    
 }
+
 
 #pragma mark OptionsViewDelegate
 

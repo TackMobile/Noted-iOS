@@ -36,6 +36,7 @@ typedef enum {
 {
     NoteEntryCell *_deletedCell;
     BOOL _viewingNoteStack;
+    float yOffset;
     NSUInteger _previousRowCount;
     BOOL _scrolling;
     
@@ -43,6 +44,7 @@ typedef enum {
     
     NoteEntryCell *_lastRow;
     NSIndexPath *_lastIndexPath;
+    NSIndexPath *_selectedIndexPath;
     StackViewController *_stackViewController;
     
 }
@@ -120,20 +122,31 @@ typedef enum {
     
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    if (_viewingNoteStack && yOffset>0) {
+        _viewingNoteStack = NO;
+        yOffset = 0.0;
+        int64_t delayInSeconds = 1.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+        });
+    }
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-#warning TODO: reimplement using iCloud syncing    
-    /*
-     if (_viewingNoteStack) {
-     
-     [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
-     _viewingNoteStack = NO;
-     _shouldAutoShowNote = NO;
-     
-     }
-     */
     
+     if (_viewingNoteStack) {
+         CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
+         CGRect aFrame = CGRectMake(0.0, frame.origin.y - yOffset, 320.0, 66.0);
+         [self.tableView setContentOffset:aFrame.origin animated:NO];
+     }
+         
     [self.tableView reloadData];
     if (_stackViewController) {
         [_stackViewController prepareForExpandAnimationForView:self.view];
@@ -143,7 +156,7 @@ typedef enum {
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-    [self.tableView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
+    //[self.tableView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
 }
 
 - (void)viewDidUnload {
@@ -428,6 +441,11 @@ typedef enum {
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
         [self listDidUpdate];
     } else {
+        
+        if (_viewingNoteStack) {
+            return;
+        }
+        
         model.selectedNoteIndex = indexPath.row;
         
         [self debugView:[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].currentNoteEntries.count-1 inSection:1]].contentView viewWithTag:FULL_TEXT_TAG] description:@"last row fulltext view" line:__LINE__];
@@ -454,6 +472,8 @@ typedef enum {
     }
 }
 
+#pragma mark Stack VC callback
+
 - (void)showNoteStackForSelectedRow:(NSUInteger)row animated:(BOOL)animated
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -462,20 +482,13 @@ typedef enum {
     
     _viewingNoteStack = YES;
     NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(float currentNoteOffset){
-        
+        _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+        //CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems]];
+        yOffset = currentNoteOffset;
+        NSLog(@"yOffset set to %f for ",yOffset);
         [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
-        _viewingNoteStack = NO;
+        
         _shouldAutoShowNote = NO;
-        
-        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:kNoteItems]];
-        [self.tableView setContentOffset:CGPointMake(0.0, frame.origin.y - currentNoteOffset) animated:NO];
-        int64_t delayInSeconds = 1.5;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [self.tableView setContentOffset:CGPointZero animated:YES];
-        });
-        
-        [self debugView:[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].currentNoteEntries.count-1 inSection:1]].contentView viewWithTag:FULL_TEXT_TAG] description:@"last row fulltext view" line:__LINE__];
         
     } andStackVC:_stackViewController];
     
@@ -487,7 +500,7 @@ typedef enum {
     if (!view) {
         NSLog(@"%@ doesn't exist!",desc);
     }
-    NSLog(@"view: %@",view);
+    NSLog(@"view: %p",view);
     NSLog(@"view class: %@\n\n",[view.superview class]);
     NSLog(@"\n\n%@ is hidden: %s",desc,view.isHidden ? "yes" : "no");
     NSLog(@"alpha: %f",view.alpha);

@@ -105,22 +105,36 @@ static const float  kCellHeight             = 66.0;
         [[[self currentNote] viewWithTag:FULL_TEXT_TAG] setHidden:NO];
     }
     
-    [self animateCurrentNoteWithScale:scale];
-    [self animateStackedNotesForScale:scale];
+    [self collapseCurrentNoteWithScale:scale];
+    [self collapseStackedNotesForScale:scale];
 }
 
-- (void)animateStackedNotesForScale:(CGFloat)scale
+- (void)collapseStackedNotesForScale:(CGFloat)scale
 {
     for (int i = 0; i < stackingViews.count; i ++) {
-        [self animateStackedNoteAtIndex:i withScale:scale];
+        [self collapseStackedNoteAtIndex:i withScale:scale];
     }
 }
 
-- (void)animateStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
+- (UITextView *)makeFulltextView
+{
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+    
+    textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    textView.backgroundColor = [UIColor clearColor];
+    textView.tag = FULL_TEXT_TAG;
+    [textView setFrameY:21.0];
+    [textView setEditable:NO];
+    [textView setUserInteractionEnabled:NO];
+    
+    return textView;
+}
+
+- (void)collapseStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
     NSDictionary *noteDict = [stackingViews objectAtIndex:index];
     
-    UIView *note = [noteDict objectForKey:@"noteView"];
+    NoteEntryCell *noteView = [noteDict objectForKey:@"noteView"];
     
     int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
     int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
@@ -136,17 +150,35 @@ static const float  kCellHeight             = 66.0;
         currentNoteOffset = CGRectGetMaxY([self currentNote].frame) + (offset-1)*kCellHeight;
         newY = currentNoteOffset;
         newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
-        //NSLog(@"Note with offset %d getting set to y Origin of %f (%f + (%d-1)*kCellHeight)",offset,newY,CGRectGetMaxY([self currentNote].frame),offset);
+    }
+    
+    if ([self noteIsLast:[self indexOfNoteView:noteView]]) {
+        
+        UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
+        UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
+        
+        NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView]];;
+        if (!textView) { // if it doesn't have it, add it and hide title text
+            textView = [self makeFulltextView];
+            textView.text = noteEntry.text;
+            textView.textColor = subtitle.textColor;
+            [noteView.contentView addSubview:textView];
+        }
+        
+        [textView setHidden:NO];
+        textView.alpha = 1.0;
+        [subtitle setHidden:YES];
+
     }
     
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
     
-    [self updateSubviewsForNote:note scaled:YES];
+    [self updateSubviewsForNote:noteView scaled:YES];
     
-    [note setFrame:newFrame];
+    [noteView setFrame:newFrame];
 }
 
-- (void)animateCurrentNoteWithScale:(CGFloat)scale
+- (void)collapseCurrentNoteWithScale:(CGFloat)scale
 {
     float minusAmount = self.view.bounds.size.height-kCellHeight;
     float newHeight = self.view.bounds.size.height-(minusAmount*_pinchPercentComplete);
@@ -164,9 +196,10 @@ static const float  kCellHeight             = 66.0;
         newHeight = self.view.bounds.size.height - newY;
         fullText.alpha = 1.0;
         currentNoteCell.subtitleLabel.alpha = 0.0;
-    } else {        
-        fullText.alpha = 1.0-_pinchPercentComplete;
-        currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete;
+    } else {
+        float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
+        fullText.alpha = 1.0-(_pinchPercentComplete*factor);
+        currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
     }
     
     _centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
@@ -188,6 +221,8 @@ static const float  kCellHeight             = 66.0;
                              _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, self.view.bounds.size.height-currentNoteY);
                          } else {
                              _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
+                             NSLog(@"%@",NSStringFromCGRect(_centerNoteFrame));
+                             NSLog(@"done");
                          }
                          
                          [[self currentNote] setFrame:_centerNoteFrame];
@@ -233,15 +268,8 @@ static const float  kCellHeight             = 66.0;
     
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex];;
     if (!textView) { // if it doesn't have it, add it and hide title text
-        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+        textView = [self makeFulltextView];
         textView.text = noteEntry.text;
-        textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
-        textView.backgroundColor = [UIColor clearColor];
-        textView.tag = FULL_TEXT_TAG;
-        [textView setFrameY:21.0];
-        [textView setEditable:NO];
-        [textView setUserInteractionEnabled:NO];
-        
         textView.textColor = subtitle.textColor;
         [cell.contentView addSubview:textView];
     }
@@ -251,7 +279,7 @@ static const float  kCellHeight             = 66.0;
         subtitle.alpha = 0.0;
     } else {
         textView.alpha = 0.0;
-        [UIView animateWithDuration:[self animationDuration]*1.3
+        [UIView animateWithDuration:[self animationDuration]*0.4
                          animations:^{
                              
                              textView.alpha = 1.0;
@@ -267,6 +295,7 @@ static const float  kCellHeight             = 66.0;
 
     //[self debugView:textView color:[UIColor redColor]];
 }
+
 
 #pragma mark Tap to open animation
 
@@ -663,6 +692,10 @@ static const float  kCellHeight             = 66.0;
 
 - (BOOL)noteIsLast:(int)index
 {
+    BOOL yeppers = index == _noteViews.count-1;
+    if (yeppers) {
+        NSLog(@"reporting that index %d is last",index);
+    }
     return index == _noteViews.count-1;
 }
 
@@ -683,6 +716,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     beginRange = beginRange < 0 ? 0 : beginRange;
+    endRange = endRange-beginRange < displayableCellCount ? displayableCellCount : endRange;
     endRange = endRange > count ? count : endRange;
     
     while (endRange-beginRange<displayableCellCount && beginRange>0) {
