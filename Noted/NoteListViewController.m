@@ -46,7 +46,7 @@ typedef enum {
     NSIndexPath *_lastIndexPath;
     NSIndexPath *_selectedIndexPath;
     StackViewController *_stackViewController;
-    
+    UITextView *_lastRowFullText;
 }
 
 @end
@@ -173,7 +173,7 @@ typedef enum {
     }
 
     [_stackViewController prepareForExpandAnimationForView:self.view];
-    
+    //[self verifyFullTextParent];
 }
 
 
@@ -328,6 +328,9 @@ typedef enum {
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries lastObject];
+    if (_lastRowFullText) {
+        [_lastRowFullText removeFromSuperview];
+    }
     UITextView *textView = (UITextView *)[lastCell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[lastCell.contentView viewWithTag:LABEL_TAG];
     if (!textView) {
@@ -349,9 +352,21 @@ typedef enum {
         [subtitle setHidden:YES];
         [lastCell.contentView addSubview:textView];
         
-      
+        _lastRowFullText = textView;
     }
  
+}
+
+- (void)verifyFullTextParent
+{
+    if (!_lastRowFullText) {
+        return;
+    }
+    
+    UITableViewCell *parentCell = (UITableViewCell *)_lastRowFullText.superview.superview;
+    if (![parentCell isEqual:[self.tableView visibleCells].lastObject]) {
+        [_lastRowFullText removeFromSuperview];
+    }
 }
 
 - (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer

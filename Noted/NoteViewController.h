@@ -14,8 +14,8 @@
 @protocol NoteViewControllerDelegate <NSObject>
 
 @required
--(void)showOptions;
-
+- (void)showOptions;
+- (void)didUpdateText;
 @end
 
 @interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>

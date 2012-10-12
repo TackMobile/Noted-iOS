@@ -274,6 +274,8 @@ static const float  kCellHeight             = 66.0;
         [cell.contentView addSubview:textView];
     }
     
+    //NSLog(@"textView is hidden: %s",textView.isHidden ? "ja" : "nein");
+    
     if ([self currentNoteIsLast]) {
         textView.alpha = 1.0;
         subtitle.alpha = 0.0;
@@ -288,13 +290,17 @@ static const float  kCellHeight             = 66.0;
                          }
                          completion:^(BOOL finished){
                              subtitle.alpha = 0.0;
-                             //textView.alpha = 0.0;
                          }];
     }
-    
-    
+}
 
-    //[self debugView:textView color:[UIColor redColor]];
+- (void)updateNoteText
+{
+    NoteEntryCell *view = (NoteEntryCell *)[_noteViews objectAtIndex:[ApplicationModel sharedInstance].selectedNoteIndex];
+    UITextView *fullText = (UITextView *)[view.contentView viewWithTag:FULL_TEXT_TAG];
+    NSString *newText = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex].text;
+    NSLog(@"updating text from %@ to %@",fullText.text,newText);
+    fullText.text = newText;
 }
 
 

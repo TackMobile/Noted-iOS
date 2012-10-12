@@ -234,7 +234,7 @@
     [self.noteDocument setText:text];
     // update the presentation model
     [self.noteEntry setNoteData:self.noteDocument.data];
-    
+    [self.delegate didUpdateText];
     [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 

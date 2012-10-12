@@ -999,6 +999,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.keyboardViewController.view.frame = frame;
 }
 
+- (void)didUpdateText
+{
+    [_stackVC updateNoteText];
+}
+
 - (void)configureKeyboard
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];

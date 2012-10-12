@@ -29,5 +29,6 @@ typedef void(^animationCompleteBlock)();
 - (void)resetToExpanded:(void(^)())completion;
 
 - (void)update;
+- (void)updateNoteText;
 
 @end
