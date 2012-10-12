@@ -287,7 +287,8 @@ static const float  kCellHeight             = 66.0;
                              
                          }
                          completion:^(BOOL finished){
-                             subtitle.alpha = 1.0;
+                             subtitle.alpha = 0.0;
+                             //textView.alpha = 0.0;
                          }];
     }
     
