@@ -181,10 +181,14 @@
         // update the model, but avoid unecessary updates
         [self.noteDocument setColor:color];
         [self.noteEntry setNoteData:self.noteDocument.data];
+        
+        self.view.backgroundColor = color;
+        [self setTextLabelColorsByBGColor:color];
+        
+        [self.delegate didUpdateModel];
+        [self.noteDocument updateChangeCount:UIDocumentChangeDone];
     }
     
-    self.view.backgroundColor = color;
-    [self setTextLabelColorsByBGColor:color];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
@@ -231,10 +235,11 @@
     }
     
     NSString *text = [self removeLeadingNewline:aTextView.text];
+    
     [self.noteDocument setText:text];
-    // update the presentation model
     [self.noteEntry setNoteData:self.noteDocument.data];
-    [self.delegate didUpdateText];
+    
+    [self.delegate didUpdateModel];
     [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 

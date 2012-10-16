@@ -19,7 +19,7 @@
 typedef void(^TMDismissalBlock)(float);
 
 @class NoteDocument;
-@class StackViewController;
+@class AnimationStackViewController;
 
 @interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate>
 
@@ -39,6 +39,6 @@ typedef void(^TMDismissalBlock)(float);
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
-- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(StackViewController *)stackVC;
+- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC;
 
 @end
