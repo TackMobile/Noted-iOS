@@ -98,6 +98,9 @@ static const float  kCellHeight             = 66.0;
         _selectedViewIndex = [_tableView indexPathForSelectedRow].row;
     } else if (_state==kNoteStack) {
         _selectedViewIndex = [ApplicationModel sharedInstance].selectedNoteIndex;
+        
+        UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
+        [self.view setBackgroundColor:bottomColor];
     }
     
     _noteModelRange = [self rangeForNoteModels];
@@ -149,8 +152,10 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseStackedNotesForScale:(CGFloat)scale
 {
-    for (int i = 0; i < stackingViews.count; i ++) {
-        [self collapseStackedNoteAtIndex:i withScale:scale];
+    for (int i = 0; i < _noteViews.count; i ++) {
+        if (i != _selectedViewIndex) {
+            [self collapseStackedNoteAtIndex:i withScale:scale];
+        }
     }
 }
 
@@ -170,12 +175,12 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
-    NSDictionary *noteDict = [stackingViews objectAtIndex:index];
+    //NSDictionary *noteDict = [stackingViews objectAtIndex:index];
     
-    NoteEntryCell *noteView = [noteDict objectForKey:@"noteView"];
+    NoteEntryCell *noteView = [_noteViews objectAtIndex:index];
     
-    int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
-    int offset = -(_selectedViewIndex - stackingIndex);
+    //int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
+    int offset = -(_selectedViewIndex - index);
     float currentNoteOffset = 0.0;
     
     float newHeight = kCellHeight;
@@ -260,19 +265,19 @@ static const float  kCellHeight             = 66.0;
                              _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, self.view.bounds.size.height-currentNoteY);
                          } else {
                              _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
-                             NSLog(@"%@",NSStringFromCGRect(_centerNoteFrame));
-                             NSLog(@"done");
                          }
                          
                          [[self currentNote] setFrame:_centerNoteFrame];
                          
-                         for (int i = 0; i < stackingViews.count; i ++) {
-                             NSDictionary *noteDict = [stackingViews objectAtIndex:i];
+                         for (int i = 0; i < _noteViews.count; i ++) {
+                             // skip the current view
+                             if (i == _selectedViewIndex) {
+                                 i++; 
+                             }
                              
-                             UIView *note = [noteDict objectForKey:@"noteView"];
-                             int stackingIndex = [[noteDict objectForKey:@"index"] intValue];
+                             UIView *note = [_noteViews objectAtIndex:i];//[noteDict objectForKey:@"noteView"];
                              
-                             int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - stackingIndex);
+                             int offset = -([ApplicationModel sharedInstance].selectedNoteIndex - i);
                              
                              float newHeight = kCellHeight;
                              float newY = 0.0;
@@ -658,34 +663,36 @@ static const float  kCellHeight             = 66.0;
     
 }
 
-- (void)setUpRangeForStackingForTableView:(BOOL)forTableview
-{
-    if (stackingViews) {
-        [stackingViews removeAllObjects];
-    }
-    
-    stackingViews = [[NSMutableArray alloc] initWithCapacity:_noteViewRange.length];
-    int stackingIndex = 0;
-    //int limit = range.length+range.location;
-    
-    for (NoteEntryCell *noteView in _noteViews) {
-        
-        if (stackingIndex == _selectedViewIndex) {
-            // skip the current doc
-            stackingIndex++;
-            continue;
-        }
-        
-        //UIView *noteView = [_noteViews objectAtIndex:stackingIndex];
-        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
-        
-        [stackingViews addObject:dict];
-        stackingIndex++;
-    }
-    
-    UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
-    [self.view setBackgroundColor:bottomColor];
-}
+/*
+ - (void)setUpRangeForStackingForTableView:(BOOL)forTableview
+ {
+ if (stackingViews) {
+ [stackingViews removeAllObjects];
+ }
+ 
+ stackingViews = [[NSMutableArray alloc] initWithCapacity:_noteViewRange.length];
+ int stackingIndex = 0;
+ //int limit = range.length+range.location;
+ 
+ for (NoteEntryCell *noteView in _noteViews) {
+ 
+ if (stackingIndex == _selectedViewIndex) {
+ // skip the current doc
+ stackingIndex++;
+ continue;
+ }
+ 
+ //UIView *noteView = [_noteViews objectAtIndex:stackingIndex];
+ NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
+ 
+ [stackingViews addObject:dict];
+ stackingIndex++;
+ }
+ 
+ UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
+ [self.view setBackgroundColor:bottomColor];
+ }
+ */
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
@@ -768,6 +775,9 @@ static const float  kCellHeight             = 66.0;
         numCells++;
     }
     NSLog(@"Num views: %d Num models %d",_noteViews.count,_noteEntryModels.count);
+    if (_noteViews.count != _noteEntryModels.count) {
+        NSLog(@"sectionZeroVisible: %s",[self sectionZeroVisible] ? "yes" : "no");
+    }
     NSAssert(_noteViews.count==_noteEntryModels.count, @"Display and model objects should have equal count");
 }
 
