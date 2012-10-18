@@ -15,7 +15,7 @@
 
 @required
 - (void)showOptions;
-- (void)didUpdateText;
+- (void)didUpdateModel;
 @end
 
 @interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>

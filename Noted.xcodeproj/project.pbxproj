@@ -64,8 +64,8 @@
 		B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B50C98BA160CCD45002A3909 /* libTestFlight.a */; };
 		B50C98BF160CCD46002A3909 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BB160CCD45002A3909 /* README.md */; };
 		B50C98C0160CCD46002A3909 /* release_notes.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BC160CCD45002A3909 /* release_notes.md */; };
-		B512B12D1611CE1800E0E8B5 /* StackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B512B12B1611CE1800E0E8B5 /* StackViewController.m */; };
-		B512B12E1611CE1800E0E8B5 /* StackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B512B12C1611CE1800E0E8B5 /* StackView.xib */; };
+		B512B12D1611CE1800E0E8B5 /* AnimationStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */; };
+		B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */; };
 		B531E8281608D2C900168AE5 /* UIView+position.m in Sources */ = {isa = PBXBuildFile; fileRef = B531E8261608D2C900168AE5 /* UIView+position.m */; };
 		B538FA3316155ECC00A85672 /* NSUserDefaults+Convenience.m in Sources */ = {isa = PBXBuildFile; fileRef = B538FA3216155ECC00A85672 /* NSUserDefaults+Convenience.m */; };
 		B548666215F7F807005FBC60 /* FileStorageState.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666115F7F807005FBC60 /* FileStorageState.m */; };
@@ -175,9 +175,9 @@
 		B50C98BB160CCD45002A3909 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		B50C98BC160CCD45002A3909 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.md; sourceTree = "<group>"; };
 		B50C98BD160CCD45002A3909 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
-		B512B12A1611CE1800E0E8B5 /* StackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewController.h; sourceTree = "<group>"; };
-		B512B12B1611CE1800E0E8B5 /* StackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewController.m; sourceTree = "<group>"; };
-		B512B12C1611CE1800E0E8B5 /* StackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StackView.xib; sourceTree = "<group>"; };
+		B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationStackViewController.h; sourceTree = "<group>"; };
+		B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimationStackViewController.m; sourceTree = "<group>"; };
+		B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AnimationStackView.xib; sourceTree = "<group>"; };
 		B531E8261608D2C900168AE5 /* UIView+position.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+position.m"; sourceTree = "<group>"; };
 		B531E8271608D2C900168AE5 /* UIView+position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+position.h"; sourceTree = "<group>"; };
 		B538FA3116155ECC00A85672 /* NSUserDefaults+Convenience.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+Convenience.h"; sourceTree = "<group>"; };
@@ -464,9 +464,9 @@
 				EAD6960B15B7C604004A2494 /* NoteViewController.m */,
 				EAD6960C15B7C604004A2494 /* NoteViewController.xib */,
 				B5A83BBD15FF937000CAE2E8 /* Constants.h */,
-				B512B12A1611CE1800E0E8B5 /* StackViewController.h */,
-				B512B12B1611CE1800E0E8B5 /* StackViewController.m */,
-				B512B12C1611CE1800E0E8B5 /* StackView.xib */,
+				B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */,
+				B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */,
+				B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */,
 			);
 			name = New;
 			sourceTree = "<group>";
@@ -558,7 +558,7 @@
 				B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */,
 				B50C98BF160CCD46002A3909 /* README.md in Resources */,
 				B50C98C0160CCD46002A3909 /* release_notes.md in Resources */,
-				B512B12E1611CE1800E0E8B5 /* StackView.xib in Resources */,
+				B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */,
 				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
 			);
@@ -601,7 +601,7 @@
 				B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */,
 				B531E8281608D2C900168AE5 /* UIView+position.m in Sources */,
 				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
-				B512B12D1611CE1800E0E8B5 /* StackViewController.m in Sources */,
+				B512B12D1611CE1800E0E8B5 /* AnimationStackViewController.m in Sources */,
 				B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */,
 				B538FA3316155ECC00A85672 /* NSUserDefaults+Convenience.m in Sources */,
 				967096081630A5B3004611ED /* TKPromise.m in Sources */,

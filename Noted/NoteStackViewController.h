@@ -19,12 +19,14 @@
 typedef void(^TMDismissalBlock)(float);
 
 @class NoteDocument;
-@class StackViewController;
+@class AnimationStackViewController;
+
+@protocol NoteStackDelegate;
 
 @interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic, copy) TMDismissalBlock dismissBlock;
-
+@property (nonatomic, weak) id <NoteStackDelegate> delegate;
 @property(nonatomic,strong) NoteViewController *currentNoteViewController;
 @property(nonatomic,strong) NoteViewController *nextNoteViewController;
 
@@ -39,6 +41,12 @@ typedef void(^TMDismissalBlock)(float);
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
-- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(StackViewController *)stackVC;
+- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC;
 
 @end
+
+@protocol NoteStackDelegate <NSObject>
+
+- (void)indexDidChange;
+
+@end;

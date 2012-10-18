@@ -14,12 +14,11 @@
 #import "NoteDocument.h"
 #import "UIImage+Crop.h"
 #import "UIView+position.h"
-#import "StackViewController.h"
+#import "AnimationStackViewController.h"
 #import "NoteEntryCell.h"
 
 typedef enum {
     kGestureFinished,
-    kShouldExit,
     kShouldDelete,
     kShouldCreateNew,
     kStackingPinch,
@@ -56,7 +55,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     CGRect centerNoteFrame;
     
     NoteStackGestureState _currentGestureState;
-    StackViewController *_stackVC;
+    AnimationStackViewController *_stackVC;
     
     CGFloat pinchYTarget;
     CGFloat pinchDistance;
@@ -88,8 +87,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize previousNoteDocument;
 @synthesize nextNoteDocument;
 @synthesize mailVC,messageVC;
+@synthesize delegate;
 
-- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(StackViewController *)stackVC
+- (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC
 {
     self = [super initWithNibName:@"NoteStackViewController" bundle:nil];
     if (self){
@@ -204,7 +204,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
     
-    [_stackVC prepareForCollapseAnimationForView:self.view];
+    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
+    //[_stackVC prepareForCollapseAnimationForView:self.view];
 }
 
 #pragma mark Pinch gesture to collapse notes stack
@@ -410,13 +411,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [self setNextNoteDocumentForVelocity:velocity];
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) {
-            // wants to exit
-            if ([self shouldExitWithVelocity:velocity]) {
-                
-                [self setGestureState:kShouldExit];
-                
-                // wants to delete note
-            } else if ([self wantsToDeleteWithPoint:point velocity:velocity]) {
+            if ([self wantsToDeleteWithPoint:point velocity:velocity]) {
                 
                 [self setGestureState:kShouldDelete];
                 [self createDeletingViews];
@@ -438,12 +433,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
         if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            if (_currentGestureState==kShouldExit){//[self shouldExitWithVelocity:velocity]) {
-                // show list
-                [self setGestureState:kGestureFinished];
-                [self popToNoteList:model.selectedNoteIndex];
-                
-            } else if (_currentGestureState == kShouldCreateNew) {
+            if (_currentGestureState == kShouldCreateNew) {
                 // allow cancelation of new note creation if user lets go before midpoint
                 if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
                     
@@ -648,8 +638,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int currentIndex = model.selectedNoteIndex;
     [self updateNoteDocumentsForIndex:currentIndex];
     
-    [_stackVC update];
-    [_stackVC prepareForCollapseAnimationForView:self.view];
+    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
         
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
@@ -819,11 +808,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      }];
 }
 
-- (void)popToNoteList:(int)index
-{
-    self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
+/*
+ - (void)popToNoteList:(int)index
+ {
+ self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
+ [self dismissViewControllerAnimated:YES completion:nil];
+ }
+ */
 
 - (void)updateNoteDocumentsForIndex:(NSUInteger)index
 {
@@ -838,7 +829,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
-    [_stackVC prepareForCollapseAnimationForView:self.view];
+    [self.delegate indexDidChange];
+    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
 }
 
 - (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
@@ -864,6 +856,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             
             [self shiftCurrentNoteOriginToPoint:CGPointMake(0, 0) completion:^{
                 [self.optionsViewController reset];
+                
+                [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
             }];
             NSLog(@"touched outside of options");
         }
@@ -924,7 +918,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.textView.contentInset = contentInsets;
     self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
     
-    //_keyboardShowing = YES;
+    [self.view removeGestureRecognizer:self.panGestureRecognizer];
+    
 }
 
 - (void) shiftViewDownAfterKeyboard:(NSNotification*)theNotification;
@@ -933,6 +928,51 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     UIEdgeInsets contentInsets = UIEdgeInsetsZero;
     self.currentNoteViewController.textView.contentInset = contentInsets;
     self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
+    
+    [self.view addGestureRecognizer:self.panGestureRecognizer];
+}
+
+- (void)configureKeyboard
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    
+    BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
+    if (!useSystem) {
+        
+        if (!self.keyboardViewController) {
+            self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
+        }
+        
+        self.keyboardViewController.delegate = self;
+        //Register for notifications so the keyboard load will push any text into view
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(shiftViewUpForKeyboard:)
+                                                     name: UIKeyboardWillShowNotification
+                                                   object: nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(shiftViewDownAfterKeyboard:)
+                                                     name: UIKeyboardWillHideNotification
+                                                   object: nil];
+        
+        self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
+        
+    } else {
+        
+        self.currentNoteViewController.textView.inputView = nil;
+        [self.currentNoteViewController.textView setKeyboardAppearance:UIKeyboardAppearanceAlert];
+    }
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        [self.view addGestureRecognizer:self.panGestureRecognizer];
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        [self.view removeGestureRecognizer:self.panGestureRecognizer];
+    }];
     
 }
 
@@ -999,55 +1039,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.keyboardViewController.view.frame = frame;
 }
 
-- (void)didUpdateText
+- (void)didUpdateModel
 {
     [_stackVC updateNoteText];
 }
-
-- (void)configureKeyboard
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
-    
-    BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
-    if (!useSystem) {
-        
-        if (!self.keyboardViewController) {
-            self.keyboardViewController = [[KeyboardViewController alloc] initWithNibName:@"KeyboardViewController" bundle:nil];
-        }
-        
-        self.keyboardViewController.delegate = self;
-        //Register for notifications so the keyboard load will push any text into view
-        [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: @selector(shiftViewUpForKeyboard:)
-                                                     name: UIKeyboardWillShowNotification
-                                                   object: nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: @selector(shiftViewDownAfterKeyboard:)
-                                                     name: UIKeyboardWillHideNotification
-                                                   object: nil];
-        
-        self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
-        
-    } else {
-        
-        self.currentNoteViewController.textView.inputView = nil;
-        [self.currentNoteViewController.textView setKeyboardAppearance:UIKeyboardAppearanceAlert];
-    }
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:nil queue:nil usingBlock:^(NSNotification *note){
-        [self.view addGestureRecognizer:self.panGestureRecognizer];
-    }];
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification object:nil queue:nil usingBlock:^(NSNotification *note){
-        
-        [self.view removeGestureRecognizer:self.panGestureRecognizer];
-    }];
-    
-}
-
 
 #pragma mark OptionsViewDelegate
 

@@ -19,13 +19,14 @@
 #import "CloudManager.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
-#import "StackViewController.h"
+#import "AnimationStackViewController.h"
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
+#define DISABLE_NEW_CELL    NO
 
 typedef enum {
     kNew,
@@ -38,14 +39,18 @@ typedef enum {
     BOOL _viewingNoteStack;
     float yOffset;
     NSUInteger _previousRowCount;
-    BOOL _scrolling;
     
+    BOOL _scrolling;
+    BOOL _lastRowVisible;
+    BOOL _lastRowWasVisible;
     BOOL _shouldAutoShowNote;
+    int _noteCount;
+    UIColor *_lastRowColor;
     
     NoteEntryCell *_lastRow;
     NSIndexPath *_lastIndexPath;
     NSIndexPath *_selectedIndexPath;
-    StackViewController *_stackViewController;
+    AnimationStackViewController *_stackViewController;
     UITextView *_lastRowFullText;
 }
 
@@ -54,16 +59,17 @@ typedef enum {
 @implementation NoteListViewController
 
 @synthesize tableView,lastRowExtenderView;
+@synthesize selectedIndexPath=_selectedIndexPath;
 
 - (id)init
 {
     self = [super initWithNibName:@"NoteListViewController" bundle:nil];
     if (self){
+        _noteCount = 0;
         _previousRowCount = 0;
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
         _scrolling = NO;
-        
     }
     
     return self;
@@ -77,49 +83,39 @@ typedef enum {
     [super viewDidLoad];
     
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
-    self.tableView.backgroundView  = backgroundView;
-    self.tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
-    self.tableView.rowHeight       = 60;
-    self.view.layer.cornerRadius = 6.0;
+    self.tableView.backgroundView   = backgroundView;
+    self.tableView.separatorStyle   = UITableViewCellSeparatorStyleNone;
+    self.tableView.rowHeight        = 60;
+    self.view.layer.cornerRadius    = 6.0;
+    self.tableView.backgroundView   = nil;
     self.view.clipsToBounds = YES;
     
     [[NSNotificationCenter defaultCenter] addObserverForName:kNoteListChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note){
         
-        int noteCount = [ApplicationModel sharedInstance].currentNoteEntries.count;
+        [self listDidUpdate];
         [self.tableView reloadData];
-        
-        if (noteCount>0) {
-            [self listDidUpdate];
-        }
-        
     }];
-#warning TODO: reimplement using iCloud syncing
+
     /*
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
      
      
-     if ([[NSUserDefaults standardUserDefaults] objectForKey:kEditingNoteIndex] && !_viewingNoteStack) {
-     _shouldAutoShowNote = YES;
      }
      
      
      }];
      
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-     _shouldAutoShowNote = NO;
+
      }];
      
      */
     
     [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
         
-        CGRect newFrame =  [[UIApplication sharedApplication] statusBarFrame];
-        float height = newFrame.size.height;
-        if (height==20.0) {
-            
-        }
+        //CGRect newFrame =  [[UIApplication sharedApplication] statusBarFrame];
+        
     }];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -149,14 +145,19 @@ typedef enum {
          
     [self.tableView reloadData];
     if (_stackViewController) {
-        [_stackViewController prepareForExpandAnimationForView:self.view];
+        [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
     }
-    
 }
 
-- (void)viewDidDisappear:(BOOL)animated
+- (void)indexDidChange
 {
-    //[self.tableView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
+    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+    [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+}
+
+- (int)selectedIndexPathForStack
+{
+    return _selectedIndexPath.row;
 }
 
 - (void)viewDidUnload {
@@ -167,16 +168,37 @@ typedef enum {
 
 - (void)listDidUpdate
 {
-    if (!_stackViewController) {
-        _stackViewController = [[StackViewController alloc] init];
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    _noteCount = notes.count;
+    NSLog(@"note count: %d",_noteCount);
+    if (_noteCount>0) {
+        _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
         
+        if (!_stackViewController) {
+            _stackViewController = [[AnimationStackViewController alloc] init];
+            _stackViewController.tableView = self.tableView;
+            _stackViewController.delegate = self;
+        }
+        
+        int64_t delayInSeconds = 0.1;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            
+            NSArray *allVisibleRows = [self.tableView indexPathsForVisibleRows];
+            for (NSIndexPath *indexPath in allVisibleRows) {
+                if (indexPath.section == kNoteItems) {
+                    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
+                    [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
+                    
+                    break;
+                }
+            }
+            
+        });
+    
     }
-
-    [_stackViewController prepareForExpandAnimationForView:self.view];
-    //[self verifyFullTextParent];
+    
 }
-
-
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
@@ -194,14 +216,11 @@ typedef enum {
     if (indexPath.section == kNew) {
         return 44;
     } else {
-        int count = [ApplicationModel sharedInstance].currentNoteEntries.count;
-        if (indexPath.row == count-1) {
-            
-            float maxVisibleHeight = self.view.bounds.size.height-44;
-            float height = maxVisibleHeight - ((indexPath.row)*66);
-            
-            return height;
+        
+        if (indexPath.row == _noteCount-1) {
+            return 150;
         }
+         
         return 66;
     }
 }
@@ -210,8 +229,7 @@ typedef enum {
     if (section == kNew) {
         return 1;
     } else {
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        return [model.currentNoteEntries count];
+        return _noteCount;
     }
 }
 
@@ -221,6 +239,7 @@ typedef enum {
 
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     static NSString *CellId = @"NoteCellId";
     static NSString *NewNoteCellId = @"NewNoteCellId";
     static UIColor *blueRowBgColor = nil;
@@ -245,6 +264,7 @@ typedef enum {
         return newNoteCell;
         
     } else {
+        
         NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
         ApplicationModel *model = [ApplicationModel sharedInstance];
         
@@ -277,12 +297,12 @@ typedef enum {
         
         noteEntryCell.subtitleLabel.text = noteEntry.title;
         NSLog(@"noteEntryCell.subtitleLabel.text: %@",noteEntryCell.subtitleLabel.text);
-        BOOL isLastNote = indexPath.row==[ApplicationModel sharedInstance].currentNoteEntries.count-1;
+        BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
         UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
         if (textView && !isLastNote) {
             [textView removeFromSuperview];
         }
-        
+              
         noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
         
         return noteEntryCell;
@@ -310,12 +330,13 @@ typedef enum {
         noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
         
         UIView *shadow = [cell viewWithTag:kShadowViewTag];
-        int count = model.currentNoteEntries.count;
-        if (indexPath.row == count-1) {
+
+        if (indexPath.row == _noteCount-1) {
             [shadow setHidden:YES];
+            noteCell.contentView.backgroundColor = _lastRowColor;
         }
         
-        if (indexPath.row==[ApplicationModel sharedInstance].currentNoteEntries.count-1) {
+        if (indexPath.row==_noteCount-1) {
             [self willDisplayLastRowCell:cell atIndexPath:indexPath];
         }
     }
@@ -383,6 +404,12 @@ typedef enum {
             CGRect newFrame;
             newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
             view.contentView.frame = newFrame;
+            if (_lastRowWasVisible) {
+                self.tableView.backgroundColor = [UIColor whiteColor];
+                _lastRowWasVisible = NO;
+            }
+        } else {
+            NSLog(@"not moving because it IS scrolling");
         }
         
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -412,18 +439,55 @@ typedef enum {
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
+    if (_lastRowVisible) {
+        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
+        frame = [self.view convertRect:frame fromView:self.tableView];
+        if (CGRectGetMaxY(frame) < CGRectGetMaxY(self.view.bounds)) {
+            self.tableView.backgroundColor = _lastRowColor;
+        }
+        
+        _lastRowWasVisible = YES;
+    }
+    
+    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
+    if (![self sectionZeroVisible]) {
+        NSLog(@"sec 0 1 not visible");
+    }
+
     _scrolling = YES;
 }
 
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     _scrolling = NO;
+    
+    if (!decelerate) {
+        [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
+    } else {
+        NSLog(@"don't update stack vc");
+    }
+    
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     _scrolling = NO;
+    
+    if (_lastRowWasVisible) {
+        self.tableView.backgroundColor = [UIColor whiteColor];
+        _lastRowWasVisible = NO;
+    }
+
+    [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
+    
+    /*
+     NSLog(@"frame %@",NSStringFromCGRect(self.tableView.frame));
+     NSLog(@"content size %@",NSStringFromCGSize(self.tableView.contentSize));
+     NSLog(@"");
+     */
 }
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     return YES;
@@ -445,9 +509,18 @@ typedef enum {
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    _selectedIndexPath = indexPath;
+    NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     if (indexPath.section == kNew) {
+        
+        if (DISABLE_NEW_CELL) {
+            [EZToastView showToastMessage:@"disabled"];
+            return;
+        }
+        
         [model createNoteWithCompletionBlock:^(NoteEntry *entry){
             // new note entry should always appear at row 0, right?
             NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
@@ -455,6 +528,8 @@ typedef enum {
         }];
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
         [self listDidUpdate];
+        
+        
     } else {
         
         if (_viewingNoteStack) {
@@ -462,10 +537,8 @@ typedef enum {
         }
         
         model.selectedNoteIndex = indexPath.row;
-        
-        [self debugView:[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].currentNoteEntries.count-1 inSection:1]].contentView viewWithTag:FULL_TEXT_TAG] description:@"last row fulltext view" line:__LINE__];
-        
-        [_stackViewController animateOpenForController:self indexPath:indexPath completion:^(){
+                
+        [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
             
             NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
             if (!noteEntry.adding) {
@@ -498,15 +571,13 @@ typedef enum {
     _viewingNoteStack = YES;
     NoteStackViewController *stackViewController = [[NoteStackViewController alloc] initWithDismissalBlock:^(float currentNoteOffset){
         _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
-        //CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems]];
         yOffset = currentNoteOffset;
-        NSLog(@"yOffset set to %f for ",yOffset);
-        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
         
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:kEditingNoteIndex];
         _shouldAutoShowNote = NO;
         
     } andStackVC:_stackViewController];
-    
+    stackViewController.delegate = self;
     [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 
@@ -525,27 +596,45 @@ typedef enum {
     
 }
 
+- (BOOL)sectionZeroVisible
+{
+    return [self isVisibleRow:0 inSection:kNew];
+}
+
+
+- (BOOL)isVisibleRow:(int)row inSection:(int)section
+{
+    CGRect cellRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+    cellRect = [self.tableView convertRect:cellRect toView:self.tableView.superview];
+    BOOL completelyVisible = CGRectIntersectsRect(self.tableView.frame, cellRect);
+    
+    return completelyVisible;
+}
+
 - (void)didSwipeToDeleteCellWithIndexPath:(UIView *)cell
 {
+    
     CGPoint correctedPoint = [cell convertPoint:cell.bounds.origin toView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:correctedPoint];
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
-        
-        //[EZToastView showToastMessage:@"note deleted from cloud"];
+        //
     }];
+    
+    [self listDidUpdate];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     
-    [self delayedCall:0.1 withBlock:^{
-        [self.tableView reloadData];
-        if (_stackViewController) {
-            [_stackViewController update];
-        }
-        
-    }];
-
+    /*
+     [self delayedCall:0.1 withBlock:^{
+     [self.tableView reloadData];
+     if (_stackViewController) {
+     [_stackViewController prepareForCollapseAnimationForView:self.view];
+     [self.tableView reloadData];
+     }
+     }];
+     */
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
@@ -554,6 +643,5 @@ typedef enum {
         block();
     });
 }
-
 
 @end
