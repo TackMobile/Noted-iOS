@@ -694,11 +694,13 @@
     NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",self.noteVC.noteTextView.text,@"Sent from Noted"];
 	[self.mailVC setSubject:noteTitle];
 	[self.mailVC setMessageBody:body isHTML:NO];
-    [self presentModalViewController:self.mailVC animated:NO];
+    //[self presentModalViewController:self.mailVC animated:NO];
+    [self presentViewController:self.mailVC animated:NO completion:nil];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)sendSMS{
@@ -709,7 +711,8 @@
         messageViewController.body = self.noteVC.noteTextView.text;   
         messageViewController.messageComposeDelegate = self;
         messageViewController.wantsFullScreenLayout = NO;
-        [self presentModalViewController:messageViewController animated:YES];
+        //[self presentModalViewController:messageViewController animated:YES];
+        [self presentViewController:messageViewController animated:YES completion:nil];
         [[UIApplication sharedApplication] setStatusBarHidden:YES];
     }  
     else {
@@ -720,7 +723,8 @@
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
     
     if (result == MessageComposeResultCancelled){
         NSLog(@"Message cancelled");
@@ -744,10 +748,12 @@
         tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result) 
         {
             // Dismiss the controller
-            [self dismissModalViewControllerAnimated:NO];
+            //[self dismissModalViewControllerAnimated:NO];
+            [self dismissViewControllerAnimated:NO completion:nil];
         };
         
-        [self presentModalViewController:tweetViewController animated:NO];
+        //[self presentModalViewController:tweetViewController animated:NO];
+        [self presentViewController:tweetViewController animated:NO completion:nil];
 
     }else {
         NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];

@@ -936,7 +936,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                                                              reuseIdentifier:cellIdentifier];
                 cell.textLabel.adjustsFontSizeToFitWidth = YES;
                 cell.textLabel.textColor = [UIColor whiteColor];
-                cell.textLabel.textAlignment = UITextAlignmentCenter;
+                //cell.textLabel.textAlignment = UITextAlignmentCenter;
+                cell.textLabel.textAlignment = NSTextAlignmentCenter;
             }
             
             // Setup tint color
@@ -962,7 +963,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                                                              reuseIdentifier:cellIdentifier];
                 cell.textLabel.adjustsFontSizeToFitWidth = YES;
                 cell.textLabel.textColor = [UIColor whiteColor];
-                cell.textLabel.textAlignment = UITextAlignmentCenter;
+                //cell.textLabel.textAlignment = UITextAlignmentCenter;
+                cell.textLabel.textAlignment = NSTextAlignmentCenter;
             }
             
             // Setup tint color
@@ -1060,7 +1062,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                     self.noteKeyOpVC.notes = _objects;
                     [self.noteKeyOpVC openTheNote:_selDocument];
                     self.noteKeyOpVC.delegate = self;
-                    [self presentModalViewController:self.noteKeyOpVC animated:YES];
+                    //[self presentModalViewController:self.noteKeyOpVC animated:YES];
+                    [self presentViewController:self.noteKeyOpVC animated:YES completion:nil];
                 }];
             });
         }];
@@ -1077,7 +1080,8 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
 #pragma mark NoteKeyOpViewControllerDelegate
 
 -(void)closeNote {
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
     
     self.noteKeyOpVC = nil;
     _selDocument = nil;

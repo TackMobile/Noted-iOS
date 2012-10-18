@@ -59,6 +59,8 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		967096081630A5B3004611ED /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = 967096061630A5B3004611ED /* TKPromise.m */; };
+		9670960B1630A647004611ED /* NSString+Digest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9670960A1630A647004611ED /* NSString+Digest.m */; };
 		B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B50C98BA160CCD45002A3909 /* libTestFlight.a */; };
 		B50C98BF160CCD46002A3909 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BB160CCD45002A3909 /* README.md */; };
 		B50C98C0160CCD46002A3909 /* release_notes.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BC160CCD45002A3909 /* release_notes.md */; };
@@ -81,8 +83,6 @@
 		B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */; };
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
-		EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = EA5FF43E15BD90BD003C481E /* TKPromise.m */; };
-		EABFFCD915C258770051859B /* NSString+Digest.m in Sources */ = {isa = PBXBuildFile; fileRef = EABFFCD815C258770051859B /* NSString+Digest.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
@@ -167,6 +167,10 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		967096061630A5B3004611ED /* TKPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKPromise.m; sourceTree = "<group>"; };
+		967096071630A5B3004611ED /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKPromise.h; sourceTree = "<group>"; };
+		967096091630A647004611ED /* NSString+Digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Digest.h"; sourceTree = "<group>"; };
+		9670960A1630A647004611ED /* NSString+Digest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Digest.m"; sourceTree = "<group>"; };
 		B50C98BA160CCD45002A3909 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
 		B50C98BB160CCD45002A3909 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		B50C98BC160CCD45002A3909 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.md; sourceTree = "<group>"; };
@@ -201,10 +205,6 @@
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
 		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
 		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
-		EA5FF43D15BD90BD003C481E /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TKPromise.h; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.h"; sourceTree = "<group>"; };
-		EA5FF43E15BD90BD003C481E /* TKPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TKPromise.m; path = "Dependent Projects/Later/iOS/TKLater/TKLater/TKPromise.m"; sourceTree = "<group>"; };
-		EABFFCD715C258770051859B /* NSString+Digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+Digest.h"; path = "Dependent Projects/ios-utils/utils/utils/NSString+Digest.h"; sourceTree = "<group>"; };
-		EABFFCD815C258770051859B /* NSString+Digest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+Digest.m"; path = "Dependent Projects/ios-utils/utils/utils/NSString+Digest.m"; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
 		EAC1F06215B99EB700262749 /* NoteFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteFileManager.m; sourceTree = "<group>"; };
 		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
@@ -310,10 +310,6 @@
 				B548666715F7FEF7005FBC60 /* RIButtonItem.m */,
 				B548666315F7FEDE005FBC60 /* UIAlertView+Blocks.h */,
 				B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */,
-				EABFFCD715C258770051859B /* NSString+Digest.h */,
-				EABFFCD815C258770051859B /* NSString+Digest.m */,
-				EA5FF43D15BD90BD003C481E /* TKPromise.h */,
-				EA5FF43E15BD90BD003C481E /* TKPromise.m */,
 				29960C7F15740F2D0054347A /* UIColor+HexColor.h */,
 				29960C8015740F2D0054347A /* UIColor+HexColor.m */,
 				29960C8B157418850054347A /* NoteTableGestureRecognizer.h */,
@@ -392,6 +388,10 @@
 		29FC4939156EE1590007BBAD /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				967096091630A647004611ED /* NSString+Digest.h */,
+				9670960A1630A647004611ED /* NSString+Digest.m */,
+				967096061630A5B3004611ED /* TKPromise.m */,
+				967096071630A5B3004611ED /* TKPromise.h */,
 				29FC4936156EE1510007BBAD /* NoteData.h */,
 				29FC4937156EE1510007BBAD /* NoteData.m */,
 				29FC493A156EE5510007BBAD /* NoteDocument.h */,
@@ -593,9 +593,7 @@
 				EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */,
 				EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */,
 				EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */,
-				EA5FF43F15BD90BD003C481E /* TKPromise.m in Sources */,
 				EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */,
-				EABFFCD915C258770051859B /* NSString+Digest.m in Sources */,
 				B548666215F7F807005FBC60 /* FileStorageState.m in Sources */,
 				B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */,
 				B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */,
@@ -606,6 +604,8 @@
 				B512B12D1611CE1800E0E8B5 /* StackViewController.m in Sources */,
 				B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */,
 				B538FA3316155ECC00A85672 /* NSUserDefaults+Convenience.m in Sources */,
+				967096081630A5B3004611ED /* TKPromise.m in Sources */,
+				9670960B1630A647004611ED /* NSString+Digest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -690,8 +690,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Benjamin Pilcher (RQZRE5LT36)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -703,8 +703,8 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "607EAAD0-3F4F-4B6D-9184-9452FAA5FD2F";
+				PROVISIONING_PROFILE = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -713,7 +713,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Benjamin Pilcher (RQZRE5LT36)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -725,7 +726,8 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "607EAAD0-3F4F-4B6D-9184-9452FAA5FD2F";
+				PROVISIONING_PROFILE = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -755,8 +757,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Anthony Hoang (NQQN4MBG2Q)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -768,7 +770,8 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0AC011B5-CAC9-4654-8224-57BDB3028EBF";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Ad Hoc";

@@ -66,7 +66,8 @@ messageFont,showDuration,toastAlignment,messageAlignment;
 	self.toastBackgroundColor = [UIColor colorWithWhite:0.0f alpha:0.7f];
 	self.messageColor = [UIColor whiteColor];
 	self.messageFont = [UIFont systemFontOfSize:15.0f];
-	self.messageAlignment = UITextAlignmentCenter;
+	//self.messageAlignment = UITextAlignmentCenter;
+    self.messageAlignment = NSTextAlignmentCenter;
 }
 
 -(void)dealloc
@@ -221,7 +222,8 @@ messageFont,showDuration,toastAlignment,messageAlignment;
 	CGFloat lineWidth = self.borderWidth;
 	CGFloat totalSidePadding = DEFAULT_TOAST_HORIZONTAL_PADDING * 2  + lineWidth * 2;
 	CGSize maxTextSize = CGSizeMake(self.maximumWidth - totalSidePadding, MAXFLOAT);
-	CGSize textSize = [self.message sizeWithFont:self.messageFont constrainedToSize:maxTextSize lineBreakMode:UILineBreakModeWordWrap];
+	//CGSize textSize = [self.message sizeWithFont:self.messageFont constrainedToSize:maxTextSize lineBreakMode:UILineBreakModeWordWrap];
+    CGSize textSize = [self.message sizeWithFont:self.messageFont constrainedToSize:maxTextSize lineBreakMode:NSLineBreakByWordWrapping];
 	
 	CGRect frame = self.frame;
 	frame.size.width = textSize.width + totalSidePadding;
@@ -253,7 +255,8 @@ messageFont,showDuration,toastAlignment,messageAlignment;
 	
 	[self.messageColor set];
 	CGRect messageInsectRect = CGRectInset(backgroundFrame, DEFAULT_TOAST_HORIZONTAL_PADDING + lineWidth, DEFAULT_TOAST_VERITCAL_PADDING + lineWidth);
-	[self.message drawInRect:messageInsectRect withFont:self.messageFont lineBreakMode:UILineBreakModeWordWrap alignment:self.messageAlignment];
+	//[self.message drawInRect:messageInsectRect withFont:self.messageFont lineBreakMode:UILineBreakModeWordWrap alignment:self.messageAlignment];
+    [self.message drawInRect:messageInsectRect withFont:self.messageFont lineBreakMode:NSLineBreakByWordWrapping alignment:self.messageAlignment];
 	
 	CGContextRestoreGState(ctx);
 }
