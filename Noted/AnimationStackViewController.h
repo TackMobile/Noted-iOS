@@ -18,25 +18,33 @@ typedef void(^animationCompleteBlock)();
 @class NoteDocument;
 @class NoteListViewController;
 
+@protocol AnimationStackDelegate;
+
 @interface AnimationStackViewController : UIViewController
 
+@property (nonatomic, assign) BOOL sectionZeroRowOneVisible;
 @property (nonatomic, strong) NSArray *noteViews;
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, weak) id <AnimationStackDelegate> delegate;
 
 - (float)finalYOriginForCurrentNote;
 - (UIView *)currentNote;
 
 - (void)prepareForAnimationState:(StackState)state withParentView:(UIView *)view;
 
-//- (void)prepareForCollapseAnimationForView:(UIView *)view;
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent;
 - (void)finishCollapse:(void(^)())complete;
 
-//- (void)prepareForExpandAnimationForView:(UIView *)view offsetForSectionZero:(BOOL)offset;
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 - (void)resetToExpanded:(void(^)())completion;
 
 - (void)update;
 - (void)updateNoteText;
+
+@end
+
+@protocol AnimationStackDelegate <NSObject>
+
+- (int)selectedIndexPathForStack;
 
 @end

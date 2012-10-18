@@ -59,6 +59,7 @@ typedef enum {
 @implementation NoteListViewController
 
 @synthesize tableView,lastRowExtenderView;
+@synthesize selectedIndexPath=_selectedIndexPath;
 
 - (id)init
 {
@@ -148,6 +149,17 @@ typedef enum {
     }
 }
 
+- (void)indexDidChange
+{
+    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+    [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+}
+
+- (int)selectedIndexPathForStack
+{
+    return _selectedIndexPath.row;
+}
+
 - (void)viewDidUnload {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self setTableView:nil];
@@ -165,7 +177,7 @@ typedef enum {
         if (!_stackViewController) {
             _stackViewController = [[AnimationStackViewController alloc] init];
             _stackViewController.tableView = self.tableView;
-            
+            _stackViewController.delegate = self;
         }
         
         int64_t delayInSeconds = 0.1;
@@ -175,6 +187,7 @@ typedef enum {
             NSArray *allVisibleRows = [self.tableView indexPathsForVisibleRows];
             for (NSIndexPath *indexPath in allVisibleRows) {
                 if (indexPath.section == kNoteItems) {
+                    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
                     [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
                     
                     break;
@@ -436,8 +449,12 @@ typedef enum {
         
         _lastRowWasVisible = YES;
     }
+    
+    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
+    if (![self sectionZeroVisible]) {
+        NSLog(@"sec 0 1 not visible");
+    }
 
-    //NSLog(@"%@",NSStringFromCGPoint(self.tableView.contentOffset));
     _scrolling = YES;
 }
 
@@ -492,6 +509,9 @@ typedef enum {
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    _selectedIndexPath = indexPath;
+    NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     if (indexPath.section == kNew) {
@@ -557,7 +577,7 @@ typedef enum {
         _shouldAutoShowNote = NO;
         
     } andStackVC:_stackViewController];
-    
+    stackViewController.delegate = self;
     [self presentViewController:stackViewController animated:animated completion:NULL];
 }
 

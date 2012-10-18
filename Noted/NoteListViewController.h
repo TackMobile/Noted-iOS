@@ -8,12 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "NoteEntryCell.h"
+#import "NoteStackViewController.h"
+#import "AnimationStackViewController.h"
 
-@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate>
+@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, NoteStackDelegate, AnimationStackDelegate>
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) UIView *lastRowExtenderView;
+@property (nonatomic, strong) NSIndexPath *selectedIndexPath;
 
 - (BOOL)sectionZeroVisible;
 

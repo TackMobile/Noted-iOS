@@ -87,6 +87,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize previousNoteDocument;
 @synthesize nextNoteDocument;
 @synthesize mailVC,messageVC;
+@synthesize delegate;
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC
 {
@@ -828,6 +829,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.currentNoteViewController.view setNeedsDisplay];
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
+    [self.delegate indexDidChange];
     [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
 }
 
