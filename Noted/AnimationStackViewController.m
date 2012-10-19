@@ -36,6 +36,8 @@ static const float  kCellHeight             = 66.0;
     NSMutableArray *_noteEntryModels;
     
     BOOL _sectionZeroRowOneVisible;
+    int _sectionZeroCellIndex;
+    
     BOOL _isPinching;
     BOOL _animating;
     float _pinchPercentComplete;
@@ -120,6 +122,8 @@ static const float  kCellHeight             = 66.0;
     for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
         if (indexPath.section == 0) {
             [_noteEntryModels addObject:[NSNull null]];
+            _sectionZeroCellIndex = [_noteEntryModels indexOfObject:[NSNull null]];
+            NSLog(@"section zero index: %d",_sectionZeroCellIndex);
         } else {
             [_noteEntryModels addObject:[allEntries objectAtIndex:indexPath.row]];
         }
@@ -156,12 +160,22 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseStackedNotesForScale:(CGFloat)scale
 {
-    
-    for (int i = 0; i < _noteViews.count; i ++) {
-        if (i != _selectedViewIndex && [[_noteViews objectAtIndex:i] isKindOfClass:[NoteEntryCell class]]) {
+    int startIndex = _sectionZeroRowOneVisible ? 1 : 0;
+    for (int i = startIndex; i < [self noteEntryViewsCount]; i ++) {
+        BOOL isNotSectionZero = [[_noteViews objectAtIndex:i] isKindOfClass:[NoteEntryCell class]];
+        if (i != _selectedViewIndex && isNotSectionZero) {
             [self collapseStackedNoteAtIndex:i withScale:scale];
         }
     }
+}
+
+- (NSUInteger)noteEntryViewsCount
+{
+    if (!_sectionZeroRowOneVisible) {
+        return _noteViews.count;
+    }
+    
+    return _noteViews.count -1;
 }
 
 - (UITextView *)makeFulltextView
@@ -471,7 +485,8 @@ static const float  kCellHeight             = 66.0;
     NSLog(@"%d",_selectedViewIndex);
     _animating = YES;
     
-    NSLog(@"count of cells: %d",_noteViews.count);
+    NSLog(@"count of all cells: %d",_noteViews.count);
+    NSLog(@"count of note entry cells: %d",[self noteEntryViewsCount]);
     
     int noteViewIndex = 0;
     for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
@@ -743,12 +758,12 @@ static const float  kCellHeight             = 66.0;
     
     float y = 0.0;
     
-    int numCells = _noteViews.count;
+    int cellIndex = _noteViews.count;
     // _noteEntryModels.count
-    while (numCells<[_tableView indexPathsForVisibleRows].count) {
+    while (cellIndex<[_tableView indexPathsForVisibleRows].count) {
         
         UIView *noteView = nil;
-        if ([_noteEntryModels objectAtIndex:numCells] == (id)[NSNull null]) {
+        if (cellIndex==_sectionZeroCellIndex){//[_noteEntryModels objectAtIndex:cellIndex] == (id)[NSNull null]) {
             // section 0
             noteView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
         } else {
@@ -770,7 +785,7 @@ static const float  kCellHeight             = 66.0;
         //[(NoteEntryCell *)noteView].contentView.backgroundColor = [UIColor whiteColor];
         y += noteView.frame.size.height;
         [_noteViews addObject:noteView];
-        numCells++;
+        cellIndex++;
     }
     
     
@@ -801,7 +816,7 @@ static const float  kCellHeight             = 66.0;
     for (NoteEntry *noteEntry in _noteEntryModels) {
         
         NoteEntryCell *noteCell = [_noteViews objectAtIndex:i];
-        if (noteEntry == (id)[NSNull null] || ![noteCell isKindOfClass:[NoteEntryCell class]]) {
+        if (i==_sectionZeroCellIndex){//noteEntry == (id)[NSNull null] || ![noteCell isKindOfClass:[NoteEntryCell class]]) {
             i++;
             continue;
         }
@@ -871,7 +886,8 @@ static const float  kCellHeight             = 66.0;
 - (BOOL)currentNoteIsLast
 {
     int viewIndex = [self indexOfNoteView:[self currentNote]];
-    return viewIndex == _noteViews.count-1;
+    NSLog(@"Reporting that current note with index %d is last: %s",viewIndex,viewIndex == [self noteEntryViewsCount]-1 ? "yes" : "no");
+    return viewIndex == [self noteEntryViewsCount]-1;//;_noteViews.count-1;
 }
 
 - (BOOL)noteIsLast:(int)index
