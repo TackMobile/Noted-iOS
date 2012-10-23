@@ -101,6 +101,9 @@ static const float  kCellHeight             = 66.0;
     } else {
         _sectionZeroRowOneVisible = NO;
         _sectionZeroCellIndex = -1;
+        
+        _selectedViewIndex = index - firstVisible.row;
+        
     }
        
     NSLog(@"Selected view index: %d",_selectedViewIndex);
