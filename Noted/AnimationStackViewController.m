@@ -68,7 +68,7 @@ static const float  kCellHeight             = 66.0;
     self = [super initWithNibName:@"AnimationStackView" bundle:nil];
     if (self){
         _isPinching = NO;
-
+        
         _noteViews = [[NSMutableArray alloc] init];
         _centerNoteFrame = CGRectZero;
         _animating = NO;
@@ -104,7 +104,7 @@ static const float  kCellHeight             = 66.0;
         _selectedViewIndex = index - firstVisible.row;
         
     }
-       
+    
     NSLog(@"Selected view index: %d",_selectedViewIndex);
 }
 
@@ -115,7 +115,7 @@ static const float  kCellHeight             = 66.0;
     if (!_animating) {
         [self.view setFrameX:-self.view.bounds.size.width];
     }
- 
+    
     [_noteEntryModels removeAllObjects];
     NSArray *allEntries = [[[ApplicationModel sharedInstance] currentNoteEntries] array];
     NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
@@ -150,11 +150,11 @@ static const float  kCellHeight             = 66.0;
      }
      }
      */
- 
+    
     [self updateCellsWithModels];
-
+    
     //if (![[self.view superview] isEqual:view]) {
-      //  [view addSubview:self.view];
+    //  [view addSubview:self.view];
     //}
 }
 
@@ -250,7 +250,7 @@ static const float  kCellHeight             = 66.0;
         [textView setHidden:NO];
         textView.alpha = 1.0;
         [subtitle setHidden:YES];
-
+        
     }
     
     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
@@ -349,7 +349,7 @@ static const float  kCellHeight             = 66.0;
                          complete();
                          [self.view setFrameX:-320.0];
                          //[self toggleFullTextForNoteOpening:NO inCell:(UITableViewCell *)[self currentNote]];
-
+                         
                      }];
 }
 
@@ -547,7 +547,7 @@ static const float  kCellHeight             = 66.0;
 - (NSArray *)visibleNoteSectionRows
 {
     NSArray *allVisibleRows = [_tableView indexPathsForVisibleRows];
-
+    
     return allVisibleRows;
 }
 
@@ -650,8 +650,8 @@ static const float  kCellHeight             = 66.0;
                      completion:^(BOOL finished){
                          [self finishExpansion];
                          completion();
-                     }];    
-
+                     }];
+    
     int index = 0;
     for (UIView *noteCell in _noteViews) {
         if (index==_selectedViewIndex) {
@@ -763,7 +763,7 @@ static const float  kCellHeight             = 66.0;
         NSLog(@"Removed [0,0] view: %s",removed ? "yes" : "no");
         //_sectionZeroCellIndex = -1;
     }
-      
+    
     NSLog(@"_noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
     if (_noteViews.count > _noteEntryModels.count) {
         NSMutableArray *staleViews = [[NSMutableArray alloc] initWithCapacity:_noteViews.count];
@@ -780,12 +780,12 @@ static const float  kCellHeight             = 66.0;
         NSLog(@"observe!");
     }
     NSLog(@"after trimming, _noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
-        
+    
     float y = 0.0;
     
     int cellIndex = _noteViews.count;
     // _noteEntryModels.count
-
+    
     while (cellIndex<[_tableView indexPathsForVisibleRows].count) {
         
         UIView *noteView = nil;
@@ -809,7 +809,7 @@ static const float  kCellHeight             = 66.0;
         //[self debugView:noteCell.subtitleLabel color:[UIColor greenColor]];
         
         [self.view addSubview:noteView];
-
+        
         y += noteView.frame.size.height;
         if (noteView.tag == SECZERO_ROWZERO_TAG) {
             [_noteViews insertObject:noteView atIndex:0];
