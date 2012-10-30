@@ -540,7 +540,7 @@ typedef enum {
         }
         
         model.selectedNoteIndex = indexPath.row;
-                
+        NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);
         [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
             
             NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];

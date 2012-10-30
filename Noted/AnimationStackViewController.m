@@ -94,14 +94,10 @@ static const float  kCellHeight             = 66.0;
 {
     _selectedViewIndex = index;
     
-    NSIndexPath *firstVisible = [[self visibleNoteSectionRows] objectAtIndex:0];
-    if (firstVisible.section == 0) {
-        _sectionZeroRowOneVisible = YES;
+    if (_sectionZeroRowOneVisible) {
         _selectedViewIndex ++;
     } else {
-        _sectionZeroRowOneVisible = NO;
-        _sectionZeroCellIndex = -1;
-        
+        NSIndexPath *firstVisible = [[_tableView indexPathsForVisibleRows] objectAtIndex:0];
         _selectedViewIndex = index - firstVisible.row;
         
     }
@@ -112,28 +108,43 @@ static const float  kCellHeight             = 66.0;
 - (void)prepareForAnimationState:(StackState)state withParentView:(UIView *)view
 {
     _state = state;
+    
     if (!_animating) {
-
         [self.view setFrameX:-self.view.bounds.size.width];
     }
  
     [_noteEntryModels removeAllObjects];
     NSArray *allEntries = [[[ApplicationModel sharedInstance] currentNoteEntries] array];
-    for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
-        if (indexPath.section == 0) {
+    NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
+    NSIndexPath *firstVisible = [visibleIndexPaths objectAtIndex:0];
+    if (firstVisible.section==0) {
+        _sectionZeroRowOneVisible = YES;
+        _sectionZeroCellIndex = 0;
+    } else {
+        _sectionZeroRowOneVisible = NO;
+        _sectionZeroCellIndex = -1;
+    }
+    
+    for (NSIndexPath *indexPath in visibleIndexPaths) {
+        if (indexPath.section == 0 && indexPath.row == 0) {
             [_noteEntryModels addObject:[NSNull null]];
-            _sectionZeroCellIndex = [_noteEntryModels indexOfObject:[NSNull null]];
-            NSLog(@"section zero index: %d",_sectionZeroCellIndex);
-            
         } else {
             [_noteEntryModels addObject:[allEntries objectAtIndex:indexPath.row]];
         }
     }
     
+    NSLog(@"Number of visible rows: %d",visibleIndexPaths.count);
+    NSLog(@"Section zero visible: %s (%d)",_sectionZeroCellIndex != -1 ? "yes":"no",_sectionZeroCellIndex);
     
     [self trimCellViews];
     
-        
+    NSLog(@"Number of note views: %d",_noteViews.count);
+    if (visibleIndexPaths.count != _noteViews.count) {
+        for (UIView *view in _noteViews) {
+            NSLog(@"is kind: %@",[view class]);
+        }
+    }
+ 
     [self updateCellsWithModels];
 
     if (![[self.view superview] isEqual:view]) {
@@ -393,6 +404,9 @@ static const float  kCellHeight             = 66.0;
         [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
     }
     
+    if (![noteCell respondsToSelector:@selector(setRelativeTimeText:)]) {
+        NSLog(@"stop!");
+    }
     noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
     
     noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
@@ -477,15 +491,7 @@ static const float  kCellHeight             = 66.0;
 - (NSArray *)visibleNoteSectionRows
 {
     NSArray *allVisibleRows = [_tableView indexPathsForVisibleRows];
-    /*
-     NSMutableArray *visibleNoteRows = [[NSMutableArray alloc] initWithCapacity:allVisibleRows.count];
-     for (NSIndexPath *indexPath in allVisibleRows) {
-     //if (indexPath.section!=0) {
-     [visibleNoteRows addObject:indexPath];
-     //}
-     }
-     */
-    
+
     return allVisibleRows;
 }
 
@@ -495,11 +501,15 @@ static const float  kCellHeight             = 66.0;
     [self.view setFrameX:0.0];
     
     [self setIndexOfSelectedNoteView:selectedIndexPath.row];
-    NSLog(@"%d",_selectedViewIndex);
+    //NSLog(@"%d",_selectedViewIndex);
     _animating = YES;
     
     NSLog(@"count of all cells: %d",_noteViews.count);
     NSLog(@"count of note entry cells: %d",[self noteEntryViewsCount]);
+    NSLog(@"count of visible rows: %d",[_tableView indexPathsForVisibleRows].count);
+    if ([_tableView indexPathsForVisibleRows].count > _noteViews.count) {
+        NSLog(@"you will get a crash on this!");
+    }
     
     int noteViewIndex = 0;
     for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
@@ -535,7 +545,7 @@ static const float  kCellHeight             = 66.0;
         UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
         [circle setHidden:NO];
         
-        NSLog(@"%@",modelCellView.relativeTimeText.text);
+        //NSLog(@"%@",modelCellView.relativeTimeText.text);
         
         //int noteViewIndex = [_noteViews indexOfObject:noteCell];
 
@@ -767,23 +777,24 @@ static int sectionZeroViewCount;
     if (!_sectionZeroRowOneVisible) {
         BOOL removed = [self removeSectionZeroRowOne];
         NSLog(@"Removed [0,0] view: %s",removed ? "yes" : "no");
-       
+        //_sectionZeroCellIndex = -1;
     }
       
-    int numTrimmed = 0;
-    for (int i = 0; i < _noteViews.count; i++) {
-        if (i>_noteEntryModels.count) {
-            [[_noteViews objectAtIndex:i] removeFromSuperview];
-            [_noteViews removeObjectAtIndex:i];
-            numTrimmed++;
+    NSLog(@"_noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
+    if (_noteViews.count > _noteEntryModels.count) {
+        NSMutableArray *staleViews = [[NSMutableArray alloc] initWithCapacity:_noteViews.count];
+        for (int i = 0; i < _noteViews.count; i++) {
+            if (i>_noteEntryModels.count-1) {
+                [staleViews addObject:[_noteViews objectAtIndex:i]];
+            }
         }
+        
+        NSLog(@"trimmed %d",staleViews.count);
+        [_noteViews removeObjectsInArray:staleViews];
     }
     
-    
-    
-    NSLog(@"after trimming: count is %d",_noteViews.count);
-    NSLog(@"trimmed %d",numTrimmed);
-    
+    NSLog(@"after trimming, _noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
+        
     float y = 0.0;
     
     int cellIndex = _noteViews.count;
@@ -836,7 +847,6 @@ static int sectionZeroViewCount;
         [_noteViews removeObject:sectionZeroRowOne];
         [sectionZeroRowOne removeFromSuperview];
         sectionZeroRowOne = nil;
-        _sectionZeroCellIndex = -1;
         return YES;
     }
     
@@ -866,6 +876,9 @@ static int sectionZeroViewCount;
             [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
         }
         
+        if (![noteCell respondsToSelector:@selector(setRelativeTimeText:)]) {
+            NSLog(@"stop!");
+        }
         noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
         
         noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];

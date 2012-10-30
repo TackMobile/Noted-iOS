@@ -38,7 +38,6 @@ typedef void(^animationCompleteBlock)();
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 - (void)resetToExpanded:(void(^)())completion;
 
-- (void)update;
 - (void)updateNoteText;
 
 @end
