@@ -489,7 +489,7 @@ static const float  kCellHeight             = 66.0;
     return allVisibleRows;
 }
 
-- (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
+- (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock //opens the selected note
 {
     
     [self.view setFrameX:0.0];

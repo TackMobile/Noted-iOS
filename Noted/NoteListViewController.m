@@ -514,7 +514,7 @@ typedef enum {
     NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    if (indexPath.section == kNew) {
+    if (indexPath.section == kNew) { //if "New Note" cell was pressed
         
         if (DISABLE_NEW_CELL) {
             [EZToastView showToastMessage:@"disabled"];
@@ -533,7 +533,7 @@ typedef enum {
         [self listDidUpdate];
         
         
-    } else {
+    } else { //if an existing note was selected
         
         if (_viewingNoteStack) {
             return;

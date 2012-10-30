@@ -191,6 +191,8 @@
     self.activeKeyboardName = [self.keyboardNames objectAtIndex:1];
     self.activeKeyboard = [self.allKeyboards objectForKey:self.activeKeyboardName];
     [self changeActiveKeyboardTo:self.activeKeyboard];
+    self.scrollView.delaysContentTouches = YES;
+   
     
     //Add buffer page at beginning to fake "wrapping" of keyboards
     int panels = 0;
@@ -249,13 +251,15 @@
     [oneFingerSwipeDown setDirection:UISwipeGestureRecognizerDirectionDown];
     [self.view addGestureRecognizer:oneFingerSwipeDown];
     
-    UISwipeGestureRecognizer *oneFingerSwipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerSwipeUp:)];
+    UISwipeGestureRecognizer *oneFingerSwipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneFingerSwipeUp:)]; //inconsistent
     [oneFingerSwipeUp setNumberOfTouchesRequired:1];
     [oneFingerSwipeUp setDirection:UISwipeGestureRecognizerDirectionUp];
     [self.view addGestureRecognizer:oneFingerSwipeUp];
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.view addGestureRecognizer:tapGesture];
+    
+
 }
 
 - (void)panOnKeyboardDetected:(UIGestureRecognizer *)gesture
@@ -271,12 +275,16 @@
 
 - (void)handleOneFingerSwipeUp:(UISwipeGestureRecognizer *)gesture
 {
+    self.scrollView.scrollEnabled = NO;
+    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
     capitalized = YES;
-    //[self keyHitDetected:firstTouch];
+    [self keyHitDetected:firstTouch];
 }
 
 - (void)handleTwoFingerSwipeLeft:(UISwipeGestureRecognizer *)gesture
 {
+    self.scrollView.scrollEnabled = NO;
+    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
     [undoTimer invalidate];
     undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
     [self.delegate undoEdit];
@@ -284,6 +292,8 @@
 
 - (void)handleTwoFingerSwipeRight:(UISwipeGestureRecognizer *)gesture
 {
+    self.scrollView.scrollEnabled = NO;
+    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
     [undoTimer invalidate];
     undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
     [self.delegate redoEdit];
@@ -400,10 +410,11 @@
 	NSEnumerator *enumerator = [keyboardKeys keyEnumerator];
 	NSMutableString *aSingleKey;
 	
-	while ((aSingleKey = [enumerator nextObject])) {
+    
+    
+	while ((aSingleKey = [enumerator nextObject])) { //this is why the keyboard is so slow...trying to figure out a more efficent way to do this
 		
 		KeyboardKey *theKey = [keyboardKeys objectForKey:aSingleKey];
-        
 		// There are instances when an interface element is corrupt.  Make sure it has a name before proceeding.
 		if (aSingleKey) {		
 			// The bread and butter of this routine.  Does the frame of the interface element contain the point we are touching?
@@ -414,8 +425,10 @@
                 NSLog(@"found it");
             }
         }
-        NSLog(@"still enumerating all keys");
+
     }
+    
+    
 }
 
 

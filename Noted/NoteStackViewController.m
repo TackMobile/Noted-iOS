@@ -135,14 +135,14 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }];
   
     self.nextNoteViewController = [[NoteViewController alloc] init];
-    [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view];
+    [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view]; //stacking view controllers
     
 #warning TODO: optimization: lazy instantiation of OptionsViewController
-    self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
+    self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil]; //settings screen
     self.optionsViewController.delegate = self;
     self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
     self.optionsViewController.view.hidden = YES;
-    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view];
+    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view 
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
@@ -229,8 +229,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     pinchVelocity = gesture.velocity;
 
     if ([gesture numberOfTouches] == 2 && _currentGestureState==kStackingPinch) {
-        CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
-        CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
+        CGPoint p1 = [gesture locationOfTouch:0 inView:self.view]; //first finger
+        CGPoint p2 = [gesture locationOfTouch:1 inView:self.view]; //second finger
         
         // Compute the new spread distance.
         CGFloat xd = p1.x - p2.x;
@@ -406,18 +406,18 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
-        if (numberOfTouchesInCurrentPanGesture == 1) {
+        if (numberOfTouchesInCurrentPanGesture == 1) { //switches note
             
             [self setNextNoteDocumentForVelocity:velocity];
             
-        } else if (numberOfTouchesInCurrentPanGesture >= 2) {
-            if ([self wantsToDeleteWithPoint:point velocity:velocity]) {
+        } else if (numberOfTouchesInCurrentPanGesture >= 2) { //two finger delete
+            if ([self wantsToDeleteWithPoint:point velocity:velocity]) { //if the pan gesture is going from left to right
                 
-                [self setGestureState:kShouldDelete];
+                [self setGestureState:kShouldDelete]; //delete and the note and animate
                 [self createDeletingViews];
                 
                 // wants to create new note
-            } else if ([self wantsToCreateWithPoint:point velocity:velocity]) {
+            } else if ([self wantsToCreateWithPoint:point velocity:velocity]) { //if the pan gesture is going from right to left
                 
                 [self setGestureState:kShouldCreateNew];
                 [self.view addSubview:self.nextNoteViewController.view];
@@ -427,15 +427,15 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         
-        if (numberOfTouchesInCurrentPanGesture==1) {
-            [self handleSingleTouchPanEndedForVelocity:velocity];
+        if (numberOfTouchesInCurrentPanGesture==1) { //if the user ended their one finger pan gesture
+            [self handleSingleTouchPanEndedForVelocity:velocity]; //either changes the note to the next note or animates and "snaps" back the current note depending on whether 1. there's another note in the stack or 2. the user panned far enough on the screen or not
         }
         
         if (numberOfTouchesInCurrentPanGesture >= 2) {
             
-            if (_currentGestureState == kShouldCreateNew) {
+            if (_currentGestureState == kShouldCreateNew) { //if they panned from right to left to create a new note
                 // allow cancelation of new note creation if user lets go before midpoint
-                if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) {
+                if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) { //midpoint not working
                     
                     [self setGestureState:kGestureFinished];
                     [self snapBackNextNote];
@@ -447,9 +447,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                     [self finishCreatingNewDocument];
                 }
                 
-            } else if (_currentGestureState == kShouldDelete) {
+            } else if (_currentGestureState == kShouldDelete) { //if the user panned from left to right to delete
                 
-                BOOL shouldCancelDelete = (point.x > 0 && point.x < CGRectGetMidX(viewFrame)) || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2;
+                BOOL shouldCancelDelete = (point.x > 0 && point.x < CGRectGetMidX(viewFrame)) || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2; //if user doesn't drag far enough cancel the delete
                 if (shouldCancelDelete) {
                     [self cancelDeletingNote];
                 } else {
@@ -457,7 +457,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 }
             }
         }
-    } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
                 [self handleSingleTouchPanChangedForPoint:point];
@@ -611,15 +611,15 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
     int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
-    if (noteCount==1) {
+    if (noteCount==1) { //if there's only one note then don't allow them to change views when panning...snaps back
         [self snapBackCurrentNote];
         return;
     }
-    if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) {
+    if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
         [self animateCurrentOutToLeft];
-    } else { // snap back
+    } else { // if the user didn't drag the note past half the screen then snap back
         [self snapBackCurrentNote];
     }
 }
@@ -713,7 +713,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.nextNoteViewController.view.frame = newFrame;
 }
 
-- (void)createDeletingViews
+- (void)createDeletingViews //deletes the note from two finger right pan
 {
     deletingViews = [NSMutableArray new];
     
@@ -846,7 +846,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         return;
     }
     
-    if(!self.optionsViewController.view.hidden) {
+    if(!self.optionsViewController.view.hidden) { //if it's on the options screen
         // find the element that is being touched, if any.
         CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
         CGRect frame = self.overView.frame;
@@ -876,7 +876,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
 }
 
--(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock
+-(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock //shifts current note to only partially show on screen
 {
     if (point.x != 0) {
         self.optionsViewController.view.hidden = NO;
@@ -930,15 +930,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.textView.scrollIndicatorInsets = contentInsets;
     
     [self.view addGestureRecognizer:self.panGestureRecognizer];
+    
 }
 
 - (void)configureKeyboard
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil]; 
     
-    BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
+    BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]; //user option to use standard or custom keyboard. switch button in options view
     if (!useSystem) {
         
         if (!self.keyboardViewController) {
@@ -958,6 +959,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                                    object: nil];
         
         self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
+        
         
     } else {
         
@@ -987,7 +989,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         BOOL isALetterTwoAgo = [set characterIsMember: [self.currentNoteViewController.textView.text characterAtIndex:self.currentNoteViewController.textView.selectedRange.location-2]];
         unichar lastCharacterUni = [self.currentNoteViewController.textView.text characterAtIndex:self.currentNoteViewController.textView.selectedRange.location-1];
         NSString *lastCharacter = [NSString stringWithCharacters:&lastCharacterUni length:1];
-        if (isALetterTwoAgo && [lastCharacter isEqualToString:@" "]){
+        if (isALetterTwoAgo && [lastCharacter isEqualToString:@" "]){ //inserts period after pressing spacebar twice
             // code that you use to remove the last character
             [self.currentNoteViewController.textView deleteBackward];
             [self.currentNoteViewController.textView insertText:@"."];
@@ -1026,7 +1028,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NSLog(@"Redo Detected");
 }
 
--(void)panKeyboard:(CGPoint)point {
+-(void)panKeyboard:(CGPoint)point { //too sensitive need to fix
     CGRect frame = self.keyboardViewController.view.frame;
     frame.origin.y =  0 + point.y;
     if (frame.origin.y < 0) frame.origin.y = 0;
