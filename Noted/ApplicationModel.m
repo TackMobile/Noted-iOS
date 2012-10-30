@@ -139,7 +139,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 }
 
 - (NoteEntry *) noteAtSelectedNoteIndex {
-    NSLog(@"looking for note %@ at index %d",[self noteAtIndex:selectedNoteIndex],selectedNoteIndex);
+    //NSLog(@"looking for note %@ at index %d",[self noteAtIndex:selectedNoteIndex],selectedNoteIndex);
     return [self noteAtIndex:selectedNoteIndex];
 }
 

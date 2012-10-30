@@ -145,7 +145,7 @@ typedef enum {
          
     [self.tableView reloadData];
     if (_stackViewController) {
-        [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
+        [self setStackState];
     }
 }
 
@@ -188,8 +188,7 @@ typedef enum {
             for (NSIndexPath *indexPath in allVisibleRows) {
                 if (indexPath.section == kNoteItems) {
                     [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
-                    [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
-                    
+                    [self setStackState];
                     break;
                 }
             }
@@ -463,11 +462,17 @@ typedef enum {
     _scrolling = NO;
     
     if (!decelerate) {
-        [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
-    } else {
-        NSLog(@"don't update stack vc");
+        [self setStackState];
+    } 
+}
+
+- (void)setStackState
+{
+    if (_stackViewController.state != kTableView) {
+        [_stackViewController setState:kTableView];
+        [self.view addSubview:_stackViewController.view];
+        [_stackViewController.view setFrameX:-320.0];
     }
-    
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -479,8 +484,7 @@ typedef enum {
         _lastRowWasVisible = NO;
     }
 
-    [_stackViewController prepareForAnimationState:kTableView withParentView:self.view];
-    
+    [self setStackState];
     /*
      NSLog(@"frame %@",NSStringFromCGRect(self.tableView.frame));
      NSLog(@"content size %@",NSStringFromCGSize(self.tableView.contentSize));

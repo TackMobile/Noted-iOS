@@ -20,10 +20,12 @@
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
-#define DEBUG_ANIMATIONS    0
+#define SECZERO_ROWZERO_TAG 687
+
+#define DEBUG_ANIMATIONS    1
 
 static const float  kAnimationDuration      = 0.5;
-static const float  kDebugAnimationDuration = 2.5;
+static const float  kDebugAnimationDuration = 4.0;
 static const float  kCellHeight             = 66.0;
 
 @interface AnimationStackViewController ()
@@ -57,6 +59,7 @@ static const float  kCellHeight             = 66.0;
 
 @synthesize noteViews=_noteViews;
 @synthesize tableView=_tableView;
+@synthesize state=_state;
 @synthesize delegate;
 @synthesize sectionZeroRowOneVisible = _sectionZeroRowOneVisible;
 
@@ -107,7 +110,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)prepareForAnimationState:(StackState)state withParentView:(UIView *)view
 {
-    _state = state;
+    //_state = state;
     
     if (!_animating) {
         [self.view setFrameX:-self.view.bounds.size.width];
@@ -135,21 +138,24 @@ static const float  kCellHeight             = 66.0;
     
     NSLog(@"Number of visible rows: %d",visibleIndexPaths.count);
     NSLog(@"Section zero visible: %s (%d)",_sectionZeroCellIndex != -1 ? "yes":"no",_sectionZeroCellIndex);
+    NSLog(@"has dummy model for sec 0 row 0 ---> %s",[_noteEntryModels indexOfObject:[NSNull null]] != NSNotFound ? "yes" : "no");
     
     [self trimCellViews];
     
-    NSLog(@"Number of note views: %d",_noteViews.count);
-    if (visibleIndexPaths.count != _noteViews.count) {
-        for (UIView *view in _noteViews) {
-            NSLog(@"is kind: %@",[view class]);
-        }
-    }
+    /*
+     NSLog(@"Number of note views: %d",_noteViews.count);
+     if (visibleIndexPaths.count != _noteViews.count) {
+     for (UIView *view in _noteViews) {
+     NSLog(@"is kind: %@",[view class]);
+     }
+     }
+     */
  
     [self updateCellsWithModels];
 
-    if (![[self.view superview] isEqual:view]) {
-        [view addSubview:self.view];
-    }
+    //if (![[self.view superview] isEqual:view]) {
+      //  [view addSubview:self.view];
+    //}
 }
 
 #pragma mark Pinch to collapse animation
@@ -232,7 +238,7 @@ static const float  kCellHeight             = 66.0;
         
         UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
         UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
-        
+        NSLog(@"crash after here? [%d]",__LINE__);
         NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
         if (!textView) { // if it doesn't have it, add it and hide title text
             textView = [self makeFulltextView];
@@ -416,25 +422,75 @@ static const float  kCellHeight             = 66.0;
 
 #pragma mark Tap to open animation
 
-/*
- - (void)prepareForExpandAnimationForView:(UIView *)view offsetForSectionZero:(BOOL)offset
- {
- NSArray *visible = [self visibleNoteSectionRows];
- if (visible.count==0) {
- return;
- }
- 
- _shouldOffset = offset;
- [self update];
- 
- 
- // this can be called any time when iCloud updates
- // so let's not hide it if it's currently animating
- if (!_animating) {
- [self.view setFrameX:-320.0];
- }
- }
- */
+- (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
+{
+    //StackState newState = [self.view superview]
+    [self prepareForAnimationState:_state withParentView:self.view.superview];
+    [self.view setFrameX:0.0];
+    
+    [self setIndexOfSelectedNoteView:selectedIndexPath.row];
+    //NSLog(@"%d",_selectedViewIndex);
+    _animating = YES;
+    
+    NSLog(@"count of all cells: %d",_noteViews.count);
+    NSLog(@"count of note entry cells: %d",[self noteEntryViewsCount]);
+    NSLog(@"count of visible rows: %d",[_tableView indexPathsForVisibleRows].count);
+    
+    if (!_sectionZeroRowOneVisible) {
+        NSAssert(_noteViews.count == [self noteEntryViewsCount], @"If section zero isn't visible, counts should be equal");
+    }
+    
+    int noteViewIndex = 0;
+    if ([_tableView indexPathsForVisibleRows].count > _noteViews.count) {
+        NSLog(@"uh oh!");
+    }
+    for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
+        NoteEntryCell *modelCellView = (NoteEntryCell* )[_tableView cellForRowAtIndexPath:indexPath];
+        
+        NoteEntryCell *noteCell = [_noteViews objectAtIndex:noteViewIndex];
+        CGRect frame = [_tableView convertRect:modelCellView.frame toView:[_tableView superview]];
+        noteCell.frame = frame;
+        
+        NSLog(@"Note view class: %@, frame will be %@",[noteCell class],NSStringFromCGRect(frame));
+        
+        if (noteCell.tag == SECZERO_ROWZERO_TAG) {
+            
+            [noteCell setBackgroundColor:[UIColor purpleColor]];
+            [noteCell setAlpha:0.5];
+            int64_t delayInSeconds = 2.0;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                [noteCell setAlpha:0.0];
+            });
+            
+            noteViewIndex ++;
+            continue;
+        }
+        
+        UIView *shadow = [noteCell viewWithTag:56];
+        float shadowHeight = 7.0;
+        [shadow setFrameY:-shadowHeight];
+        [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
+        
+        UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
+        [circle setHidden:NO];
+        
+        BOOL isSelectedCell = _selectedViewIndex == noteViewIndex;
+        
+        if (isSelectedCell) {
+            NSLog(@"selected view is at index %d",_selectedViewIndex);
+            [self openCurrentNoteWithCompletion:completeBlock];
+        } else {
+            BOOL isBelow = noteViewIndex > _selectedViewIndex;
+            BOOL isLastCell = [self noteIsLast:noteViewIndex];
+            
+            [self openNote:noteCell isLast:isLastCell isBelow:isBelow];
+        }
+        
+        noteViewIndex ++;
+    }
+    
+}
 
 - (NSRange)rangeForNoteViews
 {
@@ -495,80 +551,7 @@ static const float  kCellHeight             = 66.0;
     return allVisibleRows;
 }
 
-- (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
-{
-    
-    [self.view setFrameX:0.0];
-    
-    [self setIndexOfSelectedNoteView:selectedIndexPath.row];
-    //NSLog(@"%d",_selectedViewIndex);
-    _animating = YES;
-    
-    NSLog(@"count of all cells: %d",_noteViews.count);
-    NSLog(@"count of note entry cells: %d",[self noteEntryViewsCount]);
-    NSLog(@"count of visible rows: %d",[_tableView indexPathsForVisibleRows].count);
-    if ([_tableView indexPathsForVisibleRows].count > _noteViews.count) {
-        NSLog(@"you will get a crash on this!");
-    }
-    
-    int noteViewIndex = 0;
-    for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
-        NoteEntryCell *modelCellView = (NoteEntryCell* )[_tableView cellForRowAtIndexPath:indexPath];
-        
-        NoteEntryCell *noteCell = [_noteViews objectAtIndex:noteViewIndex];
-        CGRect frame = [_tableView convertRect:modelCellView.frame toView:[_tableView superview]];
-        noteCell.frame = frame;
-        
-        for (UIView *view in _noteViews) {
-            NSLog(@"is kind: %@",[view class]);
-        }
-        
-        if (![noteCell isKindOfClass:[NoteEntryCell class]]) {
-            
-            [noteCell setBackgroundColor:[UIColor purpleColor]];
-            [noteCell setAlpha:0.5];
-            int64_t delayInSeconds = 2.0;
-            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                [noteCell setAlpha:0.0];
-            });
-            
-            noteViewIndex ++;
-            continue;
-        }
-        
-        UIView *shadow = [noteCell viewWithTag:56];
-        float shadowHeight = 7.0;
-        [shadow setFrameY:-shadowHeight];
-        [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
-        
-        UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
-        [circle setHidden:NO];
-        
-        //NSLog(@"%@",modelCellView.relativeTimeText.text);
-        
-        //int noteViewIndex = [_noteViews indexOfObject:noteCell];
 
-        
-        BOOL isLastCell = [self noteIsLast:noteViewIndex];
-        BOOL isSelectedCell = _selectedViewIndex == noteViewIndex;
-        if (isSelectedCell) {
-            //_selectedViewIndex = noteViewIndex;
-            NSLog(@"selected view is at index %d",_selectedViewIndex);
-        }
-        
-        BOOL isBelow = noteViewIndex > _selectedViewIndex;
-        
-        if (isSelectedCell) {
-            [self openCurrentNoteWithCompletion:completeBlock];
-        } else {
-            [self openNote:noteCell isLast:isLastCell isBelow:isBelow];
-        }
-        
-        noteViewIndex ++;
-    }
-    
-}
 
 - (float)animationDuration
 {
@@ -771,7 +754,8 @@ static const float  kCellHeight             = 66.0;
 // either the visible cells in the tableview, or if
 // viewing the ntoestack vc, the range of views to left or right
 //
-static int sectionZeroViewCount;
+
+
 - (void)trimCellViews
 {
     if (!_sectionZeroRowOneVisible) {
@@ -792,7 +776,9 @@ static int sectionZeroViewCount;
         NSLog(@"trimmed %d",staleViews.count);
         [_noteViews removeObjectsInArray:staleViews];
     }
-    
+    if (_noteViews.count < _noteEntryModels.count && _sectionZeroRowOneVisible) {
+        NSLog(@"observe!");
+    }
     NSLog(@"after trimming, _noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
         
     float y = 0.0;
@@ -803,10 +789,10 @@ static int sectionZeroViewCount;
     while (cellIndex<[_tableView indexPathsForVisibleRows].count) {
         
         UIView *noteView = nil;
-        if (cellIndex ==_sectionZeroCellIndex && _sectionZeroRowOneVisible){
+        int secZeroViewIndex = [_noteViews indexOfObject:[self.view viewWithTag:SECZERO_ROWZERO_TAG]];
+        if (secZeroViewIndex == NSNotFound && _sectionZeroRowOneVisible) {//cellIndex ==_sectionZeroCellIndex && _sectionZeroRowOneVisible){
             noteView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
-            sectionZeroViewCount++;
-            NSLog(@"sectionZeroViewCount: %d",sectionZeroViewCount);
+            noteView.tag = SECZERO_ROWZERO_TAG;
         } else {
             NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
             noteView = (NoteEntryCell *)[views lastObject];
@@ -823,13 +809,20 @@ static int sectionZeroViewCount;
         //[self debugView:noteCell.subtitleLabel color:[UIColor greenColor]];
         
         [self.view addSubview:noteView];
-        //[(NoteEntryCell *)noteView].contentView.backgroundColor = [UIColor whiteColor];
+
         y += noteView.frame.size.height;
-        [_noteViews addObject:noteView];
+        if (noteView.tag == SECZERO_ROWZERO_TAG) {
+            [_noteViews insertObject:noteView atIndex:0];
+        } else {
+            [_noteViews addObject:noteView];
+        }
+        
         cellIndex++;
     }
     
-    
+    if ([_tableView indexPathsForVisibleRows].count != _noteViews.count) {
+        NSLog(@"dangit!!!!");
+    }
 }
 
 - (BOOL)removeSectionZeroRowOne
@@ -947,6 +940,9 @@ static int sectionZeroViewCount;
 {
     BOOL yeppers = index == _noteViews.count-1;
     if (yeppers) {
+        if (index==4) {
+            NSLog(@"uh oh again");
+        }
         NSLog(@"reporting that index %d is last",index);
     }
     return yeppers;

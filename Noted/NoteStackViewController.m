@@ -204,8 +204,16 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.previousNoteEntry = [model previousNoteInStackFromIndex:currentIndex];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:currentIndex];
     
-    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
-    //[_stackVC prepareForCollapseAnimationForView:self.view];
+    [self setStackState];
+}
+
+- (void)setStackState
+{
+    if (_stackVC.state != kNoteStack) {
+        [_stackVC setState:kNoteStack];
+        [self.view addSubview:_stackVC.view];
+        [_stackVC.view setFrameX:-320.0];
+    }
 }
 
 #pragma mark Pinch gesture to collapse notes stack

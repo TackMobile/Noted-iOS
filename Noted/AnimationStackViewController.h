@@ -22,6 +22,7 @@ typedef void(^animationCompleteBlock)();
 
 @interface AnimationStackViewController : UIViewController
 
+@property (nonatomic, assign) StackState state;
 @property (nonatomic, assign) BOOL sectionZeroRowOneVisible;
 @property (nonatomic, strong) NSArray *noteViews;
 @property (nonatomic, strong) UITableView *tableView;
