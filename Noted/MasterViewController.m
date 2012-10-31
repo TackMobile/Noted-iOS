@@ -1163,7 +1163,7 @@ self.navigationItem.rightBarButtonItem.enabled = YES;
                 [_query enableUpdates];
             });
         }];         
-    }];
+    }]; //
 }
 
 - (void)gestureRecognizer:(NoteTableGestureRecognizer *)gestureRecognizer needsDiscardRowAtIndexPath:(NSIndexPath *)indexPath {
