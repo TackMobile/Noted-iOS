@@ -176,6 +176,8 @@ static const float  kCellHeight             = 66.0;
     
     [self collapseCurrentNoteWithScale:scale];
     [self collapseStackedNotesForScale:scale];
+    
+    NSLog(@"num note views: %d",_noteViews.count);
 }
 
 - (void)collapseStackedNotesForScale:(CGFloat)scale
@@ -761,7 +763,22 @@ static const float  kCellHeight             = 66.0;
     if (!_sectionZeroRowOneVisible) {
         BOOL removed = [self removeSectionZeroRowOne];
         NSLog(@"Removed [0,0] view: %s",removed ? "yes" : "no");
-        //_sectionZeroCellIndex = -1;
+    } else {
+        // replace with placeholder UIView
+        //UIView *firstView = (UIView *)[_noteViews objectAtIndex:_sectionZeroCellIndex];
+        int secZeroViewIndex = [_noteViews indexOfObject:[self.view viewWithTag:SECZERO_ROWZERO_TAG]];
+        if (secZeroViewIndex == NSNotFound) {
+            UIView *newPlaceholder = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
+            newPlaceholder.tag = SECZERO_ROWZERO_TAG;
+            if (_noteViews.count>0) {
+                [_noteViews replaceObjectAtIndex:_sectionZeroCellIndex withObject:newPlaceholder];
+            } else {
+                [_noteViews addObject:newPlaceholder];
+            }
+        
+        } else {
+            [_noteViews replaceObjectAtIndex:_sectionZeroCellIndex withObject:[self.view viewWithTag:SECZERO_ROWZERO_TAG]];
+        }
     }
     
     NSLog(@"_noteViews count: %d, noteModels count: %d",_noteViews.count,_noteEntryModels.count);
@@ -789,10 +806,13 @@ static const float  kCellHeight             = 66.0;
     while (cellIndex<[_tableView indexPathsForVisibleRows].count) {
         
         UIView *noteView = nil;
-        int secZeroViewIndex = [_noteViews indexOfObject:[self.view viewWithTag:SECZERO_ROWZERO_TAG]];
-        if (secZeroViewIndex == NSNotFound && _sectionZeroRowOneVisible) {//cellIndex ==_sectionZeroCellIndex && _sectionZeroRowOneVisible){
-            noteView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
-            noteView.tag = SECZERO_ROWZERO_TAG;
+        //int secZeroViewIndex = [_noteViews indexOfObject:[self.view viewWithTag:SECZERO_ROWZERO_TAG]];
+        if (cellIndex ==_sectionZeroCellIndex){//secZeroViewIndex == NSNotFound && _sectionZeroRowOneVisible) {//cellIndex ==_sectionZeroCellIndex &&
+            cellIndex++;
+            continue;
+            //_sectionZeroRowOneVisible){
+            //noteView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
+            //noteView.tag = SECZERO_ROWZERO_TAG;
         } else {
             NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
             noteView = (NoteEntryCell *)[views lastObject];
