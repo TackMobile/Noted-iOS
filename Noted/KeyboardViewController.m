@@ -275,16 +275,14 @@
 
 - (void)handleOneFingerSwipeUp:(UISwipeGestureRecognizer *)gesture
 {
-    self.scrollView.scrollEnabled = NO;
-    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
+    self.scrollView.scrollEnabled = NO; //prevents accidental scrolling to other keyboards
     capitalized = YES;
     [self keyHitDetected:firstTouch];
 }
 
 - (void)handleTwoFingerSwipeLeft:(UISwipeGestureRecognizer *)gesture
 {
-    self.scrollView.scrollEnabled = NO;
-    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
+    self.scrollView.scrollEnabled = NO; //prevents accidental scrolling to other keyboards
     [undoTimer invalidate];
     undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(undoEdit) userInfo:nil  repeats:YES];
     [self.delegate undoEdit];
@@ -292,8 +290,7 @@
 
 - (void)handleTwoFingerSwipeRight:(UISwipeGestureRecognizer *)gesture
 {
-    self.scrollView.scrollEnabled = NO;
-    NSLog(@"scroll? %d", self.scrollView.isScrollEnabled);
+    self.scrollView.scrollEnabled = NO; //prevents accidental scrolling to other keyboards
     [undoTimer invalidate];
     undoTimer = [NSTimer scheduledTimerWithTimeInterval:.75 target:delegate selector:@selector(redoEdit) userInfo:nil  repeats:YES];
     [self.delegate redoEdit];
