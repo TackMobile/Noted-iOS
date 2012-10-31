@@ -270,6 +270,7 @@
 - (void)handleOneFingerSwipeDown:(UISwipeGestureRecognizer *)gesture
 {
     returnLine = YES;
+    self.scrollView.scrollEnabled = NO; //prevents acidental scrolling to other keyboards
     [self keyHitDetected:firstTouch];
 }
 
@@ -277,7 +278,7 @@
 {
     self.scrollView.scrollEnabled = NO; //prevents accidental scrolling to other keyboards
     capitalized = YES;
-    [self keyHitDetected:firstTouch];
+    [self keyHitDetected:[gesture locationInView:self.view]];
 }
 
 - (void)handleTwoFingerSwipeLeft:(UISwipeGestureRecognizer *)gesture
