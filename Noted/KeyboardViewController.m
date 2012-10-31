@@ -298,6 +298,9 @@
 
 - (void)handleTap:(UITapGestureRecognizer *)gesture
 {
+    if (self.scrollView.isDragging) { //disable typing if the keyboard is scrolling/switching
+        return;
+    }
     CGPoint currentLocation = [gesture locationInView:self.view];
     [self keyHitDetected:currentLocation];
     
