@@ -407,7 +407,7 @@
 	// Loop through every key in the given keyboard to find the first one being touched.
 	// It is possible that no elements in this section are being touched.
     
-	NSDictionary *keyboardKeys = [self.activeKeyboard objectForKey:@"keys"];
+	NSDictionary *keyboardKeys = [self.activeKeyboard objectForKey:@"keys"]; //comment
 	NSEnumerator *enumerator = [keyboardKeys keyEnumerator];
 	NSMutableString *aSingleKey;
 	
