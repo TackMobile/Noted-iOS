@@ -142,7 +142,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.optionsViewController.delegate = self;
     self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
     self.optionsViewController.view.hidden = YES;
-    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view 
+    [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
@@ -916,6 +916,30 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 #pragma mark - Keyboard notifications
 
+- (void)keyboardWasShown:(NSNotification*)aNotification
+{
+    
+    NSDictionary* info = [aNotification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size; //frame of the keyboard
+    
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+    self.currentNoteViewController.scrollView.contentInset = contentInsets;
+    self.currentNoteViewController.scrollView.scrollIndicatorInsets = contentInsets;
+    
+    CGRect aRect = self.view.frame;
+    aRect.size.height -= kbSize.height; //the size of the whole screen minus the size of the keyboard
+    self.currentNoteViewController.textView.frame = CGRectMake(0, 0, aRect.size.width, aRect.size.height); //sets the frame of the textview to the size of the screen minus the size of the keyboard
+    
+}
+
+// Called when the UIKeyboardWillHideNotification is sent
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification
+{
+    
+    self.currentNoteViewController.textView.frame = self.view.frame; //returns the size of the textview to the full screen size
+}
+
+
 - (void) shiftViewUpForKeyboard: (NSNotification*) theNotification;
 {
     // Step 1: Get the size of the keyboard.
@@ -943,9 +967,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)configureKeyboard
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil]; 
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardDidShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
     
     BOOL useSystem = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]; //user option to use standard or custom keyboard. switch button in options view
     if (!useSystem) {
@@ -956,7 +987,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
         self.keyboardViewController.delegate = self;
         //Register for notifications so the keyboard load will push any text into view
-        [[NSNotificationCenter defaultCenter] addObserver: self
+       /* [[NSNotificationCenter defaultCenter] addObserver: self
                                                  selector: @selector(shiftViewUpForKeyboard:)
                                                      name: UIKeyboardWillShowNotification
                                                    object: nil];
@@ -964,7 +995,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         [[NSNotificationCenter defaultCenter] addObserver: self
                                                  selector: @selector(shiftViewDownAfterKeyboard:)
                                                      name: UIKeyboardWillHideNotification
-                                                   object: nil];
+                                                   object: nil]; */
         
         self.currentNoteViewController.textView.inputView = self.keyboardViewController.view;
         
@@ -1036,7 +1067,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NSLog(@"Redo Detected");
 }
 
--(void)panKeyboard:(CGPoint)point { //too sensitive need to fix
+-(void)panKeyboard:(CGPoint)point {
     CGRect frame = self.keyboardViewController.view.frame;
     frame.origin.y =  0 + point.y;
     if (frame.origin.y < 0) frame.origin.y = 0;
@@ -1143,6 +1174,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+
+
+
+
 
 
 @end
