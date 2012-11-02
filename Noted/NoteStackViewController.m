@@ -88,6 +88,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize nextNoteDocument;
 @synthesize mailVC,messageVC;
 @synthesize delegate;
+@synthesize keyboard, originalLocation, originalKeyboardY;
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC
 {
@@ -917,36 +918,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 #pragma mark - Keyboard notifications
 
-- (void)keyboardWasShown:(NSNotification*)aNotification
-{
-    
-    NSDictionary* info = [aNotification userInfo];
-    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size; //frame of the keyboard
-    //CGPoint kbOrigin = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].origin;
-    
-    
-    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
-    self.currentNoteViewController.scrollView.contentInset = contentInsets;
-    self.currentNoteViewController.scrollView.scrollIndicatorInsets = contentInsets;
-    
-    CGRect aRect = self.view.frame;
-    aRect.size.height -= kbSize.height; //the size of the whole screen minus the size of the keyboard
-    self.currentNoteViewController.textView.frame = CGRectMake(0, 0, aRect.size.width, aRect.size.height); //sets the frame of the textview to the size of the screen minus the size of the keyboard
-    
-    UIPanGestureRecognizer *dismiss = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
-    [self.view addGestureRecognizer:dismiss];
-
-    
-    
-}
-
-// Called when the UIKeyboardWillHideNotification is sent
-- (void)keyboardWillBeHidden:(NSNotification*)aNotification
-{
-    
-    self.currentNoteViewController.textView.frame = self.view.frame; //returns the size of the textview to the full screen size
-}
-
 
 - (void) shiftViewUpForKeyboard: (NSNotification*) theNotification;
 {
@@ -962,19 +933,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     
 }
-
--(void)dismissKeyboard: (UIPanGestureRecognizer *)gesture{
-    if (gesture.state == UIGestureRecognizerStateChanged) {
-        if ([gesture translationInView:self.view].y >= self.currentNoteViewController.textView.frame.size.height) {
-            [self.currentNoteViewController.textView resignFirstResponder];
-        }
-    }
-
-    
-}
-
-
-
 - (void) shiftViewDownAfterKeyboard:(NSNotification*)theNotification;
 {
     // Step 1: Adjust the bottom content inset of your scroll view by the keyboard height.
@@ -986,18 +944,121 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
+
+- (void)textfieldWasSelected:(NSNotification *)notification {
+    self.currentNoteViewController.textView = notification.object;
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+
+    keyboard.hidden = NO;
+}
+
+
+
+
+- (void)keyboardDidShow:(NSNotification *)notification {
+    NSDictionary* info = [notification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    self.currentNoteViewController.textView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - kbSize.height); //sets the size of the scrolling textview equal to the height of the whole screen minus the height of the keyboard
+    
+    if(keyboard) return;
+    
+    UIWindow* tempWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:1];
+    for(int i = 0; i < [tempWindow.subviews count]; i++) {
+        UIView *possibleKeyboard = [tempWindow.subviews objectAtIndex:i];
+        if([[possibleKeyboard description] hasPrefix:@"<UIPeripheralHostView"] == YES){
+            keyboard = possibleKeyboard;
+            return;
+        }
+    }
+}
+
+-(void)keyboardDismissed{
+    self.currentNoteViewController.textView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //resets the height of the textview to the full height of the screen
+}
+
+-(void)panGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint location = [gestureRecognizer locationInView:[self view]];
+    CGPoint velocity = [gestureRecognizer velocityInView:self.view];
+    
+    if(gestureRecognizer.state == UIGestureRecognizerStateBegan){
+        originalKeyboardY = keyboard.frame.origin.y;
+        NSLog(@"originalKeyboardY %d", originalKeyboardY);
+    }
+    
+    if(gestureRecognizer.state == UIGestureRecognizerStateEnded){
+        if (velocity.y > 0 && location.y >= keyboard.frame.origin.y) { //if panning down then call method to animate keyboard off the screen. only animates if user pans past keyboard
+            [self animateKeyboardOffscreen];
+        }else{ //if panning up then call method to animate keyboard back on the screen
+            [self animateKeyboardReturnToOriginalPosition];
+        }
+        return; //leaves this method if gesture ended if not continue below
+    } 
+    
+    CGFloat spaceAboveKeyboard = self.view.bounds.size.height - (keyboard.frame.size.height);
+    if (location.y < spaceAboveKeyboard) {
+        return; //return if touch is the keyboard or below
+    }
+    
+    CGRect newFrame = keyboard.frame;
+    CGFloat newY = originalKeyboardY + (location.y - spaceAboveKeyboard);
+    newY = MAX(newY, originalKeyboardY);
+    newFrame.origin.y = newY;
+    [keyboard setFrame: newFrame];
+    
+    
+    if (location.y >= keyboard.frame.origin.y) { //make sure the touch is at or below where the keyboard is
+        CGRect textFrame = self.view.frame;
+        textFrame.size.height = location.y; //changes the height of the textbox to the y value of the location of the touch/pan
+        [self.currentNoteViewController.textView setFrame:textFrame];
+    }
+    
+    
+    
+}
+
+- (void)animateKeyboardOffscreen {
+    [UIView animateWithDuration:0.5
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         CGRect newFrame = keyboard.frame;
+                         newFrame.origin.y = keyboard.window.frame.size.height;
+                         [keyboard setFrame: newFrame];
+                         
+                         
+
+                     }
+     
+                     completion:^(BOOL finished){
+                         keyboard.hidden = YES;
+                         [self.currentNoteViewController.textView resignFirstResponder];
+                     }];
+}
+
+- (void)animateKeyboardReturnToOriginalPosition {
+    [UIView beginAnimations:nil context:NULL];
+    CGRect newFrame = keyboard.frame;
+    newFrame.origin.y = originalKeyboardY;
+    [keyboard setFrame: newFrame];
+    [UIView commitAnimations];
+}
+
+
 - (void)configureKeyboard
 {
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWasShown:)
-                                                 name:UIKeyboardDidShowNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillBeHidden:)
-                                                 name:UIKeyboardWillHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textfieldWasSelected:) name:UITextFieldTextDidBeginEditingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDismissed) name:UIKeyboardWillHideNotification object:nil];
+
     
     BOOL useSystem = YES; //[[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD]; //user option to use standard or custom keyboard. switch button in options view. for now......system keyboard only
     if (!useSystem) { //custom keyboard
@@ -1025,6 +1086,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
         self.currentNoteViewController.textView.inputView = nil;
         [self.currentNoteViewController.textView setKeyboardAppearance:UIKeyboardAppearanceAlert];
+        UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+        //panRecognizer.delegate = self;
+        [self.view addGestureRecognizer:panRecognizer];
+
     }
     
     [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardDidHideNotification object:nil queue:nil usingBlock:^(NSNotification *note){

@@ -42,6 +42,10 @@ typedef void(^TMDismissalBlock)(float);
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
+@property (nonatomic, strong) UIView *keyboard;
+@property int originalKeyboardY;
+@property int originalLocation;
+
 
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC;
