@@ -512,7 +512,7 @@ typedef enum {
     return title;
 }
 
-- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
     
     _selectedIndexPath = indexPath;
     NSLog(@"selected index row: %d",_selectedIndexPath.row);
