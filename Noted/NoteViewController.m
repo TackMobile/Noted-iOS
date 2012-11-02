@@ -292,6 +292,9 @@
 
 }
 
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+}
+
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
     CGPoint location = [touch locationInView:self.view];
@@ -322,5 +325,7 @@
     // Return YES to prevent this gesture from interfering with, say, a pan on a map or table view, or a tap on a button in the tool bar.
     return YES;
 }
+
+
 
 @end

@@ -166,6 +166,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                          }];
     }];
     
+    
 }
 
 // on first view of note as well as right after creating note by pan getsure
@@ -921,6 +922,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     NSDictionary* info = [aNotification userInfo];
     CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size; //frame of the keyboard
+    //CGPoint kbOrigin = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].origin;
+    
     
     UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
     self.currentNoteViewController.scrollView.contentInset = contentInsets;
@@ -930,10 +933,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     aRect.size.height -= kbSize.height; //the size of the whole screen minus the size of the keyboard
     self.currentNoteViewController.textView.frame = CGRectMake(0, 0, aRect.size.width, aRect.size.height); //sets the frame of the textview to the size of the screen minus the size of the keyboard
     
-    UISwipeGestureRecognizer *dismiss = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
-    dismiss.direction = UISwipeGestureRecognizerDirectionDown;
-    dismiss.numberOfTouchesRequired = 2;
+    UIPanGestureRecognizer *dismiss = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
     [self.view addGestureRecognizer:dismiss];
+
+    
     
 }
 
@@ -960,9 +963,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
--(void)dismissKeyboard{
-    [self.currentNoteViewController.textView resignFirstResponder];
+-(void)dismissKeyboard: (UIPanGestureRecognizer *)gesture{
+    if (gesture.state == UIGestureRecognizerStateChanged) {
+        if ([gesture translationInView:self.view].y >= self.currentNoteViewController.textView.frame.size.height) {
+            [self.currentNoteViewController.textView resignFirstResponder];
+        }
+    }
+
+    
 }
+
 
 
 - (void) shiftViewDownAfterKeyboard:(NSNotification*)theNotification;
