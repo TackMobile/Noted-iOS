@@ -98,7 +98,7 @@
     [self setPageIndicator:nil];
     
     [self setKeyDisplay:nil];
-    [self setScrollView:nil];
+    [self setScrollView:nil]; ///comment
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
@@ -400,20 +400,20 @@
     
 }
 
--(void)keyHitDetected:(CGPoint)currentLocation {
+-(void)keyHitDetected:(CGPoint)currentLocation  {
     
     NSLog(@"current location: x=%f, y=%f", currentLocation.x, currentLocation.y);
 	
 	// Loop through every key in the given keyboard to find the first one being touched.
 	// It is possible that no elements in this section are being touched.
     
-	NSDictionary *keyboardKeys = [self.activeKeyboard objectForKey:@"keys"];
+	NSDictionary *keyboardKeys = [self.activeKeyboard objectForKey:@"keys"]; //comment
 	NSEnumerator *enumerator = [keyboardKeys keyEnumerator];
 	NSMutableString *aSingleKey;
 	
     
     
-	while ((aSingleKey = [enumerator nextObject])) { //this is why the keyboard is so slow...trying to figure out a more efficent way to do this
+	while ((aSingleKey = [enumerator nextObject])) {
 		
 		KeyboardKey *theKey = [keyboardKeys objectForKey:aSingleKey];
 		// There are instances when an interface element is corrupt.  Make sure it has a name before proceeding.
@@ -496,7 +496,7 @@
                 }else {
                     NSString *newLabel = [key.label uppercaseString];
                     [delegate  printKeySelected:newLabel];
-                    self.keyDisplay.text = newLabel;
+                    self.keyDisplay.text = newLabel; //letter preview uppercase
                     CGRect frame = key.frame;
                     frame.origin.y = frame.origin.y - 54;
                     self.keyDisplay.frame = frame;
@@ -517,7 +517,7 @@
                 capitalized = YES;
             }else {
                 [delegate printKeySelected:key.label];
-                self.keyDisplay.text = key.label;
+                self.keyDisplay.text = key.label; //letter preview...lowercase
                 CGRect frame = key.frame;
                 frame.origin.y = frame.origin.y - 54;
                 self.keyDisplay.frame = frame;

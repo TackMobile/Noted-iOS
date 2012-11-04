@@ -515,7 +515,7 @@ typedef enum {
     return title;
 }
 
-- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
     
     _selectedIndexPath = indexPath;
     NSLog(@"selected index row: %d",_selectedIndexPath.row);
@@ -532,10 +532,16 @@ typedef enum {
             // new note entry should always appear at row 0, right?
             NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
             [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
         }];
         _noteCount = model.currentNoteEntries.count;
         NSLog(@"After count: %d",model.currentNoteEntries.count);
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
+        
+        
+       
+        
+        
         
         [self listDidUpdate];
         

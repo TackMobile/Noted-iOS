@@ -79,7 +79,7 @@
     
     UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
     BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
-    [keyboardSwitch setOn:isOn];
+    [keyboardSwitch setOn:NO];
     
     UISwitch *statusBarSwitch = (UISwitch *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
     BOOL hide = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
