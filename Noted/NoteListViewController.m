@@ -125,11 +125,7 @@ typedef enum {
     if (_viewingNoteStack && yOffset>0) {
         _viewingNoteStack = NO;
         yOffset = 0.0;
-        int64_t delayInSeconds = 1.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
-        });
+        [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
     }
 }
 
@@ -537,12 +533,7 @@ typedef enum {
         _noteCount = model.currentNoteEntries.count;
         NSLog(@"After count: %d",model.currentNoteEntries.count);
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
-        
-        
-       
-        
-        
-        
+
         [self listDidUpdate];
         
         
