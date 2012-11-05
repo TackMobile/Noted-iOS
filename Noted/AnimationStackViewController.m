@@ -56,8 +56,6 @@ static const float  kCellHeight             = 66.0;
     NSMutableArray *originFrames;
 }
 
-@property (weak, nonatomic) IBOutlet UIView *bottomExtender;
-
 @end
 
 @implementation AnimationStackViewController
@@ -359,7 +357,8 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
-    if (index==_selectedViewIndex) {
+    BOOL sectionZeroRowZero = index == 0 && _sectionZeroRowOneVisible;
+    if (index==_selectedViewIndex || sectionZeroRowZero) {
         return;
     }
     
@@ -379,18 +378,40 @@ static const float  kCellHeight             = 66.0;
     } else {
         newY = startY + diff;
     }
-
-    CGRect newFrame = CGRectMake(0.0, newY, 320.0, 66.0);
-    [noteView setFrame:newFrame];
     
     [self updateSubviewsForNote:noteView scaled:YES];
+    
+    float newHeight = kCellHeight;
+    
+    if ([self noteIsLast:[self indexOfNoteView:noteView accountForSectionZero:NO]]) {
+        
+        UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
+        UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
+        NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
+        if (!textView) { // if it doesn't have it, add it and hide title text
+            textView = [self makeFulltextView];
+            textView.text = noteEntry.text;
+            textView.textColor = subtitle.textColor;
+            [noteView.contentView addSubview:textView];
+        }
+        
+        [textView setHidden:NO];
+        textView.alpha = 1.0;
+        [subtitle setHidden:YES];
+        
+        newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
+    }
+    
+    
+    CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
+    [noteView setFrame:newFrame];
     
     return;
     
     int offset = -(_selectedViewIndex - index);
     float currentNoteOffset = 0.0;
     
-    float newHeight = kCellHeight;
+    newHeight = kCellHeight;
     if (offset<0) {
         currentNoteOffset = offset*kCellHeight;
         newY = CGRectGetMinY([self currentNote].frame) + currentNoteOffset;
@@ -456,10 +477,6 @@ static const float  kCellHeight             = 66.0;
     }
     
     _centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
-    
-    float safety = 0.0;
-    [self debugView:self.bottomExtender color:[UIColor redColor]];
-    self.bottomExtender.frame = CGRectMake(0.0, CGRectGetMaxY(_centerNoteFrame)-safety, self.view.bounds.size.width, self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame)+safety);
     
     [currentNoteCell setFrame:_centerNoteFrame];
 }
@@ -1073,21 +1090,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     NoteEntryCell *lastCell = [_noteViews lastObject];
-    UIColor *color = lastCell.contentView.backgroundColor;
-    [self.bottomExtender setBackgroundColor:color];
-    if (DEBUG_ANIMATIONS) {
-        [self.bottomExtender setBackgroundColor:[UIColor redColor]];
-        CGRect frame = self.bottomExtender.frame;
-        UILabel *label = (UILabel *)[self.bottomExtender viewWithTag:567];
-        if (!label) {
-            label = [[UILabel alloc] initWithFrame:CGRectMake(10.0, frame.size.height-40.0, 320.0, 40.0)];
-            label.text = @"bottom extender view";
-            label.tag = 567;
-            label.backgroundColor = [UIColor clearColor];
-        }
-        
-        [self.bottomExtender addSubview:label];
-    }
+    //UIColor *color = lastCell.contentView.backgroundColor;
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
 }
