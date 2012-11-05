@@ -26,7 +26,7 @@
 #define DEBUG_ANIMATIONS    1
 
 static const float  kAnimationDuration      = 0.5;
-static const float  kDebugAnimationDuration = 1.0;
+static const float  kDebugAnimationDuration = 0.5;
 static const float  kCellHeight             = 66.0;
 
 @interface AnimationStackViewController ()
@@ -111,7 +111,7 @@ static const float  kCellHeight             = 66.0;
     NSLog(@"Selected view index: %d",_selectedViewIndex);
 }
 
-- (void)prepareForAnimation//State:(StackState)state withParentView:(UIView *)view
+- (void)prepareForAnimation  
 {
     if (!_animating) {
         [self.view setFrameX:-self.view.bounds.size.width];
@@ -286,19 +286,7 @@ static const float  kCellHeight             = 66.0;
                 [self.view insertSubview:note belowSubview:currentNote];
             } else {
                 if (prevNote) {
-                    
                     [self.view insertSubview:note belowSubview:prevNote];
-                    if (offsetIndex==1) {
-                        NSLog(@"note at index %d's frame is now %@",index,NSStringFromCGRect(frame));
-                        [self debugView:note color:[UIColor blueColor]];
-                    }
-                    if (offsetIndex==2) {
-                        [self debugView:note color:[UIColor orangeColor]];
-                    }
-                    if (offsetIndex==3) {
-                        [self debugView:note color:[UIColor greenColor]];
-                    }
-                    
                 }
             }
             prevNote = note;
@@ -624,9 +612,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     int noteViewIndex = 0;
-    if ([_tableView indexPathsForVisibleRows].count > _noteViews.count) {
-        NSLog(@"uh oh!");
-    }
+    
     for (NSIndexPath *indexPath in [_tableView indexPathsForVisibleRows]) {
         NoteEntryCell *modelCellView = (NoteEntryCell* )[_tableView cellForRowAtIndexPath:indexPath];
         
@@ -661,7 +647,7 @@ static const float  kCellHeight             = 66.0;
         BOOL isSelectedCell = _selectedViewIndex == noteViewIndex;
         
         if (isSelectedCell) {
-            NSLog(@"selected view is at index %d",_selectedViewIndex);
+            [self.view addSubview:noteCell];
             [self openCurrentNoteWithCompletion:completeBlock];
         } else {
             BOOL isBelow = noteViewIndex > _selectedViewIndex;
@@ -819,11 +805,6 @@ static const float  kCellHeight             = 66.0;
 {
     [self setNotesToCollapseBeginPositions:NO];
     
-    // animate current note back to self.view.bounds
-    //int selected = [ApplicationModel sharedInstance].selectedNoteIndex;
-    if (_selectedViewIndex>_noteViews.count-1) {
-        NSLog(@"uh oh");
-    }
     NoteEntryCell *current = (NoteEntryCell *)[_noteViews objectAtIndex:_selectedViewIndex];
     [UIView animateWithDuration:0.5
                      animations:^{
@@ -838,63 +819,7 @@ static const float  kCellHeight             = 66.0;
                          [self finishExpansion];
                          completion();
                      }];
-    
-    /*
-     int index = 0;
-     for (UIView *noteCell in _noteViews) {
-     if (index==_selectedViewIndex) {
-     index++;
-     continue;
-     }
-     [UIView animateWithDuration:0.5
-     animations:^{
-     if (index < _selectedViewIndex) {
-     CGRect destinationFrame = CGRectMake(0.0, 0.0, 320.0, 480.0);
-     [noteCell setFrame:destinationFrame];
-     } else if (index > _selectedViewIndex) {
-     CGRect destinationFrame = CGRectMake(0.0, 480.0, 320.0, 480.0);
-     [noteCell setFrame:destinationFrame];
-     }
-     }
-     completion:^(BOOL finished){
-     //NSLog(@"finished animating");
-     }];
-     index++;
-     }
-     */
-    
 }
-
-/*
- - (void)setUpRangeForStackingForTableView:(BOOL)forTableview
- {
- if (stackingViews) {
- [stackingViews removeAllObjects];
- }
- 
- stackingViews = [[NSMutableArray alloc] initWithCapacity:_noteViewRange.length];
- int stackingIndex = 0;
- //int limit = range.length+range.location;
- 
- for (NoteEntryCell *noteView in _noteViews) {
- 
- if (stackingIndex == _selectedViewIndex) {
- // skip the current doc
- stackingIndex++;
- continue;
- }
- 
- //UIView *noteView = [_noteViews objectAtIndex:stackingIndex];
- NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:noteView,@"noteView",[NSNumber numberWithInt:stackingIndex],@"index", nil];
- 
- [stackingViews addObject:dict];
- stackingIndex++;
- }
- 
- UIColor *bottomColor = [(UIView *)[[stackingViews lastObject] objectForKey:@"noteView"] backgroundColor];
- [self.view setBackgroundColor:bottomColor];
- }
- */
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
 {
