@@ -184,7 +184,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [super viewDidAppear:animated];
     
     [self presentNotes];
-    
+    [self.delegate indexDidChange];
 }
 
 - (void)viewDidUnload {
@@ -257,6 +257,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
         [self pinchToCollapseBegun:YES];
+        [_stackVC prepareForAnimation];
+        [_stackVC prepareForCollapse];
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
       
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
@@ -648,7 +650,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int currentIndex = model.selectedNoteIndex;
     [self updateNoteDocumentsForIndex:currentIndex];
     
-    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
+    //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
         
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
@@ -840,7 +842,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
     [self.delegate indexDidChange];
-    [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
+    //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
 }
 
 - (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
@@ -867,7 +869,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [self shiftCurrentNoteOriginToPoint:CGPointMake(0, 0) completion:^{
                 [self.optionsViewController reset];
                 
-                [_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
+                //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
             }];
             NSLog(@"touched outside of options");
         }

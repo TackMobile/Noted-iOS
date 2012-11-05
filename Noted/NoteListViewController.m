@@ -438,6 +438,9 @@ typedef enum {
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if ([ApplicationModel sharedInstance].currentNoteEntries.count ==0) {
+        return;
+    }
     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
     if (_lastRowVisible) {
         CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
