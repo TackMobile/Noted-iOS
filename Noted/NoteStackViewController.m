@@ -965,7 +965,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     if(keyboard) return;
     
-    UIWindow* tempWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:1];
+    UIWindow* tempWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:1]; ///makes uiview "keyboard" into the uikeyboard some how.. i don't know how lol
     for(int i = 0; i < [tempWindow.subviews count]; i++) {
         UIView *possibleKeyboard = [tempWindow.subviews objectAtIndex:i];
         if([[possibleKeyboard description] hasPrefix:@"<UIPeripheralHostView"] == YES){
@@ -985,17 +985,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     if(gestureRecognizer.state == UIGestureRecognizerStateBegan){
         originalKeyboardY = keyboard.frame.origin.y;
-        NSLog(@"originalKeyboardY %d", originalKeyboardY);
     }
     
     if(gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        if (velocity.y > 0 && location.y >= keyboard.frame.origin.y) { //if panning down then call method to animate keyboard off the screen. only animates if user pans past keyboard
+        if (velocity.y > 0 && location.y >= keyboard.frame.origin.y) { //if panning down then call method to animate keyboard off the screen. only animates if user pans past keyboard...so scrolling the note doesnt dismiss the keybaord
             [self animateKeyboardOffscreen];
         }else{ //if panning up then call method to animate keyboard back on the screen
             [self animateKeyboardReturnToOriginalPosition];
         }
         return; //leaves this method if gesture ended if not continue below
-    } 
+    }
     
     CGFloat spaceAboveKeyboard = self.view.bounds.size.height - (keyboard.frame.size.height);
     if (location.y < spaceAboveKeyboard) {
@@ -1019,7 +1018,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
-- (void)animateKeyboardOffscreen {
+- (void)animateKeyboardOffscreen { //slowly animates the keyboard off screen if the user lets go of the touch/pan
     [UIView animateWithDuration:0.5
                           delay:0
                         options:UIViewAnimationOptionCurveEaseOut
@@ -1027,8 +1026,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          CGRect newFrame = keyboard.frame;
                          newFrame.origin.y = keyboard.window.frame.size.height;
                          [keyboard setFrame: newFrame];
-                         
-                         
 
                      }
      
@@ -1038,11 +1035,12 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      }];
 }
 
-- (void)animateKeyboardReturnToOriginalPosition {
+- (void)animateKeyboardReturnToOriginalPosition { //brings keyboard back on screen if user pans up
     [UIView beginAnimations:nil context:NULL];
     CGRect newFrame = keyboard.frame;
     newFrame.origin.y = originalKeyboardY;
     [keyboard setFrame: newFrame];
+    self.currentNoteViewController.textView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - keyboard.frame.size.height); ///sets the height of the textbox to the height of the screen minus the hieght of the keyboard so the user cannot type underneath the keybaordd
     [UIView commitAnimations];
 }
 
