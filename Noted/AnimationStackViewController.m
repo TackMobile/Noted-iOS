@@ -17,6 +17,7 @@
 #import "UIColor+HexColor.h"
 #import "NoteViewController.h"
 #import "NoteListViewController.h"
+#import "DrawView.h"
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
@@ -165,12 +166,25 @@ static const float  kCellHeight             = 66.0;
 - (void)prepareForCollapse
 {
     NSArray *visibleRows = _tableView.indexPathsForVisibleRows;
-    _selectedViewIndex = (visibleRows.count*0.5);
+    if (![self currentNoteIsLast]) {
+        _selectedViewIndex = (visibleRows.count*0.5);
+    }
+
+    NSLog(@"selectedViewIndex: %i",_selectedViewIndex);
     
     if (destinationFrames) {
         [destinationFrames removeAllObjects];
     }
     destinationFrames = [[NSMutableArray alloc] initWithCapacity:_tableView.indexPathsForVisibleRows.count];
+    
+    DrawView *debug = (DrawView *)[self.view viewWithTag:888];
+    if (debug) {
+        [debug removeFromSuperview];
+    }
+    
+    debug = [[DrawView alloc] initWithFrame:self.view.bounds];
+    [debug setTag:888];
+    [debug setBackgroundColor:[UIColor clearColor]];
     
     for (int i = 0; i < visibleRows.count; i++) {
         NSIndexPath *indexPath = [visibleRows objectAtIndex:i];
@@ -183,6 +197,24 @@ static const float  kCellHeight             = 66.0;
             [destinationFrames addObject:[NSNull null]];
         }
     }
+    
+    [debug setDrawBlock:^(UIView* v,CGContextRef context){
+        
+        for (NSValue *val in destinationFrames) {
+            
+            if (val != (id)[NSNull null]) {
+                CGRect frame = val.CGRectValue;
+                UIBezierPath* bezierPath = [UIBezierPath bezierPath];
+                [bezierPath moveToPoint: CGPointMake(0.0, frame.origin.y)];
+                [bezierPath addLineToPoint: CGPointMake(320.0, frame.origin.y)];
+                
+                [[UIColor blueColor] setStroke];
+                bezierPath.lineWidth = 1.0;
+                [bezierPath stroke];
+            }
+        }
+    }];
+    [self.view addSubview:debug];
     
     //NSLog(@"Num of destination frames: %d",destinationFrames.count);
     //NSLog(@"Num of noteViews: %d",_noteViews.count);
@@ -211,7 +243,6 @@ static const float  kCellHeight             = 66.0;
     }];
         
     [self setNotesToCollapseBeginPositions:NO];
-    
        
 }
 
@@ -313,29 +344,27 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
-    NSLog(@"here? [%d]",__LINE__);
+    //NSLog(@"here? [%d]",__LINE__);
     if (index==_selectedViewIndex) {
         return;
     }
+    
+    float destC = (480.0-66.0)*0.5;
+    //float centerDiff = -(_centerNoteFrame.origin.y - ((480.0-66.0)*0.5));
+    float curY = _centerNoteFrame.origin.y;
+    float comp = curY/destC;
+    NSLog(@"destC: %f. curY: %f. perc moved %f",destC,curY,curY/destC);
     
     NoteEntryCell *noteView = [_noteViews objectAtIndex:index];
     
     CGRect destinationFrame = [(NSValue *)[destinationFrames objectAtIndex:index] CGRectValue];
     CGRect originFrame = [(NSValue *)[originFrames objectAtIndex:index] CGRectValue];
-    
-    if (scale<0.5 && index==5) {
-        NSLog(@"stop");
-        [self.view addSubview:noteView];
-        NSLog(@"destination frame: %@",NSStringFromCGRect(destinationFrame));
-        NSLog(@"note's current frame: %@",NSStringFromCGRect(noteView.frame));
-    }
-    
+ 
     CGFloat startY = originFrame.origin.y;
     CGFloat destY = destinationFrame.origin.y;
-    CGFloat adjScale = 1.0-scale;
+    //CGFloat adjScale = 1.0-scale;
     float diff = -(startY-destY);
-    diff = diff*adjScale;
-    //diff = diff > 0 ? diff : 0.0;
+    diff = diff*comp;
     CGFloat newY = startY + diff;
     
     //CGFloat currentHeight = noteView.frame.size.height;
@@ -344,59 +373,56 @@ static const float  kCellHeight             = 66.0;
     CGRect newFrame = CGRectMake(0.0, newY, 320.0, 66.0);
     [noteView setFrame:newFrame];
     
-    if (index==5) {
-        NSLog(@"setting noteview 5 to yLoc %f for scale %f",startY,scale);
-    }
-    
-    //return;
-    
+    //
+    [self updateSubviewsForNote:noteView scaled:YES];
     //NSLog(@"scale: %f",scale);
     
-    /*
-     int offset = -(_selectedViewIndex - index);
-     float currentNoteOffset = 0.0;
-     
-     float newHeight = kCellHeight;
-     float newY = 0.0;
-     if (offset<0) {
-     currentNoteOffset = offset*kCellHeight;
-     newY = CGRectGetMinY([self currentNote].frame) + currentNoteOffset;
-     
-     } else if (offset>0) {
-     currentNoteOffset = CGRectGetMaxY([self currentNote].frame) + (offset-1)*kCellHeight;
-     newY = currentNoteOffset;
-     //NSLog(@"CGRectGetMaxY([self currentNote].frame: %f",CGRectGetMaxY([self currentNote].frame));
-     //NSLog(@"_centerNoteFrame max y: %f",CGRectGetMaxY(_centerNoteFrame));
-     newHeight = self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame);
-     }
-     
-     if ([self noteIsLast:[self indexOfNoteView:noteView accountForSectionZero:NO]]) {
-     
-     UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
-     UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
-     NSLog(@"crash after here? [%d]",__LINE__);
-     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
-     if (!textView) { // if it doesn't have it, add it and hide title text
-     textView = [self makeFulltextView];
-     textView.text = noteEntry.text;
-     textView.textColor = subtitle.textColor;
-     [noteView.contentView addSubview:textView];
-     }
-     
-     [textView setHidden:NO];
-     textView.alpha = 1.0;
-     [subtitle setHidden:YES];
-     
-     }
-     
-     CGRect newFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
-     
-     if (offset==1) {
-     NSLog(@"animating new frame %@",NSStringFromCGRect(newFrame));
-     }
-     */
+    return;
     
-    [self updateSubviewsForNote:noteView scaled:YES];
+    int offset = -(_selectedViewIndex - index);
+    float currentNoteOffset = 0.0;
+    
+    float newHeight = kCellHeight;
+    float y = 0.0;
+    if (offset<0) {
+        currentNoteOffset = offset*kCellHeight;
+        newY = CGRectGetMinY([self currentNote].frame) + currentNoteOffset;
+        
+    } else if (offset>0) {
+        currentNoteOffset = CGRectGetMaxY([self currentNote].frame) + (offset-1)*kCellHeight;
+        newY = currentNoteOffset;
+        //NSLog(@"CGRectGetMaxY([self currentNote].frame: %f",CGRectGetMaxY([self currentNote].frame));
+        //NSLog(@"_centerNoteFrame max y: %f",CGRectGetMaxY(_centerNoteFrame));
+        newHeight = self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame);
+    }
+    
+    if ([self noteIsLast:[self indexOfNoteView:noteView accountForSectionZero:NO]]) {
+        
+        UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
+        UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
+        NSLog(@"crash after here? [%d]",__LINE__);
+        NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
+        if (!textView) { // if it doesn't have it, add it and hide title text
+            textView = [self makeFulltextView];
+            textView.text = noteEntry.text;
+            textView.textColor = subtitle.textColor;
+            [noteView.contentView addSubview:textView];
+        }
+        
+        [textView setHidden:NO];
+        textView.alpha = 1.0;
+        [subtitle setHidden:YES];
+        
+    }
+    
+    CGRect aFrame = CGRectMake(0.0, floorf(newY), 320.0, newHeight);
+    
+    if (offset==1) {
+        NSLog(@"animating new frame %@",NSStringFromCGRect(aFrame));
+    }
+    
+    
+    
     
 }
 
