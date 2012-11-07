@@ -125,7 +125,12 @@ typedef enum {
     if (_viewingNoteStack && yOffset>0) {
         _viewingNoteStack = NO;
         yOffset = 0.0;
-        [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+        } else {
+            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        }
+        
     }
 }
 
@@ -148,7 +153,12 @@ typedef enum {
 - (void)indexDidChange
 {
     _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
-    [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
+    } else {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
+    
 }
 
 - (int)selectedIndexPathForStack
@@ -213,7 +223,7 @@ typedef enum {
     } else {
         
         if (indexPath.row == _noteCount-1) {
-            return 150;
+            return self.view.bounds.size.height-44.0;
         }
          
         return 66;
