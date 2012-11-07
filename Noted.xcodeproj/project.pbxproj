@@ -59,6 +59,7 @@
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
+		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
 		967096081630A5B3004611ED /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = 967096061630A5B3004611ED /* TKPromise.m */; };
 		9670960B1630A647004611ED /* NSString+Digest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9670960A1630A647004611ED /* NSString+Digest.m */; };
 		96BB3A391648631D002BE051 /* slice.png in Resources */ = {isa = PBXBuildFile; fileRef = 96BB3A371648631D002BE051 /* slice.png */; };
@@ -170,6 +171,7 @@
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
+		964640C2164B289F0006A7CB /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		967096061630A5B3004611ED /* TKPromise.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKPromise.m; sourceTree = "<group>"; };
 		967096071630A5B3004611ED /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKPromise.h; sourceTree = "<group>"; };
 		967096091630A647004611ED /* NSString+Digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Digest.h"; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 		29FC4904156EE0CD0007BBAD = {
 			isa = PBXGroup;
 			children = (
+				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29960C7E15740F050054347A /* Helpers */,
 				29960C661573F4C50054347A /* Assets */,
 				29FC4939156EE1590007BBAD /* Model */,
@@ -574,6 +577,7 @@
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
 				96BB3A391648631D002BE051 /* slice.png in Resources */,
 				96BB3A3A1648631D002BE051 /* slice@2x.png in Resources */,
+				964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
