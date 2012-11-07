@@ -130,12 +130,14 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self presentNotes];
     
     }];
+    CGRect frame = [[UIScreen mainScreen] applicationFrame];
     
     self.sliceView = [[UIView alloc] initWithFrame:CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height)];
     self.screenShot = [UIImageView new];
     
     self.currentNoteViewController = [[NoteViewController alloc] init];
     self.currentNoteViewController.delegate = self;
+    self.currentNoteViewController.view.frame = frame;
     [self.view addSubview:self.currentNoteViewController.view];
     
     [self configureKeyboard];
@@ -149,7 +151,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 #warning TODO: optimization: lazy instantiation of OptionsViewController
     self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil]; //settings screen
     self.optionsViewController.delegate = self;
-    self.optionsViewController.view.frame = CGRectMake(0, 0, 320, 480);
+    self.optionsViewController.view.frame = frame;
     self.optionsViewController.view.hidden = YES;
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view
     
@@ -432,10 +434,17 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         self.optionsViewController.view.hidden = YES;
     }
     
+    if (self.currentNoteViewController.textView.isDragging) { //prevents accidental switching of note when user is scrolling current note
+        NSLog(@"isdragging %d", self.currentNoteViewController.textView.isDragging);
+        return;
+    }
+    
+        
+    
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
-        if (numberOfTouchesInCurrentPanGesture == 1) { //switches note
-            
+        if (numberOfTouchesInCurrentPanGesture == 1 && velocity.x != 0) { //switches note
+            self.currentNoteViewController.textView.scrollEnabled = NO;
             [self setNextNoteDocumentForVelocity:velocity];
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) { //two finger delete
@@ -454,6 +463,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+        self.currentNoteViewController.textView.scrollEnabled = YES;
         
         if (numberOfTouchesInCurrentPanGesture==1) { //if the user ended their one finger pan gesture
             [self handleSingleTouchPanEndedForVelocity:velocity]; //either changes the note to the next note or animates and "snaps" back the current note depending on whether 1. there's another note in the stack or 2. the user panned far enough on the screen or not
@@ -464,7 +474,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             if (_currentGestureState == kShouldCreateNew) { //if they panned from right to left to create a new note
                 // allow cancelation of new note creation if user lets go before midpoint
                 if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) { //midpoint not working
-                    
                     [self setGestureState:kGestureFinished];
                     [self snapBackNextNote];
                     // undo the dummy placeholder data
@@ -488,7 +497,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
-                [self handleSingleTouchPanChangedForPoint:point]; //switches note
+            [self handleSingleTouchPanChangedForPoint:point]; //switches note
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
          
