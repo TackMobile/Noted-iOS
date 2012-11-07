@@ -68,6 +68,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 @property (strong,nonatomic)MFMailComposeViewController *mailVC;
 @property (strong,nonatomic)MFMessageComposeViewController *messageVC;
+@property (nonatomic, strong) UIView *sliceView;
+@property (nonatomic, strong) UIImageView *screenShot;
+@property (nonatomic, strong) UIImageView *slicedNoteScreenShot;
+@property (nonatomic, strong) NSMutableArray *slicedNoteArray;
 
 - (void) presentNotes;
 
@@ -88,7 +92,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize nextNoteDocument;
 @synthesize mailVC,messageVC;
 @synthesize delegate;
-@synthesize keyboard, originalLocation, originalKeyboardY;
+@synthesize keyboard, originalLocation, originalKeyboardY, sliceView, screenShot, slicedNoteScreenShot, slicedNoteArray;
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC
 {
@@ -113,7 +117,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.slicedNoteArray = [NSMutableArray new];
+    self.slicedNoteScreenShot = [UIImageView new];
     [self.view.layer setCornerRadius:kCornerRadius];
     [self.view setClipsToBounds:YES];
 
@@ -125,6 +130,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self presentNotes];
     
     }];
+    
+    self.sliceView = [[UIView alloc] initWithFrame:CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    self.screenShot = [UIImageView new];
     
     self.currentNoteViewController = [[NoteViewController alloc] init];
     self.currentNoteViewController.delegate = self;
@@ -150,6 +158,11 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
+    
+    UIPanGestureRecognizer *deleteGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(deletePan:)];
+    deleteGesture.minimumNumberOfTouches = 2;
+    deleteGesture.maximumNumberOfTouches = 2;
+    [self.view addGestureRecognizer:deleteGesture];
     
     [self setCurrentNoteToModel];
     
@@ -351,7 +364,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NoteEntry *previous = self.currentNoteViewController.noteEntry;
     [self.currentNoteViewController setNoteEntry:noteEntry];
     
-    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f);
+    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size,YES,0.0f); //screenshot
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     [self.currentNoteViewController.view.layer renderInContext:context];
@@ -411,6 +424,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGPoint velocity = [recognizer velocityInView:self.view];
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+    
+
     
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
@@ -472,19 +487,25 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
         
         if (numberOfTouchesInCurrentPanGesture == 1) {
-                [self handleSingleTouchPanChangedForPoint:point];
+                [self handleSingleTouchPanChangedForPoint:point]; //switches note
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
-            
+         
             // delete the note if panning w/ 2 fingers to the right
             if (_currentGestureState == kShouldDelete) {
-                //NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
+                NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
                 
                 self.currentNoteViewController.view.hidden = YES;
                 
                 NoteEntry *nextNote = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
                 [self.nextNoteViewController setNoteEntry:nextNote];
-                [self animateDeletingViewsForPoint:point];
+    
+                [self animateDeletingViewsForPoint:point withRecgonizer:recognizer];
+                
+               
+                
+                
+
             }
             // else user is wanting to create a new note
             else if (_currentGestureState == kShouldCreateNew){//point.x < 0 && abs(velocity.y)< 30) {
@@ -492,8 +513,135 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 // move next document in from the far right, on top
                 [self updatePositionOfNextDocumentToPoint:point];
             }
+            
+        
         }
+        }
+
+    
+    
+    
+    
+    
+   
+}
+
+#define NUMBER_OF_SLICES 15
+
+-(void)deletePan:(UIPanGestureRecognizer *)gesture{ //animation for deleting the note with a two finger pan
+    CGPoint point = [gesture translationInView:self.view];
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self createDeletingViews]; //as soon as the gesture begins...calls this method to get a screenshot of the current note..this prevents accidental scroling of the actual note when the user pans up and down
+        self.currentNoteViewController.view.hidden = YES; //hides the actual note
     }
+    
+    
+    for (int i = 1; i < NUMBER_OF_SLICES; i++) { //adds number of "slice" images equal distances apart to self.sliceview UIView
+        UIImageView *sliceImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"slice.png"]];
+        sliceImage.frame = CGRectMake(0, (480*i)/NUMBER_OF_SLICES, sliceImage.frame.size.width, sliceImage.frame.size.height);
+        [sliceView addSubview:sliceImage];
+    }
+    [self.view addSubview:sliceView];
+    
+    
+    if ([gesture velocityInView:self.view].x > 0) { //if panned from left to right
+        if (gesture.state == UIGestureRecognizerStateChanged) { //while the pan gesture is still in action
+            NSLog(@"gesturechanged");
+            sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
+        }
+    
+        
+    }
+    if (gesture.state == UIGestureRecognizerStateEnded) {
+        if (point.x < self.view.frame.size.width/2) { //if user didn't pan past the half way point
+            [UIView animateWithDuration:1.0
+                             animations:^(void){
+                                 self.sliceView.frame = CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height); //slowly animate the slice view back off screen
+                             }
+                             completion:^(BOOL finished){
+                                 self.currentNoteViewController.view.hidden = NO; //and show the actual note again
+                                 self.screenShot.hidden = YES;
+                             }];
+        }
+        else{ //if user panned past the half way point
+            //[self finishDeletingDocument:point];
+            [UIView animateWithDuration:0.5
+                             animations:^(void){
+                                 self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
+                             }completion:^(BOOL finished){
+                                 UIGraphicsBeginImageContext(CGSizeMake(self.view.frame.size.width, self.view.frame.size.height));
+                                 CGContextRef context = UIGraphicsGetCurrentContext();
+                                 [self.view.layer renderInContext:context]; //gets screenshot of the note
+                                 [self.sliceView.layer renderInContext:context]; //gets screenshot of the slice images
+                                 UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext(); //saves both as one image
+                                 UIGraphicsEndImageContext();
+                                 self.slicedNoteScreenShot.image = viewImage;
+                                 [self cropNote];
+                             }];
+            
+            
+                      
+
+            
+        }
+        
+}
+}
+
+-(void)cropNote{
+    for (int i = 0; i < NUMBER_OF_SLICES; i++) {
+        CGRect cropRect = CGRectMake(0, (480*i)/NUMBER_OF_SLICES + 2.5, 320, 480/NUMBER_OF_SLICES); //frame of the crop
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[self.slicedNoteScreenShot.image crop:cropRect]]; //crops note
+        imageView.frame = CGRectMake(0, (480*i)/NUMBER_OF_SLICES + 2.5, self.view.frame.size.width, 480/NUMBER_OF_SLICES + 2.5);
+        [self.slicedNoteArray addObject:imageView];
+    }
+    
+    for (UIImageView *imageView in [self.slicedNoteArray reverseObjectEnumerator]) {
+        [self.view addSubview:imageView]; //adds the subview from the end of the array first so that when the sliced note falls...it falls in front of the other subviews...instead of behind
+    }
+ 
+    
+    [self animateSlicedNoteFalling];
+    
+   
+    
+}
+
+-(void)animateSlicedNoteFalling
+{
+   
+    self.screenShot.hidden = YES;
+    self.sliceView.hidden = YES;
+  
+    
+    [UIView animateWithDuration:5.0
+                     animations:^(void){
+                         for (UIImageView *iView in self.slicedNoteArray){ //iterates through every UIImageView in the array
+                             iView.frame = CGRectMake([self randomXValue], 800, iView.image.size.width, iView.image.size.height); //animates each view off screen at the same time...to a random x position
+                             iView.transform = CGAffineTransformMakeRotation([self randomAngle]); //random rotation angle
+                         }
+        
+    }];
+   
+}
+
+-(int)randomAngle{
+    
+    int lowerBound = -300;
+    int upperBound = 300;
+    int ranAngle = lowerBound + arc4random() % (upperBound - lowerBound);
+    return ranAngle;
+    
+}
+
+
+
+-(int)randomXValue{
+    int lowerBound = -320;
+    int upperBound = 320;
+    int randomX = lowerBound + arc4random() % (upperBound - lowerBound);
+    
+    return randomX;
 }
 
 - (void)setNextNoteDocumentForVelocity:(CGPoint)velocity
@@ -517,6 +665,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)finishDeletingDocument:(CGPoint)point
 {
+    NSLog(@"delete");
     // shredding animations for deletion
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *toDelete = currentNoteViewController.noteEntry;
@@ -526,7 +675,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     __block int completeCount = 0;
     for (int k = 0; k < [deletingViews count]; k++) {
         
-        double middle = deletingViews.count/2.0;
+       double middle = deletingViews.count/2.0;
         UIImageView *view = [deletingViews objectAtIndex:k];
         view.hidden = NO;
         CGRect frame = view.frame;
@@ -729,17 +878,19 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     deletingViews = [NSMutableArray new];
     
-    UIImage *viewImage = [self imageForDocument:self.currentNoteViewController.noteEntry];
-    
+    screenShot = [[UIImageView alloc] initWithImage:[self imageForDocument:self.currentNoteViewController.noteEntry]]; //gets current screenshot and sets it as a UIImage
+    screenShot.frame = CGRectMake(0, 0, screenShot.image.size.width, screenShot.image.size.height);
+    [self.view addSubview:screenShot];
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Create and show the new image from bitmap data
-    for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
+   /* for (int k = 0; k <= numberOfTouchesInCurrentPanGesture; k++) {
         // Create rectangle that represents a cropped image
         // from the middle of the existing image
         CGRect cropRect = CGRectMake(0, (480*k)/(numberOfTouchesInCurrentPanGesture+1), 320, 480/(numberOfTouchesInCurrentPanGesture+1));
         
         // Create and show the new image from bitmap data
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
-        imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1));
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage.image crop:cropRect]];
+        imageView.frame = CGRectMake(0, 0, 320, 480/(numberOfTouchesInCurrentPanGesture+1)); //this is the frame of each individual shredded note
         [deletingViews addObject:imageView];
         imageView.hidden = YES;
         
@@ -753,14 +904,35 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         imageView.layer.cornerRadius = 6.5;
         
         [self.view addSubview:imageView];
-    }
+    }*/
+    
+    /*for (int i = 0; i < 10; i++) {
+        CGRect cropRect = CGRectMake(0, (480*i)/10, 320, 48);
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[viewImage crop:cropRect]];
+        imageView.frame = CGRectMake(0, 0, 320, 48);
+        [deletingViews addObject:imageView];
+        imageView.hidden = NO;
+        
+        imageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+        imageView.layer.shadowOffset = CGSizeMake(-1,-2);
+        imageView.layer.shadowOpacity = .70;
+        imageView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+        imageView.layer.shouldRasterize = YES;
+        [imageView.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:imageView.bounds cornerRadius:6.5] CGPath]];
+        imageView.layer.cornerRadius = 6.5;
+        
+        [self.view addSubview:imageView];
+     
+    }*/
+    
     
 }
 
-- (void)animateDeletingViewsForPoint:(CGPoint)point
+- (void)animateDeletingViewsForPoint:(CGPoint)point withRecgonizer:(UIPanGestureRecognizer *)gesture
 {
+    
     for (int k = 0; k < [deletingViews count]; k++) {
-        double middle = deletingViews.count/2.0;
+        double middle = deletingViews.count/2.0; // 1.5 for now
         UIImageView *view = [deletingViews objectAtIndex:k];
         view.hidden = NO;
         CGRect frame = view.frame;
@@ -981,7 +1153,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.textView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //resets the height of the textview to the full height of the screen
 }
 
--(void)panGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+-(void)panGesture:(UIPanGestureRecognizer *)gestureRecognizer { //pan gesture recogizer for keyboard animation
     CGPoint location = [gestureRecognizer locationInView:[self view]];
     CGPoint velocity = [gestureRecognizer velocityInView:self.view];
     
@@ -1028,6 +1200,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          CGRect newFrame = keyboard.frame;
                          newFrame.origin.y = keyboard.window.frame.size.height;
                          [keyboard setFrame: newFrame];
+                         self.currentNoteViewController.textView.frame = self.view.frame;
 
                      }
      

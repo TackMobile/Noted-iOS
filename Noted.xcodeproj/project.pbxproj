@@ -61,6 +61,8 @@
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		967096081630A5B3004611ED /* TKPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = 967096061630A5B3004611ED /* TKPromise.m */; };
 		9670960B1630A647004611ED /* NSString+Digest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9670960A1630A647004611ED /* NSString+Digest.m */; };
+		96BB3A391648631D002BE051 /* slice.png in Resources */ = {isa = PBXBuildFile; fileRef = 96BB3A371648631D002BE051 /* slice.png */; };
+		96BB3A3A1648631D002BE051 /* slice@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 96BB3A381648631D002BE051 /* slice@2x.png */; };
 		B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B50C98BA160CCD45002A3909 /* libTestFlight.a */; };
 		B50C98BF160CCD46002A3909 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BB160CCD45002A3909 /* README.md */; };
 		B50C98C0160CCD46002A3909 /* release_notes.md in Resources */ = {isa = PBXBuildFile; fileRef = B50C98BC160CCD45002A3909 /* release_notes.md */; };
@@ -172,6 +174,8 @@
 		967096071630A5B3004611ED /* TKPromise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKPromise.h; sourceTree = "<group>"; };
 		967096091630A647004611ED /* NSString+Digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Digest.h"; sourceTree = "<group>"; };
 		9670960A1630A647004611ED /* NSString+Digest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Digest.m"; sourceTree = "<group>"; };
+		96BB3A371648631D002BE051 /* slice.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slice.png; sourceTree = "<group>"; };
+		96BB3A381648631D002BE051 /* slice@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slice@2x.png"; sourceTree = "<group>"; };
 		B50C98BA160CCD45002A3909 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
 		B50C98BB160CCD45002A3909 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		B50C98BC160CCD45002A3909 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.md; sourceTree = "<group>"; };
@@ -429,6 +433,8 @@
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
+				96BB3A371648631D002BE051 /* slice.png */,
+				96BB3A381648631D002BE051 /* slice@2x.png */,
 				B5B826B116233C6700DD85CE /* topCornerShadows.png */,
 				B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */,
 				B5AA89D7160B96320094299B /* cellShadow.png */,
@@ -566,6 +572,8 @@
 				B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */,
 				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
+				96BB3A391648631D002BE051 /* slice.png in Resources */,
+				96BB3A3A1648631D002BE051 /* slice@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
