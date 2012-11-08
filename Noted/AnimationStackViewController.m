@@ -256,10 +256,10 @@ static const float  kCellHeight             = 66.0;
     }];
     
     [self setNotesToCollapseBeginPositions:NO];
-
+    [self pruneSubviews];
 }
 
-- (int)countOfAllSubviews
+- (void)pruneSubviews
 {
     int count = 0;
     for (int i = 0; i < self.view.subviews.count; i++) {
@@ -276,7 +276,7 @@ static const float  kCellHeight             = 66.0;
             NSLog(@"detected debug view");
         }
     }
-    return count;
+    NSLog(@"Num of views");
 }
 
 - (void)setNotesToCollapseBeginPositions:(BOOL)animated
@@ -344,6 +344,7 @@ static const float  kCellHeight             = 66.0;
     }
     //[[self currentNote] setHidden:YES];
     //[self.bottomExtender setHidden:YES];
+    
     [self collapseCurrentNoteWithScale:scale];
     [self shrinkStackedNotesForScale:scale];
     
@@ -386,7 +387,11 @@ static const float  kCellHeight             = 66.0;
 - (void)collapseStackedNoteAtIndex:(int)index withScale:(CGFloat)scale
 {
     BOOL sectionZeroRowZero = index == 0 && _sectionZeroRowOneVisible;
-    if (index==_selectedViewIndex || sectionZeroRowZero) {
+    if (index==_selectedViewIndex) {
+        return;
+    }
+    
+    if (sectionZeroRowZero) {
         return;
     }
 
@@ -653,7 +658,9 @@ static const float  kCellHeight             = 66.0;
 
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
-    [self countOfAllSubviews];
+    int count = [self countOfAllSubviews];
+    NSLog(@"count: %i",count);
+    
     /*
      if ([selectedIndexPath isEqual:[[_tableView indexPathsForVisibleRows] lastObject]]) {
      NSLog(@"count of all cells: %d",_noteViews.count);
@@ -690,12 +697,8 @@ static const float  kCellHeight             = 66.0;
         if (noteCell.tag == SECZERO_ROWZERO_TAG) {
             
             [noteCell setBackgroundColor:[UIColor purpleColor]];
-            //[noteCell setAlpha:0.5];
-            //int64_t delayInSeconds = 2.0;
-            //dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-            //dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            //    [noteCell setAlpha:0.0];
-            //});
+            
+            //[noteCell setFrameX:20.0];
             
             noteViewIndex ++;
             continue;
@@ -829,6 +832,10 @@ static const float  kCellHeight             = 66.0;
                          
                          _animating = NO;
                          completeBlock();
+                         
+                         int count = [self countOfAllSubviews];
+                         NSLog(@"count: %i",count);
+                         
                          [self finishExpansion];
                          
                      }];
