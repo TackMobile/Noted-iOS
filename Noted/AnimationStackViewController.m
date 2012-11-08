@@ -294,7 +294,7 @@ static const float  kCellHeight             = 66.0;
                          }
                          completion:^(BOOL finished){
                              NSLog(@"finished reopening current note");
-                             [self countOfAllSubviews];
+                             [self pruneSubviews];
                          }];
     } else {
         [currentNote setFrame:self.view.bounds];
@@ -658,8 +658,6 @@ static const float  kCellHeight             = 66.0;
 
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
-    int count = [self countOfAllSubviews];
-    NSLog(@"count: %i",count);
     
     /*
      if ([selectedIndexPath isEqual:[[_tableView indexPathsForVisibleRows] lastObject]]) {
@@ -832,10 +830,7 @@ static const float  kCellHeight             = 66.0;
                          
                          _animating = NO;
                          completeBlock();
-                         
-                         int count = [self countOfAllSubviews];
-                         NSLog(@"count: %i",count);
-                         
+
                          [self finishExpansion];
                          
                      }];
