@@ -258,11 +258,8 @@ typedef enum {
         if (newNoteCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
             newNoteCell = [topLevelObjects objectAtIndex:0];
-            newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
-            newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
-            newNoteCell.label.textColor = [UIColor colorWithHexString:@"AAAAAA"];
-            newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            newNoteCell.contentView.backgroundColor = [UIColor whiteColor];
+            [NewNoteCell configure:newNoteCell];
+            
             //newNoteCell setTime
         }
         newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
