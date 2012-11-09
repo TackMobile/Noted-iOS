@@ -159,7 +159,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
-    [self.view addGestureRecognizer:self.panGestureRecognizer];
+    //[self.view addGestureRecognizer:self.panGestureRecognizer];
     
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
@@ -520,6 +520,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                     [self cancelDeletingNote];
                 } else {
                     [self finishDeletingDocument:point];
+                    NSLog(@"finishdeletingoducment");
                 }
             }
         }
@@ -532,7 +533,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
          
             // delete the note if panning w/ 2 fingers to the right
             if (_currentGestureState == kShouldDelete) {
-                NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
+                //NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
                 
                 self.currentNoteViewController.view.hidden = YES;
                 
@@ -676,6 +677,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          }
         
     }];
+    [self finishDeletingDocument:CGPointMake(0, 0)];
    
 }
 
@@ -726,7 +728,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self setGestureState:kGestureFinished];
     
     //NSLog(@"should delete %@",toDelete.text);
-    __block int completeCount = 0;
+  /*  __block int completeCount = 0;
     for (int k = 0; k < [deletingViews count]; k++) {
         
        double middle = deletingViews.count/2.0;
@@ -750,7 +752,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              completeCount ++;
                              [view removeFromSuperview];
                              
-                             if (completeCount==deletingViews.count) {
+                             if (completeCount==deletingViews.count) {*/
                                  
                                  self.currentNoteViewController.view.hidden = NO;
                                  
@@ -762,9 +764,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                  
                                  [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
                                  
-                             }
-                         }];
-    }
+                      //       }
+                      //   }];
+  //  }
     
 }
 
