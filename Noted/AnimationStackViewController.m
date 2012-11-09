@@ -754,6 +754,7 @@ static const float  kCellHeight             = 66.0;
 {
     NoteEntryCell *noteCell = (NoteEntryCell *)[self currentNote];
     
+    
     [self toggleFullTextForNoteOpening:YES inCell:noteCell];
     
     [UIView animateWithDuration:[self animationDuration]
