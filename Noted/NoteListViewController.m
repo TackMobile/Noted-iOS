@@ -549,6 +549,8 @@ typedef enum {
         
     } else { //if an existing note was selected
         
+        
+        
         if (_viewingNoteStack) {
             return;
         }
