@@ -150,17 +150,6 @@ typedef enum {
     }
 }
 
-- (void)indexDidChange
-{
-    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
-    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
-        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
-    } else {
-        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-    }
-    
-}
-
 - (int)selectedIndexPathForStack
 {
     return _selectedIndexPath.row;
@@ -198,11 +187,24 @@ typedef enum {
                     break;
                 }
             }
-            
         });
-    
+    }
+}
+
+- (void)indexDidChange
+{
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    if (_noteCount != notes.count) {
+        [self listDidUpdate];
     }
     
+    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+    [self.tableView reloadData];
+    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
+    } else {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
 }
 
 - (void)debugView:(UIView *)view color:(UIColor *)color

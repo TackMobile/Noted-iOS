@@ -720,52 +720,54 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)finishDeletingDocument:(CGPoint)point
 {
-    NSLog(@"delete");
+    NSLog(@"%s",__PRETTY_FUNCTION__);
     // shredding animations for deletion
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *toDelete = currentNoteViewController.noteEntry;
     [self setGestureState:kGestureFinished];
     
     //NSLog(@"should delete %@",toDelete.text);
-  /*  __block int completeCount = 0;
-    for (int k = 0; k < [deletingViews count]; k++) {
-        
-       double middle = deletingViews.count/2.0;
-        UIImageView *view = [deletingViews objectAtIndex:k];
-        view.hidden = NO;
-        CGRect frame = view.frame;
-        frame.origin.x = 420.0;
-        
-        if (k < [deletingViews count]/2.0) {
-            frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
-        } else {
-            frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
-        }
-        
-        [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-        [UIView animateWithDuration:0.5
-                         animations:^{
-                             view.frame = frame;
-                         }
-                         completion:^(BOOL finished){
-                             completeCount ++;
-                             [view removeFromSuperview];
-                             
-                             if (completeCount==deletingViews.count) {*/
-                                 
-                                 self.currentNoteViewController.view.hidden = NO;
-                                 
-                                 [deletingViews removeAllObjects];
-                                 
-                                 [model setCurrentNoteIndexToNextPriorToDelete];
-                                 [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
-                                 }];
-                                 
-                                 [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
-                                 
-                      //       }
-                      //   }];
-  //  }
+    /*  __block int completeCount = 0;
+     for (int k = 0; k < [deletingViews count]; k++) {
+     
+     double middle = deletingViews.count/2.0;
+     UIImageView *view = [deletingViews objectAtIndex:k];
+     view.hidden = NO;
+     CGRect frame = view.frame;
+     frame.origin.x = 420.0;
+     
+     if (k < [deletingViews count]/2.0) {
+     frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+     } else {
+     frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+     }
+     
+     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+     [UIView animateWithDuration:0.5
+     animations:^{
+     view.frame = frame;
+     }
+     completion:^(BOOL finished){
+     completeCount ++;
+     [view removeFromSuperview];
+     
+     if (completeCount==deletingViews.count) {*/
+    
+    self.currentNoteViewController.view.hidden = NO;
+    
+    [deletingViews removeAllObjects];
+    NSLog(@"selectedindex before delete: %i",model.selectedNoteIndex);
+    [model setCurrentNoteIndexToNextPriorToDelete];
+    NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
+    [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
+    NSLog(@"selectedindex aaaafter delete: %i",model.selectedNoteIndex);
+    }];
+    
+    [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
+    
+    //       }
+    //   }];
+    //  }
     
 }
 
