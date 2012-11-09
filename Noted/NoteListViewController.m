@@ -150,17 +150,6 @@ typedef enum {
     }
 }
 
-- (void)indexDidChange
-{
-    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
-    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
-        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
-    } else {
-        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-    }
-    
-}
-
 - (int)selectedIndexPathForStack
 {
     return _selectedIndexPath.row;
@@ -198,11 +187,24 @@ typedef enum {
                     break;
                 }
             }
-            
         });
-    
+    }
+}
+
+- (void)indexDidChange
+{
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    if (_noteCount != notes.count) {
+        [self listDidUpdate];
     }
     
+    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+    [self.tableView reloadData];
+    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
+    } else {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
 }
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
@@ -641,16 +643,7 @@ typedef enum {
     [self listDidUpdate];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    
-    /*
-     [self delayedCall:0.1 withBlock:^{
-     [self.tableView reloadData];
-     if (_stackViewController) {
-     [_stackViewController prepareForCollapseAnimationForView:self.view];
-     [self.tableView reloadData];
-     }
-     }];
-     */
+
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
