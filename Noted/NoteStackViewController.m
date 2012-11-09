@@ -275,7 +275,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [_stackVC prepareForAnimation];
         [_stackVC prepareForCollapse];
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
-        NSLog(@"beginnnnn");
       
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         

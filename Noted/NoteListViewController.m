@@ -639,16 +639,7 @@ typedef enum {
     [self listDidUpdate];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    
-    /*
-     [self delayedCall:0.1 withBlock:^{
-     [self.tableView reloadData];
-     if (_stackViewController) {
-     [_stackViewController prepareForCollapseAnimationForView:self.view];
-     [self.tableView reloadData];
-     }
-     }];
-     */
+
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
