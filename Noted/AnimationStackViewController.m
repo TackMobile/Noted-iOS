@@ -334,7 +334,7 @@ static const float  kCellHeight             = 66.0;
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
         
-        UITextView *textView = [self textViewForNoteView:currentNoteCell];
+        UITextView *textView = [self makeFullTextForNoteView:currentNoteCell];
         [textView setHidden:NO];
     }
     
@@ -405,10 +405,17 @@ static const float  kCellHeight             = 66.0;
     float diff = -(startY-destY);
     diff = diff*_pinchPercentComplete;
     CGFloat newY = startY;
+    
+    UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
+    [textView setHidden:YES];
+    [noteView.subtitleLabel setHidden:NO];
+    
     if (diff == 0 && _pinchPercentComplete == 1.0) {
+        
         newY = destY;
     } else {
         newY = startY + diff;
+
     }
     
     [self updateSubviewsForNote:noteView scaled:YES];
@@ -416,69 +423,15 @@ static const float  kCellHeight             = 66.0;
     float newHeight = kCellHeight;
     
     if ([self noteIsLast:[self indexOfNoteView:noteView]]) {
-        
+        [textView setHidden:NO];
         newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
-        
-#warning reimp!
-        /*
-         UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
-         UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
-         NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
-         if (!textView) { // if it doesn't have it, add it and hide title text
-         textView = [self makeFulltextView];
-         textView.text = noteEntry.text;
-         textView.textColor = subtitle.textColor;
-         [noteView.contentView addSubview:textView];
-         }
-         
-         [textView setHidden:NO];
-         textView.alpha = 1.0;
-         [subtitle setHidden:YES];
-         
-         */
     }
-    
     
     CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
     [noteView setFrame:newFrame];
     
     return;
     
-    /*
-     int offset = -(_selectedViewIndex - index);
-     float currentNoteOffset = 0.0;
-     
-     newHeight = kCellHeight;
-     if (offset<0) {
-     currentNoteOffset = offset*kCellHeight;
-     newY = CGRectGetMinY([self currentNote].frame) + currentNoteOffset;
-     
-     } else if (offset>0) {
-     currentNoteOffset = CGRectGetMaxY([self currentNote].frame) + (offset-1)*kCellHeight;
-     newY = currentNoteOffset;
-     //NSLog(@"CGRectGetMaxY([self currentNote].frame: %f",CGRectGetMaxY([self currentNote].frame));
-     //NSLog(@"_centerNoteFrame max y: %f",CGRectGetMaxY(_centerNoteFrame));
-     newHeight = self.view.bounds.size.height-CGRectGetMaxY(_centerNoteFrame);
-     }
-     
-     if ([self noteIsLast:[self indexOfNoteView:noteView accountForSectionZero:NO]]) {
-     
-     UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
-     UILabel *subtitle = (UILabel *)[noteView.contentView viewWithTag:LABEL_TAG];
-     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:[self indexOfNoteView:noteView accountForSectionZero:YES]];;
-     if (!textView) { // if it doesn't have it, add it and hide title text
-     textView = [self makeFulltextView];
-     textView.text = noteEntry.text;
-     textView.textColor = subtitle.textColor;
-     [noteView.contentView addSubview:textView];
-     }
-     
-     [textView setHidden:NO];
-     textView.alpha = 1.0;
-     [subtitle setHidden:YES];
-     
-     }
-     */
 }
 
 - (void)collapseCurrentNoteWithScale:(CGFloat)scale
@@ -511,17 +464,19 @@ static const float  kCellHeight             = 66.0;
         newY = 0;
     }
     
-    UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
+    UIView *fullText = [self makeFullTextForNoteView:currentNoteCell];
+    NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
+    NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
+    NSLog(@"alpha of fulltext is %f",fullText.alpha);
     
     if (!currentNoteIsLast) {
         float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
         fullText.alpha = 1.0-(_pinchPercentComplete*factor);
+        NSLog(@"%f",fullText.alpha);
         currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
+        NSLog(@"%f",currentNoteCell.subtitleLabel.alpha);
     } else {
-
-        NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
-        NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
-        NSLog(@"alpha of fulltext is %f",fullText.alpha);
+        
         newHeight = self.view.bounds.size.height - newY;
     }
     
@@ -534,78 +489,35 @@ static const float  kCellHeight             = 66.0;
 {
     complete();
     [self.view setFrameX:-320.0];
-    
-    return;
-    float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
-    [UIView animateWithDuration:duration
-                     animations:^{
-                         
-                         float currentNoteY = _centerNoteFrame.origin.y;
-                         if (currentNoteIsLast) {
-                             _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, self.view.bounds.size.height-currentNoteY);
-                         } else {
-                             _centerNoteFrame = CGRectMake(0.0, currentNoteY, 320.0, kCellHeight);
-                         }
-                         
-                         [[self currentNote] setFrame:_centerNoteFrame];
-                         
-                         for (int i = 0; i < _noteViews.count; i ++) {
-                             // skip the current view && section zero row 1 view if necessary
-                             NSLog(@"here? [%i]",__LINE__);
-                             if (i == _selectedViewIndex  || ![[_noteViews objectAtIndex:i] isKindOfClass:[NoteEntryCell class]]) {
-                                 i++;
-                                 continue;
-                             }
-                             NSLog(@"here? [%i]",__LINE__);
-                             UIView *note = [_noteViews objectAtIndex:i];//[noteDict objectForKey:@"noteView"];
-                             
-                             int offset = -(_selectedViewIndex - i);
-                             
-                             float newHeight = kCellHeight;
-                             float newY = 0.0;
-                             if (offset < 0) {
-                                 float finalCY = [self finalYOriginForCurrentNote];
-                                 float correction = offset*kCellHeight;
-                                 newY = finalCY + correction;
-                                 
-                             } else if (offset>0) {
-                                 newHeight = self.view.bounds.size.height-CGRectGetMaxY([self currentNote].frame);
-                                 newY = (CGRectGetMaxY(_centerNoteFrame))+((offset-1)*kCellHeight);
-                             }
-                             
-                             CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
-                             [note setFrame:newFrame];
-                         }
-                     }
+    /*
+     for (UITableViewCell *cell in _noteViews) {
      
-                     completion:^(BOOL finished){
-                         
-                         complete();
-                         [self.view setFrameX:-320.0];
-                         //[self showFullTextForOpeningNote:NO inCell:(UITableViewCell *)[self currentNote]];
-                         
-                     }];
+     }
+     */
 }
 
-- (UITextView *)textViewForNoteView:(UITableViewCell *)cell
+- (UITextView *)makeFullTextForNoteView:(UITableViewCell *)cell
 {
     UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
+    
     int index = [_noteViews indexOfObject:cell];
     NoteEntry *noteEntry = [_noteEntryModels objectAtIndex:index];
+    
     if (!textView) { // if it doesn't have it, add it and hide title text
         textView = [self makeFulltextView];
-        textView.text = noteEntry.text;
-        textView.textColor = subtitle.textColor;
         [cell.contentView addSubview:textView];
     }
+    
+    textView.text = noteEntry.text;
+    textView.textColor = subtitle.textColor;
     
     return textView;
 }
 
 - (void)showFullTextForOpeningNote:(UITableViewCell *)cell animated:(BOOL)animated
 {
-    UITextView *textView = [self textViewForNoteView:cell];
+    UITextView *textView = [self makeFullTextForNoteView:cell];
 
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
     
@@ -762,6 +674,8 @@ static const float  kCellHeight             = 66.0;
     
     if ([self currentNoteIsLast]) {
         [self showFullTextForOpeningNote:noteCell animated:NO];
+    } else {
+        [self showFullTextForOpeningNote:noteCell animated:YES];
     }
     
     
@@ -803,7 +717,7 @@ static const float  kCellHeight             = 66.0;
 {
     if (isLast) {
         [self showFullTextForOpeningNote:noteCell animated:NO];
-    }
+    } 
     
     float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
     [UIView animateWithDuration:duration
@@ -1066,6 +980,10 @@ static const float  kCellHeight             = 66.0;
         
         noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
         [noteCell.subtitleLabel setText:noteEntry.title];
+        UITextView *fullText = (UITextView *)[noteCell.contentView viewWithTag:FULL_TEXT_TAG];
+        if (fullText) {
+            fullText.text = noteEntry.text;
+        }
         noteCell.relativeTimeText.text = [noteEntry relativeDateString];
         
         UILabel *circle = (UILabel *)[noteCell viewWithTag:78];
@@ -1111,12 +1029,8 @@ static const float  kCellHeight             = 66.0;
 
 - (BOOL)noteIsLast:(int)viewIndex
 {
-    int lastIndex = _sectionZeroRowOneVisible ? _noteViews.count -2 : _noteViews.count-1;
-    //    if (_sectionZeroRowOneVisible) {
-    //        if (viewIndex==lastIndex) {
-    //            NSLog(@"reporting vie a");
-    //        }
-    //    }
+    int lastIndex = _noteViews.count-1;
+    
     return viewIndex == lastIndex;
 }
 
