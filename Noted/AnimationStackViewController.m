@@ -24,7 +24,7 @@
 #define SECZERO_ROWZERO_TAG 687
 #define NOTE_TAG            697
 
-#define DEBUG_ANIMATIONS    1
+#define DEBUG_ANIMATIONS    0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 2.5;
@@ -333,7 +333,9 @@ static const float  kCellHeight             = 66.0;
     
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
-        [[currentNoteCell viewWithTag:FULL_TEXT_TAG] setHidden:NO];
+        
+        UITextView *textView = [self textViewForNoteView:currentNoteCell];
+        [textView setHidden:NO];
     }
     
     [self collapseCurrentNoteWithScale:scale];
@@ -510,11 +512,16 @@ static const float  kCellHeight             = 66.0;
     }
     
     UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
+    
     if (!currentNoteIsLast) {
         float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
         fullText.alpha = 1.0-(_pinchPercentComplete*factor);
         currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
     } else {
+
+        NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
+        NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
+        NSLog(@"alpha of fulltext is %f",fullText.alpha);
         newHeight = self.view.bounds.size.height - newY;
     }
     
@@ -580,18 +587,27 @@ static const float  kCellHeight             = 66.0;
                      }];
 }
 
-- (void)showFullTextForOpeningNote:(UITableViewCell *)cell animated:(BOOL)animated
+- (UITextView *)textViewForNoteView:(UITableViewCell *)cell
 {
     UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
-    
-    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex];;
+    int index = [_noteViews indexOfObject:cell];
+    NoteEntry *noteEntry = [_noteEntryModels objectAtIndex:index];
     if (!textView) { // if it doesn't have it, add it and hide title text
         textView = [self makeFulltextView];
         textView.text = noteEntry.text;
         textView.textColor = subtitle.textColor;
         [cell.contentView addSubview:textView];
     }
+    
+    return textView;
+}
+
+- (void)showFullTextForOpeningNote:(UITableViewCell *)cell animated:(BOOL)animated
+{
+    UITextView *textView = [self textViewForNoteView:cell];
+
+    UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
     
     if (animated) {
         textView.alpha = 0.0;
@@ -797,7 +813,7 @@ static const float  kCellHeight             = 66.0;
                              CGRect destinationFrame = CGRectMake(0.0, self.view.bounds.size.height, 320.0, 200.0); // arbitrary height?
                              
                              [noteCell setFrame:destinationFrame];
-                             //[extenderView setFrameY:CGRectGetMaxY(self.view.bounds)+66.0];
+
                          } else {
                              float yOrigin = isBelow ? self.view.bounds.size.height : 0.0;
                              CGRect destinationFrame = CGRectMake(0.0, yOrigin, 320.0, 66.0);
