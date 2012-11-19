@@ -406,9 +406,10 @@ static const float  kCellHeight             = 66.0;
     diff = diff*_pinchPercentComplete;
     CGFloat newY = startY;
     
-    UITextView *textView = (UITextView *)[noteView.contentView viewWithTag:FULL_TEXT_TAG];
+    UITextView *textView = [self makeFullTextForNoteView:noteView];
     [textView setHidden:YES];
     [noteView.subtitleLabel setHidden:NO];
+    noteView.subtitleLabel.alpha = 1.0;
     
     if (diff == 0 && _pinchPercentComplete == 1.0) {
         
@@ -422,8 +423,10 @@ static const float  kCellHeight             = 66.0;
     
     float newHeight = kCellHeight;
     
-    if ([self noteIsLast:[self indexOfNoteView:noteView]]) {
+    int i = [self indexOfNoteView:noteView];
+    if ([self noteIsLast:i]) {
         [textView setHidden:NO];
+        [noteView.subtitleLabel setHidden:YES];
         newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
     }
     
@@ -511,6 +514,7 @@ static const float  kCellHeight             = 66.0;
     
     textView.text = noteEntry.text;
     textView.textColor = subtitle.textColor;
+    [textView setHidden:NO];
     
     return textView;
 }
