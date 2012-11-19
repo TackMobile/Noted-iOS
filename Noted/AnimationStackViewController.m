@@ -24,7 +24,7 @@
 #define SECZERO_ROWZERO_TAG 687
 #define NOTE_TAG            697
 
-#define DEBUG_ANIMATIONS    0
+#define DEBUG_ANIMATIONS    1
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 2.5;
@@ -101,24 +101,11 @@ static const float  kCellHeight             = 66.0;
     [self.view setBackgroundColor:[UIColor whiteColor]];
 }
 
-- (void)setIndexOfSelectedNoteView:(int)index
-{
-    _selectedViewIndex = index;
-    
-    if (_sectionZeroRowOneVisible) {
-        _selectedViewIndex ++;
-    } else {
-        NSIndexPath *firstVisible = [[_tableView indexPathsForVisibleRows] objectAtIndex:0];
-        _selectedViewIndex = index - firstVisible.row;
-        
-    }
-}
-
 - (void)prepareForAnimation
 {
-    if (!_animating) {
+    //if (!_animating) {
         [self.view setFrameX:-self.view.bounds.size.width];
-    }
+    //}
     
     [_noteEntryModels removeAllObjects];
     NSArray *allEntries = [[[ApplicationModel sharedInstance] currentNoteEntries] array];
@@ -160,15 +147,9 @@ static const float  kCellHeight             = 66.0;
 {
     
     NSArray *visibleRows = _tableView.indexPathsForVisibleRows;
-    //BOOL isLast = [self currentNoteIsLast];
     
     NSIndexPath *selectedIndexPath = [_tableView indexPathForSelectedRow];
-    _selectedViewIndex = selectedIndexPath.row - [(NSIndexPath *)[visibleRows objectAtIndex:0] row];
-    if (_sectionZeroRowOneVisible) {
-        _selectedViewIndex += 1;
-    }
-    currentNoteCell = [_noteViews objectAtIndex:_selectedViewIndex];
-    currentNoteIsLast = [self currentNoteIsLast];
+    [self setSelectedNoteForIndexPath:selectedIndexPath];
     
     //NSLog(@"selectedViewIndex is now %i",_selectedViewIndex);
     _centerNoteDestinationFrame = [_tableView rectForRowAtIndexPath:selectedIndexPath];
@@ -348,6 +329,7 @@ static const float  kCellHeight             = 66.0;
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent
 {
     _pinchPercentComplete = pinchPercent;
+    NSLog(@"_pinchPercentComplete = %f",_pinchPercentComplete);
     
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
@@ -407,7 +389,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     NoteEntryCell *noteView = [_noteViews objectAtIndex:index];
-    NSLog(@"range exception crash? [%i]",__LINE__);
+    //NSLog(@"range exception crash? [%i]",__LINE__);
     if (index>destinationFrames.count-1) {
         NSLog(@"%i %i",index,__LINE__);
     }
@@ -593,12 +575,12 @@ static const float  kCellHeight             = 66.0;
                          
                          complete();
                          [self.view setFrameX:-320.0];
-                         //[self toggleFullTextForNoteOpening:NO inCell:(UITableViewCell *)[self currentNote]];
+                         //[self showFullTextForOpeningNote:NO inCell:(UITableViewCell *)[self currentNote]];
                          
                      }];
 }
 
-- (void)toggleFullTextForNoteOpening:(BOOL)opening inCell:(UITableViewCell *)cell
+- (void)showFullTextForOpeningNote:(UITableViewCell *)cell animated:(BOOL)animated
 {
     UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
@@ -611,12 +593,7 @@ static const float  kCellHeight             = 66.0;
         [cell.contentView addSubview:textView];
     }
     
-    //NSLog(@"textView is hidden: %s",textView.isHidden ? "ja" : "nein");
-    
-    if ([self currentNoteIsLast]) {
-        textView.alpha = 1.0;
-        subtitle.alpha = 0.0;
-    } else {
+    if (animated) {
         textView.alpha = 0.0;
         [UIView animateWithDuration:[self animationDuration]*0.4
                          animations:^{
@@ -628,8 +605,12 @@ static const float  kCellHeight             = 66.0;
                          completion:^(BOOL finished){
                              subtitle.alpha = 0.0;
                          }];
+    } else {
+        textView.alpha = 1.0;
+        subtitle.alpha = 0.0;
     }
 }
+
 
 - (void)updateNoteText
 {
@@ -674,14 +655,26 @@ static const float  kCellHeight             = 66.0;
 
 #pragma mark Tap to open animation
 
+- (void)setSelectedNoteForIndexPath:(NSIndexPath *)indexPath
+{
+    NSArray *visibleRows = _tableView.indexPathsForVisibleRows;
+    _selectedViewIndex = indexPath.row - [(NSIndexPath *)[visibleRows objectAtIndex:0] row];
+    if (_sectionZeroRowOneVisible) {
+        _selectedViewIndex += 1;
+    }
+    
+    currentNoteCell = [_noteViews objectAtIndex:_selectedViewIndex];
+    currentNoteIsLast = [self currentNoteIsLast];
+}
+
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
     
     [self prepareForAnimation];
     [self.view setFrameX:0.0];
     
-    [self setIndexOfSelectedNoteView:selectedIndexPath.row];
-    //NSLog(@"%d",_selectedViewIndex);
+    [self setSelectedNoteForIndexPath:selectedIndexPath];
+    
     _animating = YES;
     
     if (!_sectionZeroRowOneVisible) {
@@ -697,12 +690,9 @@ static const float  kCellHeight             = 66.0;
         CGRect frame = [_tableView convertRect:modelCellView.frame toView:[_tableView superview]];
         noteCell.frame = frame;
         
-        //NSLog(@"Note view class: %@, frame will be %@",[noteCell class],NSStringFromCGRect(frame));
-        
         if (noteCell.tag == SECZERO_ROWZERO_TAG) {
             
             [self.view insertSubview:noteCell atIndex:0];
-            //[noteCell setFrameX:10.0];
             noteViewIndex ++;
             
             continue;
@@ -754,8 +744,10 @@ static const float  kCellHeight             = 66.0;
 {
     NoteEntryCell *noteCell = (NoteEntryCell *)[self currentNote];
     
+    if ([self currentNoteIsLast]) {
+        [self showFullTextForOpeningNote:noteCell animated:NO];
+    }
     
-    [self toggleFullTextForNoteOpening:YES inCell:noteCell];
     
     [UIView animateWithDuration:[self animationDuration]
                      animations:^{
@@ -768,7 +760,6 @@ static const float  kCellHeight             = 66.0;
                          NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
                          NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
                          NSLog(@"alpha of fulltext is %f",fullText.alpha);
-                         
                          
                          [noteCell setFrame:appFrame];
                          noteCell.layer.cornerRadius = 6.0;
@@ -794,6 +785,10 @@ static const float  kCellHeight             = 66.0;
 
 - (void)openNote:(NoteEntryCell *)noteCell isLast:(bool)isLast isBelow:(BOOL)isBelow
 {
+    if (isLast) {
+        [self showFullTextForOpeningNote:noteCell animated:NO];
+    }
+    
     float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
     [UIView animateWithDuration:duration
                      animations:^{
@@ -1090,6 +1085,10 @@ static const float  kCellHeight             = 66.0;
 - (BOOL)currentNoteIsLast
 {
     int viewIndex = [self indexOfNoteView:currentNoteCell];
+    
+    if (viewIndex == NSNotFound) {
+        NSLog(@"wtf");
+    }
     
     return [self noteIsLast:viewIndex];
 }
