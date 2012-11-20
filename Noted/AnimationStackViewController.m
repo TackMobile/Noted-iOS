@@ -381,20 +381,15 @@ static const float  kCellHeight             = 66.0;
     BOOL sectionZeroRowZero = (index == 0 && _sectionZeroRowOneVisible) ? YES : NO;
     
     if (index==_selectedViewIndex) {
-        NSLog(@"Skipped view of class %@ at _selectedViewIndex index %i in _noteViews",NSStringFromClass([[_noteViews objectAtIndex:index] class]),index);
         return;
     }
     
     if (sectionZeroRowZero) {
-        NSLog(@"Skipped view of class %@ at sectionZeroRowZero index %i in _noteViews",NSStringFromClass([[_noteViews objectAtIndex:index] class]),index);
         return;
     }
     
     NoteEntryCell *noteView = [_noteViews objectAtIndex:index];
-    //NSLog(@"range exception crash? [%i]",__LINE__);
-    if (index>destinationFrames.count-1) {
-        NSLog(@"%i %i",index,__LINE__);
-    }
+    
     CGRect destinationFrame = [(NSValue *)[destinationFrames objectAtIndex:index] CGRectValue];
     
     CGRect originFrame = [(NSValue *)[originFrames objectAtIndex:index] CGRectValue];
@@ -468,18 +463,16 @@ static const float  kCellHeight             = 66.0;
     }
     
     UIView *fullText = [self makeFullTextForNoteView:currentNoteCell];
-    NSLog(@"fulltext is hidden: %s",fullText.isHidden ? "yes" : "no");
-    NSLog(@"fulltext text: %@",[(UITextView *)fullText text]);
-    NSLog(@"alpha of fulltext is %f",fullText.alpha);
-    
+        
     if (!currentNoteIsLast) {
         float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
         fullText.alpha = 1.0-(_pinchPercentComplete*factor);
-        NSLog(@"%f",fullText.alpha);
+
         currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
-        NSLog(@"%f",currentNoteCell.subtitleLabel.alpha);
+
     } else {
         
+        NSLog(@"%f",currentNoteCell.subtitleLabel.alpha);
         newHeight = self.view.bounds.size.height - newY;
     }
     
@@ -491,6 +484,7 @@ static const float  kCellHeight             = 66.0;
 - (void)finishCollapse:(void(^)())complete
 {
     complete();
+    _pinchPercentComplete = 0.0;
     [self.view setFrameX:-320.0];
     /*
      for (UITableViewCell *cell in _noteViews) {
@@ -512,7 +506,18 @@ static const float  kCellHeight             = 66.0;
         [cell.contentView addSubview:textView];
     }
     
-    textView.text = noteEntry.text;
+    BOOL isCurrentAndLast = [self currentNoteIsLast] && [cell isEqual:currentNoteCell];
+    if (_pinchPercentComplete > 0.0 && !isCurrentAndLast && ![self noteIsLast:[_noteViews indexOfObject:cell]]) {
+        NSString *text = noteEntry.text;
+        NSRange range = [text rangeOfString:@"\n"];
+        if (range.location != NSNotFound) {
+            text = [text stringByReplacingCharactersInRange:NSMakeRange(0, range.location) withString:@""];
+        }
+        textView.text = text;
+    } else {
+        textView.text = noteEntry.text;
+    }
+    
     textView.textColor = subtitle.textColor;
     [textView setHidden:NO];
     
@@ -546,16 +551,15 @@ static const float  kCellHeight             = 66.0;
 
 - (void)updateNoteText
 {
-    if (_selectedViewIndex>_noteViews.count-1) {
-        NSLog(@"uh oh");
-    }
-    NSLog(@"here? [%i]",__LINE__);
+    NSAssert(_selectedViewIndex <= _noteViews.count-1,@"Range exception!");
+
     NoteEntryCell *noteCell = (NoteEntryCell *)[_noteViews objectAtIndex:_selectedViewIndex];
     UITextView *fullText = (UITextView *)[noteCell.contentView viewWithTag:FULL_TEXT_TAG];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtSelectedNoteIndex];
     NSString *newText = noteEntry.text;
-    NSLog(@"updating text from %@ to %@",fullText.text,newText);
+
     fullText.text = newText;
+    noteCell.subtitleLabel.text = newText;
     
     UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
     int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
@@ -568,13 +572,9 @@ static const float  kCellHeight             = 66.0;
         [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
     }
     
-    if (![noteCell respondsToSelector:@selector(setRelativeTimeText:)]) {
-        NSLog(@"stop!");
-    }
     noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
     
     noteCell.contentView.backgroundColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
-    NSLog(@"Note cell subtitle was: %@, now it's: %@:",noteCell.subtitleLabel.text,noteEntry.title);
 }
 
 - (void)logSubviewsAndMisc
