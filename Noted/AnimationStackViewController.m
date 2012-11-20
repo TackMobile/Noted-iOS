@@ -299,9 +299,12 @@ static const float  kCellHeight             = 66.0;
     
     [_noteViews enumerateObjectsUsingBlock:^(id obj,NSUInteger index,BOOL *stop) {
         
+        UIView *note = (UIView *)obj;
         if (index != _selectedViewIndex) {
             
-            UIView *note = (UIView *)obj;
+            UIView *shadow = [note viewWithTag:SHADOW_TAG];
+            float h = [self noteIsLast:note] ? CGRectGetMaxY(note.frame)+7.0 : kCellHeight;
+            [shadow setFrameY:h-7];
             
             CGRect frame = [[originFrames objectAtIndex:index] CGRectValue];
             if (animated) {
@@ -331,7 +334,6 @@ static const float  kCellHeight             = 66.0;
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent
 {
     _pinchPercentComplete = pinchPercent;
-    NSLog(@"_pinchPercentComplete = %f",_pinchPercentComplete);
     
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
@@ -342,7 +344,6 @@ static const float  kCellHeight             = 66.0;
     
     [self collapseCurrentNoteWithScale:scale];
     [self shrinkStackedNotesForScale:scale];
-    
 }
 
 - (void)shrinkStackedNotesForScale:(CGFloat)scale
@@ -420,8 +421,7 @@ static const float  kCellHeight             = 66.0;
     
     float newHeight = kCellHeight;
     
-    int i = [self indexOfNoteView:noteView];
-    if ([self noteIsLast:i]) {
+    if ([self noteIsLast:noteView]) {
         [textView setHidden:NO];
         [noteView.subtitleLabel setHidden:YES];
         newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
@@ -438,17 +438,19 @@ static const float  kCellHeight             = 66.0;
 {
     BOOL currentIsLast = [self currentNoteIsLast];
     float destHeight = _centerNoteDestinationFrame.size.height;
+    
     float diff = self.view.bounds.size.height-destHeight;
-    float newHeight = self.view.bounds.size.height-(diff*_pinchPercentComplete);
+    float newHeight = (self.view.bounds.size.height-(_pinchPercentComplete*diff));
     
     [self updateSubviewsForNote:currentNoteCell scaled:YES];
     
     float centerFactor = currentIsLast ? 1.0 : 0.5;
-    float newY;
+    float newY = 0.0;;
     if (currentIsLast) {
         newY = (self.view.bounds.size.height-newHeight)*centerFactor;
     } else {
         newY = _centerNoteDestinationFrame.origin.y*_pinchPercentComplete;
+
     }
     
     /*
@@ -462,25 +464,27 @@ static const float  kCellHeight             = 66.0;
      */
     if (newY < 0) {
         newY = 0;
-    }
+    } 
     
     UIView *fullText = [self makeFullTextForNoteView:currentNoteCell];
         
-    if (!currentNoteIsLast) {
+    if (currentNoteIsLast) {
+        newHeight = self.view.bounds.size.height - newY;
+    } else {
         float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
         fullText.alpha = 1.0-(_pinchPercentComplete*factor);
-
         currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
-
-    } else {
-        
-        NSLog(@"%f",currentNoteCell.subtitleLabel.alpha);
-        newHeight = self.view.bounds.size.height - newY;
     }
     
-    _centerNoteFrame = CGRectMake(0.0, newY, 320.0, newHeight);
+    _centerNoteFrame = CGRectMake(0.0, newY, self.view.bounds.size.width, newHeight);
+    
+    UIView *shadow = [currentNoteCell viewWithTag:SHADOW_TAG];
+    float sY = newHeight-7.0;
+    [shadow setFrameY:sY];
     
     [currentNoteCell setFrame:_centerNoteFrame];
+    
+    
 }
 
 - (void)finishCollapse:(void(^)())complete
@@ -509,7 +513,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     BOOL isCurrentAndLast = [self currentNoteIsLast] && [cell isEqual:currentNoteCell];
-    if (_pinchPercentComplete > 0.0 && !isCurrentAndLast && ![self noteIsLast:[_noteViews indexOfObject:cell]]) {
+    if (_pinchPercentComplete > 0.0 && !isCurrentAndLast && ![self noteIsLast:cell]) {
         NSString *text = noteEntry.text;
         NSRange range = [text rangeOfString:@"\n"];
         if (range.location != NSNotFound) {
@@ -647,7 +651,7 @@ static const float  kCellHeight             = 66.0;
             [self openCurrentNoteWithCompletion:completeBlock];
         } else {
             BOOL isBelow = noteViewIndex > _selectedViewIndex;
-            BOOL isLastCell = [self noteIsLast:noteViewIndex];
+            BOOL isLastCell = [self noteIsLast:noteCell];
             
             [self openNote:noteCell isLast:isLastCell isBelow:isBelow];
         }
@@ -933,9 +937,7 @@ static const float  kCellHeight             = 66.0;
             [_noteViews insertObject:noteView atIndex:0];
         } else {
             [_noteViews addObject:noteView];
-            //UIView *shadow = [noteView viewWithTag:SHADOW_TAG];
-            //[shadow setFrameY:-CGRectGetHeight(shadow.frame)];
-        }
+                    }
         
         [self.view addSubview:noteView];
         
@@ -1034,11 +1036,12 @@ static const float  kCellHeight             = 66.0;
         NSLog(@"wtf");
     }
     
-    return [self noteIsLast:viewIndex];
+    return [self noteIsLast:currentNoteCell];
 }
 
-- (BOOL)noteIsLast:(int)viewIndex
+- (BOOL)noteIsLast:(UIView *)noteView
 {
+    int viewIndex = [self indexOfNoteView:noteView];
     int lastIndex = _noteViews.count-1;
     
     return viewIndex == lastIndex;
