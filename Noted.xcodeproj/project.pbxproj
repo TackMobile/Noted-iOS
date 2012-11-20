@@ -91,6 +91,9 @@
 		EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960715B7C5E9004A2494 /* NoteStackViewController.xib */; };
 		EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960B15B7C604004A2494 /* NoteViewController.m */; };
 		EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960C15B7C604004A2494 /* NoteViewController.xib */; };
+		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
+		F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */; };
+		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -219,6 +222,10 @@
 		EAD6960A15B7C604004A2494 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		EAD6960B15B7C604004A2494 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
 		EAD6960C15B7C604004A2494 /* NoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteViewController.xib; sourceTree = "<group>"; };
+		F34DDC52165BF72100A43868 /* DragToCreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragToCreateViewController.h; sourceTree = "<group>"; };
+		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
+		F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateViewController.xib; sourceTree = "<group>"; };
+		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -429,6 +436,7 @@
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
+				F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */,
 				B5B826B116233C6700DD85CE /* topCornerShadows.png */,
 				B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */,
 				B5AA89D7160B96320094299B /* cellShadow.png */,
@@ -472,8 +480,19 @@
 				B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */,
 				B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */,
 				B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */,
+				F34DDC50165BF6D500A43868 /* view */,
 			);
 			name = New;
+			sourceTree = "<group>";
+		};
+		F34DDC50165BF6D500A43868 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
+				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
+				F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */,
+			);
+			name = view;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -566,6 +585,8 @@
 				B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */,
 				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
+				F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */,
+				F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,6 +633,7 @@
 				967096081630A5B3004611ED /* TKPromise.m in Sources */,
 				9670960B1630A647004611ED /* NSString+Digest.m in Sources */,
 				B554DB871647F12B00047494 /* DrawView.m in Sources */,
+				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
