@@ -7,9 +7,20 @@
 //
 
 #import "NewNoteCell.h"
+#import "UIColor+HexColor.h"
 
 @implementation NewNoteCell
 
 @synthesize label;
+
++ (void)configure:(NewNoteCell *)cell {
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.backgroundColor = [UIColor clearColor];
+    cell.label.textColor = [UIColor colorWithHexString:@"AAAAAA"];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.contentView.backgroundColor = [UIColor whiteColor];
+    
+    cell.label.text = NSLocalizedString(@"New Note", @"New Note");
+}
 
 @end

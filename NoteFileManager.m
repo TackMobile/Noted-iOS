@@ -154,8 +154,7 @@
     
     if ([FileStorageState preferredStorage]==kTKiCloud) {
         // have CloudManager do it
-#warning TODO: reimplement!!!!!
-        //[[CloudManager sharedInstance] deleteEntry:noteDocument.noteEntry withCompletion:completionBlock];
+        [[CloudManager sharedInstance] deleteEntry:noteEntry withCompletion:completionBlock];
     } else {
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {

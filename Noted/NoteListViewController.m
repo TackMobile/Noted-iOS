@@ -137,7 +137,12 @@ typedef enum {
     if (_viewingNoteStack && yOffset>0) {
         _viewingNoteStack = NO;
         yOffset = 0.0;
-        [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+        } else {
+            [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        }
+        
     }
 }
 
@@ -155,12 +160,6 @@ typedef enum {
     if (_stackViewController) {
         [self setStackState];
     }
-}
-
-- (void)indexDidChange
-{
-    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
-    [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
 }
 
 - (int)selectedIndexPathForStack
@@ -200,11 +199,24 @@ typedef enum {
                     break;
                 }
             }
-            
         });
-    
+    }
+}
+
+- (void)indexDidChange
+{
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    if (_noteCount != notes.count) {
+        [self listDidUpdate];
     }
     
+    _selectedIndexPath = [NSIndexPath indexPathForRow:[ApplicationModel sharedInstance].selectedNoteIndex inSection:kNoteItems];
+    [self.tableView reloadData];
+    if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionBottom];
+    } else {
+        [self.tableView selectRowAtIndexPath:_selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
 }
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
@@ -225,7 +237,7 @@ typedef enum {
     } else {
         
         if (indexPath.row == _noteCount-1) {
-            return 150;
+            return self.view.bounds.size.height-44.0;
         }
          
         return 66;
@@ -260,11 +272,8 @@ typedef enum {
         if (newNoteCell == nil) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
             newNoteCell = [topLevelObjects objectAtIndex:0];
-            newNoteCell.textLabel.adjustsFontSizeToFitWidth = YES;
-            newNoteCell.textLabel.backgroundColor = [UIColor clearColor];
-            newNoteCell.label.textColor = [UIColor colorWithHexString:@"AAAAAA"];
-            newNoteCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            newNoteCell.contentView.backgroundColor = [UIColor whiteColor];
+            [NewNoteCell configure:newNoteCell];
+            
             //newNoteCell setTime
         }
         newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
@@ -579,8 +588,6 @@ typedef enum {
     return title;
 }
 
-
-
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
     if (interfaceOrientation==UIInterfaceOrientationPortrait ) {
         return YES;
@@ -654,16 +661,7 @@ typedef enum {
     [self listDidUpdate];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    
-    /*
-     [self delayedCall:0.1 withBlock:^{
-     [self.tableView reloadData];
-     if (_stackViewController) {
-     [_stackViewController prepareForCollapseAnimationForView:self.view];
-     [self.tableView reloadData];
-     }
-     }];
-     */
+
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
