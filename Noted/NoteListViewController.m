@@ -532,7 +532,7 @@ typedef enum {
             [EZToastView showToastMessage:@"disabled"];
             return;
         }
-        NSLog(@"Before count: %d",model.currentNoteEntries.count);
+
         [model createNoteWithCompletionBlock:^(NoteEntry *entry){
             // new note entry should always appear at row 0, right?
             NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
@@ -540,7 +540,7 @@ typedef enum {
             
         }];
         _noteCount = model.currentNoteEntries.count;
-        NSLog(@"After count: %d",model.currentNoteEntries.count);
+
         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
 
         [self listDidUpdate];
@@ -555,7 +555,7 @@ typedef enum {
         }
         
         model.selectedNoteIndex = indexPath.row;
-        NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);
+
         [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
             
             NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];

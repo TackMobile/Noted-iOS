@@ -23,11 +23,12 @@
 #define LABEL_TAG           200
 #define SECZERO_ROWZERO_TAG 687
 #define NOTE_TAG            697
+#define SHADOW_TAG          56
 
-#define DEBUG_ANIMATIONS    0
+#define DEBUG_ANIMATIONS    1
 
 static const float  kAnimationDuration      = 0.5;
-static const float  kDebugAnimationDuration = 2.5;
+static const float  kDebugAnimationDuration = 1.5;
 static const float  kCellHeight             = 66.0;
 
 @interface AnimationStackViewController ()
@@ -104,6 +105,7 @@ static const float  kCellHeight             = 66.0;
 - (void)prepareForAnimation
 {
     //if (!_animating) {
+#warning what is this doing?
         [self.view setFrameX:-self.view.bounds.size.width];
     //}
     
@@ -128,15 +130,15 @@ static const float  kCellHeight             = 66.0;
         }
     }
     
-    NSLog(@"Number of visible index paths before trimming: %i",visibleIndexPaths.count);
-    NSLog(@"Number of _noteViews before trimming: %i",_noteViews.count);
+    //NSLog(@"Number of visible index paths before trimming: %i",visibleIndexPaths.count);
+    //NSLog(@"Number of _noteViews before trimming: %i",_noteViews.count);
     [self trimCellViews];
-    NSLog(@"Number of visible index paths after trimming: %i",visibleIndexPaths.count);
-    NSLog(@"Number of _noteViews after trimming: %i",_noteViews.count);
-    if (_noteViews.count != _tableView.indexPathsForVisibleRows.count) {
-        NSLog(@"Verdammt! [%i]",__LINE__);
-        [self logSubviewsAndMisc];
-    }
+    //NSLog(@"Number of visible index paths after trimming: %i",visibleIndexPaths.count);
+    //NSLog(@"Number of _noteViews after trimming: %i",_noteViews.count);
+    //if (_noteViews.count != _tableView.indexPathsForVisibleRows.count) {
+        //NSLog(@"Verdammt! [%i]",__LINE__);
+        //[self logSubviewsAndMisc];
+    //}
     
     [self updateCellsWithModels];
 }
@@ -630,7 +632,7 @@ static const float  kCellHeight             = 66.0;
             continue;
         }
         
-        UIView *shadow = [noteCell viewWithTag:56];
+        UIView *shadow = [noteCell viewWithTag:SHADOW_TAG];
         float shadowHeight = 7.0;
         [shadow setFrameY:-shadowHeight];
         [shadow setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
@@ -649,6 +651,8 @@ static const float  kCellHeight             = 66.0;
             
             [self openNote:noteCell isLast:isLastCell isBelow:isBelow];
         }
+        
+        [self.view addSubview:noteCell];
         
         noteViewIndex ++;
     }
@@ -929,6 +933,8 @@ static const float  kCellHeight             = 66.0;
             [_noteViews insertObject:noteView atIndex:0];
         } else {
             [_noteViews addObject:noteView];
+            //UIView *shadow = [noteView viewWithTag:SHADOW_TAG];
+            //[shadow setFrameY:-CGRectGetHeight(shadow.frame)];
         }
         
         [self.view addSubview:noteView];
