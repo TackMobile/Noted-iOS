@@ -405,7 +405,6 @@ typedef enum {
     }
 }
 
-
 - (void)willDisplayLastRowCell:(UITableViewCell *)lastCell atIndexPath:(NSIndexPath *)lastIndexPath
 {
     _lastRow = (NoteEntryCell *)lastCell;
@@ -506,7 +505,6 @@ typedef enum {
     if ([ApplicationModel sharedInstance].currentNoteEntries.count ==0) {
         return;
     }
-    NSLog(@"%f", scrollView.contentOffset.y);
     if (scrollView.contentOffset.y < 0) {
         [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
     }
@@ -539,7 +537,14 @@ typedef enum {
     
     if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
         [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNew]];
+        [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(openLastNoteCreated:) userInfo:nil repeats:NO];
+        
     }
+}
+
+-(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
+    [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNoteItems]];
+
 }
 
 - (void)setStackState
