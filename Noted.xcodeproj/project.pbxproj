@@ -109,6 +109,8 @@
 		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
 		F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */; };
 		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
+		F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */; };
+		F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -256,6 +258,9 @@
 		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
 		F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateViewController.xib; sourceTree = "<group>"; };
 		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
+		F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkthroughViewController.h; sourceTree = "<group>"; };
+		F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkthroughViewController.m; sourceTree = "<group>"; };
+		F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalkthroughViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -404,6 +409,7 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
+				F3FD5A16165C0FBF00A45062 /* walkthrough */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
 				EAD695FF15B7B8CA004A2494 /* New */,
@@ -532,6 +538,16 @@
 			name = New;
 			sourceTree = "<group>";
 		};
+		F3FD5A16165C0FBF00A45062 /* walkthrough */ = {
+			isa = PBXGroup;
+			children = (
+				F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */,
+				F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */,
+				F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */,
+			);
+			name = walkthrough;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -639,6 +655,7 @@
 				967C0F47164D762200E80419 /* strip-three@2x.png in Resources */,
 				967C0F48164D762200E80419 /* strip-two.png in Resources */,
 				967C0F49164D762200E80419 /* strip-two@2x.png in Resources */,
+				F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,6 +703,7 @@
 				9670960B1630A647004611ED /* NSString+Digest.m in Sources */,
 				B554DB871647F12B00047494 /* DrawView.m in Sources */,
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
+				F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
