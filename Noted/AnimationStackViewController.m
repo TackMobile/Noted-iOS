@@ -24,8 +24,9 @@
 #define SECZERO_ROWZERO_TAG 687
 #define NOTE_TAG            697
 #define SHADOW_TAG          56
+#define SHADOW_TAG_DUP      57
 
-#define DEBUG_ANIMATIONS    1
+#define DEBUG_ANIMATIONS    0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 1.5;
@@ -58,6 +59,7 @@ static const float  kCellHeight             = 66.0;
     NSMutableArray *originFrames;
     
     NoteEntryCell *currentNoteCell;
+    NoteEntryCell *firstNoteCell;
     BOOL currentNoteIsLast;
     
 }
@@ -270,15 +272,14 @@ static const float  kCellHeight             = 66.0;
             count++;
             //NSLog(@"subview with class %@ and frame %@",NSStringFromClass([view class]),NSStringFromCGRect(view.frame));
             if (![_noteViews containsObject:view]) {
-                NSLog(@"removed a noteVIew that wasn't contained in noteViews");
                 [view removeFromSuperview];
             }
         } else {
             //NSLog(@"detected debug view");
         }
     }
-    NSLog(@"Num of views");
 }
+
 
 - (void)setNotesToCollapseBeginPositions:(BOOL)animated
 {
@@ -299,12 +300,19 @@ static const float  kCellHeight             = 66.0;
     
     [_noteViews enumerateObjectsUsingBlock:^(id obj,NSUInteger index,BOOL *stop) {
         
-        UIView *note = (UIView *)obj;
+        UITableViewCell *note = (UITableViewCell *)obj;
         if (index != _selectedViewIndex) {
             
             UIView *shadow = [note viewWithTag:SHADOW_TAG];
             float h = [self noteIsLast:note] ? CGRectGetMaxY(note.frame)+7.0 : kCellHeight;
             [shadow setFrameY:h-7];
+            
+            if ([note isEqual:firstNoteCell]) {
+                UIView *shadow2 = [note viewWithTag:SHADOW_TAG_DUP];
+                [shadow2 setHidden:NO];
+                [shadow2 setFrameY:-7.0];
+                [note setClipsToBounds:NO];
+            }
             
             CGRect frame = [[originFrames objectAtIndex:index] CGRectValue];
             if (animated) {
@@ -492,11 +500,11 @@ static const float  kCellHeight             = 66.0;
     complete();
     _pinchPercentComplete = 0.0;
     [self.view setFrameX:-320.0];
-    /*
+    
      for (UITableViewCell *cell in _noteViews) {
-     
+         UIView *shadow2 = [cell viewWithTag:SHADOW_TAG_DUP];
+         [shadow2 setHidden:YES];
      }
-     */
 }
 
 - (UITextView *)makeFullTextForNoteView:(UITableViewCell *)cell
@@ -603,6 +611,14 @@ static const float  kCellHeight             = 66.0;
     
     currentNoteCell = [_noteViews objectAtIndex:_selectedViewIndex];
     currentNoteIsLast = [self currentNoteIsLast];
+    
+    for (UIView *cell in _noteViews) {
+        if ([cell isKindOfClass:[NoteEntryCell class]]) {
+            firstNoteCell = (NoteEntryCell *)cell;
+            NSLog(@"first found at index %i",[_noteViews indexOfObject:firstNoteCell]);
+            break;
+        }
+    }
 }
 
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
