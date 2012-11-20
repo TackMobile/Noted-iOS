@@ -70,6 +70,9 @@ typedef enum {
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
         _scrolling = NO;
+        
+        // pullToCreate
+        dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
     }
     
     return self;
@@ -95,6 +98,15 @@ typedef enum {
         [self listDidUpdate];
         [self.tableView reloadData];
     }];
+    
+    CGRect pullToCreateRect = (CGRect){
+        {0, dragToCreateController.view.frame.size.height*(-1)},
+        dragToCreateController.view.frame.size
+    };
+    
+    [dragToCreateController.view setFrame:pullToCreateRect];
+    
+    [self.tableView addSubview:dragToCreateController.view];
 
     /*
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
@@ -337,6 +349,54 @@ typedef enum {
     }
 }
 
+- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
+    
+    _selectedIndexPath = indexPath;
+    NSLog(@"selected index row: %d",_selectedIndexPath.row);
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    if (indexPath.section == kNew) { //if "New Note" cell was pressed
+        
+        if (DISABLE_NEW_CELL) {
+            [EZToastView showToastMessage:@"disabled"];
+            return;
+        }
+        NSLog(@"Before count: %d",model.currentNoteEntries.count);
+        [model createNoteWithCompletionBlock:^(NoteEntry *entry){
+            // new note entry should always appear at row 0, right?
+            NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
+        }];
+        _noteCount = model.currentNoteEntries.count;
+        NSLog(@"After count: %d",model.currentNoteEntries.count);
+        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
+        
+        [self listDidUpdate];
+        
+        
+    } else { //if an existing note was selected
+        
+        if (_viewingNoteStack) {
+            return;
+        }
+        
+        model.selectedNoteIndex = indexPath.row;
+        NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);
+        [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
+            
+            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
+            if (!noteEntry.adding) {
+                [self showNoteStackForSelectedRow:indexPath.row animated:NO];
+            }
+            
+        }];
+        
+        _viewingNoteStack = YES;
+    }
+}
+
+
 - (void)willDisplayLastRowCell:(UITableViewCell *)lastCell atIndexPath:(NSIndexPath *)lastIndexPath
 {
     _lastRow = (NoteEntryCell *)lastCell;
@@ -437,6 +497,10 @@ typedef enum {
     if ([ApplicationModel sharedInstance].currentNoteEntries.count ==0) {
         return;
     }
+    NSLog(@"%f", scrollView.contentOffset.y);
+    if (scrollView.contentOffset.y < 0) {
+        [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
+    }
     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
     if (_lastRowVisible) {
         CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
@@ -462,7 +526,11 @@ typedef enum {
     
     if (!decelerate) {
         [self setStackState];
-    } 
+    }
+    
+    if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
+        [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNew]];
+    }
 }
 
 - (void)setStackState
@@ -511,52 +579,6 @@ typedef enum {
     return title;
 }
 
-- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
-    
-    _selectedIndexPath = indexPath;
-    NSLog(@"selected index row: %d",_selectedIndexPath.row);
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    if (indexPath.section == kNew) { //if "New Note" cell was pressed
-        
-        if (DISABLE_NEW_CELL) {
-            [EZToastView showToastMessage:@"disabled"];
-            return;
-        }
-        NSLog(@"Before count: %d",model.currentNoteEntries.count);
-        [model createNoteWithCompletionBlock:^(NoteEntry *entry){
-            // new note entry should always appear at row 0, right?
-            NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
-            
-        }];
-        _noteCount = model.currentNoteEntries.count;
-        NSLog(@"After count: %d",model.currentNoteEntries.count);
-        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
-
-        [self listDidUpdate];
-        
-        
-    } else { //if an existing note was selected
-        
-        if (_viewingNoteStack) {
-            return;
-        }
-        
-        model.selectedNoteIndex = indexPath.row;
-        NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);
-        [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
-            
-            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
-            if (!noteEntry.adding) {
-                [self showNoteStackForSelectedRow:indexPath.row animated:NO];
-            }
-        
-        }];
-        
-        _viewingNoteStack = YES;
-    }
-}
 
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{

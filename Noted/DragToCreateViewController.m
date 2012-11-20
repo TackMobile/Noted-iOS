@@ -13,12 +13,13 @@
 @end
 
 @implementation DragToCreateViewController
+@synthesize scrollIndicatorImage, instructionLabel;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        scrollThreshold = self.view.frame.size.height; // the same height of this xib
     }
     return self;
 }
@@ -33,6 +34,13 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - scrolling
+
+- (void) scrollingWithYOffset:(float)yOffset {
+    double rotation = (M_PI * (yOffset/scrollThreshold));
+    scrollIndicatorImage.transform = CGAffineTransformMakeRotation(rotation);
 }
 
 @end

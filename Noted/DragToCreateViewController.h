@@ -7,7 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
-@interface DragToCreateViewController : UIViewController
+@interface DragToCreateViewController : UIViewController {
+    float scrollThreshold;
+}
+
+@property (strong, nonatomic) IBOutlet UIImageView *scrollIndicatorImage;
+@property (strong, nonatomic) IBOutlet UILabel *instructionLabel;
+
+- (void) scrollingWithYOffset:(float)yOffset;
 
 @end
