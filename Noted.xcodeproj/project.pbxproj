@@ -106,6 +106,11 @@
 		EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960715B7C5E9004A2494 /* NoteStackViewController.xib */; };
 		EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960B15B7C604004A2494 /* NoteViewController.m */; };
 		EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960C15B7C604004A2494 /* NoteViewController.xib */; };
+		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
+		F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */; };
+		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
+		F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */; };
+		F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -249,6 +254,13 @@
 		EAD6960A15B7C604004A2494 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		EAD6960B15B7C604004A2494 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
 		EAD6960C15B7C604004A2494 /* NoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteViewController.xib; sourceTree = "<group>"; };
+		F34DDC52165BF72100A43868 /* DragToCreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragToCreateViewController.h; sourceTree = "<group>"; };
+		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
+		F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateViewController.xib; sourceTree = "<group>"; };
+		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
+		F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkthroughViewController.h; sourceTree = "<group>"; };
+		F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkthroughViewController.m; sourceTree = "<group>"; };
+		F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalkthroughViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -397,6 +409,7 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
+				F3FD5A16165C0FBF00A45062 /* walkthrough */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
 				EAD695FF15B7B8CA004A2494 /* New */,
@@ -460,6 +473,7 @@
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
+				F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */,
 				967C0F3E164D762200E80419 /* strip-one.png */,
 				967C0F3F164D762200E80419 /* strip-one@2x.png */,
 				967C0F40164D762200E80419 /* strip-three.png */,
@@ -517,8 +531,21 @@
 				B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */,
 				B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */,
 				B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */,
+				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
+				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
+				F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */,
 			);
 			name = New;
+			sourceTree = "<group>";
+		};
+		F3FD5A16165C0FBF00A45062 /* walkthrough */ = {
+			isa = PBXGroup;
+			children = (
+				F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */,
+				F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */,
+				F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */,
+			);
+			name = walkthrough;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -611,6 +638,8 @@
 				B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */,
 				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
+				F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */,
+				F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */,
 				96BB3A391648631D002BE051 /* slice.png in Resources */,
 				96BB3A3A1648631D002BE051 /* slice@2x.png in Resources */,
 				964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */,
@@ -626,6 +655,7 @@
 				967C0F47164D762200E80419 /* strip-three@2x.png in Resources */,
 				967C0F48164D762200E80419 /* strip-two.png in Resources */,
 				967C0F49164D762200E80419 /* strip-two@2x.png in Resources */,
+				F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -672,6 +702,8 @@
 				967096081630A5B3004611ED /* TKPromise.m in Sources */,
 				9670960B1630A647004611ED /* NSString+Digest.m in Sources */,
 				B554DB871647F12B00047494 /* DrawView.m in Sources */,
+				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
+				F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

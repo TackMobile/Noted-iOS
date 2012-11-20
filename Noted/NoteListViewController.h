@@ -10,8 +10,11 @@
 #import "NoteEntryCell.h"
 #import "NoteStackViewController.h"
 #import "AnimationStackViewController.h"
+#import "DragToCreateViewController.h"
 
-@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, NoteStackDelegate, AnimationStackDelegate>
+@interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, NoteStackDelegate, AnimationStackDelegate> {
+    DragToCreateViewController *dragToCreateController;
+}
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 
