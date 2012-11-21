@@ -10,6 +10,7 @@
 #import "Utilities.h"
 #import "NoteDocument.h"
 #import "NoteEntry.h"
+#import "NoteData.h"
 #import "NoteFileManager.h"
 #import "NSString+Digest.h"
 #import "FileStorageState.h"
@@ -143,14 +144,14 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     return [self noteAtIndex:selectedNoteIndex];
 }
 
-- (NoteDocument *)noteDocumentAtIndex:(int)index completion:(void(^)())completion
+- (NoteDocument *)noteDocumentAtIndex:(int)index completion:(void(^)(NoteDocument *doc))completion
 {
     NoteEntry *entry = [self.currentNoteEntries objectAtIndex:index];
     NoteDocument *selectedDocument = [[NoteDocument alloc] initWithFileURL:entry.fileURL];
     [selectedDocument openWithCompletionHandler:^(BOOL success) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
-                completion();
+                completion(selectedDocument);
             }
             
         });
@@ -161,6 +162,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index {
     int count = [self.currentNoteEntries count];
+    
     assert(index <= count);
     assert(index >= 0);
     NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
@@ -217,6 +219,21 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
     [self.currentNoteEntries insertObject:noteEntry atIndex:0];
     
+}
+
+- (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion
+{
+    [self createNoteWithCompletionBlock:completion];
+    NoteEntry *entry = [self.currentNoteEntries objectAtIndex:0];
+    // if we don't set text here it won't show in list until
+    // the note doc finishes opening. weird, but necessary
+    [entry.noteData setNoteText:text];
+    
+    [self noteDocumentAtIndex:selectedNoteIndex completion:^(NoteDocument *doc){
+        doc.text = text;
+        [entry setNoteData:doc.data];
+        [doc updateChangeCount:UIDocumentChangeDone];
+    }];    
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock

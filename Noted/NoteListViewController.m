@@ -113,26 +113,50 @@ typedef enum {
         [self.tableView addSubview:dragToCreateController.view];
     }
 
-    /*
-     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
-     
-     
-     }
-     
-     
-     }];
-     
-     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+    [self handleNotifications];
+}
 
-     }];
-     
-     */
+- (void)handleNotifications
+{
     
     [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
         
-        //CGRect newFrame =  [[UIApplication sharedApplication] statusBarFrame];
+        CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
+        [self.view setFrame:newFrame];
+    }];
+
+}
+
+- (void)createAndShowFirstNote
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model createNoteWithText:@"Lorem ipsum, this is your first note!" andCompletionBlock:^(NoteEntry *entry){
+        // new note entry should always appear at row 0, right?
+        NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
         
     }];
+
+    _noteCount = model.currentNoteEntries.count;
+    
+    
+    NSLog(@"After count: %d",model.currentNoteEntries.count);
+    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
+    
+    [self listDidUpdate];
+    
+    model.selectedNoteIndex = 0;
+    /*
+     NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+     [_stackViewController animateOpenForIndexPath:newIndexPath completion:^(){
+     
+     NoteEntry *noteEntry = [model noteAtIndex:newIndexPath.row];
+     if (!noteEntry.adding) {
+     [self showNoteStackForSelectedRow:newIndexPath.row animated:NO];
+     }
+     
+     }];
+     */
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -150,6 +174,7 @@ typedef enum {
         }
         
     }
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -189,6 +214,10 @@ typedef enum {
 {
     NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
     _noteCount = notes.count;
+    if ([FileStorageState isFirstUse] && _noteCount == 0) {
+        [self performSelector:@selector(createAndShowFirstNote) withObject:nil afterDelay:0.5];
+    }
+    
     NSLog(@"note count: %d",_noteCount);
     if (_noteCount>0) {
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
@@ -397,10 +426,6 @@ typedef enum {
         
         
     } else { //if an existing note was selected
-        
-        if (_viewingNoteStack) {
-            //return;
-        }
         
         model.selectedNoteIndex = indexPath.row;
         NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);

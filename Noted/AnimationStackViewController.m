@@ -149,7 +149,6 @@ static const float  kCellHeight             = 66.0;
 
 - (void)prepareForCollapse
 {
-    
     NSArray *visibleRows = _tableView.indexPathsForVisibleRows;
     
     NSIndexPath *selectedIndexPath = [_tableView indexPathForSelectedRow];

@@ -180,6 +180,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                              self.nextNoteViewController.view.frame = newFrame;
                          }
                          completion:nil];
+        [_stackVC.view setFrame:newFrame];
     }];
     
     NSArray *slicesArray = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"strip-one"], [UIImage imageNamed:@"strip-two"], [UIImage imageNamed:@"strip-three"], nil];
@@ -193,8 +194,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
     
     [self.view addSubview:self.sliceView];
-    
-    
 
 }
 
@@ -203,7 +202,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [self.currentNoteViewController setNoteEntry:[model noteAtSelectedNoteIndex]];
-    self.currentNoteViewController.noteDocument = [model noteDocumentAtIndex:model.selectedNoteIndex completion:^{
+    [model noteDocumentAtIndex:model.selectedNoteIndex completion:^(NoteDocument *doc){
+        self.currentNoteViewController.noteDocument = doc;
         NSLog(@"now you can save changes using undo/redo");
     }];
 }

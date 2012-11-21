@@ -37,7 +37,8 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 // Note Stack Helpers
 - (NoteEntry *) noteAtIndex:(int)index;
 - (NoteEntry *) noteAtSelectedNoteIndex;
-- (NoteDocument *)noteDocumentAtIndex:(int)index completion:(void(^)())completion;
+- (NoteDocument *) noteDocumentAtIndex:(int)index completion:(void(^)(NoteDocument *doc))completion;
+
 
 - (NoteEntry *) previousNoteInStackFromIndex:(NSInteger)index;
 //- (NoteDocument *) previousNoteDocInStackFromIndex:(NSInteger)index;
@@ -51,7 +52,8 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 
 // CRUD
 - (void) createNote;
-- (void)createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion;
+- (void) createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion;
+- (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion;
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
 - (void) deleteNoteEntry:(NoteEntry *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;

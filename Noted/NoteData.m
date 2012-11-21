@@ -50,7 +50,7 @@
     noteData.noteColor = [UIColor whiteColor];
     noteData.noteText = @"";
 #ifdef DEBUG
-    noteData.noteText = @"dev: new note";
+    //noteData.noteText = @"dev: new note";
 #endif
     
     noteData.dateCreated = [NSDate date];
