@@ -12,6 +12,8 @@
 #import "AnimationStackViewController.h"
 #import "DragToCreateViewController.h"
 
+#define DRAG_TO_CREATE      0
+
 @interface NoteListViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, NoteStackDelegate, AnimationStackDelegate> {
     DragToCreateViewController *dragToCreateController;
 }

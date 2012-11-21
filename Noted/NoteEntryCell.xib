@@ -82,7 +82,7 @@
 								<string key="NSFrame">{{-1, -5}, {162, 34}}</string>
 								<reference key="NSSuperview" ref="822118860"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="43589203"/>
+								<reference key="NSNextKeyView" ref="147614828"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<object class="NSColor" key="IBUIBackgroundColor" id="828108562">
 									<int key="NSColorSpace">3</int>
@@ -116,7 +116,7 @@
 								<string key="NSFrame">{{285, -6}, {29, 35}}</string>
 								<reference key="NSSuperview" ref="822118860"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="147614828"/>
+								<reference key="NSNextKeyView" ref="487884871"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -161,11 +161,11 @@
 							</object>
 							<object class="IBUIImageView" id="147614828">
 								<reference key="NSNextResponder" ref="822118860"/>
-								<int key="NSvFlags">-2147483382</int>
+								<int key="NSvFlags">-2147483353</int>
 								<string key="NSFrame">{{0, -7}, {320, 7}}</string>
 								<reference key="NSSuperview" ref="822118860"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="487884871"/>
+								<reference key="NSNextKeyView" ref="43589203"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<int key="IBUITag">57</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -297,7 +297,7 @@
 						<int key="objectID">31</int>
 						<reference key="object" ref="147614828"/>
 						<reference key="parent" ref="286858385"/>
-						<string key="objectName">shadow</string>
+						<string key="objectName">shadow duplicate</string>
 					</object>
 				</array>
 			</object>

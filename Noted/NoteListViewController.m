@@ -72,7 +72,10 @@ typedef enum {
         _scrolling = NO;
         
         // pullToCreate
-        dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
+        if (DRAG_TO_CREATE) {
+            dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
+        }
+        
     }
     
     return self;
@@ -99,14 +102,16 @@ typedef enum {
         [self.tableView reloadData];
     }];
     
-    CGRect pullToCreateRect = (CGRect){
-        {0, dragToCreateController.view.frame.size.height*(-1)},
-        dragToCreateController.view.frame.size
-    };
-    
-    [dragToCreateController.view setFrame:pullToCreateRect];
-    
-    [self.tableView addSubview:dragToCreateController.view];
+    if (DRAG_TO_CREATE) {
+        CGRect pullToCreateRect = (CGRect){
+            {0, dragToCreateController.view.frame.size.height*(-1)},
+            dragToCreateController.view.frame.size
+        };
+        
+        [dragToCreateController.view setFrame:pullToCreateRect];
+        
+        [self.tableView addSubview:dragToCreateController.view];
+    }
 
     /*
      [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
@@ -134,8 +139,9 @@ typedef enum {
 {
     [super viewDidAppear:animated];
     
+    _viewingNoteStack = NO;
     if (_viewingNoteStack && yOffset>0) {
-        _viewingNoteStack = NO;
+        
         yOffset = 0.0;
         if ([_selectedIndexPath isEqual:[[self.tableView indexPathsForVisibleRows] lastObject]]) {
             [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
@@ -359,7 +365,9 @@ typedef enum {
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
-    
+    if (_scrolling) {
+        return;
+    }
     _selectedIndexPath = indexPath;
     NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -387,7 +395,7 @@ typedef enum {
     } else { //if an existing note was selected
         
         if (_viewingNoteStack) {
-            return;
+            //return;
         }
         
         model.selectedNoteIndex = indexPath.row;
@@ -472,7 +480,7 @@ typedef enum {
                 _lastRowWasVisible = NO;
             }
         } else {
-            NSLog(@"not moving because it IS scrolling");
+            //NSLog(@"not moving because it IS scrolling");
         }
         
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -505,9 +513,12 @@ typedef enum {
     if ([ApplicationModel sharedInstance].currentNoteEntries.count ==0) {
         return;
     }
-    if (scrollView.contentOffset.y < 0) {
-        [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
+    if (DRAG_TO_CREATE) {
+        if (scrollView.contentOffset.y < 0) {
+            [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
+        }
     }
+    
     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
     if (_lastRowVisible) {
         CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
@@ -521,7 +532,7 @@ typedef enum {
     
     [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
     if (![self sectionZeroVisible]) {
-        NSLog(@"sec 0 1 not visible");
+        //NSLog(@"sec 0 1 not visible");
     }
 
     _scrolling = YES;
@@ -535,11 +546,14 @@ typedef enum {
         [self setStackState];
     }
     
-    if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
-        [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNew]];
-        [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(openLastNoteCreated:) userInfo:nil repeats:NO];
-        
+    if (DRAG_TO_CREATE) {
+        if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
+            [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNew]];
+            [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(openLastNoteCreated:) userInfo:nil repeats:NO];
+            
+        }
     }
+    
 }
 
 -(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
