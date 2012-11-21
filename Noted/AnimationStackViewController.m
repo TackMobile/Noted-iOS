@@ -27,6 +27,7 @@
 #define SHADOW_TAG_DUP      57
 
 #define DEBUG_ANIMATIONS    0
+#define DEBUG_VIEWS         0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 1.5;
@@ -97,19 +98,19 @@ static const float  kCellHeight             = 66.0;
     return [self init];
 }
 
+
 - (void)viewDidLoadOptionsViewController
 {
     [super viewDidLoad];
     [self.view setUserInteractionEnabled:NO];
     [self.view setBackgroundColor:[UIColor whiteColor]];
+    
 }
 
 - (void)prepareForAnimation
 {
-    //if (!_animating) {
-#warning what is this doing?
-        [self.view setFrameX:-self.view.bounds.size.width];
-    //}
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    [self.view setFrame:appFrame];
     
     [_noteEntryModels removeAllObjects];
     NSArray *allEntries = [[[ApplicationModel sharedInstance] currentNoteEntries] array];
@@ -158,24 +159,12 @@ static const float  kCellHeight             = 66.0;
     _centerNoteDestinationFrame = [_tableView rectForRowAtIndexPath:selectedIndexPath];
     _centerNoteDestinationFrame = [_tableView.superview convertRect:_centerNoteDestinationFrame fromView:_tableView];
     
-    
     if (destinationFrames) {
         [destinationFrames removeAllObjects];
     }
     destinationFrames = [[NSMutableArray alloc] initWithCapacity:visibleRows.count];
     
-    /*
-     DrawView *debug = (DrawView *)[self.view viewWithTag:888];
-     if (debug) {
-     [debug removeFromSuperview];
-     }
-     
-     debug = [[DrawView alloc] initWithFrame:self.view.bounds];
-     [debug setUserInteractionEnabled:NO];
-     [debug setTag:888];
-     [debug setBackgroundColor:[UIColor clearColor]];
-     
-     */
+
     
     for (int i = 0; i < visibleRows.count; i++) {
         NSIndexPath *indexPath = [visibleRows objectAtIndex:i];
@@ -189,35 +178,50 @@ static const float  kCellHeight             = 66.0;
         }
     }
     
-    /*
-     [debug setDrawBlock:^(UIView* v,CGContextRef context){
-     
-     for (NSValue *val in destinationFrames) {
-     
-     CGRect frame = CGRectZero;
-     UIBezierPath* bezierPath = [UIBezierPath bezierPath];
-     if (val != (id)[NSNull null]) {
-     frame = val.CGRectValue;
-     [[UIColor blueColor] setStroke];
-     bezierPath.lineWidth = 1.0;
-     } else {
-     frame = _centerNoteDestinationFrame;
-     [[UIColor orangeColor] setStroke];
-     bezierPath.lineWidth = 3.0;
-     }
-     
-     float yOrigin = frame.origin.y;
-     [bezierPath moveToPoint: CGPointMake(0.0, yOrigin)];
-     [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin)];
-     [bezierPath moveToPoint: CGPointMake(0.0, yOrigin+frame.size.height)];
-     [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin+frame.size.height)];
-     
-     [bezierPath stroke];
-     }
-     }];
-     
-     [self.view addSubview:debug];
-     */
+    if (DEBUG_VIEWS) {
+        
+        DrawView *debug = (DrawView *)[self.view viewWithTag:888];
+        if (debug) {
+            [debug removeFromSuperview];
+        }
+        
+        debug = [[DrawView alloc] initWithFrame:self.view.bounds];
+        [debug setUserInteractionEnabled:NO];
+        [debug setTag:888];
+        [debug setBackgroundColor:[UIColor clearColor]];
+        
+        [debug setDrawBlock:^(UIView* v,CGContextRef context){
+            
+            for (NSValue *val in destinationFrames) {
+                
+                CGRect frame = CGRectZero;
+                UIBezierPath* bezierPath = [UIBezierPath bezierPath];
+                if (val != (id)[NSNull null]) {
+                    frame = val.CGRectValue;
+                    [[UIColor blueColor] setStroke];
+                    bezierPath.lineWidth = 1.0;
+                } else {
+                    frame = _centerNoteDestinationFrame;
+                    [[UIColor orangeColor] setStroke];
+                    bezierPath.lineWidth = 3.0;
+                }
+                
+                float yOrigin = frame.origin.y;
+                [bezierPath moveToPoint: CGPointMake(0.0, yOrigin)];
+                [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin)];
+                [bezierPath moveToPoint: CGPointMake(0.0, yOrigin+frame.size.height)];
+                [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin+frame.size.height)];
+                
+                [bezierPath stroke];
+            }
+        }];
+        
+        [self.view addSubview:debug];
+
+    }
+    
+    
+    
     
     if (originFrames) {
         [originFrames removeAllObjects];
@@ -247,9 +251,8 @@ static const float  kCellHeight             = 66.0;
     }];
     
     [self setNotesToCollapseBeginPositions:NO];
-    //[self pruneSubviews];
     
-    NSLog(@"%i %i %i %i   [%i]",destinationFrames.count,_noteViews.count,originFrames.count,_tableView.indexPathsForVisibleRows.count,__LINE__);
+    //NSLog(@"%i %i %i %i   [%i]",destinationFrames.count,_noteViews.count,originFrames.count,_tableView.indexPathsForVisibleRows.count,__LINE__);
     //NSAssert(destinationFrames.count==_noteViews.count, @"destinationFrames count should equal noteViewscount");
     //NSAssert(originFrames.count==_noteViews.count, @"originFrames count should equal noteViews count");
     //NSAssert(originFrames.count==destinationFrames.count, @"originFrames count should equal destinationFrames count");
@@ -261,7 +264,7 @@ static const float  kCellHeight             = 66.0;
     }
 }
 
-// hack fix, es ist mir scheißegal!
+// hack fix
 - (void)pruneSubviews
 {
     int count = 0;
@@ -373,9 +376,10 @@ static const float  kCellHeight             = 66.0;
     return count;
 }
 
-- (UITextView *)makeFulltextView
+- (UITextView *)makeFulltextViewForCell:(UITableViewCell *)cell
 {
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+    CGRect frame = self.view.bounds;
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, cell.frame.size.height)];
     
     textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     textView.backgroundColor = [UIColor clearColor];
@@ -435,7 +439,7 @@ static const float  kCellHeight             = 66.0;
         newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
     }
     
-    CGRect newFrame = CGRectMake(0.0, newY, 320.0, newHeight);
+    CGRect newFrame = CGRectMake(0.0, newY, self.view.bounds.size.width, newHeight);
     [noteView setFrame:newFrame];
     
     return;
@@ -444,22 +448,28 @@ static const float  kCellHeight             = 66.0;
 
 - (void)collapseCurrentNoteWithScale:(CGFloat)scale
 {
-    BOOL currentIsLast = [self currentNoteIsLast];
+    //BOOL currentIsLast = [self currentNoteIsLast];
     float destHeight = _centerNoteDestinationFrame.size.height;
     
     float diff = self.view.bounds.size.height-destHeight;
     float newHeight = (self.view.bounds.size.height-(_pinchPercentComplete*diff));
     
+    NSLog(@"%@",NSStringFromCGRect(self.view.bounds));
+    NSLog(@"dest height: %f",destHeight);
+    NSLog(@"diff: %f",diff);
+    
     [self updateSubviewsForNote:currentNoteCell scaled:YES];
     
-    float centerFactor = currentIsLast ? 1.0 : 0.5;
+    float centerFactor = currentNoteIsLast ? 1.0 : 0.5;
     float newY = 0.0;;
-    if (currentIsLast) {
+    if (currentNoteIsLast) {
         newY = (self.view.bounds.size.height-newHeight)*centerFactor;
     } else {
         newY = _centerNoteDestinationFrame.origin.y*_pinchPercentComplete;
 
     }
+    
+    NSLog(@"new y: %f",newY);
     
     /*
      if (_pinchPercentComplete>0.5&&_pinchPercentComplete>0.45) {
@@ -516,11 +526,11 @@ static const float  kCellHeight             = 66.0;
     NoteEntry *noteEntry = [_noteEntryModels objectAtIndex:index];
     
     if (!textView) { // if it doesn't have it, add it and hide title text
-        textView = [self makeFulltextView];
+        textView = [self makeFulltextViewForCell:cell];
         [cell.contentView addSubview:textView];
     }
     
-    BOOL isCurrentAndLast = [self currentNoteIsLast] && [cell isEqual:currentNoteCell];
+    BOOL isCurrentAndLast = currentNoteIsLast && [cell isEqual:currentNoteCell];
     if (_pinchPercentComplete > 0.0 && !isCurrentAndLast && ![self noteIsLast:cell]) {
         NSString *text = noteEntry.text;
         NSRange range = [text rangeOfString:@"\n"];
@@ -729,7 +739,7 @@ static const float  kCellHeight             = 66.0;
 {
     NoteEntryCell *noteCell = (NoteEntryCell *)[self currentNote];
     
-    if ([self currentNoteIsLast]) {
+    if (currentNoteIsLast) {
         [self showFullTextForOpeningNote:noteCell animated:NO];
     } else {
         [self showFullTextForOpeningNote:noteCell animated:YES];

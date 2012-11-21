@@ -218,7 +218,6 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSAssert(noteEntry, @"note entry should be non-nil");
 
     [self.currentNoteEntries insertObject:noteEntry atIndex:0];
-    
 }
 
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion

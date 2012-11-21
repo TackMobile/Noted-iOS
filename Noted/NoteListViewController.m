@@ -130,7 +130,7 @@ typedef enum {
 - (void)createAndShowFirstNote
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model createNoteWithText:@"Lorem ipsum, this is your first note!" andCompletionBlock:^(NoteEntry *entry){
+    [model createNoteWithText:@"Welcome to Noted, a gesture-driven notepad. Learn how to use it by starting the tour below*, or skip it if you're feeling adventurous.\n\n*not yet implemented" andCompletionBlock:^(NoteEntry *entry){
         // new note entry should always appear at row 0, right?
         NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -353,7 +353,7 @@ typedef enum {
         }
         
         noteEntryCell.subtitleLabel.text = noteEntry.title;
-        NSLog(@"noteEntryCell.subtitleLabel.text: %@",noteEntryCell.subtitleLabel.text);
+
         BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
         UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
         if (textView && !isLastNote) {
@@ -455,8 +455,8 @@ typedef enum {
     UITextView *textView = (UITextView *)[lastCell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[lastCell.contentView viewWithTag:LABEL_TAG];
     if (!textView) {
-        
-        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 250.0)];
+        CGRect frame = self.view.bounds;
+        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, frame.size.height)];
         
         textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
         textView.backgroundColor = [UIColor clearColor];
@@ -465,10 +465,11 @@ typedef enum {
         [textView setFrameY:21.0];
         
         textView.textColor = subtitle.textColor;
-        NSLog(@"noteEntry.tex: %@",noteEntry.text);
+
         textView.text = noteEntry.text;
         [textView setEditable:NO];
         [textView setUserInteractionEnabled:NO];
+        [textView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
         
         [subtitle setHidden:YES];
         [lastCell.contentView addSubview:textView];
