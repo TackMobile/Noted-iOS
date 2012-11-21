@@ -132,11 +132,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     }];
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
+    frame.origin = CGPointMake(0.0, 0.0);
     
     self.sliceView = [[UIView alloc] initWithFrame:CGRectMake(-320, 0, frame.size.width, frame.size.height)];
     self.screenShot = [UIImageView new];
-    
-    
     
     self.currentNoteViewController = [[NoteViewController alloc] init];
     self.currentNoteViewController.delegate = self;
