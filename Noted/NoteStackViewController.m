@@ -180,9 +180,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                              self.currentNoteViewController.view.frame = newFrame;
                              self.nextNoteViewController.view.frame = newFrame;
                          }
-                         completion:^(BOOL finished){
-                             //NSLog(@"finished animating");
-                         }];
+                         completion:nil];
     }];
     
     NSArray *slicesArray = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"strip-one"], [UIImage imageNamed:@"strip-two"], [UIImage imageNamed:@"strip-three"], nil];
@@ -192,19 +190,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         sliceImageView.frame = CGRectMake(0, (frame.size.height*i)/(frame.size.height/sliceImageView.image.size.height), sliceImageView.image.size.width, sliceImageView.image.size.height);
         [self.sliceView addSubview:sliceImageView];
         
-        
-       /* UIImageView *one = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-one"]];
-        one.frame = CGRectMake(0, (frame.size.height*i)/(frame.size.height/one.image.size.height) * 3, one.image.size.width, one.image.size.height); //adds strip 1 to every 3rd section starting at (0,0)
-        UIImageView *two = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-one"]];
-        two.frame = CGRectMake(0, ((frame.size.height*i)/(frame.size.height/two.image.size.height) * 3) + 30, two.image.size.width, two.image.size.height); //adds strip 2 to every 3rd section starting at (0, 30), height of the strip
-        UIImageView *three = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-one"]];
-        three.frame = CGRectMake(0, ((frame.size.height*i)/(frame.size.height/three.image.size.height) * 3) + 60, three.image.size.width, three.image.size.height); //adds strip 3 to every 3rd section starting at (0,60)
-        UIImageView *slice = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"slice"]];
-        slice.frame = CGRectMake(0, (frame.size.height*(i+1))/(frame.size.height/one.image.size.height), slice.image.size.width, slice.image.size.height); //add slice image between every strip
-        [self.sliceView addSubview:one];
-        [self.sliceView addSubview:two];
-        [self.sliceView addSubview:three];
-        //[self.sliceView addSubview:slice];*/
         NUMBER_OF_SLICES = frame.size.height/sliceImageView.image.size.height;
     }
     
@@ -1208,7 +1193,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if(gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        if (velocity.y > 0 && location.y >= keyboard.frame.origin.y) { //if panning down then call method to animate keyboard off the screen. only animates if user pans past keyboard...so scrolling the note doesnt dismiss the keybaord
+        if (velocity.y > 0 && location.y <= keyboard.frame.origin.y) { //if panning down then call method to animate keyboard off the screen. only animates if user pans past keyboard...so scrolling the note doesnt dismiss the keybaord
             [self animateKeyboardOffscreen];
         }else{ //if panning up then call method to animate keyboard back on the screen
             [self animateKeyboardReturnToOriginalPosition];
@@ -1244,9 +1229,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          CGRect newFrame = keyboard.frame;
+                         CGFloat newY = CGRectGetMaxY(keyboard.window.frame);
                          newFrame.origin.y = keyboard.window.frame.size.height;
                          [keyboard setFrame: newFrame];
-                         self.currentNoteViewController.textView.frame = self.view.frame;
+                         CGRect aFrame = self.view.frame;
+                         //self.currentNoteViewController.textView.frame = self.view.frame;
 
                      }
      
