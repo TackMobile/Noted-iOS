@@ -158,7 +158,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view
     
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panReceived:)];
-    //[self.view addGestureRecognizer:self.panGestureRecognizer];
+    [self.view addGestureRecognizer:self.panGestureRecognizer];
     
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
@@ -433,6 +433,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 }
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
+    NSLog(@"panreceived");
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     CGPoint point = [recognizer translationInView:self.view];
