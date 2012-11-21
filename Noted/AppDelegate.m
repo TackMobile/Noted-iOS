@@ -35,14 +35,15 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     
     [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
         
-        if ([FileStorageState isFirstUse]) {
-            [[NSUserDefaults standardUserDefaults] saveBool:NO forKey:USE_STANDARD_SYSTEM_KEYBOARD];
-            [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:HIDE_STATUS_BAR];
-            
-        }
-        
+                
     }];
+    
+    if ([FileStorageState isFirstUse]) {
+        [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:USE_STANDARD_SYSTEM_KEYBOARD];
+        [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:HIDE_STATUS_BAR];
         
+    }
+    
     return YES;
 }
 

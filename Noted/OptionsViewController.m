@@ -55,13 +55,10 @@
     
     //make the corners
     self.scrollView.layer.bounds = CGRectMake(0, 0, 320, 480);
-//    self.scrollView.layer.cornerRadius = 6.5;
-//    self.scrollView.layer.masksToBounds = YES;
+
     
     CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
     self.view.frame = newFrame;
-    
-    
 }
 
 - (void)setInitialPositionForColors
