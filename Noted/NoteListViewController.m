@@ -158,8 +158,14 @@ typedef enum {
     
      if (_viewingNoteStack) {
          CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
-         CGRect aFrame = CGRectMake(0.0, frame.origin.y - yOffset, 320.0, 66.0);
-         [self.tableView setContentOffset:aFrame.origin animated:NO];
+         
+         BOOL sectionZero = [self sectionZeroVisible];
+         if (!sectionZero){
+             //CGRect aFrame = CGRectMake(0.0, frame.origin.y - yOffset, 320.0, 66.0);
+             CGPoint offset = CGPointMake(0.0, frame.origin.y-yOffset);
+             [self.tableView setContentOffset:offset animated:NO];
+         }
+         
      }
          
     [self.tableView reloadData];
@@ -365,9 +371,7 @@ typedef enum {
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
-    if (_scrolling) {
-        return;
-    }
+  
     _selectedIndexPath = indexPath;
     NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

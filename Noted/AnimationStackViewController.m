@@ -26,7 +26,7 @@
 #define SHADOW_TAG          56
 #define SHADOW_TAG_DUP      57
 
-#define DEBUG_ANIMATIONS    1
+#define DEBUG_ANIMATIONS    0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 1.5;
@@ -854,7 +854,7 @@ static const float  kCellHeight             = 66.0;
 - (float)finalYOriginForCurrentNote
 {
     float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
-    
+    finalY = _centerNoteDestinationFrame.origin.y;
     return finalY;
 }
 
