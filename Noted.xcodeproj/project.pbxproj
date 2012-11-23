@@ -97,6 +97,7 @@
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
 		B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B116233C6700DD85CE /* topCornerShadows.png */; };
 		B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */; };
+		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
@@ -240,6 +241,8 @@
 		B5AA89D8160B96320094299B /* cellShadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cellShadow@2x.png"; sourceTree = "<group>"; };
 		B5B826B116233C6700DD85CE /* topCornerShadows.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = topCornerShadows.png; sourceTree = "<group>"; };
 		B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "topCornerShadows@2x.png"; sourceTree = "<group>"; };
+		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
+		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
 		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
 		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
@@ -455,6 +458,8 @@
 				B548668815F8F4B4005FBC60 /* CloudManager.m */,
 				B548666015F7F807005FBC60 /* FileStorageState.h */,
 				B548666115F7F807005FBC60 /* FileStorageState.m */,
+				B5EF438F165FE69100B59099 /* StackViewItem.h */,
+				B5EF4390165FE69100B59099 /* StackViewItem.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -704,6 +709,7 @@
 				B554DB871647F12B00047494 /* DrawView.m in Sources */,
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
 				F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */,
+				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
