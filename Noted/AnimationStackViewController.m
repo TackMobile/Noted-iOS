@@ -32,7 +32,7 @@ typedef enum {
 #define SHADOW_TAG          56
 #define SHADOW_TAG_DUP      57
 
-#define DEBUG_ANIMATIONS    1
+#define DEBUG_ANIMATIONS    0
 #define DEBUG_VIEWS         0
 
 #define IS_NOTE_SECTION(indexPath) indexPath.section==1
@@ -128,13 +128,15 @@ static const float  kCellHeight             = 66.0;
     
     NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
     
-    if (direction==kClosing) {
-        if ([_tableView numberOfRowsInSection:1]>2 && visibleIndexPaths.count==2) {
-            NSIndexPath *next = [NSIndexPath indexPathForRow:selectedIndexPath.row-1 inSection:1];
-            [_tableView scrollToRowAtIndexPath:next atScrollPosition:UITableViewScrollPositionTop animated:NO];
-            visibleIndexPaths = [_tableView indexPathsForVisibleRows];
-        }
-    }
+    /*
+     if (direction==kClosing) {
+     if ([_tableView numberOfRowsInSection:1]>2 && visibleIndexPaths.count==2) {
+     NSIndexPath *next = [NSIndexPath indexPathForRow:selectedIndexPath.row-1 inSection:1];
+     [_tableView scrollToRowAtIndexPath:next atScrollPosition:UITableViewScrollPositionTop animated:NO];
+     visibleIndexPaths = [_tableView indexPathsForVisibleRows];
+     }
+     }
+     */
     
     _sectionZeroRowOneVisible = YES;
     NSIndexPath *firstVisibleNote = [visibleIndexPaths objectAtIndex:1];
@@ -227,7 +229,12 @@ static const float  kCellHeight             = 66.0;
                 float baselineYOffset = offsetIndex < 0 ? 0.0 : self.view.bounds.size.height;
                 float offsetFactor = offsetIndex < 0 ? offsetIndex : offsetIndex-1;
                 float yOrigin = baselineYOffset+ offsetFactor*kCellHeight;
-                [item setStartingFrame:CGRectMake(0.0, yOrigin, 320.0, kCellHeight)];
+                if (item.isActive) {
+                    [item setStartingFrame:self.view.frame];
+                } else {
+                    [item setStartingFrame:CGRectMake(0.0, yOrigin, 320.0, kCellHeight)];
+                }
+                
                 
             } else if (direction==kOpening) {
                 if (item.isActive) {
@@ -257,7 +264,7 @@ static const float  kCellHeight             = 66.0;
             [self.view addSubview:currentNoteCell];
         }
         
-        [self debugView:currentNoteCell color:[UIColor redColor]];
+        //[self debugView:currentNoteCell color:[UIColor redColor]];
     }
     
     return YES;
@@ -278,7 +285,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     [_stackViews setObject:cell forKey:key];
-    [self debugView:currentNoteCell color:[UIColor clearColor]];
+    //[self debugView:currentNoteCell color:[UIColor clearColor]];
     
     return cell;
 }
@@ -431,12 +438,26 @@ static const float  kCellHeight             = 66.0;
             int offsetIndex = [item offsetFromActive];
             if (offsetIndex < 0) {
                 [self.view insertSubview:cell belowSubview:currentNoteCell];
-            } else {
+            } else if (offsetIndex>0) {
                 if (prevNote) {
                     [self.view insertSubview:cell belowSubview:prevNote];
                 }
-            }
+            } 
             prevNote = cell;
+        } else {
+            NSAssert([_activeStackItem isEqual:item],@"should be active item");
+            CGRect frame = [item startingFrame];
+            if (animated) {
+                [UIView animateWithDuration:kAnimationDuration
+                                 animations:^{
+                                     [cell setFrame:frame];
+                                 }
+                                 completion:nil];
+                
+            } else {
+                [cell setFrame:frame];
+            }
+        
         }
     }];
 }
@@ -475,8 +496,9 @@ static const float  kCellHeight             = 66.0;
     return count;
 }
 
-- (UITextView *)makeFulltextViewForCell:(UITableViewCell *)cell
+- (UITextView *)makeTextForItem:(StackViewItem *)item
 {
+    UITableViewCell *cell = item.cell;
     CGRect frame = self.view.bounds;
     UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, cell.frame.size.height)];
     
@@ -617,7 +639,7 @@ static const float  kCellHeight             = 66.0;
     NoteEntry *noteEntry = item.noteEntry;
     
     if (!textView) { // if it doesn't have it, add it and hide title text
-        textView = [self makeFulltextViewForCell:cell];
+        textView = [self makeTextForItem:item];
         [cell.contentView addSubview:textView];
     }
     
