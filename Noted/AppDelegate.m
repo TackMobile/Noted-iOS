@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "UIView+position.h"
 #import "FileStorageState.h"
 #import "NSUserDefaults+Convenience.h"
 #import "NoteListViewController.h"
@@ -15,14 +16,20 @@
 #import "TestFlight.h"
 #import "ApplicationModel.h"
 #import "CloudManager.h"
+#import "TourViewController.h"
 
 NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
+
+@interface AppDelegate()
+
+@property (strong, nonatomic) TourViewController *tourVC;
+
+@end
 
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize navigationController = _navigationController;
-@synthesize masterViewController = _masterViewController;
+@synthesize tourVC;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -44,7 +51,32 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
         
     }
     
+    if (!tourVC) {
+        tourVC = tourVC = [[TourViewController alloc] init];
+    }
+
+    
     return YES;
+}
+
+- (void)tour
+{
+        
+}
+
+- (void)resumeWalkthroughWithView:(UIView *)view
+{
+    if ([tourVC shouldResume]) {
+        [self.window addSubview:tourVC.view];
+        [tourVC.view setFrameY:CGRectGetMaxY(self.window.frame)];
+        [UIView animateWithDuration:0.5
+                         animations:^{
+                             [tourVC.view setFrameY:CGRectGetMaxY(self.window.frame)-tourVC.view.frame.size.height];
+                         }
+                         completion:^(BOOL finished){
+                             [tourVC resumeWithView:view completionBlock:nil];
+                         }];
+    }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

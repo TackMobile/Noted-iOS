@@ -145,7 +145,6 @@
 								<int key="NSvFlags">266</int>
 								<string key="NSFrame">{{0, 58}, {320, 7}}</string>
 								<reference key="NSSuperview" ref="822118860"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<int key="IBUITag">56</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>

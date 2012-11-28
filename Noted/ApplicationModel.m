@@ -227,7 +227,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     // if we don't set text here it won't show in list until
     // the note doc finishes opening. weird, but necessary
     [entry.noteData setNoteText:text];
-    
+    self.selectedNoteIndex = 0;
     [self noteDocumentAtIndex:selectedNoteIndex completion:^(NoteDocument *doc){
         doc.text = text;
         [entry setNoteData:doc.data];

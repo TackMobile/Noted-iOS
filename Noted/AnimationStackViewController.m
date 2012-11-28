@@ -35,7 +35,7 @@ typedef enum {
 #define DEBUG_ANIMATIONS    0
 #define DEBUG_VIEWS         0
 
-#define IS_NOTE_SECTION(indexPath) indexPath.section==1
+#define IS_NOTE_SECTION(indexPath) indexPath.section==0
 
 static const float  kAnimationDuration      = 0.5;
 static const float  kDebugAnimationDuration = 2.5;
@@ -138,10 +138,12 @@ static const float  kCellHeight             = 66.0;
     _sectionZeroRowOneVisible = NO;
     NSIndexPath *firstVisibleNote = [visibleIndexPaths objectAtIndex:0];
     
-    if (!IS_NOTE_SECTION(firstVisibleNote)) {
-        firstVisibleNote = [visibleIndexPaths objectAtIndex:1];
-        _sectionZeroRowOneVisible = YES;
-    }
+    /*
+     if (!IS_NOTE_SECTION(firstVisibleNote)) {
+     firstVisibleNote = [visibleIndexPaths objectAtIndex:1];
+     _sectionZeroRowOneVisible = YES;
+     }
+     */
     
     if (selectedIndexPath.row < firstVisibleNote.row) {
         // scrolling too fast, or some other weirdness
@@ -163,24 +165,26 @@ static const float  kCellHeight             = 66.0;
         UITableViewCell *cell = nil;
         if (!IS_NOTE_SECTION(indexPath)) {
             
-            [item setIsNoteEntry:NO];
-            
-            cell = (UITableViewCell *)[self.view viewWithTag:SECZERO_ROWZERO_TAG];
-            if (!cell) {
-                NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
-                
-                cell = (UITableViewCell *)[views objectAtIndex:0];
-                [NewNoteCell configure:(NewNoteCell *)cell];
-                [cell setFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
-                cell.tag = SECZERO_ROWZERO_TAG;
-                [item setCell:cell];
-                [item setNoteEntry:(id)[NSNull null]];
-            }
+            /*
+             [item setIsNoteEntry:NO];
+             
+             cell = (UITableViewCell *)[self.view viewWithTag:SECZERO_ROWZERO_TAG];
+             if (!cell) {
+             NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
+             
+             cell = (UITableViewCell *)[views objectAtIndex:0];
+             [NewNoteCell configure:(NewNoteCell *)cell];
+             [cell setFrame:CGRectMake(0.0, 0.0, 320.0, 44.0)];
+             cell.tag = SECZERO_ROWZERO_TAG;
+             [item setCell:cell];
+             [item setNoteEntry:(id)[NSNull null]];
+             }
+             */
         } else {
             
             cell = [self cellForIndex:i];
             [item setCell:cell];
-            NSAssert(indexPath.section != 0,@"should never allow section zero");
+            //NSAssert(indexPath.section != 0,@"should never allow section zero");
             [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];
             
             NSString *key = [NSNumber numberWithInt:i].stringValue;
@@ -686,6 +690,32 @@ static const float  kCellHeight             = 66.0;
 
 #pragma mark Tap to open animation
 
+- (void)openSingleNoteForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
+{
+    if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kOpening]) {
+        return;
+    }
+    
+    [self showFullTextForOpeningNote:_activeStackItem animated:NO];
+        
+    UITextView *textView = (UITextView *)[_activeStackItem.cell.contentView viewWithTag:FULL_TEXT_TAG];
+    [textView setFrameHeight:_activeStackItem.destinationFrame.size.height];
+    
+    [_activeStackItem.cell setFrame:_activeStackItem.destinationFrame];
+    _activeStackItem.cell.layer.cornerRadius = 6.0;
+    
+    // transistion its subviews
+    UILabel *circle = (UILabel *)[_activeStackItem.cell viewWithTag:78];
+    [circle setHidden:NO];
+    circle.alpha = 1.0;
+    
+    _animating = NO;
+    completeBlock();
+    
+    [self finishExpansion];
+    
+}
+
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
     if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kOpening]) {
@@ -695,6 +725,11 @@ static const float  kCellHeight             = 66.0;
     [self.view setFrameX:0.0];
     
     _animating = YES;
+    
+    if (_stackItems.count==1) {
+        [self openCurrentNoteWithCompletion:completeBlock];
+        return;
+    }
     
     for (StackViewItem *item in _stackItems) {
         

@@ -7,6 +7,7 @@
 //
 
 #import "NoteStackViewController.h"
+#import "AppDelegate.h"
 #import "ApplicationModel.h"
 #import "NoteViewController.h"
 #import <QuartzCore/QuartzCore.h>
@@ -16,6 +17,7 @@
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
 #import "NoteEntryCell.h"
+#import "TourViewController.h"
 
 typedef enum {
     kGestureFinished,
@@ -62,9 +64,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     CGFloat pinchDistance;
     CGFloat pinchVelocity;
     
-    //float adjustedScale;
     float pinchPercentComplete;
     CGFloat initialPinchDistance;
+    
+    NSDictionary *_currentTourStep;
 }
 
 @property (strong,nonatomic)MFMailComposeViewController *mailVC;
@@ -103,7 +106,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         _stackVC = stackVC;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
         centerNoteFrame = CGRectZero;
-        
     }
     
     return self;
@@ -166,7 +168,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     UIPanGestureRecognizer *deleteGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(deletePan:)];
     deleteGesture.minimumNumberOfTouches = 2;
     deleteGesture.maximumNumberOfTouches = 2;
-    [self.view addGestureRecognizer:deleteGesture];
+    //[self.view addGestureRecognizer:deleteGesture];
     
     [self setCurrentNoteToModel];
     
@@ -181,6 +183,18 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
                          }
                          completion:nil];
         [_stackVC.view setFrame:newFrame];
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
+        if ([[note.userInfo objectForKey:@"vcClass"] isEqual:NSStringFromClass([self class])]) {
+            _currentTourStep = note.userInfo;
+        } else {
+            _currentTourStep = nil;
+        }
+        
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"didExitTourNotification" object:nil queue:nil usingBlock:^(NSNotification *note){
+        _currentTourStep = nil;
     }];
     
     NSArray *slicesArray = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"strip-one"], [UIImage imageNamed:@"strip-two"], [UIImage imageNamed:@"strip-three"], nil];
@@ -213,6 +227,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     [self presentNotes];
     [self.delegate indexDidChange];
+   
+    AppDelegate *del = APP_DELEGATE;
+    [del resumeWalkthroughWithView:self.view];
 }
 
 - (void)viewDidUnload {
@@ -462,11 +479,12 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 [self setGestureState:kShouldDelete]; //delete and the note and animate
                 [self createDeletingViews];
                 
-                // wants to create new note
+            // wants to create new note
             } else if ([self wantsToCreateWithPoint:point velocity:velocity]) { //if the pan gesture is going from right to left
                 
                 [self setGestureState:kShouldCreateNew];
                 [self.view addSubview:self.nextNoteViewController.view];
+                
                 self.nextNoteViewController.view.hidden = NO;
                 [self.nextNoteViewController setWithPlaceholderData:YES];
             }
@@ -810,28 +828,49 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
+        [self tourCheck];
         [self animateCurrentOutToLeft];
     } else { // if the user didn't drag the note past half the screen then snap back
+        [self tourCheck];
         [self snapBackCurrentNote];
+    }
+}
+
+- (void)tourCheck
+{
+    if (_currentTourStep) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
     }
 }
 
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
+
+    NSLog(@"New note entry with text: %@",model.noteAtSelectedNoteIndex.text);
+    
     [model createNoteWithCompletionBlock:^(NoteEntry *doc){
-        //[[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];
         
     }];
     
-    NSLog(@"New note entry with text: %@",model.noteAtSelectedNoteIndex.text);
+    [self tourCheck];
+    
+//    if (_currentTourStep) {
+//        int index = [[_currentTourStep objectForKey:@"index"] intValue];
+//        NSString *noteText = index == 1 ? @"My first note" : @"My second note";
+//        [model createNoteWithText:noteText andCompletionBlock:^(NoteEntry *doc){
+//            int currentIndex = model.selectedNoteIndex;
+//            [self updateNoteDocumentsForIndex:currentIndex];
+//        }];
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
+//    } //else {
+        
+//  }
     
     [model setSelectedNoteIndex:0];
     int currentIndex = model.selectedNoteIndex;
     [self updateNoteDocumentsForIndex:currentIndex];
-    
-    //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
-        
+            
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
     

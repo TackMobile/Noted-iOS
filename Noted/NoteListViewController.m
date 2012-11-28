@@ -7,6 +7,7 @@
 //
 
 #import "NoteListViewController.h"
+#import "AppDelegate.h"
 #import "ApplicationModel.h"
 #import "NoteEntryCell.h"
 #import "NoteEntry.h"
@@ -20,6 +21,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
+#import "TourViewController.h"
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
@@ -29,7 +31,6 @@ static const NSUInteger kShadowViewTag = 56;
 #define DISABLE_NEW_CELL    NO
 
 typedef enum {
-    kNew,
     kNoteItems
 } NoteListSections;
 
@@ -52,6 +53,8 @@ typedef enum {
     NSIndexPath *_selectedIndexPath;
     AnimationStackViewController *_stackViewController;
     UITextView *_lastRowFullText;
+    
+    NSDictionary *_currentTourStep;
 }
 
 @end
@@ -72,10 +75,7 @@ typedef enum {
         _scrolling = NO;
         
         // pullToCreate
-        if (DRAG_TO_CREATE) {
-            dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
-        }
-        
+        dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
     }
     
     return self;
@@ -102,16 +102,19 @@ typedef enum {
         [self.tableView reloadData];
     }];
     
-    if (DRAG_TO_CREATE) {
-        CGRect pullToCreateRect = (CGRect){
-            {0, dragToCreateController.view.frame.size.height*(-1)},
-            dragToCreateController.view.frame.size
-        };
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
         
-        [dragToCreateController.view setFrame:pullToCreateRect];
         
-        [self.tableView addSubview:dragToCreateController.view];
-    }
+    }];
+    
+    CGRect pullToCreateRect = (CGRect){
+        {0, dragToCreateController.view.frame.size.height*(-1)},
+        dragToCreateController.view.frame.size
+    };
+    
+    [dragToCreateController.view setFrame:pullToCreateRect];
+    
+    [self.tableView addSubview:dragToCreateController.view];
 
     [self handleNotifications];
 }
@@ -125,38 +128,44 @@ typedef enum {
         [self.view setFrame:newFrame];
     }];
 
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
+        if ([[note.userInfo objectForKey:@"vcClass"] isEqual:NSStringFromClass([self class])]) {
+            _currentTourStep = note.userInfo;
+        } else {
+            _currentTourStep = nil;
+        }
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"didExitTourNotification" object:nil queue:nil usingBlock:^(NSNotification *note){
+        _currentTourStep = nil;
+    }];
 }
 
 - (void)createAndShowFirstNote
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model createNoteWithText:@"Welcome to Noted, a gesture-driven notepad. Learn how to use it by starting the tour below*, or skip it if you're feeling adventurous.\n\n*not yet implemented" andCompletionBlock:^(NoteEntry *entry){
+    [model createNoteWithText:@"Welcome to Noted, a gesture-driven notepad. Learn how to use it by starting the tour below, or skip it if you're feeling adventurous." andCompletionBlock:^(NoteEntry *entry){
         // new note entry should always appear at row 0, right?
         NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
         
+        model.selectedNoteIndex = 0;
+        [_stackViewController openSingleNoteForIndexPath:freshIndexPath completion:^(){
+            
+            NoteEntry *noteEntry = [model noteAtIndex:freshIndexPath.row];
+            if (!noteEntry.adding) {
+                [self showNoteStackForSelectedRow:freshIndexPath.row animated:NO];
+            }
+            
+        }];
+
     }];
 
     _noteCount = model.currentNoteEntries.count;
-    
-    
-    NSLog(@"After count: %d",model.currentNoteEntries.count);
-    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
-    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
     [self listDidUpdate];
-    
-    model.selectedNoteIndex = 0;
-    /*
-     NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-     [_stackViewController animateOpenForIndexPath:newIndexPath completion:^(){
-     
-     NoteEntry *noteEntry = [model noteAtIndex:newIndexPath.row];
-     if (!noteEntry.adding) {
-     [self showNoteStackForSelectedRow:newIndexPath.row animated:NO];
-     }
-     
-     }];
-     */
+       
+    _viewingNoteStack = YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -172,9 +181,7 @@ typedef enum {
         } else {
             [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
         }
-        
     }
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -184,8 +191,8 @@ typedef enum {
      if (_viewingNoteStack) {
          CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
          
-         BOOL sectionZero = [self sectionZeroVisible];
-         if (!sectionZero){
+         BOOL rowZeroVisible = [self rowZeroVisible];
+         if (!rowZeroVisible){
              //CGRect aFrame = CGRectMake(0.0, frame.origin.y - yOffset, 320.0, 66.0);
              CGPoint offset = CGPointMake(0.0, frame.origin.y-yOffset);
              [self.tableView setContentOffset:offset animated:NO];
@@ -235,7 +242,7 @@ typedef enum {
             NSArray *allVisibleRows = [self.tableView indexPathsForVisibleRows];
             for (NSIndexPath *indexPath in allVisibleRows) {
                 if (indexPath.section == kNoteItems) {
-                    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
+                    [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
                     [self setStackState];
                     break;
                 }
@@ -269,177 +276,128 @@ typedef enum {
 #pragma mark - Table View methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 1;
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kNew) {
-        return 44;
-    } else {
-        
-        if (indexPath.row == _noteCount-1) {
-            return self.view.bounds.size.height-44.0;
-        }
-         
-        return 66;
+    if (indexPath.row == _noteCount-1) {
+        return self.view.bounds.size.height-44.0;
     }
+    
+    return 66;
+    
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section == kNew) {
-        return 1;
-    } else {
-        return _noteCount;
-    }
+    return _noteCount;
 }
 
 - (BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return (indexPath.section != kNew);
+    return YES;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *CellId = @"NoteCellId";
-    static NSString *NewNoteCellId = @"NewNoteCellId";
     static UIColor *blueRowBgColor = nil;
     
     if (blueRowBgColor==nil) {
         blueRowBgColor = [UIColor colorWithRed:0.05f green:0.54f blue:0.82f alpha:1.00f];
     }
     
-    if (indexPath.section == kNew) {
-        NewNoteCell *newNoteCell = [tableView dequeueReusableCellWithIdentifier:NewNoteCellId];
-        if (newNoteCell == nil) {
-            NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NewNoteCell" owner:self options:nil];
-            newNoteCell = [topLevelObjects objectAtIndex:0];
-            [NewNoteCell configure:newNoteCell];
-            
-            //newNoteCell setTime
-        }
-        newNoteCell.label.text = NSLocalizedString(@"New Note", @"New Note");
-        return newNoteCell;
+    NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    
+    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+    
+    if (noteEntryCell == nil) {
+        NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
+        noteEntryCell = [topLevelObjects objectAtIndex:0];
+        
+        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
+        [panGesture setDelegate:self];
+        [noteEntryCell addGestureRecognizer:panGesture];
+        
+    }
+    
+    if (noteEntry.adding) {
+        noteEntryCell.contentView.backgroundColor = [UIColor lightGrayColor];
+        
+        [self delayedCall:1.0 withBlock:^{
+            [UIView animateWithDuration:0.5
+                             animations:^{
+                                 noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
+                             }
+                             completion:nil];
+        }];
         
     } else {
-        
-        NoteEntryCell *noteEntryCell = [tableView dequeueReusableCellWithIdentifier:CellId];
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        
-        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
-        
-        if (noteEntryCell == nil) {
-            NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
-            noteEntryCell = [topLevelObjects objectAtIndex:0];
-            
-            UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
-            [panGesture setDelegate:self];
-            [noteEntryCell addGestureRecognizer:panGesture];
-
-        }
-        
-        if (noteEntry.adding) {
-            noteEntryCell.contentView.backgroundColor = [UIColor lightGrayColor];
-            
-            [self delayedCall:1.0 withBlock:^{
-                [UIView animateWithDuration:0.5
-                                 animations:^{
-                                     noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
-                                 }
-                                 completion:nil];
-            }];
-            
-        } else {
-            noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
-        }
-        
-        noteEntryCell.subtitleLabel.text = noteEntry.title;
-
-        BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
-        UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
-        if (textView && !isLastNote) {
-            [textView removeFromSuperview];
-        }
-              
-        noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
-        
-        return noteEntryCell;
+        noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
     }
+    
+    noteEntryCell.subtitleLabel.text = noteEntry.title;
+    
+    BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
+    UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
+    if (textView && !isLastNote) {
+        [textView removeFromSuperview];
+    }
+    
+    noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
+    
+    return noteEntryCell;
+    
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section==kNoteItems) {
-        NoteEntryCell *noteCell = (NoteEntryCell *)cell;
-        ApplicationModel *model = [ApplicationModel sharedInstance];
-        NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
-                
-        UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
-        int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
-        if (index==NSNotFound) {
-            index = 0;
-        }
-        if (index >= 4) {
-            [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
-        } else {
-            [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
-        }
+    NoteEntryCell *noteCell = (NoteEntryCell *)cell;
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
+            
+    UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
+    int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
+    if (index==NSNotFound) {
+        index = 0;
+    }
+    if (index >= 4) {
+        [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
+    } else {
+        [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+    }
 
-        noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
-        
-        UIView *shadow = [cell viewWithTag:kShadowViewTag];
+    noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
+    
+    UIView *shadow = [cell viewWithTag:kShadowViewTag];
 
-        if (indexPath.row == _noteCount-1) {
-            [shadow setHidden:YES];
-            noteCell.contentView.backgroundColor = _lastRowColor;
-        }
-        
-        if (indexPath.row==_noteCount-1) {
-            [self willDisplayLastRowCell:cell atIndexPath:indexPath];
-        }
+    if (indexPath.row == _noteCount-1) {
+        [shadow setHidden:YES];
+        noteCell.contentView.backgroundColor = _lastRowColor;
+    }
+    
+    if (indexPath.row==_noteCount-1) {
+        [self willDisplayLastRowCell:cell atIndexPath:indexPath];
     }
 }
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
   
     _selectedIndexPath = indexPath;
-    NSLog(@"selected index row: %d",_selectedIndexPath.row);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    if (indexPath.section == kNew) { //if "New Note" cell was pressed
+   
+    model.selectedNoteIndex = indexPath.row;
+    [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
         
-        if (DISABLE_NEW_CELL) {
-            [EZToastView showToastMessage:@"disabled"];
-            return;
+        NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
+        if (!noteEntry.adding) {
+            [self showNoteStackForSelectedRow:indexPath.row animated:NO];
         }
-        NSLog(@"Before count: %d",model.currentNoteEntries.count);
-        [model createNoteWithCompletionBlock:^(NoteEntry *entry){
-            // new note entry should always appear at row 0, right?
-            NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
-            
-        }];
-        _noteCount = model.currentNoteEntries.count;
-        NSLog(@"After count: %d",model.currentNoteEntries.count);
-        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:1]] withRowAnimation:UITableViewRowAnimationLeft];
         
-        [self listDidUpdate];
-        
-        
-    } else { //if an existing note was selected
-        
-        model.selectedNoteIndex = indexPath.row;
-        NSLog(@"%s Selected table row %d",__PRETTY_FUNCTION__,indexPath.row);
-        [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
-            
-            NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
-            if (!noteEntry.adding) {
-                [self showNoteStackForSelectedRow:indexPath.row animated:NO];
-            }
-            
-        }];
-        
-        _viewingNoteStack = YES;
-    }
+    }];
+    
+    _viewingNoteStack = YES;
 }
 
 - (void)willDisplayLastRowCell:(UITableViewCell *)lastCell atIndexPath:(NSIndexPath *)lastIndexPath
@@ -543,10 +501,9 @@ typedef enum {
     if ([ApplicationModel sharedInstance].currentNoteEntries.count ==0) {
         return;
     }
-    if (DRAG_TO_CREATE) {
-        if (scrollView.contentOffset.y < 0) {
-            [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
-        }
+    
+    if (scrollView.contentOffset.y < 0) {
+        [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
     }
     
     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
@@ -560,10 +517,7 @@ typedef enum {
         _lastRowWasVisible = YES;
     }
     
-    [_stackViewController setSectionZeroRowOneVisible:[self sectionZeroVisible]];
-    if (![self sectionZeroVisible]) {
-        //NSLog(@"sec 0 1 not visible");
-    }
+    [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
 
     _scrolling = YES;
 }
@@ -576,14 +530,33 @@ typedef enum {
         [self setStackState];
     }
     
-    if (DRAG_TO_CREATE) {
+    if (scrollView.contentOffset.y < 0) {
         if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
-            [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNew]];
-            [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(openLastNoteCreated:) userInfo:nil repeats:NO];
-            
+            [self makeNewNote];
         }
     }
+}
+
+- (void)makeNewNote
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model createNoteWithCompletionBlock:^(NoteEntry *entry){
+        // new note entry should always appear at row 0, right?
+        NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+    }];
+    _noteCount = model.currentNoteEntries.count;
     
+    [UIView animateWithDuration:0.3
+                     animations:^(){
+                         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationTop];
+                     }
+                     completion:^(BOOL finished) {
+                         [self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.1];
+                     }];    
+    
+    [self listDidUpdate];
 }
 
 -(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
@@ -681,9 +654,9 @@ typedef enum {
     
 }
 
-- (BOOL)sectionZeroVisible
+- (BOOL)rowZeroVisible
 {
-    return [self isVisibleRow:0 inSection:kNew];
+    return [self isVisibleRow:0 inSection:kNoteItems];
 }
 
 

@@ -7,6 +7,8 @@ static inline BOOL IsEmpty(id thing) {
         && [(NSArray *)thing count] == 0);
 }
 
+#define APP_DELEGATE            (AppDelegate*)[UIApplication sharedApplication].delegate
+
 // user defaults
 
 #define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"

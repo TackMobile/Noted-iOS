@@ -88,6 +88,8 @@
 		B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666715F7FEF7005FBC60 /* RIButtonItem.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* CloudManager.m */; };
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		B54E0C9F16668B93005BB273 /* TourViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B54E0C9E16668B93005BB273 /* TourViewController.m */; };
+		B54E0CA116668C0F005BB273 /* TourView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54E0CA016668C0F005BB273 /* TourView.xib */; };
 		B554DB871647F12B00047494 /* DrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = B554DB861647F12B00047494 /* DrawView.m */; };
 		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
@@ -229,6 +231,9 @@
 		B548668815F8F4B4005FBC60 /* CloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloudManager.m; sourceTree = "<group>"; };
 		B548669C15FA4CCD005FBC60 /* EZToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EZToastView.h; sourceTree = "<group>"; };
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
+		B54E0C9D16668B93005BB273 /* TourViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TourViewController.h; sourceTree = "<group>"; };
+		B54E0C9E16668B93005BB273 /* TourViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TourViewController.m; sourceTree = "<group>"; };
+		B54E0CA016668C0F005BB273 /* TourView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TourView.xib; sourceTree = "<group>"; };
 		B554DB851647F12B00047494 /* DrawView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawView.h; sourceTree = "<group>"; };
 		B554DB861647F12B00047494 /* DrawView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrawView.m; sourceTree = "<group>"; };
 		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
@@ -316,7 +321,7 @@
 			name = "Custom Keyboard";
 			sourceTree = "<group>";
 		};
-		29914F0915752EF70029D170 /* View Controllers */ = {
+		29914F0915752EF70029D170 /* Old */ = {
 			isa = PBXGroup;
 			children = (
 				29FC4925156EE0CD0007BBAD /* MasterViewController.h */,
@@ -325,14 +330,8 @@
 				29FC4928156EE0CD0007BBAD /* DetailViewController.h */,
 				29FC4929156EE0CD0007BBAD /* DetailViewController.m */,
 				29FC492E156EE0CD0007BBAD /* DetailViewController.xib */,
-				298EC0041570415700B72F5C /* OptionsViewController.h */,
-				298EC0051570415700B72F5C /* OptionsViewController.m */,
-				298EC0061570415700B72F5C /* OptionsViewController.xib */,
-				29914F10157530A70029D170 /* NoteKeyOpViewController.h */,
-				29914F11157530A70029D170 /* NoteKeyOpViewController.m */,
-				29914F12157530A70029D170 /* NoteKeyOpViewController.xib */,
 			);
-			name = "View Controllers";
+			name = Old;
 			sourceTree = "<group>";
 		};
 		29960C661573F4C50054347A /* Assets */ = {
@@ -415,8 +414,8 @@
 				F3FD5A16165C0FBF00A45062 /* walkthrough */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
-				EAD695FF15B7B8CA004A2494 /* New */,
-				29914F0915752EF70029D170 /* View Controllers */,
+				EAD695FF15B7B8CA004A2494 /* View controllers */,
+				29914F0915752EF70029D170 /* Old */,
 				298EBFFB15702C0D00B72F5C /* Custom Keyboard */,
 				298EBFF715702B3200B72F5C /* Cells and Keys */,
 				29FC491A156EE0CD0007BBAD /* Supporting Files */,
@@ -520,7 +519,7 @@
 			name = images;
 			sourceTree = "<group>";
 		};
-		EAD695FF15B7B8CA004A2494 /* New */ = {
+		EAD695FF15B7B8CA004A2494 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
 				EAD6960015B7B8FB004A2494 /* NoteListViewController.h */,
@@ -536,11 +535,20 @@
 				B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */,
 				B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */,
 				B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */,
+				298EC0041570415700B72F5C /* OptionsViewController.h */,
+				298EC0051570415700B72F5C /* OptionsViewController.m */,
+				298EC0061570415700B72F5C /* OptionsViewController.xib */,
+				29914F10157530A70029D170 /* NoteKeyOpViewController.h */,
+				29914F11157530A70029D170 /* NoteKeyOpViewController.m */,
+				29914F12157530A70029D170 /* NoteKeyOpViewController.xib */,
 				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
 				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
 				F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */,
+				B54E0C9D16668B93005BB273 /* TourViewController.h */,
+				B54E0C9E16668B93005BB273 /* TourViewController.m */,
+				B54E0CA016668C0F005BB273 /* TourView.xib */,
 			);
-			name = New;
+			name = "View controllers";
 			sourceTree = "<group>";
 		};
 		F3FD5A16165C0FBF00A45062 /* walkthrough */ = {
@@ -661,6 +669,7 @@
 				967C0F48164D762200E80419 /* strip-two.png in Resources */,
 				967C0F49164D762200E80419 /* strip-two@2x.png in Resources */,
 				F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */,
+				B54E0CA116668C0F005BB273 /* TourView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +719,7 @@
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
 				F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */,
 				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
+				B54E0C9F16668B93005BB273 /* TourViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
