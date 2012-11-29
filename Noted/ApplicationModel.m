@@ -217,7 +217,10 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
     NSAssert(noteEntry, @"note entry should be non-nil");
 
-    [self.currentNoteEntries insertObject:noteEntry atIndex:0];
+    NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.currentNoteEntries];
+    [tempSet insertObject:noteEntry atIndex:0];
+    self.currentNoteEntries = tempSet;
+
 }
 
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion

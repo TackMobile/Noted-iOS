@@ -33,7 +33,7 @@ typedef enum {
 #define SHADOW_TAG_DUP      57
 
 #define DEBUG_ANIMATIONS    0
-#define DEBUG_VIEWS         0
+#define DEBUG_VIEWS         1
 
 #define IS_NOTE_SECTION(indexPath) indexPath.section==0
 
@@ -187,8 +187,8 @@ static const float  kCellHeight             = 66.0;
             //NSAssert(indexPath.section != 0,@"should never allow section zero");
             [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];
             
-            NSString *key = [NSNumber numberWithInt:i].stringValue;
-            [_stackViews setObject:cell forKey:key];
+            //NSString *key = [NSNumber numberWithInt:i].stringValue;
+            //[_stackViews setObject:cell forKey:key];
             
             if (i==0) {
                 [item setIsFirst:YES];

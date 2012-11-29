@@ -95,9 +95,11 @@ NSString *const kTourStepNumber = @"tourStepNum";
     }
 }
 
-- (void)resumeWithView:(UIView *)view completionBlock:(void(^)())completionBlock
+- (void)resumeWithCompletionBlock:(void(^)())completionBlock
 {
-    
+    if ([self currentStep]>0) {
+        [self goToStep:[self currentStep]];
+    }
 }
 
 - (void)goToStep:(NSUInteger)stepNum
@@ -112,7 +114,7 @@ NSString *const kTourStepNumber = @"tourStepNum";
     }
     NSDictionary *step = [_steps objectAtIndex:stepNum];
     [_messageLabel setText:[step objectForKey:kStepDescription]];
-    NSLog(@"%@",[step objectForKey:kStepDescription]);
+
     [[NSNotificationCenter defaultCenter] postNotificationName:@"tourStepBegun" object:nil userInfo:step];
 }
 

@@ -10,6 +10,10 @@
 
 typedef void (^TourStepCompletedBlock)();
 
+typedef enum {
+    k
+} TourStep;
+
 extern NSString *const kStepDescription;
 
 @interface TourViewController : UIViewController
@@ -21,7 +25,7 @@ extern NSString *const kStepDescription;
 
 - (IBAction)skip:(id)sender;
 - (IBAction)startTour:(id)sender;
-- (void)resumeWithView:(UIView *)view completionBlock:(void(^)())completionBlock;
+- (void)resumeWithCompletionBlock:(void(^)())completionBlock;
 - (BOOL)shouldResume;
 
 @end

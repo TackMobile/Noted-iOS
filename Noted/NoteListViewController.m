@@ -102,11 +102,7 @@ typedef enum {
         [self.tableView reloadData];
     }];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
         
-        
-    }];
-    
     CGRect pullToCreateRect = (CGRect){
         {0, dragToCreateController.view.frame.size.height*(-1)},
         dragToCreateController.view.frame.size
@@ -117,6 +113,13 @@ typedef enum {
     [self.tableView addSubview:dragToCreateController.view];
 
     [self handleNotifications];
+    
+#ifdef DEBUG
+    //UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 10.0)];
+    //[v setBackgroundColor:[UIColor redColor]];
+    //[self.tableView setTableHeaderView:v];
+#endif
+    
 }
 
 - (void)handleNotifications
@@ -166,6 +169,13 @@ typedef enum {
     [self listDidUpdate];
        
     _viewingNoteStack = YES;
+}
+
+- (void)tourCheck
+{
+    if (_currentTourStep) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -225,7 +235,6 @@ typedef enum {
         [self performSelector:@selector(createAndShowFirstNote) withObject:nil afterDelay:0.5];
     }
     
-    NSLog(@"note count: %d",_noteCount);
     if (_noteCount>0) {
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
         
@@ -281,7 +290,7 @@ typedef enum {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _noteCount-1) {
-        return self.view.bounds.size.height-44.0;
+        return self.view.bounds.size.height;
     }
     
     return 66;
@@ -318,7 +327,7 @@ typedef enum {
         UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
         [panGesture setDelegate:self];
         [noteEntryCell addGestureRecognizer:panGesture];
-        
+        //[self debugView:noteEntryCell color:[UIColor purpleColor]];
     }
     
     if (noteEntry.adding) {

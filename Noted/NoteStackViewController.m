@@ -152,7 +152,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.nextNoteViewController = [[NoteViewController alloc] init];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view]; //stacking view controllers
     
-#warning TODO: optimization: lazy instantiation of OptionsViewController
     self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil]; //settings screen
     self.optionsViewController.delegate = self;
     self.optionsViewController.view.frame = frame;
@@ -164,12 +163,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinch];
-    
-    UIPanGestureRecognizer *deleteGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(deletePan:)];
-    deleteGesture.minimumNumberOfTouches = 2;
-    deleteGesture.maximumNumberOfTouches = 2;
-    //[self.view addGestureRecognizer:deleteGesture];
-    
+      
     [self setCurrentNoteToModel];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
@@ -208,7 +202,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
     
     [self.view addSubview:self.sliceView];
-
+     
 }
 
 // on first view of note as well as right after creating note by pan getsure
@@ -218,7 +212,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.currentNoteViewController setNoteEntry:[model noteAtSelectedNoteIndex]];
     [model noteDocumentAtIndex:model.selectedNoteIndex completion:^(NoteDocument *doc){
         self.currentNoteViewController.noteDocument = doc;
-        NSLog(@"now you can save changes using undo/redo");
     }];
 }
 
@@ -228,8 +221,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self presentNotes];
     [self.delegate indexDidChange];
    
-    AppDelegate *del = APP_DELEGATE;
-    [del resumeWalkthroughWithView:self.view];
+    
+    int64_t delayInSeconds = 5.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        AppDelegate *del = APP_DELEGATE;
+        [del resumeWalkthroughWithView:self.view];
+    });
 }
 
 - (void)viewDidUnload {
@@ -302,15 +300,18 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
         [self pinchToCollapseBegun:YES];
-        //[_stackVC prepareForAnimation];
         [_stackVC prepareForCollapse];
+        [self.view addSubview:_stackVC.view];
+        [self debugView:_stackVC.view color:[UIColor blueColor]];
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
+        NSLog(@"animating pinch for percent %f",pinchPercentComplete);
       
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
-        
+        NSLog(@"animating pinch for percent %f",pinchPercentComplete);
         if (pinchPercentComplete>=1.0) {
+            NSLog(@"reported as complete");
             pinchComplete = YES;
         } else {
             pinchComplete = NO;
@@ -319,7 +320,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         // a strong pinch should finish things immediately
         if (pinchVelocity < -0.8 && pinchComplete) {
             [self.view setUserInteractionEnabled:NO];
-            //[self finishPinch];
         }
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
@@ -365,6 +365,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.currentNoteViewController setWithNoDataTemp:NO];
         self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
+        [self tourCheck];
         
     }];
 }
@@ -441,7 +442,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (BOOL)wantsToDeleteWithPoint:(CGPoint)point velocity:(CGPoint)velocity
 {
-    return velocity.x > 0;
+    BOOL wantsTo = velocity.x > 0 ? YES : NO;
+    return wantsTo;
 }
 
 - (BOOL)wantsToCreateWithPoint:(CGPoint)point velocity:(CGPoint)velocity
@@ -450,9 +452,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 }
 
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
-    NSLog(@"panreceived");
     
-    ApplicationModel *model = [ApplicationModel sharedInstance];
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
@@ -463,7 +463,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (self.currentNoteViewController.textView.isDragging) { //prevents accidental switching of note when user is scrolling current note
-        NSLog(@"isdragging %d", self.currentNoteViewController.textView.isDragging);
         return;
     }
     
@@ -475,9 +474,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) { //two finger delete
             if ([self wantsToDeleteWithPoint:point velocity:velocity]) { //if the pan gesture is going from left to right
-                
-                [self setGestureState:kShouldDelete]; //delete and the note and animate
-                [self createDeletingViews];
+                [self setGestureState:kShouldDelete];
+                self.currentNoteViewController.textView.scrollEnabled = NO;
+                [self.view bringSubviewToFront:self.sliceView];
                 
             // wants to create new note
             } else if ([self wantsToCreateWithPoint:point velocity:velocity]) { //if the pan gesture is going from right to left
@@ -513,12 +512,33 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 
             } else if (_currentGestureState == kShouldDelete) { //if the user panned from left to right to delete
                 
-                BOOL shouldCancelDelete = (point.x > 0 && point.x < CGRectGetMidX(viewFrame)) || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2; //if user doesn't drag far enough cancel the delete
-                if (shouldCancelDelete) {
-                    [self cancelDeletingNote];
-                } else {
-                    [self finishDeletingDocument:point];
-                    NSLog(@"finishdeletingoducment");
+                if (point.x < self.view.frame.size.width/2) { //if user didn't pan past the half way point
+                    [UIView animateWithDuration:1.0
+                                     animations:^(void){
+                                         self.sliceView.frame = CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height); //slowly animate the slice view back off screen
+                                     }
+                                     completion:^(BOOL finished){
+                                         self.currentNoteViewController.view.hidden = NO; //and show the actual note again
+                                         //self.screenShot.hidden = YES;
+                                     }];
+                }
+                else{ //if user panned past the half way point
+                    //[self finishDeletingDocument:point];
+                    [UIView animateWithDuration:0.5
+                                     animations:^(void){
+                                         self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
+                                     }completion:^(BOOL finished){
+                                         UIGraphicsBeginImageContext(CGSizeMake(self.view.frame.size.width, self.view.frame.size.height));
+                                         CGContextRef context = UIGraphicsGetCurrentContext();
+                                         [self.view.layer renderInContext:context]; //gets screenshot of the note
+                                         //[self.sliceView.layer renderInContext:context]; //gets screenshot of the slice images
+                                         UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext(); //saves both as one image
+                                         UIGraphicsEndImageContext();
+                                         self.slicedNoteScreenShot.image = viewImage;
+                                         [self cropNote];
+                                         [self tourCheck];
+                                     }];
+                    
                 }
             }
         }
@@ -531,14 +551,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
          
             // delete the note if panning w/ 2 fingers to the right
             if (_currentGestureState == kShouldDelete) {
-                //NSLog(@"should delete: %s",shouldDeleteNote ? "YES" : "NO");
-                self.currentNoteViewController.view.hidden = YES;
                 
-                NoteEntry *nextNote = [model nextNoteInStackFromIndex:model.selectedNoteIndex];
-                [self.nextNoteViewController setNoteEntry:nextNote];
-    
-                [self animateDeletingViewsForPoint:point withRecgonizer:recognizer];
-
+                self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
             }
             // else user is wanting to create a new note
             else if (_currentGestureState == kShouldCreateNew){//point.x < 0 && abs(velocity.y)< 30) {
@@ -555,39 +569,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
     CGPoint point = [gesture translationInView:self.view];
     if (gesture.state == UIGestureRecognizerStateBegan) {
-        //[self createDeletingViews]; //as soon as the gesture begins...calls this method to get a screenshot of the current note..this prevents accidental scroling of the actual note when the user pans up and down
-        //self.currentNoteViewController.view.hidden = YES; //hides the actual note
         self.currentNoteViewController.textView.scrollEnabled = NO;
-        [self.sliceView bringSubviewToFront:self.view];
+        [self.view bringSubviewToFront:self.sliceView];
     }
-    
-    /*for (int i = 1; i < NUMBER_OF_SLICES; i++) { //adds number of "slice" images equal distances apart to self.sliceview UIView
-        UIImageView *sliceImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"slice.png"]];
-        sliceImage.frame = CGRectMake(0, (frame.size.height*i)/NUMBER_OF_SLICES, sliceImage.frame.size.width, 5);
-        [sliceView addSubview:sliceImage];
-    }*/
-    
-    /*for (int i = 0; i < frame.size.height/30; i++) {
-        UIImageView *one = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-one"]];
-        one.frame = CGRectMake(0, (frame.size.height*i)/(frame.size.height/one.image.size.height) * 3, one.image.size.width, one.image.size.height); //adds strip 1 to every 3rd section starting at (0,0)
-        UIImageView *two = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-two"]];
-        two.frame = CGRectMake(0, (frame.size.height*(i+1))/(frame.size.height/two.image.size.height) * 3, two.image.size.width, two.image.size.height); //adds strip 2 to every 3rd section starting at (0, 30), height of the strip
-        UIImageView *three = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"strip-three"]];
-        three.frame = CGRectMake(0, (frame.size.height*(i+2))/(frame.size.height/three.image.size.height) * 3, three.image.size.width, three.image.size.height); //adds strip 3 to every 3rd section starting at (0,60)
-        
-        [self.sliceView addSubview:one];
-        //[self.sliceView addSubview:two];
-        //[self.sliceView addSubview:three];
-    }*/
-   
-    
-    //if ([gesture velocityInView:self.view].x > 0) { //if panned from left to right
-        if (gesture.state == UIGestureRecognizerStateChanged) { //while the pan gesture is still in action
-            NSLog(@"gesturechanged %f", point.x);
-            self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
-            
-        //}
-    
+     
+    if (gesture.state == UIGestureRecognizerStateChanged) { //while the pan gesture is still in action
+        NSLog(@"gesturechanged %f", point.x);
+        self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
         
     }
     if (gesture.state == UIGestureRecognizerStateEnded) {
@@ -602,7 +590,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              }];
         }
         else{ //if user panned past the half way point
-            //[self finishDeletingDocument:point];
             [UIView animateWithDuration:0.5
                              animations:^(void){
                                  self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
@@ -615,6 +602,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                  UIGraphicsEndImageContext();
                                  self.slicedNoteScreenShot.image = viewImage;
                                  [self cropNote];
+                                 [self tourCheck];
                              }];
  
         }
@@ -705,39 +693,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)finishDeletingDocument:(CGPoint)point
 {
-    NSLog(@"%s",__PRETTY_FUNCTION__);
     // shredding animations for deletion
     
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *toDelete = currentNoteViewController.noteEntry;
     [self setGestureState:kGestureFinished];
-    
-    //NSLog(@"should delete %@",toDelete.text);
-    /*  __block int completeCount = 0;
-     for (int k = 0; k < [deletingViews count]; k++) {
-     
-     double middle = deletingViews.count/2.0;
-     UIImageView *view = [deletingViews objectAtIndex:k];
-     view.hidden = NO;
-     CGRect frame = view.frame;
-     frame.origin.x = 420.0;
-     
-     if (k < [deletingViews count]/2.0) {
-     frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
-     } else {
-     frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
-     }
-     
-     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-     [UIView animateWithDuration:0.5
-     animations:^{
-     view.frame = frame;
-     }
-     completion:^(BOOL finished){
-     completeCount ++;
-     [view removeFromSuperview];
-     
-     if (completeCount==deletingViews.count) {*/
     
     for (UIView *subview in self.view.subviews) {
         if (![subview isEqual:self.nextNoteViewController.view]) {
@@ -749,9 +709,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.textView.scrollEnabled = YES;
     
     self.currentNoteViewController.view.hidden = NO;
-    if (deletingViews.count==0) {
-        NSLog(@"is deletingViews necessary?");
-    }
     
     [deletingViews removeAllObjects];
 
@@ -760,7 +717,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
     }];
     
-    [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
+    if (model.currentNoteEntries.count==0) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    } else {
+        [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
+    }
+    
+    [self tourCheck];
 }
 
 - (void)cancelDeletingNote
@@ -826,12 +789,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         return;
     }
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
+        [self tourCheck];
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
         [self tourCheck];
         [self animateCurrentOutToLeft];
     } else { // if the user didn't drag the note past half the screen then snap back
-        [self tourCheck];
+        
         [self snapBackCurrentNote];
     }
 }
@@ -870,6 +834,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [model setSelectedNoteIndex:0];
     int currentIndex = model.selectedNoteIndex;
     [self updateNoteDocumentsForIndex:currentIndex];
+    
+    [self.delegate indexDidChange];
             
     [self setGestureState:kGestureFinished];
     self.currentNoteViewController.view.hidden = NO;
@@ -1128,6 +1094,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [self.currentNoteViewController.textView resignFirstResponder];
     [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
+    [self tourCheck];
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock //shifts current note to only partially show on screen
