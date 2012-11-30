@@ -173,7 +173,7 @@ static void *NSUserDefaultsiCloudHandlerKey;
 
 - (void)saveBool:(BOOL)value forKey:(NSString *)key
 {
-    [self setBool: value forKey: key];
+    [self setBool:value forKey: key];
     [self synchronize];
 }
 

@@ -15,13 +15,13 @@
 #import "UIColor+HexColor.h"
 #import "NoteStackViewController.h"
 #import "NoteStackViewController.h"
-#import "NewNoteCell.h"
 #import "FileStorageState.h"
 #import "CloudManager.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
 #import "WalkThroughViewController.h"
+#import "EmptyDataView.h"
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
@@ -58,7 +58,9 @@ typedef enum {
     NSDictionary *_currentTourStep;
     
     NSTimer *walkthroughGestureTimer;
+    EmptyDataView *emptyDataView;
 }
+
 
 @end
 
@@ -78,7 +80,7 @@ typedef enum {
         _scrolling = NO;
         
         // pullToCreate
-        dragToCreateController = [[DragToCreateViewController alloc] initWithNibName:@"DragToCreateViewController" bundle:nil];
+        dragToCreateController = [[DragToCreateViewController alloc] init];
     }
     
     return self;
@@ -86,6 +88,11 @@ typedef enum {
 - (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
 {
     return [self init];
+}
+
+- (BOOL)hasData
+{
+    return _noteCount > 0;
 }
 
 - (void)viewDidLoad {
@@ -208,11 +215,22 @@ typedef enum {
             [self.tableView scrollToRowAtIndexPath:_selectedIndexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
         }
     }
+    
+    if (![FileStorageState isFirstUse]) {
+        int64_t delayInSeconds = 1.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[ApplicationModel sharedInstance] refreshNotes];
+        });
+    }
+
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    _noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
      if (_viewingNoteStack) {
          CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
@@ -245,6 +263,8 @@ typedef enum {
 {
     NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
     _noteCount = notes.count;
+    
+    [self setHasData:_noteCount > 0];
     if ([FileStorageState isFirstUse] && _noteCount == 0) {
         [self performSelector:@selector(createAndShowFirstNote) withObject:nil afterDelay:0.5];
     }
@@ -810,5 +830,17 @@ typedef enum {
     
 }
 
+- (void)addEmptyDataView:(CGRect)frame ForKeyPath:(NSString *)keyPath
+{
+    if (!emptyDataView) {
+        emptyDataView = [[EmptyDataView alloc] initWithFrame:frame subscribedToKeyPath:keyPath];
+    }
+
+    [self.view addSubview:emptyDataView];
+    [emptyDataView setAnimatedHide:NO];
+    [self addObserver:emptyDataView forKeyPath:keyPath options:(NSKeyValueObservingOptionNew |  NSKeyValueObservingOptionOld) context:NULL];
+    
+    [emptyDataView show:!self.hasData];
+}
 
 @end

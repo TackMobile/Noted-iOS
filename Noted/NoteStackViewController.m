@@ -18,6 +18,7 @@
 #import "AnimationStackViewController.h"
 #import "NoteEntryCell.h"
 #import "WalkThroughViewController.h"
+#import "UIColor+HexColor.h"
 
 typedef enum {
     kGestureFinished,
@@ -123,10 +124,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.slicedNoteArray = [NSMutableArray new];
     self.slicedNoteScreenShot = [UIImageView new];
+    
     [self.view.layer setCornerRadius:kCornerRadius];
     [self.view setClipsToBounds:YES];
+    [self.view setBackgroundColor:[UIColor colorWithHexString:@"F0F0F0"]];
 
     initialPinchDistance = 0.0;
     self.view.layer.cornerRadius = kCornerRadius;
@@ -143,6 +147,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.screenShot = [UIImageView new];
     
     self.currentNoteViewController = [[NoteViewController alloc] init];
+    [self.currentNoteViewController setIsCurrent:YES];
     self.currentNoteViewController.delegate = self;
     self.currentNoteViewController.view.frame = frame;
     [self.view addSubview:self.currentNoteViewController.view];
@@ -175,11 +180,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         newFrame.origin.x = self.currentNoteViewController.view.frame.origin.x;
         [UIView animateWithDuration:0.5
                          animations:^{
-                             self.currentNoteViewController.view.frame = newFrame;
-                             self.nextNoteViewController.view.frame = newFrame;
+                             [self.view setFrameY:newFrame.origin.y];
+                             NSLog(@"from %@ to %@",NSStringFromCGRect(self.currentNoteViewController.view.frame),NSStringFromCGRect(newFrame));
+                             //[self debugView:self.currentNoteViewController.view color:[UIColor redColor]];
+                             //self.nextNoteViewController.view.frame = newFrame;
                          }
                          completion:nil];
-        [_stackVC.view setFrame:newFrame];
+        //[_stackVC.view setFrame:newFrame];
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:kWalkThroughStepBegun object:nil queue:nil usingBlock:^(NSNotification *note){
@@ -210,10 +217,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
     
     [self.view addSubview:self.sliceView];
-     
 }
-
-
 
 // on first view of note as well as right after creating note by pan getsure
 - (void)setCurrentNoteToModel
@@ -385,7 +389,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.currentNoteViewController setWithNoDataTemp:NO];
         self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        [self tourCheck:walkThroughStep5];
+        [self walkThroughStepCheck:walkThroughStep5];
         
     }];
 }
@@ -477,11 +481,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
+    NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
-    
-
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
     }
@@ -509,10 +512,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             } else if ([self wantsToCreateWithPoint:point velocity:velocity]) { //if the pan gesture is going from right to left
                 
                 [self setGestureState:kShouldCreateNew];
-                [self.view addSubview:self.nextNoteViewController.view];
                 
+                [self.nextNoteViewController setWithPlaceholderData:YES defaultData:nil];
+                [self debugView:self.nextNoteViewController.view color:[UIColor greenColor]];
+                [self.view addSubview:self.nextNoteViewController.view];
                 self.nextNoteViewController.view.hidden = NO;
-                [self.nextNoteViewController setWithPlaceholderData:YES];
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
@@ -526,11 +530,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             
             if (_currentGestureState == kShouldCreateNew) { //if they panned from right to left to create a new note
                 // allow cancelation of new note creation if user lets go before midpoint
-                if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/2) { //midpoint not working
+                NSLog(@"%@",NSStringFromCGRect(nextNoteFrame));
+                NSLog(@"if (%f > %f || %i < %f) then should cancel",nextNoteFrame.origin.x,viewFrame.size.width/2,abs(velocity.x),FLIP_VELOCITY_THRESHOLD/2);
+                if (nextNoteFrame.origin.x > viewFrame.size.width/2 || abs(velocity.x) < FLIP_VELOCITY_THRESHOLD/4) { //midpoint not working
                     [self setGestureState:kGestureFinished];
                     [self snapBackNextNote];
                     // undo the dummy placeholder data
-                    [self.nextNoteViewController setWithPlaceholderData:NO];
+                    
                     
                 } else {
                     
@@ -576,14 +582,15 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [self handleSingleTouchPanChangedForPoint:point]; //switches note
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
-         
+            NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
+            NSLog(@"%@",NSStringFromCGRect(self.currentNoteViewController.view.frame));
             // delete the note if panning w/ 2 fingers to the right
             if (_currentGestureState == kShouldDelete) {
                 
                 self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
             }
-            // else user is wanting to create a new note
-            else if (_currentGestureState == kShouldCreateNew){//point.x < 0 && abs(velocity.y)< 30) {
+            // else user is wanted to create a new note
+            else if (_currentGestureState == kShouldCreateNew){
                 
                 // move next document in from the far right, on top
                 [self updatePositionOfNextDocumentToPoint:point];
@@ -631,7 +638,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
  UIGraphicsEndImageContext();
  self.slicedNoteScreenShot.image = viewImage;
  [self cropNote];
- [self tourCheck:walkThroughStep4];
+ [self walkThroughStepCheck:walkThroughStep4];
  }];
  
  }
@@ -666,7 +673,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int64_t delayInSeconds = 1.75;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self tourCheck:walkThroughStep4];
+        [self walkThroughStepCheck:walkThroughStep4];
     });
     [UIView animateWithDuration:2.0
                      animations:^(void){
@@ -682,7 +689,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          }
                          
                          [self.view insertSubview:self.sliceView atIndex:0];
-                         
+                         if ([[[ApplicationModel sharedInstance] currentNoteEntries] count] == 0) {
+                             [self dismissViewControllerAnimated:NO completion:nil];
+                         }
                      }];
     
     
@@ -698,8 +707,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     return ranAngle;
     
 }
-
-
 
 -(int)randomXValue{
     int lowerBound = -320;
@@ -740,8 +747,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.textView.scrollEnabled = YES;
     
     self.currentNoteViewController.view.hidden = NO;
-    
-    //[deletingViews removeAllObjects];
 
     [model setCurrentNoteIndexToNextPriorToDelete];
     [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
@@ -754,7 +759,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
     }
     
-    [self tourCheck:walkThroughStep4];
+    [self walkThroughStepCheck:walkThroughStep4];
 }
 
 - (void)cancelDeletingNote
@@ -820,10 +825,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         return;
     }
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
-        [self tourCheck:walkThroughStep3];
+        [self walkThroughStepCheck:walkThroughStep3];
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
-        [self tourCheck:walkThroughStep3];
+        [self walkThroughStepCheck:walkThroughStep3];
         [self animateCurrentOutToLeft];
     } else { // if the user didn't drag the note past half the screen then snap back
         
@@ -831,17 +836,22 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
 }
 
-- (void)tourCheck:(int)stepNum
+#pragma mark Walk-through
+
+- (void)walkThroughStepCheck:(int)stepNum
 {
     if (_currentTourStep) {
         int index = [[_currentTourStep objectForKey:@"index"] intValue];
         if (index == stepNum) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kWalkThroughStepComplete object:nil userInfo:_currentTourStep];
+        } else {
+            //int step = [[[NSUserDefaults standardUserDefaults] objectForKey:kWalkthroughStepNumber] integerValue];
+            
+            // they ignored the instructions of the tour
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShouldExitTour object:nil userInfo:nil];
         }
     }
 }
-
-#pragma mark Walk-through
 
 - (void)beginTouchDemoAnimation
 {
@@ -998,9 +1008,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (model.currentNoteEntries.count == 2) {
-        [self tourCheck:walkThroughStep1];
+        [self walkThroughStepCheck:walkThroughStep1];
     } else if (model.currentNoteEntries.count == 3) {
-        [self tourCheck:walkThroughStep2];
+        [self walkThroughStepCheck:walkThroughStep2];
     }
     
     [model setSelectedNoteIndex:0];
@@ -1008,7 +1018,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.delegate indexDidChange];
             
     [self setGestureState:kGestureFinished];
-    self.currentNoteViewController.view.hidden = NO;
+    //self.currentNoteViewController.view.hidden = NO;
     
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
@@ -1019,7 +1029,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      }
                      completion:^(BOOL success) {
                          [self.view addSubview:self.currentNoteViewController.view];
-                         
+                         self.currentNoteViewController.view.hidden = NO;
                      }];
 }
 
@@ -1183,6 +1193,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      completion:^(BOOL complete){
                          self.nextNoteViewController.view.frame = viewFrame;
                          [self.view addSubview:currentNoteViewController.view];
+                         [self.nextNoteViewController setWithPlaceholderData:NO defaultData:nil];
                      }];
 }
 
@@ -1257,14 +1268,18 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [self.currentNoteViewController.textView resignFirstResponder];
     [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
-    [self tourCheck:walkThroughStep7];
+    [self walkThroughStepCheck:walkThroughStep7];
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock //shifts current note to only partially show on screen
 {
     if (point.x != 0) {
         self.optionsViewController.view.hidden = NO;
+        [self.view setBackgroundColor:[UIColor blackColor]];
+    } else {
+        [self.view setBackgroundColor:[UIColor whiteColor]];
     }
+    
     [self.currentNoteViewController.textView resignFirstResponder];
     [UIView animateWithDuration:0.3
                           delay:0.0

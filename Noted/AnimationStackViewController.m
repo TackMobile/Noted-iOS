@@ -10,7 +10,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "StackViewItem.h"
 #import "NoteEntryCell.h"
-#import "NewNoteCell.h"
 #import "UIView+position.h"
 #import "ApplicationModel.h"
 #import "NoteDocument.h"
@@ -38,7 +37,7 @@ typedef enum {
 #define IS_NOTE_SECTION(indexPath) indexPath.section==0
 
 static const float  kAnimationDuration      = 0.5;
-static const float  kDebugAnimationDuration = 2.5;
+static const float  kDebugAnimationDuration = 1.5;
 static const float  kCellHeight             = 66.0;
 
 @interface AnimationStackViewController ()

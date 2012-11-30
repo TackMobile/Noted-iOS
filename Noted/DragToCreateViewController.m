@@ -15,13 +15,19 @@
 @implementation DragToCreateViewController
 @synthesize scrollIndicatorImage, instructionLabel;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id)init
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
+    self = [super initWithNibName:@"DragToCreateView" bundle:nil];
+    if (self){
         scrollThreshold = self.view.frame.size.height; // the same height of this xib
     }
+    
     return self;
+}
+
+- (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
+{
+    return [self init];
 }
 
 - (void)viewDidLoad

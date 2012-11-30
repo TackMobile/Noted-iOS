@@ -14,6 +14,9 @@ extern NSString *const kStepViewControllerClass;
 extern NSString *const kWalkThroughStepBegun;
 extern NSString *const kWalkThroughStepComplete;
 extern NSString *const kWalkThroughExited;
+extern NSString *const kShouldExitTour;
+extern NSString *const kWalkthroughStepNumber;
+extern NSString *const kShouldExitTour;
 
 typedef enum {
     walkThroughStep1,

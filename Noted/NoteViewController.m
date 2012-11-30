@@ -61,6 +61,9 @@
 
 - (void)setWithNoDataTemp:(BOOL)val
 {
+    if (_isCurrent) {
+        NSLog(@"stop");
+    }
     if (val) {
         self.textView.text = @"";
         self.relativeTime.text = @"";
@@ -74,10 +77,13 @@
     }
 }
 
-- (void)setWithPlaceholderData:(BOOL)val
+- (void)setWithPlaceholderData:(BOOL)val defaultData:(NoteData *)defaultData
 {
+    if (_isCurrent) {
+        NSLog(@"stop");
+    }
     if (val) {
-        NoteData *placeholder = [[NoteData alloc] init];
+        NoteData *placeholder = defaultData ? defaultData : [[NoteData alloc] init];
         self.textView.text = [placeholder noteText];
         self.relativeTime.text = [Utilities formatRelativeDate:[NSDate date]];
         [self.view setBackgroundColor:[UIColor whiteColor]];
@@ -89,6 +95,9 @@
 }
 
 - (void) setNoteEntry:(NoteEntry *)entry {
+    if (_isCurrent) {
+        NSLog(@"stop");
+    }
     if (_noteEntry != entry) {
         _noteEntry = entry;
         [self updateUIForCurrentEntry];

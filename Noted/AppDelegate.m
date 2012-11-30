@@ -86,16 +86,23 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [[ApplicationModel sharedInstance] refreshNotes];
+    
     BOOL hideStatusBar = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
     [[UIApplication sharedApplication] setStatusBarHidden:hideStatusBar withAnimation:NO];
     
     self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
     
     if (![FileStorageState isFirstUse]) {
+        [[ApplicationModel sharedInstance] refreshNotes];
         if ([tourVC shouldResume]) {
             [tourVC resumeWithCompletionBlock:nil];
         }
+    } else {
+        int64_t delayInSeconds = 2.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[ApplicationModel sharedInstance] refreshNotes];
+        });
     }
 }
 

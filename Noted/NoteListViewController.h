@@ -20,5 +20,6 @@
 
 @property (strong, nonatomic) UIView *lastRowExtenderView;
 @property (nonatomic, strong) NSIndexPath *selectedIndexPath;
+@property (assign, nonatomic) BOOL hasData;
 
 @end

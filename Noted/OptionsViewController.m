@@ -46,7 +46,7 @@
     [self.view addSubview:self.aboutSubview];
     [self.view addSubview:self.settingsSubview];
     
-    
+    [self.view setBackgroundColor:[UIColor blackColor]];
     //add version number 
     self.versionText.text = [NSString stringWithFormat:@"v.%@",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
     
@@ -78,14 +78,27 @@
     BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
     [keyboardSwitch setOn:NO];
     
-    UISwitch *statusBarSwitch = (UISwitch *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
+    UIButton *statusBarSwitch = (UIButton *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
     BOOL hide = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
-    [statusBarSwitch setOn:!hide];
+    [self setButtonOn:statusBarSwitch on:!hide];
     
-    UISwitch *cloudStorageSwitch = (UISwitch *)[self.settingsSubview viewWithTag:ICLOUD_TOGGLE_SWITCH];
+    UIButton *cloudStorageSwitch = (UIButton *)[self.settingsSubview viewWithTag:ICLOUD_TOGGLE_SWITCH];
     isOn = [FileStorageState preferredStorage] == kTKiCloud ? YES : NO;
-    [cloudStorageSwitch setOn:isOn];
+    [self setButtonOn:cloudStorageSwitch on:isOn];
     // http://osiris.laya.com/projects/rcswitch/
+}
+
+- (void)setButtonOn:(UIButton *)button on:(BOOL)on
+{
+    if (on) {
+        [button setTitle:@"ON" forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        button.tag = 1;
+    } else {
+        [button setTitle:@"OFF" forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor lightTextColor] forState:UIControlStateNormal];
+        button.tag = 0;
+    }
 }
 
 -(void)loadOptionColors {
@@ -168,7 +181,6 @@
 
 }
 
-
 -(void)openShare:(id)sender {
     NSLog(@"%@",NSStringFromCGRect(self.shareText.frame));
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
@@ -191,9 +203,8 @@
 
 - (CGRect)frameForCancelButtonWithXOffset:(CGFloat)xPos
 {
-    float widthHeight = 36.0;
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
-    return CGRectMake(xPos-widthHeight, frame.size.height-widthHeight, widthHeight, widthHeight);
+    return CGRectMake(10.0, frame.size.height-35.0, 67.0, 35.0);
 }
 
 - (void)setColorsToCollapsedStateWithDuration:(float)duration
@@ -296,31 +307,26 @@
 }
 
 - (IBAction)handleStatusBarToggle:(id)sender {
-    BOOL show = [(UISwitch *)sender isOn];
+    UIButton *btn = (UIButton *)sender;
+
+    BOOL show = btn.tag == 1 ? NO : YES;
+    [self setButtonOn:btn on:show];
     [[UIApplication sharedApplication] setStatusBarHidden:!show withAnimation:YES];
     
     [[NSUserDefaults standardUserDefaults] setBool:!show forKey:HIDE_STATUS_BAR];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    NSLog(@"show status bar turned %s",show ? "on":"off");
-    CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
     [self setColorsToCollapsedStateWithDuration:0.5];
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         self.view.frame = newFrame;
-                         float widthHeight = self.cancelX.frame.size.height;
-                         self.cancelX.frame = CGRectMake(self.cancelX.frame.origin.x, newFrame.size.height-widthHeight, widthHeight, widthHeight);
-                     }
-                     completion:^(BOOL finished){
-                         NSLog(@"finished animating");
-                     }];
-    
+
     [[NSNotificationCenter defaultCenter] postNotificationName:@"didToggleStatusBar" object:nil userInfo:nil];
-   
 }
 
 - (IBAction)toggleCloudStorage:(id)sender {
-    BOOL useICloud = [(UISwitch *)sender isOn];
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    BOOL useICloud = btn.tag == 1 ? NO : YES;
+    [self setButtonOn:btn on:useICloud];
     
     [FileStorageState setPreferredStorage:useICloud ? kTKiCloud : kTKlocal];
     

@@ -18,6 +18,7 @@ NSString *const kStepDescription =          @"walkthroughStepDescription";
 NSString *const kStepViewControllerClass =  @"viewControllerClass";
 NSString *const kWalkthroughStepNumber =    @"walkthroughStepNum";
 NSString *const kDidExitTour =              @"walkthroughExited";
+NSString *const kShouldExitTour =           @"walkthroughShouldExit";
 
 NSString *const kWalkThroughStepBegun =     @"walkThroughStepBegunNotification";
 NSString *const kWalkThroughExited =        @"didExitTourNotification";
@@ -62,6 +63,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     
 	// Do any additional setup after loading the view.
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleStepComplete:) name:kWalkThroughStepComplete object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(exit:) name:kShouldExitTour object:nil];
     
     _steps = [NSArray arrayWithObjects:
               [NSDictionary dictionaryWithObjectsAndKeys:
@@ -89,7 +91,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 }
 
 - (IBAction)skip:(id)sender {
-    [self exit];
+    [self exit:nil];
 }
 
 - (IBAction)startTour:(id)sender {
@@ -106,7 +108,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     }
 }
 
-- (void)exit
+- (void)exit:(NSNotification *)note
 {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDidExitTour];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -199,8 +201,10 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 {
     NSNumber *currentStepNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kWalkthroughStepNumber];
     if (!currentStepNumber) {
-        currentStepNumber = [NSNumber numberWithInt:0];
+        currentStepNumber = @0;
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kDidExitTour];
+        [[NSUserDefaults standardUserDefaults] setObject:currentStepNumber forKey:kWalkthroughStepNumber];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
     
     return currentStepNumber.integerValue;
@@ -209,8 +213,8 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 - (void)advance
 {
     NSInteger currentStep = [self currentStep];
-    //NSLog(@"step %i",currentStep+1);
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:currentStep+1] forKey:kWalkthroughStepNumber];
+    NSLog(@"step %@",@(currentStep+1));
+    [[NSUserDefaults standardUserDefaults] setObject:@(currentStep+1) forKey:kWalkthroughStepNumber];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 

@@ -30,11 +30,13 @@
 @property (strong, nonatomic) IBOutlet UILabel *relativeTime;
 @property (strong, nonatomic) IBOutlet UILabel *absoluteTime;
 
+@property (nonatomic, assign) BOOL isCurrent;
+
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView;
 
 // helper when swiping to create new notes
-- (void)setWithPlaceholderData:(BOOL)val;
+- (void)setWithPlaceholderData:(BOOL)val defaultData:(NoteData *)defaultData;
 - (void)setWithNoDataTemp:(BOOL)val;
 - (void)setShadowForXOffset;
 + (NSString *)optionsDotTextForColor:(UIColor *)color;

@@ -95,9 +95,8 @@
 		B5D496F01668E3BE004F044F /* fingertip.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EE1668E3BE004F044F /* fingertip.png */; };
 		B5D496F11668E3BE004F044F /* fingertip@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EF1668E3BE004F044F /* fingertip@2x.png */; };
 		B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D496F416694C3C004F044F /* WalkThroughViewController.m */; };
+		B5D4970B16695516004F044F /* EmptyDataView.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D4970A166953F5004F044F /* EmptyDataView.m */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
-		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
-		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
@@ -106,7 +105,7 @@
 		EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960B15B7C604004A2494 /* NoteViewController.m */; };
 		EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960C15B7C604004A2494 /* NoteViewController.xib */; };
 		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
-		F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */; };
+		F34DDC56165BF72100A43868 /* DragToCreateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateView.xib */; };
 		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
 /* End PBXBuildFile section */
 
@@ -233,11 +232,10 @@
 		B5D496EF1668E3BE004F044F /* fingertip@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fingertip@2x.png"; sourceTree = "<group>"; };
 		B5D496F316694C3C004F044F /* WalkThroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkThroughViewController.h; sourceTree = "<group>"; };
 		B5D496F416694C3C004F044F /* WalkThroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkThroughViewController.m; sourceTree = "<group>"; };
+		B5D49709166953F5004F044F /* EmptyDataView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmptyDataView.h; sourceTree = "<group>"; };
+		B5D4970A166953F5004F044F /* EmptyDataView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmptyDataView.m; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
-		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
-		EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewNoteCell.m; sourceTree = "<group>"; };
-		EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewNoteCell.xib; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
 		EAC1F06215B99EB700262749 /* NoteFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteFileManager.m; sourceTree = "<group>"; };
 		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
@@ -251,7 +249,7 @@
 		EAD6960C15B7C604004A2494 /* NoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteViewController.xib; sourceTree = "<group>"; };
 		F34DDC52165BF72100A43868 /* DragToCreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragToCreateViewController.h; sourceTree = "<group>"; };
 		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
-		F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateViewController.xib; sourceTree = "<group>"; };
+		F34DDC54165BF72100A43868 /* DragToCreateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateView.xib; sourceTree = "<group>"; };
 		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -283,9 +281,6 @@
 				298EBFF1157021CC00B72F5C /* NoteEntryCell.xib */,
 				29960C861574103F0054347A /* TransformableNoteCell.h */,
 				29960C871574103F0054347A /* TransformableNoteCell.m */,
-				EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */,
-				EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */,
-				EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */,
 			);
 			name = "Cells and Keys";
 			sourceTree = "<group>";
@@ -494,8 +489,6 @@
 		EAD695FF15B7B8CA004A2494 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
-				B5D496F316694C3C004F044F /* WalkThroughViewController.h */,
-				B5D496F416694C3C004F044F /* WalkThroughViewController.m */,
 				EAD6960015B7B8FB004A2494 /* NoteListViewController.h */,
 				EAD6960115B7B8FB004A2494 /* NoteListViewController.m */,
 				EAD6960215B7B8FB004A2494 /* NoteListViewController.xib */,
@@ -514,7 +507,9 @@
 				298EC0061570415700B72F5C /* OptionsViewController.xib */,
 				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
 				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
-				F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */,
+				F34DDC54165BF72100A43868 /* DragToCreateView.xib */,
+				B5D49709166953F5004F044F /* EmptyDataView.h */,
+				B5D4970A166953F5004F044F /* EmptyDataView.m */,
 			);
 			name = "View controllers";
 			sourceTree = "<group>";
@@ -522,6 +517,8 @@
 		F3FD5A16165C0FBF00A45062 /* Walkthrough */ = {
 			isa = PBXGroup;
 			children = (
+				B5D496F316694C3C004F044F /* WalkThroughViewController.h */,
+				B5D496F416694C3C004F044F /* WalkThroughViewController.m */,
 				B54E0CA016668C0F005BB273 /* WalkThroughView.xib */,
 			);
 			name = Walkthrough;
@@ -606,7 +603,6 @@
 				EAD6960415B7B8FB004A2494 /* NoteListViewController.xib in Resources */,
 				EAD6960915B7C5E9004A2494 /* NoteStackViewController.xib in Resources */,
 				EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */,
-				EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */,
 				B5AA89D9160B96320094299B /* cellShadow.png in Resources */,
 				B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */,
 				B50C98BF160CCD46002A3909 /* README.md in Resources */,
@@ -614,7 +610,7 @@
 				B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */,
 				B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */,
 				B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */,
-				F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */,
+				F34DDC56165BF72100A43868 /* DragToCreateView.xib in Resources */,
 				F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */,
 				96BB3A391648631D002BE051 /* slice.png in Resources */,
 				96BB3A3A1648631D002BE051 /* slice@2x.png in Resources */,
@@ -663,7 +659,6 @@
 				EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */,
 				EAD6960D15B7C604004A2494 /* NoteViewController.m in Sources */,
 				EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */,
-				EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */,
 				B548666215F7F807005FBC60 /* FileStorageState.m in Sources */,
 				B548666515F7FEDE005FBC60 /* UIAlertView+Blocks.m in Sources */,
 				B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */,
@@ -680,6 +675,7 @@
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
 				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
 				B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */,
+				B5D4970B16695516004F044F /* EmptyDataView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
