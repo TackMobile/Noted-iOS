@@ -1227,8 +1227,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
-    [self endTouchDemoAnimation];
-    
     if (_currentGestureState == kStackingPinch) {
         return;
     }

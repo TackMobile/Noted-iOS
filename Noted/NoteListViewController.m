@@ -106,7 +106,7 @@ typedef enum {
     };
     
     [dragToCreateController.view setFrame:pullToCreateRect];
-    
+    [dragToCreateController.view setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
     [self.tableView addSubview:dragToCreateController.view];
 
     [self handleNotifications];
@@ -150,7 +150,7 @@ typedef enum {
     
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
         if (_noteCount == 0) {
-            [[ApplicationModel sharedInstance] refreshNotes];
+            //[[ApplicationModel sharedInstance] refreshNotes];
         }
     }];
 }
@@ -532,16 +532,18 @@ typedef enum {
         [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
     }
     
-    _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
-    if (_lastRowVisible) {
-        CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
-        frame = [self.view convertRect:frame fromView:self.tableView];
-        if (CGRectGetMaxY(frame) < CGRectGetMaxY(self.view.bounds)) {
-            self.tableView.backgroundColor = _lastRowColor;
-        }
-        
-        _lastRowWasVisible = YES;
-    }
+    /*
+     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
+     if (_lastRowVisible) {
+     CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
+     frame = [self.view convertRect:frame fromView:self.tableView];
+     if (CGRectGetMaxY(frame) < CGRectGetMaxY(self.view.bounds)) {
+     self.tableView.backgroundColor = _lastRowColor;
+     }
+     
+     _lastRowWasVisible = YES;
+     }
+     */
     
     [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
 
@@ -568,21 +570,35 @@ typedef enum {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model createNoteWithCompletionBlock:^(NoteEntry *entry){
         // new note entry should always appear at row 0, right?
-        NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
+        //NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+        //y[self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
         
     }];
     _noteCount = model.currentNoteEntries.count;
     
+    NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
+    NoteEntryCell *cell = [views objectAtIndex:0];
+    float offset = self.tableView.contentOffset.y;
+    [cell setFrame:CGRectMake(0.0, ABS(offset), 320.0, 0.0)];
+    [cell.contentView setBackgroundColor:[UIColor redColor]];
+    [self.view addSubview:cell];
+    
     [UIView animateWithDuration:0.5
                      animations:^(){
-                         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationTop];
+                         
+                         [cell setFrame:self.view.bounds];
+                         //[self.tableView setFrameY:self.view.frame.size.height];
                      }
                      completion:^(BOOL finished) {
-                         [self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.5];
-                     }];    
+                         //[self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.5];
+                         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:freshIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+                         [self showNoteStackForSelectedRow:0 animated:NO];
+                         [cell removeFromSuperview];
+                         [self.tableView setFrameY:0.0];
+                     }];
     
-    [self listDidUpdate];
+    
 }
 
 -(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
