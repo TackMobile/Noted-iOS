@@ -10,25 +10,13 @@
 
 typedef void (^TourStepCompletedBlock)();
 
-extern NSString *const kStepViewControllerClass;
-extern NSString *const kWalkThroughStepBegun;
-extern NSString *const kWalkThroughStepComplete;
-extern NSString *const kWalkThroughExited;
-
 typedef enum {
-    walkThroughStep1,
-    walkThroughStep2,
-    walkThroughStep3,
-    walkThroughStep4,
-    walkThroughStep5,
-    walkThroughStep6,
-    walkThroughStep7
-    
-} UserSteps;
+    k
+} TourStep;
 
 extern NSString *const kStepDescription;
 
-@interface WalkThroughViewController : UIViewController
+@interface TourViewController : UIViewController
 
 @property (nonatomic, copy) TourStepCompletedBlock stepCompleteBlock;
 @property (weak, nonatomic) IBOutlet UITextView *messageLabel;
@@ -41,4 +29,3 @@ extern NSString *const kStepDescription;
 - (BOOL)shouldResume;
 
 @end
-
