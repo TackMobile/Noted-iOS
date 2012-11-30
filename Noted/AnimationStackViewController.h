@@ -31,7 +31,6 @@ typedef void(^animationCompleteBlock)();
 - (float)finalYOriginForCurrentNote;
 - (UIView *)currentNote;
 
-//- (void)prepareForAnimation;
 - (void)prepareForCollapse;
 
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent;
@@ -42,6 +41,7 @@ typedef void(^animationCompleteBlock)();
 - (void)resetToExpanded:(void(^)())completion;
 
 - (void)updateNoteText;
+- (BOOL)needsAnimation;
 
 @end
 

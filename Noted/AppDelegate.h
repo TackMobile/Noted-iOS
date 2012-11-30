@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MasterViewController.h"
 
-@class TourViewController;
+@class WalkThroughViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

@@ -214,7 +214,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSString *uniqueName = [NoteDocument uniqueNoteName];
     NSLog(@"Unique name for doc: %@",uniqueName);
     
-    NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName withCompletionBlock:completion];
+    NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName defaultData:nil withCompletionBlock:completion];
     NSAssert(noteEntry, @"note entry should be non-nil");
 
     NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.currentNoteEntries];
@@ -225,18 +225,18 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion
 {
-    [self createNoteWithCompletionBlock:completion];
-    NoteEntry *entry = [self.currentNoteEntries objectAtIndex:0];
-    // if we don't set text here it won't show in list until
-    // the note doc finishes opening. weird, but necessary
-    [entry.noteData setNoteText:text];
-    self.selectedNoteIndex = 0;
-    [self noteDocumentAtIndex:selectedNoteIndex completion:^(NoteDocument *doc){
-        doc.text = text;
-        [entry setNoteData:doc.data];
-        [doc updateChangeCount:UIDocumentChangeDone];
-    }];    
-}
+    NoteData *data = [[NoteData alloc] init];
+    [data setNoteText:text];
+    NSString *uniqueName = [NoteDocument uniqueNoteName];
+    NSLog(@"Unique name for doc: %@",uniqueName);
+    
+    NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName defaultData:data withCompletionBlock:completion];
+    NSAssert(noteEntry, @"note entry should be non-nil");
+    
+    NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.currentNoteEntries];
+    [tempSet insertObject:noteEntry atIndex:0];
+    self.currentNoteEntries = tempSet;  
+  }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {

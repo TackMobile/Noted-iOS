@@ -11,18 +11,17 @@
 #import "FileStorageState.h"
 #import "NSUserDefaults+Convenience.h"
 #import "NoteListViewController.h"
-#import "MasterViewController.h"
 #import "NoteFileManager.h"
 #import "TestFlight.h"
 #import "ApplicationModel.h"
 #import "CloudManager.h"
-#import "TourViewController.h"
+#import "WalkThroughViewController.h"
 
 NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
 
 @interface AppDelegate()
 
-@property (strong, nonatomic) TourViewController *tourVC;
+@property (strong, nonatomic) WalkThroughViewController *tourVC;
 
 @end
 
@@ -52,7 +51,7 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     }
     
     if (!tourVC) {
-        tourVC = tourVC = [[TourViewController alloc] init];
+        tourVC = tourVC = [[WalkThroughViewController alloc] init];
     }
 
     
@@ -67,6 +66,10 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 - (void)resumeWalkthroughWithView:(UIView *)view
 {
     if ([tourVC shouldResume]) {
+        float activeYLoc = CGRectGetMaxY(self.window.frame)-tourVC.view.frame.size.height;
+        if (tourVC.view.frame.origin.y == activeYLoc) {
+            return;
+        }
         [self.window addSubview:tourVC.view];
         [tourVC.view setFrameY:CGRectGetMaxY(self.window.frame)];
         [UIView animateWithDuration:0.5
@@ -86,6 +89,12 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     [[UIApplication sharedApplication] setStatusBarHidden:hideStatusBar withAnimation:NO];
     
     self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
+    
+    if (![FileStorageState isFirstUse]) {
+        if ([tourVC shouldResume]) {
+            [tourVC resumeWithCompletionBlock:nil];
+        }
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

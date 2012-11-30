@@ -17,8 +17,6 @@
 		298EC0071570415800B72F5C /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EC0051570415700B72F5C /* OptionsViewController.m */; };
 		298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EC0061570415700B72F5C /* OptionsViewController.xib */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
-		29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29914F11157530A70029D170 /* NoteKeyOpViewController.m */; };
-		29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29914F12157530A70029D170 /* NoteKeyOpViewController.xib */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C5B1573E2860054347A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 29960C5A1573E2860054347A /* Settings.bundle */; };
 		29960C651573F4BF0054347A /* warning.png in Resources */ = {isa = PBXBuildFile; fileRef = 29960C641573F4BF0054347A /* warning.png */; };
@@ -51,10 +49,6 @@
 		29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 29FC491C156EE0CD0007BBAD /* InfoPlist.strings */; };
 		29FC4920156EE0CD0007BBAD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC491F156EE0CD0007BBAD /* main.m */; };
 		29FC4924156EE0CD0007BBAD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4923156EE0CD0007BBAD /* AppDelegate.m */; };
-		29FC4927156EE0CD0007BBAD /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4926156EE0CD0007BBAD /* MasterViewController.m */; };
-		29FC492A156EE0CD0007BBAD /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4929156EE0CD0007BBAD /* DetailViewController.m */; };
-		29FC492D156EE0CD0007BBAD /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29FC492B156EE0CD0007BBAD /* MasterViewController.xib */; };
-		29FC4930156EE0CD0007BBAD /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29FC492E156EE0CD0007BBAD /* DetailViewController.xib */; };
 		29FC4938156EE1510007BBAD /* NoteData.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC4937156EE1510007BBAD /* NoteData.m */; };
 		29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 29FC493B156EE5510007BBAD /* NoteDocument.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
@@ -88,8 +82,8 @@
 		B548666815F7FEF7005FBC60 /* RIButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666715F7FEF7005FBC60 /* RIButtonItem.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B548668915F8F4B4005FBC60 /* CloudManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B548668815F8F4B4005FBC60 /* CloudManager.m */; };
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		B54E0C9F16668B93005BB273 /* TourViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B54E0C9E16668B93005BB273 /* TourViewController.m */; };
-		B54E0CA116668C0F005BB273 /* TourView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54E0CA016668C0F005BB273 /* TourView.xib */; };
+		B54E0C9F16668B93005BB273 /* WalkThroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B54E0C9E16668B93005BB273 /* WalkThroughViewController.m */; };
+		B54E0CA116668C0F005BB273 /* WalkThroughView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54E0CA016668C0F005BB273 /* WalkThroughView.xib */; };
 		B554DB871647F12B00047494 /* DrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = B554DB861647F12B00047494 /* DrawView.m */; };
 		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
@@ -99,6 +93,8 @@
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
 		B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B116233C6700DD85CE /* topCornerShadows.png */; };
 		B5B826B416233C6700DD85CE /* topCornerShadows@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */; };
+		B5D496F01668E3BE004F044F /* fingertip.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EE1668E3BE004F044F /* fingertip.png */; };
+		B5D496F11668E3BE004F044F /* fingertip@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EF1668E3BE004F044F /* fingertip@2x.png */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
 		EA531AA015BFA54A005A8EDE /* NewNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EA531A9F15BFA54A005A8EDE /* NewNoteCell.m */; };
 		EA531AA315BFA6D7005A8EDE /* NewNoteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA531AA215BFA6D7005A8EDE /* NewNoteCell.xib */; };
@@ -112,8 +108,6 @@
 		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
 		F34DDC56165BF72100A43868 /* DragToCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */; };
 		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
-		F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */; };
-		F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -133,9 +127,6 @@
 		298EC0061570415700B72F5C /* OptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsViewController.xib; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
-		29914F10157530A70029D170 /* NoteKeyOpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteKeyOpViewController.h; sourceTree = "<group>"; };
-		29914F11157530A70029D170 /* NoteKeyOpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteKeyOpViewController.m; sourceTree = "<group>"; };
-		29914F12157530A70029D170 /* NoteKeyOpViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NoteKeyOpViewController.xib; sourceTree = "<group>"; };
 		29914F15157535060029D170 /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		29960C581573E1190054347A /* Noted.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Noted.entitlements; sourceTree = "<group>"; };
@@ -177,12 +168,6 @@
 		29FC4921156EE0CD0007BBAD /* Noted-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Noted-Prefix.pch"; sourceTree = "<group>"; };
 		29FC4922156EE0CD0007BBAD /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		29FC4923156EE0CD0007BBAD /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		29FC4925156EE0CD0007BBAD /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
-		29FC4926156EE0CD0007BBAD /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
-		29FC4928156EE0CD0007BBAD /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
-		29FC4929156EE0CD0007BBAD /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
-		29FC492C156EE0CD0007BBAD /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MasterViewController.xib; sourceTree = "<group>"; };
-		29FC492F156EE0CD0007BBAD /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DetailViewController.xib; sourceTree = "<group>"; };
 		29FC4936156EE1510007BBAD /* NoteData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteData.h; path = Noted/NoteData.h; sourceTree = "<group>"; };
 		29FC4937156EE1510007BBAD /* NoteData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteData.m; path = Noted/NoteData.m; sourceTree = "<group>"; };
 		29FC493A156EE5510007BBAD /* NoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteDocument.h; path = Noted/NoteDocument.h; sourceTree = "<group>"; };
@@ -231,9 +216,9 @@
 		B548668815F8F4B4005FBC60 /* CloudManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloudManager.m; sourceTree = "<group>"; };
 		B548669C15FA4CCD005FBC60 /* EZToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EZToastView.h; sourceTree = "<group>"; };
 		B548669D15FA4CCD005FBC60 /* EZToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EZToastView.m; sourceTree = "<group>"; };
-		B54E0C9D16668B93005BB273 /* TourViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TourViewController.h; sourceTree = "<group>"; };
-		B54E0C9E16668B93005BB273 /* TourViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TourViewController.m; sourceTree = "<group>"; };
-		B54E0CA016668C0F005BB273 /* TourView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TourView.xib; sourceTree = "<group>"; };
+		B54E0C9D16668B93005BB273 /* WalkThroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkThroughViewController.h; sourceTree = "<group>"; };
+		B54E0C9E16668B93005BB273 /* WalkThroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkThroughViewController.m; sourceTree = "<group>"; };
+		B54E0CA016668C0F005BB273 /* WalkThroughView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalkThroughView.xib; sourceTree = "<group>"; };
 		B554DB851647F12B00047494 /* DrawView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawView.h; sourceTree = "<group>"; };
 		B554DB861647F12B00047494 /* DrawView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrawView.m; sourceTree = "<group>"; };
 		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
@@ -246,6 +231,8 @@
 		B5AA89D8160B96320094299B /* cellShadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cellShadow@2x.png"; sourceTree = "<group>"; };
 		B5B826B116233C6700DD85CE /* topCornerShadows.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = topCornerShadows.png; sourceTree = "<group>"; };
 		B5B826B216233C6700DD85CE /* topCornerShadows@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "topCornerShadows@2x.png"; sourceTree = "<group>"; };
+		B5D496EE1668E3BE004F044F /* fingertip.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fingertip.png; sourceTree = "<group>"; };
+		B5D496EF1668E3BE004F044F /* fingertip@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fingertip@2x.png"; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
 		EA531A9E15BFA54A005A8EDE /* NewNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewNoteCell.h; sourceTree = "<group>"; };
@@ -266,9 +253,6 @@
 		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
 		F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateViewController.xib; sourceTree = "<group>"; };
 		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
-		F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkthroughViewController.h; sourceTree = "<group>"; };
-		F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkthroughViewController.m; sourceTree = "<group>"; };
-		F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalkthroughViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -319,19 +303,6 @@
 				29E326BE157554820013399B /* EnglishKeyboard.plist */,
 			);
 			name = "Custom Keyboard";
-			sourceTree = "<group>";
-		};
-		29914F0915752EF70029D170 /* Old */ = {
-			isa = PBXGroup;
-			children = (
-				29FC4925156EE0CD0007BBAD /* MasterViewController.h */,
-				29FC4926156EE0CD0007BBAD /* MasterViewController.m */,
-				29FC492B156EE0CD0007BBAD /* MasterViewController.xib */,
-				29FC4928156EE0CD0007BBAD /* DetailViewController.h */,
-				29FC4929156EE0CD0007BBAD /* DetailViewController.m */,
-				29FC492E156EE0CD0007BBAD /* DetailViewController.xib */,
-			);
-			name = Old;
 			sourceTree = "<group>";
 		};
 		29960C661573F4C50054347A /* Assets */ = {
@@ -411,13 +382,12 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
-				F3FD5A16165C0FBF00A45062 /* walkthrough */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
 				EAD695FF15B7B8CA004A2494 /* View controllers */,
-				29914F0915752EF70029D170 /* Old */,
-				298EBFFB15702C0D00B72F5C /* Custom Keyboard */,
+				F3FD5A16165C0FBF00A45062 /* Walkthrough */,
 				298EBFF715702B3200B72F5C /* Cells and Keys */,
+				298EBFFB15702C0D00B72F5C /* Custom Keyboard */,
 				29FC491A156EE0CD0007BBAD /* Supporting Files */,
 			);
 			path = Noted;
@@ -477,6 +447,8 @@
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5D496EE1668E3BE004F044F /* fingertip.png */,
+				B5D496EF1668E3BE004F044F /* fingertip@2x.png */,
 				F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */,
 				967C0F3E164D762200E80419 /* strip-one.png */,
 				967C0F3F164D762200E80419 /* strip-one@2x.png */,
@@ -538,27 +510,21 @@
 				298EC0041570415700B72F5C /* OptionsViewController.h */,
 				298EC0051570415700B72F5C /* OptionsViewController.m */,
 				298EC0061570415700B72F5C /* OptionsViewController.xib */,
-				29914F10157530A70029D170 /* NoteKeyOpViewController.h */,
-				29914F11157530A70029D170 /* NoteKeyOpViewController.m */,
-				29914F12157530A70029D170 /* NoteKeyOpViewController.xib */,
 				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
 				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
 				F34DDC54165BF72100A43868 /* DragToCreateViewController.xib */,
-				B54E0C9D16668B93005BB273 /* TourViewController.h */,
-				B54E0C9E16668B93005BB273 /* TourViewController.m */,
-				B54E0CA016668C0F005BB273 /* TourView.xib */,
 			);
 			name = "View controllers";
 			sourceTree = "<group>";
 		};
-		F3FD5A16165C0FBF00A45062 /* walkthrough */ = {
+		F3FD5A16165C0FBF00A45062 /* Walkthrough */ = {
 			isa = PBXGroup;
 			children = (
-				F3FD5A18165C0FF900A45062 /* WalkthroughViewController.h */,
-				F3FD5A19165C0FF900A45062 /* WalkthroughViewController.m */,
-				F3FD5A1A165C0FF900A45062 /* WalkthroughViewController.xib */,
+				B54E0C9D16668B93005BB273 /* WalkThroughViewController.h */,
+				B54E0C9E16668B93005BB273 /* WalkThroughViewController.m */,
+				B54E0CA016668C0F005BB273 /* WalkThroughView.xib */,
 			);
-			name = walkthrough;
+			name = Walkthrough;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -613,14 +579,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
-				29FC492D156EE0CD0007BBAD /* MasterViewController.xib in Resources */,
-				29FC4930156EE0CD0007BBAD /* DetailViewController.xib in Resources */,
 				298EBFF2157021CC00B72F5C /* NoteEntryCell.xib in Resources */,
 				298EC00315702C6F00B72F5C /* KeyboardViewController.xib in Resources */,
 				298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */,
 				29960C5B1573E2860054347A /* Settings.bundle in Resources */,
 				29960C651573F4BF0054347A /* warning.png in Resources */,
-				29914F14157530A70029D170 /* NoteKeyOpViewController.xib in Resources */,
 				29E326BF157554820013399B /* EnglishKeyboard.plist in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
 				29E326D4157556920013399B /* Icon@2x.png in Resources */,
@@ -668,8 +631,9 @@
 				967C0F47164D762200E80419 /* strip-three@2x.png in Resources */,
 				967C0F48164D762200E80419 /* strip-two.png in Resources */,
 				967C0F49164D762200E80419 /* strip-two@2x.png in Resources */,
-				F3FD5A1C165C0FF900A45062 /* WalkthroughViewController.xib in Resources */,
-				B54E0CA116668C0F005BB273 /* TourView.xib in Resources */,
+				B54E0CA116668C0F005BB273 /* WalkThroughView.xib in Resources */,
+				B5D496F01668E3BE004F044F /* fingertip.png in Resources */,
+				B5D496F11668E3BE004F044F /* fingertip@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -682,8 +646,6 @@
 			files = (
 				29FC4920156EE0CD0007BBAD /* main.m in Sources */,
 				29FC4924156EE0CD0007BBAD /* AppDelegate.m in Sources */,
-				29FC4927156EE0CD0007BBAD /* MasterViewController.m in Sources */,
-				29FC492A156EE0CD0007BBAD /* DetailViewController.m in Sources */,
 				29FC4938156EE1510007BBAD /* NoteData.m in Sources */,
 				29FC493C156EE5510007BBAD /* NoteDocument.m in Sources */,
 				298EBFE31570073F00B72F5C /* NoteEntry.m in Sources */,
@@ -694,7 +656,6 @@
 				29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */,
 				29960C881574103F0054347A /* TransformableNoteCell.m in Sources */,
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
-				29914F13157530A70029D170 /* NoteKeyOpViewController.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */,
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
@@ -717,9 +678,8 @@
 				9670960B1630A647004611ED /* NSString+Digest.m in Sources */,
 				B554DB871647F12B00047494 /* DrawView.m in Sources */,
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
-				F3FD5A1B165C0FF900A45062 /* WalkthroughViewController.m in Sources */,
 				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
-				B54E0C9F16668B93005BB273 /* TourViewController.m in Sources */,
+				B54E0C9F16668B93005BB273 /* WalkThroughViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -732,22 +692,6 @@
 				29FC491D156EE0CD0007BBAD /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		29FC492B156EE0CD0007BBAD /* MasterViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				29FC492C156EE0CD0007BBAD /* en */,
-			);
-			name = MasterViewController.xib;
-			sourceTree = "<group>";
-		};
-		29FC492E156EE0CD0007BBAD /* DetailViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				29FC492F156EE0CD0007BBAD /* en */,
-			);
-			name = DetailViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

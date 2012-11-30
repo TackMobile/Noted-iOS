@@ -17,7 +17,7 @@
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
 #import "NoteEntryCell.h"
-#import "TourViewController.h"
+#import "WalkThroughViewController.h"
 
 typedef enum {
     kGestureFinished,
@@ -26,6 +26,8 @@ typedef enum {
     kStackingPinch,
     kCycle
 } NoteStackGestureState;
+
+#define kFingerTipsTag 576
 
 static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
@@ -68,6 +70,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     CGFloat initialPinchDistance;
     
     NSDictionary *_currentTourStep;
+    NSTimer *walkthroughGestureTimer;
 }
 
 @property (strong,nonatomic)MFMailComposeViewController *mailVC;
@@ -179,15 +182,20 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [_stackVC.view setFrame:newFrame];
     }];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
-        if ([[note.userInfo objectForKey:@"vcClass"] isEqual:NSStringFromClass([self class])]) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:kWalkThroughStepBegun object:nil queue:nil usingBlock:^(NSNotification *note){
+        if ([[note.userInfo objectForKey:kStepViewControllerClass] isEqual:NSStringFromClass([self class])]) {
             _currentTourStep = note.userInfo;
+            
+            [self performSelector:@selector(beginTouchDemoAnimation) withObject:nil afterDelay:1.2];
+            
         } else {
             _currentTourStep = nil;
+            [self endTouchDemoAnimation];
         }
         
     }];
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"didExitTourNotification" object:nil queue:nil usingBlock:^(NSNotification *note){
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kWalkThroughExited object:nil queue:nil usingBlock:^(NSNotification *note){
         _currentTourStep = nil;
     }];
     
@@ -204,6 +212,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.view addSubview:self.sliceView];
      
 }
+
+
 
 // on first view of note as well as right after creating note by pan getsure
 - (void)setCurrentNoteToModel
@@ -222,7 +232,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self.delegate indexDidChange];
    
     
-    int64_t delayInSeconds = 5.0;
+    int64_t delayInSeconds = 0.5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         AppDelegate *del = APP_DELEGATE;
@@ -299,17 +309,24 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
+        [self endTouchDemoAnimation];
+        
+        if (_stackVC.view.frame.origin.x < 0.0) {
+            [_stackVC.view setFrameX: 0.0];
+        }
         [self pinchToCollapseBegun:YES];
         [_stackVC prepareForCollapse];
+        if (![_stackVC needsAnimation]) {
+            [self finishPinch];
+            return;
+        }
         [self.view addSubview:_stackVC.view];
-        [self debugView:_stackVC.view color:[UIColor blueColor]];
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
-        NSLog(@"animating pinch for percent %f",pinchPercentComplete);
       
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
-        NSLog(@"animating pinch for percent %f",pinchPercentComplete);
+
         if (pinchPercentComplete>=1.0) {
             NSLog(@"reported as complete");
             pinchComplete = YES;
@@ -332,6 +349,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         } else {
             [_stackVC resetToExpanded:^{
                 [self.currentNoteViewController setWithNoDataTemp:NO];
+                if (_stackVC.view.frame.origin.x == 0.0) {
+                    [_stackVC.view setFrameX:-320.0];
+                }
             }];
         }
     }
@@ -365,7 +385,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.currentNoteViewController setWithNoDataTemp:NO];
         self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        [self tourCheck];
+        [self tourCheck:walkThroughStep5];
         
     }];
 }
@@ -451,12 +471,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     return velocity.x < 0;
 }
 
+#pragma mark Main gesture set
+
 - (void) panReceived:(UIPanGestureRecognizer *)recognizer {
     
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+    
+    
 
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
@@ -467,6 +491,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
+        
+        [self endTouchDemoAnimation];
+        
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         if (numberOfTouchesInCurrentPanGesture == 1 && velocity.x != 0) { //switches note
             self.currentNoteViewController.textView.scrollEnabled = NO;
@@ -520,10 +547,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                      completion:^(BOOL finished){
                                          self.currentNoteViewController.view.hidden = NO; //and show the actual note again
                                          //self.screenShot.hidden = YES;
+                                         [self finishDeletingDocument:point];
                                      }];
                 }
                 else{ //if user panned past the half way point
-                    //[self finishDeletingDocument:point];
+
                     [UIView animateWithDuration:0.5
                                      animations:^(void){
                                          self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
@@ -536,7 +564,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                                          UIGraphicsEndImageContext();
                                          self.slicedNoteScreenShot.image = viewImage;
                                          [self cropNote];
-                                         [self tourCheck];
+                                         
                                      }];
                     
                 }
@@ -565,50 +593,53 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 }
 
 
--(void)deletePan:(UIPanGestureRecognizer *)gesture{ //animation for deleting the note with a two finger pan
-    CGRect frame = [[UIScreen mainScreen] applicationFrame];
-    CGPoint point = [gesture translationInView:self.view];
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        self.currentNoteViewController.textView.scrollEnabled = NO;
-        [self.view bringSubviewToFront:self.sliceView];
-    }
-     
-    if (gesture.state == UIGestureRecognizerStateChanged) { //while the pan gesture is still in action
-        NSLog(@"gesturechanged %f", point.x);
-        self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
-        
-    }
-    if (gesture.state == UIGestureRecognizerStateEnded) {
-        if (point.x < self.view.frame.size.width/2) { //if user didn't pan past the half way point
-            [UIView animateWithDuration:1.0
-                             animations:^(void){
-                                 self.sliceView.frame = CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height); //slowly animate the slice view back off screen
-                             }
-                             completion:^(BOOL finished){
-                                 self.currentNoteViewController.view.hidden = NO; //and show the actual note again
-                                 //self.screenShot.hidden = YES;
-                             }];
-        }
-        else{ //if user panned past the half way point
-            [UIView animateWithDuration:0.5
-                             animations:^(void){
-                                 self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
-                             }completion:^(BOOL finished){
-                                 UIGraphicsBeginImageContext(CGSizeMake(self.view.frame.size.width, self.view.frame.size.height));
-                                 CGContextRef context = UIGraphicsGetCurrentContext();
-                                 [self.view.layer renderInContext:context]; //gets screenshot of the note
-                                 //[self.sliceView.layer renderInContext:context]; //gets screenshot of the slice images
-                                 UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext(); //saves both as one image
-                                 UIGraphicsEndImageContext();
-                                 self.slicedNoteScreenShot.image = viewImage;
-                                 [self cropNote];
-                                 [self tourCheck];
-                             }];
+/*
+ -(void)deletePan:(UIPanGestureRecognizer *)gesture{ //animation for deleting the note with a two finger pan
+ CGRect frame = [[UIScreen mainScreen] applicationFrame];
+ CGPoint point = [gesture translationInView:self.view];
+ if (gesture.state == UIGestureRecognizerStateBegan) {
+ self.currentNoteViewController.textView.scrollEnabled = NO;
+ [self.view bringSubviewToFront:self.sliceView];
+ }
  
-        }
-        
-    }
-}
+ if (gesture.state == UIGestureRecognizerStateChanged) { //while the pan gesture is still in action
+ NSLog(@"gesturechanged %f", point.x);
+ self.sliceView.frame = CGRectMake(point.x - self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
+ 
+ }
+ if (gesture.state == UIGestureRecognizerStateEnded) {
+ if (point.x < self.view.frame.size.width/2) { //if user didn't pan past the half way point
+ [UIView animateWithDuration:1.0
+ animations:^(void){
+ self.sliceView.frame = CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height); //slowly animate the slice view back off screen
+ }
+ completion:^(BOOL finished){
+ self.currentNoteViewController.view.hidden = NO; //and show the actual note again
+ //self.screenShot.hidden = YES;
+ }];
+ }
+ else{ //if user panned past the half way point
+ [UIView animateWithDuration:0.5
+ animations:^(void){
+ self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
+ }completion:^(BOOL finished){
+ UIGraphicsBeginImageContext(CGSizeMake(self.view.frame.size.width, self.view.frame.size.height));
+ CGContextRef context = UIGraphicsGetCurrentContext();
+ [self.view.layer renderInContext:context]; //gets screenshot of the note
+ //[self.sliceView.layer renderInContext:context]; //gets screenshot of the slice images
+ UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext(); //saves both as one image
+ UIGraphicsEndImageContext();
+ self.slicedNoteScreenShot.image = viewImage;
+ [self cropNote];
+ [self tourCheck:walkThroughStep4];
+ }];
+ 
+ }
+ 
+ }
+ }
+ 
+ */
 
 -(void)cropNote {
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
@@ -632,7 +663,12 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.view.hidden = YES;
     self.sliceView.frame = CGRectMake(-320, 0, self.view.frame.size.width, self.view.frame.size.height);
   
-    [UIView animateWithDuration:3
+    int64_t delayInSeconds = 1.75;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self tourCheck:walkThroughStep4];
+    });
+    [UIView animateWithDuration:2.0
                      animations:^(void){
                          for (UIImageView *iView in self.slicedNoteArray){ //iterates through every UIImageView in the array
                              iView.frame = CGRectMake([self randomXValue], 1000, iView.image.size.width, iView.image.size.height); //animates each view off screen at the same time...to a random x position
@@ -646,6 +682,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          }
                          
                          [self.view insertSubview:self.sliceView atIndex:0];
+                         
                      }];
     
     
@@ -699,22 +736,16 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NoteEntry *toDelete = currentNoteViewController.noteEntry;
     [self setGestureState:kGestureFinished];
     
-    for (UIView *subview in self.view.subviews) {
-        if (![subview isEqual:self.nextNoteViewController.view]) {
-            NSLog(@"%@",subview);
-        }
-    }
-    
     [slicedNoteScreenShot removeFromSuperview];
     self.currentNoteViewController.textView.scrollEnabled = YES;
     
     self.currentNoteViewController.view.hidden = NO;
     
-    [deletingViews removeAllObjects];
+    //[deletingViews removeAllObjects];
 
     [model setCurrentNoteIndexToNextPriorToDelete];
     [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
-        NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
+        //NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
     }];
     
     if (model.currentNoteEntries.count==0) {
@@ -723,7 +754,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
     }
     
-    [self tourCheck];
+    [self tourCheck:walkThroughStep4];
 }
 
 - (void)cancelDeletingNote
@@ -789,10 +820,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         return;
     }
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
-        [self tourCheck];
+        [self tourCheck:walkThroughStep3];
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
-        [self tourCheck];
+        [self tourCheck:walkThroughStep3];
         [self animateCurrentOutToLeft];
     } else { // if the user didn't drag the note past half the screen then snap back
         
@@ -800,40 +831,179 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
 }
 
-- (void)tourCheck
+- (void)tourCheck:(int)stepNum
 {
     if (_currentTourStep) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
+        int index = [[_currentTourStep objectForKey:@"index"] intValue];
+        if (index == stepNum) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kWalkThroughStepComplete object:nil userInfo:_currentTourStep];
+        }
     }
+}
+
+#pragma mark Walk-through
+
+- (void)beginTouchDemoAnimation
+{
+    [self endTouchDemoAnimation];
+    
+    walkthroughGestureTimer = [NSTimer scheduledTimerWithTimeInterval:6.0 target:self selector:@selector(runGestureDemoForWalkthroughStep:) userInfo:[_currentTourStep objectForKey:@"index"] repeats:YES];
+    [walkthroughGestureTimer fire];
+}
+
+- (void)endTouchDemoAnimation
+{
+    if (walkthroughGestureTimer) {
+        [walkthroughGestureTimer invalidate];
+        walkthroughGestureTimer = nil;
+    }
+    
+    [[self.view viewWithTag:kFingerTipsTag] removeFromSuperview];
+}
+
+- (void)runGestureDemoForWalkthroughStep:(NSTimer *)timer
+{
+    NSNumber *step = timer.userInfo;
+    int stepNum = step.intValue;
+    
+    float width = 60.0;
+    float padding = 10.0;
+    float circleRadius = 25.0;
+    
+    UIView *container = [self.view viewWithTag:kFingerTipsTag];
+    if (container) {
+        [container removeFromSuperview];
+    }
+    
+    container = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, width, 60.0)];;    
+    [container setTag:kFingerTipsTag];
+    
+    CGRect viewFrame = self.view.frame;
+    
+    UIImageView *circle1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fingertip"]];
+    UIImageView *circle2 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fingertip"]];
+    
+    switch (stepNum) {
+        case walkThroughStep1:
+        case walkThroughStep2:
+        {
+            [self.view addSubview:container];
+            [container addSubview:circle2];
+            [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
+            [circle2 setFrame:CGRectMake(10.0, 35.0, circleRadius, circleRadius)];
+            [container setFrame:CGRectMake(viewFrame.size.width - container.frame.size.width - padding, (viewFrame.size.height - 60.0)*0.5-20.0, width, 60.0)];
+            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^{
+                                 [container setTransform:CGAffineTransformMakeTranslation(-(container.frame.origin.x - padding), 0.0)];
+                                 [container setAlpha:0.0];
+                             }
+                             completion:^(BOOL finished){
+                                 [container removeFromSuperview];
+                             }];
+        }
+            break;
+        case walkThroughStep3:
+        {
+            [self.view addSubview:container];
+            [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
+            [container setFrame:CGRectMake(padding, 120.0, width, 60.0)];
+            [UIView animateWithDuration:0.8
+                             animations:^{
+                                 [container setTransform:CGAffineTransformMakeTranslation(viewFrame.size.width - container.frame.size.width - padding, 0.0)];
+                                 [container setAlpha:0.0];
+                             }
+                             completion:^(BOOL finished){
+                                 dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.4 * NSEC_PER_SEC);
+                                 dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                                     [container setAlpha:1.0];
+                                     [UIView animateWithDuration:0.8 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                                         [container setTransform:CGAffineTransformMakeTranslation(padding, 10.0)];
+                                         [container setAlpha:0.0];
+                                     } completion:^(BOOL finished){
+                                         [container removeFromSuperview];
+                                     }];
+                                 });
+                                 
+                             }];
+        }
+            break;
+        case walkThroughStep4:
+        {
+            [self.view addSubview:container];
+            [container addSubview:circle2];
+            [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
+            [circle2 setFrame:CGRectMake(10.0, 35.0, circleRadius, circleRadius)];
+            [container setFrame:CGRectMake(padding, (viewFrame.size.height - 60.0)*0.5-20.0, width, 60.0)];
+            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^{
+                                 [container setTransform:CGAffineTransformMakeTranslation(viewFrame.size.width - container.frame.size.width - padding, 0.0)];
+                                 [container setAlpha:0.0];
+                             }
+                             completion:^(BOOL finished){
+                                 [container removeFromSuperview];
+                             }];
+        }
+            break;
+        case walkThroughStep5:
+        {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+                [self.view addSubview:container];
+                float walkthroughHeight = 135;
+                [container addSubview:circle2];
+                [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
+                float height = viewFrame.size.height - walkthroughHeight - 15.0;
+                [circle2 setFrame:CGRectMake(7.0, height - circleRadius, circleRadius, circleRadius)];
+                [container setFrame:CGRectMake((viewFrame.size.width - container.frame.size.width)*0.5, 10.0, width, height)];
+                [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
+                                 animations:^{
+                                     [circle1 setFrameY:height*0.5-20.0];
+                                     [circle2 setFrameY:height*0.5+20.0];
+                                     [container setAlpha:0.08];
+                                 }
+                                 completion:^(BOOL finished){
+                                     [container removeFromSuperview];
+                                 }];
+                
+            });
+        }
+            break;
+        default:
+            return;
+            break;
+    }
+    
+    [container addSubview:circle1];
+    
 }
 
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-
-    NSLog(@"New note entry with text: %@",model.noteAtSelectedNoteIndex.text);
     
-    [model createNoteWithCompletionBlock:^(NoteEntry *doc){
-        
-    }];
+    if (_currentTourStep) {
+        int index = [[_currentTourStep objectForKey:@"index"] intValue];
+        NSString *text = index == walkThroughStep1 ? @"My first note" : @"";
+        text = index == walkThroughStep2 ? @"My second note" : text;
+        [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
+            if (!doc.adding) {
+                [self updateNoteDocumentsForIndex:0];
+            }
+        }];
+    } else {
+        [model createNoteWithCompletionBlock:^(NoteEntry *doc){
+            if (!doc.adding) {
+                [self updateNoteDocumentsForIndex:0];
+            }
+        }];
+    }
     
-    [self tourCheck];
-    
-//    if (_currentTourStep) {
-//        int index = [[_currentTourStep objectForKey:@"index"] intValue];
-//        NSString *noteText = index == 1 ? @"My first note" : @"My second note";
-//        [model createNoteWithText:noteText andCompletionBlock:^(NoteEntry *doc){
-//            int currentIndex = model.selectedNoteIndex;
-//            [self updateNoteDocumentsForIndex:currentIndex];
-//        }];
-//        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
-//    } //else {
-        
-//  }
+    if (model.currentNoteEntries.count == 2) {
+        [self tourCheck:walkThroughStep1];
+    } else if (model.currentNoteEntries.count == 3) {
+        [self tourCheck:walkThroughStep2];
+    }
     
     [model setSelectedNoteIndex:0];
-    int currentIndex = model.selectedNoteIndex;
-    [self updateNoteDocumentsForIndex:currentIndex];
     
     [self.delegate indexDidChange];
             
@@ -964,26 +1134,28 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
-- (void)animateDeletingViewsForPoint:(CGPoint)point withRecgonizer:(UIPanGestureRecognizer *)gesture
-{
-    
-    for (int k = 0; k < [deletingViews count]; k++) {
-        double middle = deletingViews.count/2.0; // 1.5 for now
-        UIImageView *view = [deletingViews objectAtIndex:k];
-        view.hidden = NO;
-        CGRect frame = view.frame;
-        frame.origin.x = 0 + (point.x);
-        if (k < [deletingViews count]/2.0) {
-            frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
-        }else {
-            frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
-        }
-        if (frame.origin.x < 0) {
-            frame.origin.x = 0;
-        }
-        view.frame = frame;
-    }
-}
+/*
+ - (void)animateDeletingViewsForPoint:(CGPoint)point withRecgonizer:(UIPanGestureRecognizer *)gesture
+ {
+ 
+ for (int k = 0; k < [deletingViews count]; k++) {
+ double middle = deletingViews.count/2.0; // 1.5 for now
+ UIImageView *view = [deletingViews objectAtIndex:k];
+ view.hidden = NO;
+ CGRect frame = view.frame;
+ frame.origin.x = 0 + (point.x);
+ if (k < [deletingViews count]/2.0) {
+ frame.origin.y = (480*k/(deletingViews.count)) - point.x*((middle - k)/middle);
+ }else {
+ frame.origin.y = (480*k/(deletingViews.count)) + point.x*((k-middle)/middle);
+ }
+ if (frame.origin.x < 0) {
+ frame.origin.x = 0;
+ }
+ view.frame = frame;
+ }
+ }
+ */
 
 - (void)snapBackCurrentNote
 {
@@ -1050,17 +1222,12 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     self.currentNoteViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
     [self.delegate indexDidChange];
-    //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
 }
 
-- (void)showVelocity:(CGPoint)velocity andEntryUnderneath:(NoteDocument *)entryUnderneath
-{
-    NSLog(@"velocity: %@",NSStringFromCGPoint(velocity));
-    NSLog(@"entry underneath: %@",entryUnderneath.text);
-}
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    //NSLog(@"note is touched");
+    
+    [self endTouchDemoAnimation];
     
     if (_currentGestureState == kStackingPinch) {
         return;
@@ -1071,15 +1238,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
         CGRect frame = self.overView.frame;
         if(!CGRectContainsPoint(frame, currentLocation)) {
-            NSLog(@"touch options panel");
+            //NSLog(@"touch options panel");
         } else {
             
             [self shiftCurrentNoteOriginToPoint:CGPointMake(0, 0) completion:^{
                 [self.optionsViewController reset];
-                
-                //[_stackVC prepareForAnimationState:kNoteStack withParentView:self.view];
             }];
-            NSLog(@"touched outside of options");
+            //NSLog(@"touched outside of options");
         }
     }
 }
@@ -1094,7 +1259,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [self.currentNoteViewController.textView resignFirstResponder];
     [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
-    [self tourCheck];
+    [self tourCheck:walkThroughStep7];
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock //shifts current note to only partially show on screen

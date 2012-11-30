@@ -83,8 +83,9 @@
     desc = [desc stringByAppendingFormat:@"is active: %s\n",_isActive ? "YES" : "NO"];
     desc = [desc stringByAppendingFormat:@"indexPath %@\n",_indexPath];
     desc = [desc stringByAppendingFormat:@"index %i\n",_index];
-    desc = [desc stringByAppendingFormat:@"offset %i\n\n",_offsetFromActive];
-    desc = [desc stringByAppendingFormat:@"dest frame %@\n\n",NSStringFromCGRect(_destinationFrame)];
+    desc = [desc stringByAppendingFormat:@"offset %i\n",_offsetFromActive];
+    desc = [desc stringByAppendingFormat:@"start frame %@",NSStringFromCGRect(_startingFrame)];
+    desc = [desc stringByAppendingFormat:@"dest frame %@",NSStringFromCGRect(_destinationFrame)];
     
     return desc;
 }

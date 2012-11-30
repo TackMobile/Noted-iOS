@@ -97,9 +97,8 @@
 
 - (void)updateUIForCurrentEntry
 {
-    // prepend a newline for display
+    // prepends a newline for display
     self.textView.text = [_noteEntry displayText];
-    
     self.relativeTime.text = [_noteEntry relativeDateString];
     
     UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];

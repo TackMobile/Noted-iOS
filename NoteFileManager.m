@@ -76,7 +76,7 @@
 
 #pragma mark - Create update delete
 
-- (NoteEntry *) addNoteNamed:(NSString *)noteName withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
+- (NoteEntry *) addNoteNamed:(NSString *)noteName defaultData:(NoteData *)defaultData withCompletionBlock:(CreateNoteCompletionBlock)noteCreationCompleteBlock {
     
     // prepend appropriate path to our new randomly generated document name
     NSURL *fileURL = [self URLForFileNamed:noteName];
@@ -100,7 +100,12 @@
         entry.state = state;
         entry.version = version;
         entry.adding = NO;
+        if (defaultData) {
+            [entry.noteData setNoteText:defaultData.noteText];
+        }
+        
         noteCreationCompleteBlock(entry);
+        
     };
     
     if ([FileStorageState preferredStorage]==kTKiCloud) {

@@ -21,13 +21,14 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
-#import "TourViewController.h"
+#import "WalkThroughViewController.h"
 
 NSString *const kEditingNoteIndex = @"editingNoteIndex";
 static const NSUInteger kShadowViewTag = 56;
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
+#define kFingerTipsTag      576
 #define DISABLE_NEW_CELL    NO
 
 typedef enum {
@@ -55,6 +56,8 @@ typedef enum {
     UITextView *_lastRowFullText;
     
     NSDictionary *_currentTourStep;
+    
+    NSTimer *walkthroughGestureTimer;
 }
 
 @end
@@ -90,19 +93,13 @@ typedef enum {
     
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
     self.tableView.backgroundView   = backgroundView;
+    [self.tableView setBackgroundColor:[UIColor whiteColor]];
     self.tableView.separatorStyle   = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight        = 60;
     self.view.layer.cornerRadius    = 6.0;
     self.tableView.backgroundView   = nil;
     self.view.clipsToBounds = YES;
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:kNoteListChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note){
-        
-        [self listDidUpdate];
-        [self.tableView reloadData];
-    }];
-    
-        
+   
     CGRect pullToCreateRect = (CGRect){
         {0, dragToCreateController.view.frame.size.height*(-1)},
         dragToCreateController.view.frame.size
@@ -115,31 +112,46 @@ typedef enum {
     [self handleNotifications];
     
 #ifdef DEBUG
-    //UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 10.0)];
-    //[v setBackgroundColor:[UIColor redColor]];
-    //[self.tableView setTableHeaderView:v];
+//    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 10.0)];
+//    [v setBackgroundColor:[UIColor redColor]];
+//    [self.tableView setTableHeaderView:v];
 #endif
     
 }
 
 - (void)handleNotifications
 {
-    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kNoteListChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+        
+        [self listDidUpdate];
+        [self.tableView reloadData];
+    }];
+
     [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
         
         CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
         [self.view setFrame:newFrame];
     }];
 
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"tourStepBegun" object:nil queue:nil usingBlock:^(NSNotification *note){
-        if ([[note.userInfo objectForKey:@"vcClass"] isEqual:NSStringFromClass([self class])]) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:kWalkThroughStepBegun object:nil queue:nil usingBlock:^(NSNotification *note){
+        if ([[note.userInfo objectForKey:kStepViewControllerClass] isEqual:NSStringFromClass([self class])]) {
             _currentTourStep = note.userInfo;
+            [self performSelector:@selector(beginTouchDemoAnimation) withObject:nil afterDelay:1.2];
         } else {
             _currentTourStep = nil;
+            [self endTouchDemoAnimation];
         }
     }];
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"didExitTourNotification" object:nil queue:nil usingBlock:^(NSNotification *note){
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kWalkThroughExited object:nil queue:nil usingBlock:^(NSNotification *note){
         _currentTourStep = nil;
+        [self endTouchDemoAnimation];
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
+        if (_noteCount == 0) {
+            [[ApplicationModel sharedInstance] refreshNotes];
+        }
     }];
 }
 
@@ -157,6 +169,7 @@ typedef enum {
             NoteEntry *noteEntry = [model noteAtIndex:freshIndexPath.row];
             if (!noteEntry.adding) {
                 [self showNoteStackForSelectedRow:freshIndexPath.row animated:NO];
+                [self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
             }
             
         }];
@@ -165,16 +178,19 @@ typedef enum {
 
     _noteCount = model.currentNoteEntries.count;
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
     [self listDidUpdate];
        
     _viewingNoteStack = YES;
 }
 
-- (void)tourCheck
+- (void)tourCheck:(int)stepNum
 {
     if (_currentTourStep) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"stepComplete" object:nil userInfo:_currentTourStep];
+        int index = [[_currentTourStep objectForKey:@"index"] intValue];
+        if (index == stepNum) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kWalkThroughStepComplete object:nil userInfo:_currentTourStep];
+        }
     }
 }
 
@@ -203,11 +219,9 @@ typedef enum {
          
          BOOL rowZeroVisible = [self rowZeroVisible];
          if (!rowZeroVisible){
-             //CGRect aFrame = CGRectMake(0.0, frame.origin.y - yOffset, 320.0, 66.0);
              CGPoint offset = CGPointMake(0.0, frame.origin.y-yOffset);
              [self.tableView setContentOffset:offset animated:NO];
          }
-         
      }
          
     [self.tableView reloadData];
@@ -236,6 +250,7 @@ typedef enum {
     }
     
     if (_noteCount>0) {
+        
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
         
         if (!_stackViewController) {
@@ -511,6 +526,8 @@ typedef enum {
         return;
     }
     
+    [self endTouchDemoAnimation];
+    
     if (scrollView.contentOffset.y < 0) {
         [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
     }
@@ -557,12 +574,12 @@ typedef enum {
     }];
     _noteCount = model.currentNoteEntries.count;
     
-    [UIView animateWithDuration:0.3
+    [UIView animateWithDuration:0.5
                      animations:^(){
                          [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationTop];
                      }
                      completion:^(BOOL finished) {
-                         [self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.1];
+                         [self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.5];
                      }];    
     
     [self listDidUpdate];
@@ -570,7 +587,6 @@ typedef enum {
 
 -(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
     [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNoteItems]];
-
 }
 
 - (void)setStackState
@@ -645,7 +661,9 @@ typedef enum {
         
     } andStackVC:_stackViewController];
     stackViewController.delegate = self;
-    [self presentViewController:stackViewController animated:animated completion:NULL];
+    [self presentViewController:stackViewController animated:animated completion:^{
+        [self tourCheck:walkThroughStep6];
+    }];
 }
 
 - (void)debugView:(UIView *)view description:(NSString *)desc line:(int)line
@@ -701,5 +719,80 @@ typedef enum {
         block();
     });
 }
+
+#pragma mark Walk through
+
+- (void)beginTouchDemoAnimation
+{
+    [self endTouchDemoAnimation];
+    
+    walkthroughGestureTimer = [NSTimer scheduledTimerWithTimeInterval:6.0 target:self selector:@selector(runGestureDemoForWalkthroughStep:) userInfo:[_currentTourStep objectForKey:@"index"] repeats:YES];
+    [walkthroughGestureTimer fire];
+}
+
+- (void)endTouchDemoAnimation
+{
+    if (walkthroughGestureTimer) {
+        [walkthroughGestureTimer invalidate];
+        walkthroughGestureTimer = nil;
+    }
+    
+    [[self.view viewWithTag:kFingerTipsTag] removeFromSuperview];
+}
+
+- (void)runGestureDemoForWalkthroughStep:(NSTimer *)timer
+{
+    NSNumber *step = timer.userInfo;
+    int stepNum = step.intValue;
+    
+    float width = 60.0;
+    float circleRadius = 25.0;
+    
+    UIView *container = [self.view viewWithTag:kFingerTipsTag];
+    if (container) {
+        [container removeFromSuperview];
+    }
+    
+    container = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, width, 60.0)];;
+    [container setTag:kFingerTipsTag];
+    
+    CGRect viewFrame = self.view.frame;
+    
+    UIImageView *circle1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fingertip"]];
+    
+    switch (stepNum) {
+        case walkThroughStep6:
+        {
+            [self.view addSubview:container];
+            [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
+            [container setFrame:CGRectMake((viewFrame.size.width - container.frame.size.width)*0.5, 15.0, circleRadius, circleRadius)];
+            float yTranslate = viewFrame.size.height - 185.0;
+            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 [container setFrameY:yTranslate];
+                             }
+                             completion:^(BOOL finished){
+                                 [UIView animateWithDuration:0.5 delay:0.1 options:UIViewAnimationOptionBeginFromCurrentState
+                                                  animations:^{
+                                                      [container setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+                                                      [container setAlpha:0.0];
+                                                  }
+                                                  completion:^(BOOL finished){
+                                                      [container removeFromSuperview];
+                                                  }];
+                                 
+                             }];
+        }
+            break;
+        
+        default:
+            return;
+            break;
+    }
+    
+    [container addSubview:circle1];
+    
+}
+
 
 @end
