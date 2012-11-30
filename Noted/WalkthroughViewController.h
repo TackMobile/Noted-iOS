@@ -10,8 +10,10 @@
 
 typedef void (^TourStepCompletedBlock)();
 
+extern NSString *const kStepViewControllerClass;
 extern NSString *const kWalkThroughStepBegun;
 extern NSString *const kWalkThroughStepComplete;
+extern NSString *const kWalkThroughExited;
 
 typedef enum {
     walkThroughStep1,

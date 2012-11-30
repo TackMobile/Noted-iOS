@@ -7,6 +7,7 @@
 //
 
 #import "WalkThroughViewController.h"
+#import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
 #import "UIColor+HexColor.h"
 
@@ -18,7 +19,8 @@ NSString *const kStepViewControllerClass =  @"viewControllerClass";
 NSString *const kWalkthroughStepNumber =    @"walkthroughStepNum";
 NSString *const kDidExitTour =              @"walkthroughExited";
 
-NSString *const kWalkThroughStepBegun =     @"kWalkThroughStepBegunNotification";
+NSString *const kWalkThroughStepBegun =     @"walkThroughStepBegunNotification";
+NSString *const kWalkThroughExited =        @"didExitTourNotification";
 NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 
 @interface WalkThroughViewController ()
@@ -53,6 +55,11 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     [super viewDidLoad];
     
     [self.view setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
+    [self.rightButton setBackgroundColor:[UIColor colorWithHexString:@"A7D2EB"]];
+    self.rightButton.layer.cornerRadius = 0;
+    [self.leftButton setBackgroundColor:[UIColor colorWithHexString:@"A7D2EB"]];
+    self.leftButton.layer.cornerRadius = 0;
+    
 	// Do any additional setup after loading the view.
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleStepComplete:) name:kWalkThroughStepComplete object:nil];
     
@@ -60,7 +67,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
               [NSDictionary dictionaryWithObjectsAndKeys:
                @"Use a two-finger swipe from the right of the note area to create a new note",kStepDescription,
                [NSNumber numberWithInt:walkThroughStep1],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
-              [NSDictionary dictionaryWithObjectsAndKeys:@"Awesome! Try creating another note.",kStepDescription,
+              [NSDictionary dictionaryWithObjectsAndKeys:@"Awesome! You amaze me. Try creating another note.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStep2],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"You can swipe left or right on a note to cycle through your notes.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStep3],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
@@ -82,7 +89,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 }
 
 - (IBAction)skip:(id)sender {
-    
+    [self exit];
 }
 
 - (IBAction)startTour:(id)sender {
@@ -97,6 +104,16 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 
         [self tourFinished];
     }
+}
+
+- (void)exit
+{
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDidExitTour];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"didExitTourNotification" object:nil userInfo:nil];
+    
+    [self tourFinished];
 }
 
 - (void)resumeWithCompletionBlock:(void(^)())completionBlock
@@ -118,7 +135,20 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     }
     
     NSDictionary *step = [_steps objectAtIndex:stepNum-1];
-    [_messageLabel setText:[step objectForKey:kStepDescription]];
+    [UIView animateWithDuration:0.25
+                     animations:^{
+                         _messageLabel.alpha = 0.0;
+                     }
+                     completion:^(BOOL finished){
+                         [_messageLabel setText:[step objectForKey:kStepDescription]];
+                         [UIView animateWithDuration:0.25
+                                          animations:^{
+                                              _messageLabel.alpha = 1.0;
+                                          }
+                                          completion:^(BOOL finished){
+                                          }];
+                     }];
+    
     
     if ([[step objectForKey:@"index"] intValue] == _steps.count-1) {
         [self.rightButton setTitle:NSLocalizedString(@"That's it!",@"That's it!") forState:UIControlStateNormal];
@@ -129,7 +159,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 
 - (void)tourFinished
 {
-    [UIView animateWithDuration:0.75
+    [UIView animateWithDuration:0.5
                      animations:^{
                          [self.view setFrameY:CGRectGetMaxY(self.view.superview.frame)];
                          [self.view setAlpha:0.0];
@@ -179,7 +209,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 - (void)advance
 {
     NSInteger currentStep = [self currentStep];
-    NSLog(@"step %i",currentStep+1);
+    //NSLog(@"step %i",currentStep+1);
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:currentStep+1] forKey:kWalkthroughStepNumber];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
