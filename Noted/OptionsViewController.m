@@ -59,33 +59,40 @@
     
     CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
     self.view.frame = newFrame;
+    
+    [self debugView:self.view color:[UIColor redColor]];
 }
 
 - (void)setInitialPositionForColors
 {
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    CGRect frame = CGRectMake(0, 74+appFrame.origin.y, 320, 163);
+    CGRect frame = CGRectMake(0, 74, 320, 163);
     self.shareSubview.frame = frame;
     self.aboutSubview.frame = frame;
     self.settingsSubview.frame = CGRectMake(0, 74, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
+}
+
+- (void)debugView:(UIView *)view color:(UIColor *)color
+{
+    view.layer.borderColor = color.CGColor;
+    view.layer.borderWidth = 3.0;
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     
-    UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
-    BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
-    [keyboardSwitch setOn:NO];
+    //UISwitch *keyboardSwitch = (UISwitch *)[self.settingsSubview viewWithTag:KEYBOARD_SETTINGS_SWITCH];
+    //BOOL isOn = [[NSUserDefaults standardUserDefaults] boolForKey:USE_STANDARD_SYSTEM_KEYBOARD];
+    //[keyboardSwitch setOn:NO];
     
     UIButton *statusBarSwitch = (UIButton *)[self.settingsSubview viewWithTag:STATUS_BAR_TOGGLE_SWITCH];
     BOOL hide = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
     [self setButtonOn:statusBarSwitch on:!hide];
     
     UIButton *cloudStorageSwitch = (UIButton *)[self.settingsSubview viewWithTag:ICLOUD_TOGGLE_SWITCH];
-    isOn = [FileStorageState preferredStorage] == kTKiCloud ? YES : NO;
+    BOOL isOn = [FileStorageState preferredStorage] == kTKiCloud ? YES : NO;
     [self setButtonOn:cloudStorageSwitch on:isOn];
-    // http://osiris.laya.com/projects/rcswitch/
+
 }
 
 - (void)setButtonOn:(UIButton *)button on:(BOOL)on
@@ -182,7 +189,7 @@
 }
 
 -(void)openShare:(id)sender {
-    NSLog(@"%@",NSStringFromCGRect(self.shareText.frame));
+
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
     [self setColorsToCollapsedStateWithDuration:0.3];
     [UIView animateWithDuration:0.3 
@@ -209,8 +216,9 @@
 
 - (void)setColorsToCollapsedStateWithDuration:(float)duration
 {
-    CGRect frame = [[UIScreen mainScreen] applicationFrame];
-    float baselineY = frame.origin.y;
+    //CGRect frame = [[UIScreen mainScreen] applicationFrame];
+    NSLog(@"%@",NSStringFromCGRect(self.view.frame));
+    float baselineY = 0.0;//frame.origin.y;
     [UIView animateWithDuration:duration
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut

@@ -140,6 +140,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self presentNotes];
     
     }];
+    
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
     frame.origin = CGPointMake(0.0, 0.0);
     
@@ -163,6 +164,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil]; //settings screen
     self.optionsViewController.delegate = self;
     self.optionsViewController.view.frame = frame;
+    NSLog(@"%@",NSStringFromCGRect(self.optionsViewController.view.frame));
     self.optionsViewController.view.hidden = YES;
     [self.view insertSubview:self.optionsViewController.view belowSubview:self.currentNoteViewController.view]; //stacking options view underneath the current note view
     
