@@ -60,7 +60,7 @@
     CGRect newFrame = [[UIScreen mainScreen] applicationFrame];
     self.view.frame = newFrame;
     
-    [self debugView:self.view color:[UIColor redColor]];
+    //[self debugView:self.view color:[UIColor redColor]];
 }
 
 - (void)setInitialPositionForColors
