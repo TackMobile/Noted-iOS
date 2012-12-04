@@ -21,14 +21,14 @@
 #import "UIView+position.h"
 #import "AnimationStackViewController.h"
 #import "WalkThroughViewController.h"
-#import "EmptyDataView.h"
 
-NSString *const kEditingNoteIndex = @"editingNoteIndex";
-static const NSUInteger kShadowViewTag = 56;
+NSString *const kEditingNoteIndex =         @"editingNoteIndex";
+static const NSUInteger kShadowViewTag =    56;
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
 #define kFingerTipsTag      576
+
 #define DISABLE_NEW_CELL    NO
 
 typedef enum {
@@ -58,7 +58,7 @@ typedef enum {
     NSDictionary *_currentTourStep;
     
     NSTimer *walkthroughGestureTimer;
-    EmptyDataView *emptyDataView;
+
 }
 
 
@@ -90,6 +90,15 @@ typedef enum {
     return [self init];
 }
 
+- (void)deleteAll
+{
+    for (NSIndexPath *ip in [self.tableView indexPathsForVisibleRows]) {
+        [[ApplicationModel sharedInstance] deleteNoteEntryAtIndex:ip.row withCompletionBlock:^{
+            //
+        }];
+    }
+}
+
 - (BOOL)hasData
 {
     return _noteCount > 0;
@@ -106,16 +115,19 @@ typedef enum {
     self.view.layer.cornerRadius    = 6.0;
     self.tableView.backgroundView   = nil;
     self.view.clipsToBounds = YES;
+    
+    //[self deleteAll];
    
     CGRect pullToCreateRect = (CGRect){
         {0, dragToCreateController.view.frame.size.height*(-1)},
         dragToCreateController.view.frame.size
     };
     
-    [dragToCreateController.view setFrame:pullToCreateRect];
-    [dragToCreateController.view setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
-    [self.tableView addSubview:dragToCreateController.view];
-
+    UIView *dragView = dragToCreateController.view;
+    [dragView setFrame:pullToCreateRect];
+    [dragView setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin];
+    [self.tableView insertSubview:dragView atIndex:0];
+    
     [self handleNotifications];
     
 #ifdef DEBUG
@@ -178,7 +190,6 @@ typedef enum {
                 [self showNoteStackForSelectedRow:freshIndexPath.row animated:NO];
                 [self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
             }
-            
         }];
 
     }];
@@ -232,16 +243,16 @@ typedef enum {
     
     _noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
-     if (_viewingNoteStack) {
-         CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
-         
-         BOOL rowZeroVisible = [self rowZeroVisible];
-         if (!rowZeroVisible){
-             CGPoint offset = CGPointMake(0.0, frame.origin.y-yOffset);
-             [self.tableView setContentOffset:offset animated:NO];
-         }
-     }
-         
+    if (_viewingNoteStack) {
+        CGRect frame = [self.tableView rectForRowAtIndexPath:_selectedIndexPath];
+        
+        BOOL rowZeroVisible = [self rowZeroVisible];
+        if (!rowZeroVisible){
+            CGPoint offset = CGPointMake(0.0, frame.origin.y-yOffset);
+            [self.tableView setContentOffset:offset animated:NO];
+        }
+    }
+        
     [self.tableView reloadData];
     if (_stackViewController) {
         [self setStackState];
@@ -292,6 +303,8 @@ typedef enum {
                 }
             }
         });
+        
+        [self.tableView reloadData];
     }
 }
 
@@ -325,7 +338,11 @@ typedef enum {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _noteCount-1) {
-        return self.view.bounds.size.height;
+        if (_noteCount == 1) {
+            return self.view.bounds.size.height;
+        } else {
+            return self.view.bounds.size.height - 66.0;
+        }
     }
     
     return 66;
@@ -438,7 +455,6 @@ typedef enum {
         if (!noteEntry.adding) {
             [self showNoteStackForSelectedRow:indexPath.row animated:NO];
         }
-        
     }];
     
     _viewingNoteStack = YES;
@@ -576,10 +592,11 @@ typedef enum {
     
     if (!decelerate) {
         [self setStackState];
-    }
+    } 
     
     if (scrollView.contentOffset.y < 0) {
         if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
+            [dragToCreateController setDragging:NO];
             [self makeNewNote];
         }
     }
@@ -596,29 +613,30 @@ typedef enum {
     }];
     _noteCount = model.currentNoteEntries.count;
     
-    NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
-    NoteEntryCell *cell = [views objectAtIndex:0];
-    float offset = self.tableView.contentOffset.y;
-    [cell setFrame:CGRectMake(0.0, ABS(offset), 320.0, 0.0)];
-    [cell.contentView setBackgroundColor:[UIColor redColor]];
-    [self.view addSubview:cell];
+    [dragToCreateController commitNewNoteCreation:^{
+        NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
+        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:freshIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [self showNoteStackForSelectedRow:0 animated:NO];
+        [self.tableView setFrameY:0.0];
+    }];
     
-    [UIView animateWithDuration:0.5
-                     animations:^(){
-                         
-                         [cell setFrame:self.view.bounds];
-                         //[self.tableView setFrameY:self.view.frame.size.height];
+    [self performSelector:@selector(slideOffTableView) withObject:nil afterDelay:0.0];
+    
+}
+
+- (void)slideOffTableView
+{
+    
+    //[self.tableView setScrollEnabled:NO];
+    [UIView animateWithDuration:0.7
+                     animations:^{
+                         [self.tableView setFrameY:CGRectGetMaxY(self.view.frame)];
                      }
-                     completion:^(BOOL finished) {
-                         //[self performSelector:@selector(openLastNoteCreated:) withObject:nil afterDelay:0.5];
-                         [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:freshIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-                         [self showNoteStackForSelectedRow:0 animated:NO];
-                         [cell removeFromSuperview];
+                     completion:^(BOOL finished){
                          [self.tableView setFrameY:0.0];
+                         //[self.tableView setScrollEnabled:YES];
+                         [self.tableView setContentOffset:CGPointMake(0.0, 0.0)];
                      }];
-    
-    
 }
 
 -(void)openLastNoteCreated:(NSTimer *)timer { // called by a timer
@@ -698,7 +716,7 @@ typedef enum {
     } andStackVC:_stackViewController];
     stackViewController.delegate = self;
     [self presentViewController:stackViewController animated:animated completion:^{
-        [self tourCheck:walkThroughStep6];
+        [self tourCheck:walkThroughStepPullToCreate];
     }];
 }
 
@@ -722,9 +740,12 @@ typedef enum {
     return [self isVisibleRow:0 inSection:kNoteItems];
 }
 
-
 - (BOOL)isVisibleRow:(int)row inSection:(int)section
 {
+    if (_noteCount == 0) {
+        return NO;
+    }
+    
     CGRect cellRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
     cellRect = [self.tableView convertRect:cellRect toView:self.tableView.superview];
     BOOL completelyVisible = CGRectIntersectsRect(self.tableView.frame, cellRect);
@@ -746,7 +767,7 @@ typedef enum {
     [self listDidUpdate];
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-
+    
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
@@ -797,7 +818,7 @@ typedef enum {
     UIImageView *circle1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fingertip"]];
     
     switch (stepNum) {
-        case walkThroughStep6:
+        case walkThroughStepPullToCreate:
         {
             [self.view addSubview:container];
             [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
@@ -830,17 +851,6 @@ typedef enum {
     
 }
 
-- (void)addEmptyDataView:(CGRect)frame ForKeyPath:(NSString *)keyPath
-{
-    if (!emptyDataView) {
-        emptyDataView = [[EmptyDataView alloc] initWithFrame:frame subscribedToKeyPath:keyPath];
-    }
 
-    [self.view addSubview:emptyDataView];
-    [emptyDataView setAnimatedHide:NO];
-    [self addObserver:emptyDataView forKeyPath:keyPath options:(NSKeyValueObservingOptionNew |  NSKeyValueObservingOptionOld) context:NULL];
-    
-    [emptyDataView show:!self.hasData];
-}
 
 @end

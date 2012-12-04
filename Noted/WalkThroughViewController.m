@@ -68,19 +68,19 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     _steps = [NSArray arrayWithObjects:
               [NSDictionary dictionaryWithObjectsAndKeys:
                @"Use a two-finger swipe from the right of the note area to create a new note",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep1],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepCreate1],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Awesome! You amaze me. Try creating another note.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep2],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepCreate2],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"You can swipe left or right on a note to cycle through your notes.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep3],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepCycle],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"To delete a note, do a two-finger swipe from the left.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep4],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepDelete],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Pinch the note to bring all your notes into view.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep5],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepGoToList],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Pulling down on the list is another way to create a note.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep6],@"index",@"NoteListViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepPullToCreate],@"index",@"NoteListViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Tap on the menu icon in the upper-right to share your note, access settings and change the note color.",kStepDescription,
-               [NSNumber numberWithInt:walkThroughStep7],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
+               [NSNumber numberWithInt:walkThroughStepOptions],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
     nil];
 }
 
@@ -122,6 +122,9 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
 {
     if ([self currentStep]>0) {
         [self goToStep:[self currentStep]];
+    } else {
+        NSDictionary *firstDict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:-1],@"index",@"NoteStackViewController",kStepViewControllerClass,nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWalkThroughStepBegun object:nil userInfo:firstDict];
     }
 }
 

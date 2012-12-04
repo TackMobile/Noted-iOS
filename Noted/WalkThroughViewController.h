@@ -19,13 +19,13 @@ extern NSString *const kWalkthroughStepNumber;
 extern NSString *const kShouldExitTour;
 
 typedef enum {
-    walkThroughStep1,
-    walkThroughStep2,
-    walkThroughStep3,
-    walkThroughStep4,
-    walkThroughStep5,
-    walkThroughStep6,
-    walkThroughStep7
+    walkThroughStepCreate1,
+    walkThroughStepCreate2,
+    walkThroughStepCycle,
+    walkThroughStepDelete,
+    walkThroughStepGoToList,
+    walkThroughStepPullToCreate,
+    walkThroughStepOptions
     
 } UserSteps;
 

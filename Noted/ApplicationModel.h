@@ -9,12 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "Utilities.h"
 #import "NoteFileManager.h"
+#import "TTAlertView.h"
 
 @class NoteDocument;
 
 #define kNoteListChangedNotification @"kNoteListChangedNotification"
 
-@interface ApplicationModel : NSObject <NoteFileManagerDelegate>
+@interface ApplicationModel : NSObject <NoteFileManagerDelegate,TTAlertViewDelegate>
 
 DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 

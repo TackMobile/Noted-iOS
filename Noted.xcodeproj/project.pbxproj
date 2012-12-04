@@ -84,6 +84,7 @@
 		B548669E15FA4CCD005FBC60 /* EZToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = B548669D15FA4CCD005FBC60 /* EZToastView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		B54E0CA116668C0F005BB273 /* WalkThroughView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54E0CA016668C0F005BB273 /* WalkThroughView.xib */; };
 		B554DB871647F12B00047494 /* DrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = B554DB861647F12B00047494 /* DrawView.m */; };
+		B56A87AD166A778E00BE1BAE /* TTAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = B56A87AC166A778E00BE1BAE /* TTAlertView.m */; };
 		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
 		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
@@ -95,7 +96,6 @@
 		B5D496F01668E3BE004F044F /* fingertip.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EE1668E3BE004F044F /* fingertip.png */; };
 		B5D496F11668E3BE004F044F /* fingertip@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EF1668E3BE004F044F /* fingertip@2x.png */; };
 		B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D496F416694C3C004F044F /* WalkThroughViewController.m */; };
-		B5D4970B16695516004F044F /* EmptyDataView.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D4970A166953F5004F044F /* EmptyDataView.m */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
@@ -218,6 +218,8 @@
 		B54E0CA016668C0F005BB273 /* WalkThroughView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalkThroughView.xib; sourceTree = "<group>"; };
 		B554DB851647F12B00047494 /* DrawView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawView.h; sourceTree = "<group>"; };
 		B554DB861647F12B00047494 /* DrawView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrawView.m; sourceTree = "<group>"; };
+		B56A87AB166A778E00BE1BAE /* TTAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTAlertView.h; sourceTree = "<group>"; };
+		B56A87AC166A778E00BE1BAE /* TTAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTAlertView.m; sourceTree = "<group>"; };
 		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
 		B58BD31D161374910095D22C /* NoteStackViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteStackViewController.h; sourceTree = "<group>"; };
 		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
@@ -232,8 +234,6 @@
 		B5D496EF1668E3BE004F044F /* fingertip@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fingertip@2x.png"; sourceTree = "<group>"; };
 		B5D496F316694C3C004F044F /* WalkThroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkThroughViewController.h; sourceTree = "<group>"; };
 		B5D496F416694C3C004F044F /* WalkThroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkThroughViewController.m; sourceTree = "<group>"; };
-		B5D49709166953F5004F044F /* EmptyDataView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmptyDataView.h; sourceTree = "<group>"; };
-		B5D4970A166953F5004F044F /* EmptyDataView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmptyDataView.m; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
@@ -311,6 +311,8 @@
 		29960C7E15740F050054347A /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				B56A87AB166A778E00BE1BAE /* TTAlertView.h */,
+				B56A87AC166A778E00BE1BAE /* TTAlertView.m */,
 				B554DB851647F12B00047494 /* DrawView.h */,
 				B554DB861647F12B00047494 /* DrawView.m */,
 				B538FA3116155ECC00A85672 /* NSUserDefaults+Convenience.h */,
@@ -508,8 +510,6 @@
 				F34DDC52165BF72100A43868 /* DragToCreateViewController.h */,
 				F34DDC53165BF72100A43868 /* DragToCreateViewController.m */,
 				F34DDC54165BF72100A43868 /* DragToCreateView.xib */,
-				B5D49709166953F5004F044F /* EmptyDataView.h */,
-				B5D4970A166953F5004F044F /* EmptyDataView.m */,
 			);
 			name = "View controllers";
 			sourceTree = "<group>";
@@ -675,7 +675,7 @@
 				F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */,
 				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
 				B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */,
-				B5D4970B16695516004F044F /* EmptyDataView.m in Sources */,
+				B56A87AD166A778E00BE1BAE /* TTAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,7 +6,7 @@
 //  http://www.apache.org/licenses/LICENSE-2.0.html
 
 #import "UIView+position.h"
-
+#import <QuartzCore/QuartzCore.h>
 
 @implementation UIView (position)
 
@@ -79,6 +79,12 @@
 - (void)setFrameHeight:(CGFloat)newHeight {
   self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y,
                           self.frame.size.width, newHeight);
+}
+
+- (void)debugViewWithColor:(UIColor *)color
+{
+    self.layer.borderColor = color.CGColor;
+    self.layer.borderWidth = 2.0;
 }
 
 @end

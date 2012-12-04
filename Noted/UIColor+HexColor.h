@@ -17,5 +17,6 @@
 +(BOOL)isShadowColor:(UIColor*)color;
 - (UIColor *)colorWithBrightness:(CGFloat)brightness;
 - (UIColor *)colorWithHueOffset:(CGFloat)hueOffset;
++ (UIColor *)randomColor;
 
 @end

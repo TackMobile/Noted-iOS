@@ -15,11 +15,17 @@
 #import "NSString+Digest.h"
 #import "FileStorageState.h"
 #import "UIAlertView+Blocks.h"
+#import "TTAlertView.h"
+#import "UIColor+HexColor.h"
+
+typedef void(^StorageChoiceCompletionBlock)();
 
 @interface ApplicationModel()
 {
     BOOL _refreshingiCloudData;
 }
+
+@property (nonatomic, copy) StorageChoiceCompletionBlock storageChosen;
 
 @end
 
@@ -117,22 +123,41 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)promptForPreferredStorageWithCompletion:(void(^)())completionBlock
 {
-    RIButtonItem *iCloudButton = [RIButtonItem item];
-    iCloudButton.label = @"Use iCloud";
-    iCloudButton.action = ^{
-        [FileStorageState setPreferredStorage:kTKiCloud];
-        completionBlock();
-    };
+    _storageChosen = completionBlock;
+    TTAlertView *alertCustom = [[TTAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." delegate:self cancelButtonTitle:@"Later" otherButtonTitles:@"Use iCloud", nil];
+    [alertCustom.containerView setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
+    [alertCustom show];
     
-    RIButtonItem *localBtn = [RIButtonItem item];
-    localBtn.label = @"Later";
-    localBtn.action = ^{
+    /*
+     RIButtonItem *iCloudButton = [RIButtonItem item];
+     iCloudButton.label = @"Use iCloud";
+     iCloudButton.action = ^{
+     [FileStorageState setPreferredStorage:kTKiCloud];
+     completionBlock();
+     };
+     
+     RIButtonItem *localBtn = [RIButtonItem item];
+     localBtn.label = @"Later";
+     localBtn.action = ^{
+     [FileStorageState setPreferredStorage:kTKlocal];
+     completionBlock();
+     };
+     
+     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." cancelButtonItem:nil otherButtonItems:localBtn,iCloudButton,nil];
+     [alert show];
+     */
+}
+
+- (void) alertView:(TTAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    NSLog(@"dismiss with %i",buttonIndex);
+    if (buttonIndex==0) {
         [FileStorageState setPreferredStorage:kTKlocal];
-        completionBlock();
-    };
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." cancelButtonItem:nil otherButtonItems:localBtn,iCloudButton,nil];
-    [alert show];
+        _storageChosen();
+    } else if (buttonIndex==1) {
+        [FileStorageState setPreferredStorage:kTKiCloud];
+        _storageChosen();
+    }
 }
 
 - (NoteEntry *) noteAtIndex:(int)index {

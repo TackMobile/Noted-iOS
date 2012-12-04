@@ -195,7 +195,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         if ([[note.userInfo objectForKey:kStepViewControllerClass] isEqual:NSStringFromClass([self class])]) {
             _currentTourStep = note.userInfo;
             
-            [self performSelector:@selector(beginTouchDemoAnimation) withObject:nil afterDelay:1.2];
+            if ([[_currentTourStep objectForKey:@"index"] intValue] != -1) {
+                [self performSelector:@selector(beginTouchDemoAnimation) withObject:nil afterDelay:1.2];
+            }
             
         } else {
             _currentTourStep = nil;
@@ -292,6 +294,18 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
+    int noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
+    if ([self walkthroughShouldBlockForStep:walkThroughStepGoToList]) {
+        return;
+    }
+    
+    [self endTouchDemoAnimation];
+    if (noteCount < 2){
+        NSLog(@"only show list if there's more than one note, do a bounce animation");
+#warning Re-comment to prvent exiting last note
+        //return;
+    }
+    
     CGFloat scale = gesture.scale;
         
     pinchYTarget = [gesture locationInView:self.view].y;
@@ -391,7 +405,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.currentNoteViewController setWithNoDataTemp:NO];
         self.dismissBlock([_stackVC finalYOriginForCurrentNote]);
         [self dismissViewControllerAnimated:NO completion:nil];
-        [self walkThroughStepCheck:walkThroughStep5];
+        [self walkThroughStepCheck:walkThroughStepGoToList];
         
     }];
 }
@@ -468,13 +482,40 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (BOOL)wantsToDeleteWithPoint:(CGPoint)point velocity:(CGPoint)velocity
 {
-    BOOL wantsTo = velocity.x > 0 ? YES : NO;
-    return wantsTo;
+    BOOL shouldDelete = velocity.x > 0 ? YES : NO;
+    if ([self walkthroughShouldBlockForStep:walkThroughStepDelete]) {
+        shouldDelete = NO;
+    } else {
+        return shouldDelete;
+    }
+    
+    return shouldDelete;
 }
 
 - (BOOL)wantsToCreateWithPoint:(CGPoint)point velocity:(CGPoint)velocity
 {
-    return velocity.x < 0;
+    BOOL shouldCreate = velocity.x < 0;
+    if (!_currentTourStep) {
+        return shouldCreate;
+    }
+    
+    int currentStep = [[_currentTourStep objectForKey:@"index"] intValue];
+    if (currentStep != walkThroughStepCreate1 && currentStep != walkThroughStepCreate2) {
+        shouldCreate =  NO;
+    }
+    
+    return shouldCreate;
+}
+
+- (BOOL)wantsToCycleWithVelocity:(CGPoint)velocity
+{
+    BOOL shouldCycle = numberOfTouchesInCurrentPanGesture == 1 && velocity.x != 0;
+    
+    if ([self walkthroughShouldBlockForStep:walkThroughStepCycle]) {
+        shouldCycle = NO;
+    }
+    
+    return shouldCycle;
 }
 
 #pragma mark Main gesture set
@@ -496,16 +537,17 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-        
-        [self endTouchDemoAnimation];
-        
+                
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
-        if (numberOfTouchesInCurrentPanGesture == 1 && velocity.x != 0) { //switches note
+        if ([self wantsToCycleWithVelocity:velocity]) { //switches note
+            [self endTouchDemoAnimation];
+            [self setGestureState:kCycle];
             self.currentNoteViewController.textView.scrollEnabled = NO;
             [self setNextNoteDocumentForVelocity:velocity];
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) { //two finger delete
             if ([self wantsToDeleteWithPoint:point velocity:velocity]) { //if the pan gesture is going from left to right
+                [self endTouchDemoAnimation];
                 [self setGestureState:kShouldDelete];
                 self.currentNoteViewController.textView.scrollEnabled = NO;
                 [self.view bringSubviewToFront:self.sliceView];
@@ -513,18 +555,20 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             // wants to create new note
             } else if ([self wantsToCreateWithPoint:point velocity:velocity]) { //if the pan gesture is going from right to left
                 
+                [self endTouchDemoAnimation];
                 [self setGestureState:kShouldCreateNew];
                 
                 [self.nextNoteViewController setWithPlaceholderData:YES defaultData:nil];
-                [self debugView:self.nextNoteViewController.view color:[UIColor greenColor]];
+                //[self debugView:self.nextNoteViewController.view color:[UIColor greenColor]];
                 [self.view addSubview:self.nextNoteViewController.view];
                 self.nextNoteViewController.view.hidden = NO;
             }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+        
         self.currentNoteViewController.textView.scrollEnabled = YES;
         
-        if (numberOfTouchesInCurrentPanGesture==1) { //if the user ended their one finger pan gesture
+        if (_currentGestureState == kCycle) { //if the user ended their one finger pan gesture
             [self handleSingleTouchPanEndedForVelocity:velocity]; //either changes the note to the next note or animates and "snaps" back the current note depending on whether 1. there's another note in the stack or 2. the user panned far enough on the screen or not
         }
         
@@ -580,7 +624,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
         
-        if (numberOfTouchesInCurrentPanGesture == 1) {
+        if (_currentGestureState == kCycle) {
             [self handleSingleTouchPanChangedForPoint:point]; //switches note
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
@@ -640,7 +684,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
  UIGraphicsEndImageContext();
  self.slicedNoteScreenShot.image = viewImage;
  [self cropNote];
- [self walkThroughStepCheck:walkThroughStep4];
+ [self walkThroughStepCheck:walkThroughStepDelete];
  }];
  
  }
@@ -675,7 +719,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     int64_t delayInSeconds = 1.75;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self walkThroughStepCheck:walkThroughStep4];
+        [self walkThroughStepCheck:walkThroughStepDelete];
     });
     [UIView animateWithDuration:2.0
                      animations:^(void){
@@ -761,7 +805,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
     }
     
-    [self walkThroughStepCheck:walkThroughStep4];
+    [self walkThroughStepCheck:walkThroughStepDelete];
 }
 
 - (void)cancelDeletingNote
@@ -822,20 +866,22 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
     int noteCount = [[ApplicationModel sharedInstance].currentNoteEntries count];
+    [self setGestureState:kGestureFinished];
     if (noteCount==1) { //if there's only one note then don't allow them to change views when panning...snaps back
         [self snapBackCurrentNote];
         return;
     }
     if (currentNoteFrame.origin.x > viewFrame.size.width/2 || velocity.x > FLIP_VELOCITY_THRESHOLD) { //if the user panned and dragged the page to more than half of the screen
-        [self walkThroughStepCheck:walkThroughStep3];
+        [self walkThroughStepCheck:walkThroughStepCycle];
         [self animateCurrentOutToRight];
     } else if (currentNoteFrame.origin.x + currentNoteFrame.size.width < viewFrame.size.width/2 || velocity.x < -FLIP_VELOCITY_THRESHOLD) {
-        [self walkThroughStepCheck:walkThroughStep3];
+        [self walkThroughStepCheck:walkThroughStepCycle];
         [self animateCurrentOutToLeft];
     } else { // if the user didn't drag the note past half the screen then snap back
         
         [self snapBackCurrentNote];
     }
+    
 }
 
 #pragma mark Walk-through
@@ -846,12 +892,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         int index = [[_currentTourStep objectForKey:@"index"] intValue];
         if (index == stepNum) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kWalkThroughStepComplete object:nil userInfo:_currentTourStep];
-        } else {
-            //int step = [[[NSUserDefaults standardUserDefaults] objectForKey:kWalkthroughStepNumber] integerValue];
-            
-            // they ignored the instructions of the tour
-            [[NSNotificationCenter defaultCenter] postNotificationName:kShouldExitTour object:nil userInfo:nil];
-        }
+        } 
     }
 }
 
@@ -896,14 +937,14 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     UIImageView *circle2 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"fingertip"]];
     
     switch (stepNum) {
-        case walkThroughStep1:
-        case walkThroughStep2:
+        case walkThroughStepCreate1:
+        case walkThroughStepCreate2:
         {
             [self.view addSubview:container];
             [container addSubview:circle2];
             [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
-            [circle2 setFrame:CGRectMake(10.0, 35.0, circleRadius, circleRadius)];
-            [container setFrame:CGRectMake(viewFrame.size.width - container.frame.size.width - padding, (viewFrame.size.height - 60.0)*0.5-20.0, width, 60.0)];
+            [circle2 setFrame:CGRectMake(10.0, 50.0, circleRadius, circleRadius)];
+            [container setFrame:CGRectMake(viewFrame.size.width - container.frame.size.width - padding, (viewFrame.size.height - 60.0)*0.5-20.0, width, 75.0)];
             [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
                              animations:^{
                                  [container setTransform:CGAffineTransformMakeTranslation(-(container.frame.origin.x - padding), 0.0)];
@@ -914,7 +955,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              }];
         }
             break;
-        case walkThroughStep3:
+        case walkThroughStepCycle:
         {
             [self.view addSubview:container];
             [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
@@ -939,7 +980,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              }];
         }
             break;
-        case walkThroughStep4:
+        case walkThroughStepDelete:
         {
             [self.view addSubview:container];
             [container addSubview:circle2];
@@ -956,7 +997,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              }];
         }
             break;
-        case walkThroughStep5:
+        case walkThroughStepGoToList:
         {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
                 [self.view addSubview:container];
@@ -988,14 +1029,27 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
+- (BOOL)walkthroughShouldBlockForStep:(UserSteps)step
+{
+    if (!_currentTourStep) {
+        return NO;
+    }
+    
+    if ([[_currentTourStep objectForKey:@"index"] intValue] != step) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     
     if (_currentTourStep) {
         int index = [[_currentTourStep objectForKey:@"index"] intValue];
-        NSString *text = index == walkThroughStep1 ? @"My first note" : @"";
-        text = index == walkThroughStep2 ? @"My second note" : text;
+        NSString *text = index == walkThroughStepCreate1 ? @"My first note" : @"";
+        text = index == walkThroughStepCreate2 ? @"My second note" : text;
         [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
             if (!doc.adding) {
                 [self updateNoteDocumentsForIndex:0];
@@ -1010,9 +1064,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (model.currentNoteEntries.count == 2) {
-        [self walkThroughStepCheck:walkThroughStep1];
+        [self walkThroughStepCheck:walkThroughStepCreate1];
     } else if (model.currentNoteEntries.count == 3) {
-        [self walkThroughStepCheck:walkThroughStep2];
+        [self walkThroughStepCheck:walkThroughStepCreate2];
     }
     
     [model setSelectedNoteIndex:0];
@@ -1268,9 +1322,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 - (void)showOptions
 {
+    if ([self walkthroughShouldBlockForStep:walkThroughStepOptions]) {
+        return;
+    }
+    
     [self.currentNoteViewController.textView resignFirstResponder];
     [self shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
-    [self walkThroughStepCheck:walkThroughStep7];
+    [self walkThroughStepCheck:walkThroughStepOptions];
 }
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock //shifts current note to only partially show on screen
@@ -1568,6 +1626,11 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)sendEmail
 {
     self.mailVC = [[MFMailComposeViewController alloc] init];
+    
+    if (!self.mailVC) {
+        //
+    }
+    
     self.mailVC.mailComposeDelegate = self;
     
     NSArray* lines = [[ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text componentsSeparatedByString: @"\n"];
