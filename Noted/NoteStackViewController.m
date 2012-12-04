@@ -302,8 +302,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self endTouchDemoAnimation];
     if (noteCount < 2){
         NSLog(@"only show list if there's more than one note, do a bounce animation");
-#warning Re-comment to prvent exiting last note
-        //return;
+//#warning Re-comment to prvent exiting last note
+        return;
     }
     
     CGFloat scale = gesture.scale;

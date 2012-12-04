@@ -100,7 +100,7 @@ static const float  kCellHeight             = 66.0;
         _stackItems = [[NSMutableArray alloc] init];
         _stackViews = [[NSMutableDictionary alloc] init];
         
-        [self.view setBackgroundColor:[UIColor purpleColor]];
+        [self.view setBackgroundColor:[UIColor clearColor]];
         //[self debugView:self.view color:[UIColor greenColor]];
     }
     

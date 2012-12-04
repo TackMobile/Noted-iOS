@@ -354,7 +354,7 @@ typedef enum {
 }
 
 - (BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
+    return NO;
 }
 
 
@@ -755,7 +755,7 @@ typedef enum {
 
 - (void)didSwipeToDeleteCellWithIndexPath:(UIView *)cell
 {
-    
+    NSLog(@"%i",_noteCount);
     CGPoint correctedPoint = [cell convertPoint:cell.bounds.origin toView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:correctedPoint];
     
@@ -764,10 +764,12 @@ typedef enum {
         //
     }];
     _noteCount = model.currentNoteEntries.count;
-    [self listDidUpdate];
+    NSLog(@"%i",_noteCount);
+    
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    _noteCount = notes.count;
     
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
