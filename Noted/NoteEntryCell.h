@@ -21,11 +21,12 @@
 @property (nonatomic, weak) id <NoteEntryCellDelegate> delegate;
 
 - (void)setTimeLabelsForNew;
+- (IBAction)deleteTapped:(id)sender;
 
 @end
 
 @protocol NoteEntryCellDelegate <NSObject>
 
-- (void)didSwipeToDeleteCellWithIndexPath:(NoteEntryCell *)cell;
+- (void)didDeleteCellWithIndexPath:(NoteEntryCell *)cell;
 
 @end

@@ -53,7 +53,7 @@
     //
 }
 
-- (void) didLoadNoteEntries:(NSMutableArray *)noteEntries {
+- (void)didLoadNoteEntries:(NSMutableArray *)noteEntries {
     if (noteEntries.count==0) {
         NSLog(@"Error loading entries [%d]",__LINE__);
     }

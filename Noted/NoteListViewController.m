@@ -353,10 +353,28 @@ typedef enum {
     return _noteCount;
 }
 
-- (BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return NO;
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return YES if you want the specified item to be editable.
+    return YES;
 }
 
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        ApplicationModel *model = [ApplicationModel sharedInstance];
+        [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
+            //
+        }];
+        _noteCount = model.currentNoteEntries.count;
+        NSLog(@"%i",_noteCount);
+        
+        NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+        _noteCount = notes.count;
+        
+        [aTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+    }
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -375,20 +393,8 @@ typedef enum {
     if (noteEntryCell == nil) {
         NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
         noteEntryCell = [topLevelObjects objectAtIndex:0];
-        
-        /*
-         UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
-         [panGesture setDelegate:self];
-         [noteEntryCell addGestureRecognizer:panGesture];
-         
-         */
-        
-        UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
-        [swipeGesture setDelegate:self];
-        [swipeGesture setDirection:UISwipeGestureRecognizerDirectionRight];
-        [noteEntryCell addGestureRecognizer:swipeGesture];
-
-        //[self debugView:noteEntryCell color:[UIColor purpleColor]];
+        noteEntryCell.backgroundView = [[UIView alloc] initWithFrame:CGRectZero];
+        noteEntryCell.backgroundView.backgroundColor = [UIColor clearColor];
     }
     
     if (noteEntry.adding) {
@@ -451,14 +457,33 @@ typedef enum {
     }
 }
 
+- (void)didDeleteCellWithIndexPath:(NoteEntryCell *)cell
+{
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
+        //
+    }];
+    _noteCount = model.currentNoteEntries.count;
+    NSLog(@"%i",_noteCount);
+    
+    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
+    _noteCount = notes.count;
+    
+    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+}
+
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
   
     UITableViewCell *cell = [tv cellForRowAtIndexPath:indexPath];
-    BOOL editing = cell.editing;
-    if (editing) {
-        [cell setEditing:NO animated:YES];
-        return;
-    }
+    /*
+     BOOL editing = cell.editing;
+     if (editing) {
+     //[cell setEditing:NO animated:YES];
+     return;
+     }
+     */
     
     _selectedIndexPath = indexPath;
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -525,54 +550,6 @@ typedef enum {
     }
 }
 
-- (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
-{
-    UITableViewCell *view = (UITableViewCell *)recognizer.view;
-    [view setEditing:YES animated:YES];
-    /*
-     CGPoint point = [recognizer translationInView:view.contentView];
-     CGPoint velocity = [recognizer velocityInView:view.contentView];
-     CGRect viewFrame = view.contentView.frame;
-     
-     if (recognizer.state == UIGestureRecognizerStateChanged) {
-     if (velocity.x > 0 && !_scrolling) {
-     point = [recognizer translationInView:view.contentView];
-     CGRect newFrame;
-     newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
-     view.contentView.frame = newFrame;
-     if (_lastRowWasVisible) {
-     self.tableView.backgroundColor = [UIColor whiteColor];
-     _lastRowWasVisible = NO;
-     }
-     } else {
-     //NSLog(@"not moving because it IS scrolling");
-     }
-     
-     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
-     if (point.x > CGRectGetMidX(view.bounds) && velocity.x > 200.0) {
-     [self didSwipeToDeleteCellWithIndexPath:view];
-     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-     [UIView animateWithDuration:0.4
-     animations:^{
-     [view.contentView setFrame:CGRectMake(viewFrame.size.width, 0.0, viewFrame.size.width, viewFrame.size.height)];
-     }
-     completion:^(BOOL finished){
-     
-     }];
-     
-     
-     } else {
-     [UIView animateWithDuration:0.5
-     animations:^{
-     [view.contentView setFrame:CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height)];
-     }
-     completion:^(BOOL finished){
-     
-     }];
-     }
-     }
-     */
-}
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -687,10 +664,12 @@ typedef enum {
      */
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-    return YES;
-}
+/*
+ - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+ {
+ return YES;
+ }
+ */
 
 - (NSString *)displayTitleForNoteEntry:(NoteEntry *)entry
 {
@@ -771,25 +750,6 @@ typedef enum {
     BOOL completelyVisible = CGRectIntersectsRect(self.tableView.frame, cellRect);
     
     return completelyVisible;
-}
-
-- (void)didSwipeToDeleteCellWithIndexPath:(UIView *)cell
-{
-    NSLog(@"%i",_noteCount);
-    CGPoint correctedPoint = [cell convertPoint:cell.bounds.origin toView:self.tableView];
-    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:correctedPoint];
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model deleteNoteEntryAtIndex:indexPath.row withCompletionBlock:^{
-        //
-    }];
-    _noteCount = model.currentNoteEntries.count;
-    NSLog(@"%i",_noteCount);
-    
-    NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
-    _noteCount = notes.count;
-    
-    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 - (void)delayedCall:(float)delay withBlock:(void(^)())block
