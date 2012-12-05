@@ -70,6 +70,8 @@
     if (abs(yOffset) > THRESHOLD) {
         instructionLabel.text = NSLocalizedString(@"Release to Create a New Note",@"Release to create");
         
+        [self.view setFrameY:yOffset];
+        
         if (!_newNote) {
             NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
             _newNote = (NoteEntryCell *)[topLevelObjects lastObject];
@@ -133,7 +135,7 @@
         [superview insertSubview:self.view atIndex:0];
         [superview insertSubview:_newNoteContainer aboveSubview:self.view];
         
-        float distanceToTravel = -66.0;
+        float distanceToTravel = -44.0;
         float g = yOffset/distanceToTravel;
         
         float absOffset = -(yOffset);

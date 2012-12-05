@@ -376,9 +376,18 @@ typedef enum {
         NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
         noteEntryCell = [topLevelObjects objectAtIndex:0];
         
-        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
-        [panGesture setDelegate:self];
-        [noteEntryCell addGestureRecognizer:panGesture];
+        /*
+         UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
+         [panGesture setDelegate:self];
+         [noteEntryCell addGestureRecognizer:panGesture];
+         
+         */
+        
+        UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didPanRightInCell:)];
+        [swipeGesture setDelegate:self];
+        [swipeGesture setDirection:UISwipeGestureRecognizerDirectionRight];
+        [noteEntryCell addGestureRecognizer:swipeGesture];
+
         //[self debugView:noteEntryCell color:[UIColor purpleColor]];
     }
     
@@ -444,6 +453,13 @@ typedef enum {
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
   
+    UITableViewCell *cell = [tv cellForRowAtIndexPath:indexPath];
+    BOOL editing = cell.editing;
+    if (editing) {
+        [cell setEditing:NO animated:YES];
+        return;
+    }
+    
     _selectedIndexPath = indexPath;
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
@@ -512,48 +528,50 @@ typedef enum {
 - (void)didPanRightInCell:(UIPanGestureRecognizer *)recognizer
 {
     UITableViewCell *view = (UITableViewCell *)recognizer.view;
-    
-    CGPoint point = [recognizer translationInView:view.contentView];
-    CGPoint velocity = [recognizer velocityInView:view.contentView];
-    CGRect viewFrame = view.contentView.frame;
-    
-    if (recognizer.state == UIGestureRecognizerStateChanged) {
-        if (velocity.x > 0 && !_scrolling) {
-            point = [recognizer translationInView:view.contentView];
-            CGRect newFrame;
-            newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
-            view.contentView.frame = newFrame;
-            if (_lastRowWasVisible) {
-                self.tableView.backgroundColor = [UIColor whiteColor];
-                _lastRowWasVisible = NO;
-            }
-        } else {
-            //NSLog(@"not moving because it IS scrolling");
-        }
-        
-    } else if (recognizer.state == UIGestureRecognizerStateEnded) {
-        if (point.x > CGRectGetMidX(view.bounds) && velocity.x > 200.0) {
-            [self didSwipeToDeleteCellWithIndexPath:view];
-            [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-            [UIView animateWithDuration:0.4
-                             animations:^{
-                                 [view.contentView setFrame:CGRectMake(viewFrame.size.width, 0.0, viewFrame.size.width, viewFrame.size.height)];
-                             }
-                             completion:^(BOOL finished){
-                                 
-                             }];
-            
-            
-        } else {
-            [UIView animateWithDuration:0.5
-                             animations:^{
-                                 [view.contentView setFrame:CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height)];
-                             }
-                             completion:^(BOOL finished){
-                                 
-                             }];
-        }
-    } 
+    [view setEditing:YES animated:YES];
+    /*
+     CGPoint point = [recognizer translationInView:view.contentView];
+     CGPoint velocity = [recognizer velocityInView:view.contentView];
+     CGRect viewFrame = view.contentView.frame;
+     
+     if (recognizer.state == UIGestureRecognizerStateChanged) {
+     if (velocity.x > 0 && !_scrolling) {
+     point = [recognizer translationInView:view.contentView];
+     CGRect newFrame;
+     newFrame = CGRectMake(0 + point.x, 0, viewFrame.size.width, viewFrame.size.height);
+     view.contentView.frame = newFrame;
+     if (_lastRowWasVisible) {
+     self.tableView.backgroundColor = [UIColor whiteColor];
+     _lastRowWasVisible = NO;
+     }
+     } else {
+     //NSLog(@"not moving because it IS scrolling");
+     }
+     
+     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+     if (point.x > CGRectGetMidX(view.bounds) && velocity.x > 200.0) {
+     [self didSwipeToDeleteCellWithIndexPath:view];
+     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+     [UIView animateWithDuration:0.4
+     animations:^{
+     [view.contentView setFrame:CGRectMake(viewFrame.size.width, 0.0, viewFrame.size.width, viewFrame.size.height)];
+     }
+     completion:^(BOOL finished){
+     
+     }];
+     
+     
+     } else {
+     [UIView animateWithDuration:0.5
+     animations:^{
+     [view.contentView setFrame:CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height)];
+     }
+     completion:^(BOOL finished){
+     
+     }];
+     }
+     }
+     */
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -744,6 +762,8 @@ typedef enum {
 {
     if (_noteCount == 0) {
         return NO;
+    } else if (_noteCount == 1) {
+        return YES;
     }
     
     CGRect cellRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
