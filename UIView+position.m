@@ -81,10 +81,10 @@
                           self.frame.size.width, newHeight);
 }
 
-- (void)debugViewWithColor:(UIColor *)color
+- (void)debugViewWithColor:(UIColor *)color lineWidth:(int)width
 {
     self.layer.borderColor = color.CGColor;
-    self.layer.borderWidth = 2.0;
+    self.layer.borderWidth = width;
 }
 
 @end

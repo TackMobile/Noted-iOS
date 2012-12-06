@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NoteEntry.h"
 
 @protocol NoteEntryCellDelegate;
 
@@ -18,10 +19,15 @@
 @property (weak, nonatomic) IBOutlet UITextView *relativeTimeText;
 @property (weak, nonatomic) IBOutlet UIButton *deleteButton;
 
+@property (nonatomic, strong) UIView *leftCornerView;
+@property (nonatomic, strong) UIView *rightCornerView;
+
 @property (nonatomic, weak) id <NoteEntryCellDelegate> delegate;
 
 - (void)setTimeLabelsForNew;
-- (IBAction)deleteTapped:(id)sender;
+- (void)setSubviewsBgColor:(UIColor *)color;
+- (void)setCornerColorsWithPrevNoteEntry:(UIColor *)noteColor;
+- (void)roundCorners;
 
 @end
 

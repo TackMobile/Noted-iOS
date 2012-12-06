@@ -22,6 +22,6 @@
 @property (nonatomic) CGFloat frameWidth;
 @property (nonatomic) CGFloat frameHeight;
 
-- (void)debugViewWithColor:(UIColor *)color;
+- (void)debugViewWithColor:(UIColor *)color lineWidth:(int)width;
 
 @end

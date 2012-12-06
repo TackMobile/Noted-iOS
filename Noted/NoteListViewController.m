@@ -43,6 +43,7 @@ typedef enum {
     NSUInteger _previousRowCount;
     
     BOOL _scrolling;
+    BOOL _dragging;
     BOOL _lastRowVisible;
     BOOL _lastRowWasVisible;
     BOOL _shouldAutoShowNote;
@@ -78,6 +79,7 @@ typedef enum {
         _shouldAutoShowNote = NO;
         _viewingNoteStack = NO;
         _scrolling = NO;
+        _dragging = NO;
         
         // pullToCreate
         dragToCreateController = [[DragToCreateViewController alloc] init];
@@ -109,7 +111,7 @@ typedef enum {
     
     UIImageView *backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Default"]];
     self.tableView.backgroundView   = backgroundView;
-    [self.tableView setBackgroundColor:[UIColor whiteColor]];
+    [self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
     self.tableView.separatorStyle   = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight        = 60;
     self.view.layer.cornerRadius    = 6.0;
@@ -386,24 +388,20 @@ typedef enum {
         NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
         noteEntryCell = [topLevelObjects objectAtIndex:0];
         noteEntryCell.backgroundView = [[UIView alloc] initWithFrame:CGRectZero];
-        [noteEntryCell setBackgroundColor:[UIColor redColor]];
         
-        /*
-        // round the top corners
-        CGRect frame = noteEntryCell.bounds;
-        frame.size.height = [self tableView:tableView heightForRowAtIndexPath:indexPath];
-        UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
-                                                       byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
-                                                             cornerRadii:CGSizeMake(6.0, 6.0)];
-        CAShapeLayer *maskLayer = [CAShapeLayer layer];
-        [maskLayer setFrame:noteEntryCell.bounds];
-        [maskLayer setPath:maskPath.CGPath];
+        int prevIndex = indexPath.row-1;
+        if (prevIndex>=0) {
+            NoteEntry *previous = [model.currentNoteEntries objectAtIndex:prevIndex];
+            [noteEntryCell setCornerColorsWithPrevNoteEntry:previous.noteColor];
+        } else {
+            [noteEntryCell setCornerColorsWithPrevNoteEntry:[UIColor colorWithHexString:@"808080"]];
+        }
         
-        noteEntryCell.layer.mask = maskLayer;*/
+        
     }
     
     if (noteEntry.adding) {
-        noteEntryCell.contentView.backgroundColor = [UIColor lightGrayColor];
+        [noteEntryCell setSubviewsBgColor:[UIColor lightGrayColor]];
         
         [self delayedCall:1.0 withBlock:^{
             [UIView animateWithDuration:0.5
@@ -414,7 +412,7 @@ typedef enum {
         }];
         
     } else {
-        noteEntryCell.contentView.backgroundColor = noteEntry.noteColor;
+        [noteEntryCell setSubviewsBgColor:noteEntry.noteColor];
     }
     
     noteEntryCell.subtitleLabel.text = noteEntry.title;
@@ -433,7 +431,7 @@ typedef enum {
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NoteEntryCell *noteCell = (NoteEntryCell *)cell;
+    NoteEntryCell *noteEntryCell = (NoteEntryCell *)cell;
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
             
@@ -443,22 +441,34 @@ typedef enum {
         index = 0;
     }
     if (index >= 4) {
-        [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
+        [noteEntryCell.subtitleLabel setTextColor:[UIColor whiteColor]];
     } else {
-        [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        [noteEntryCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
     }
 
-    noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
+    noteEntryCell.relativeTimeText.textColor = noteEntryCell.subtitleLabel.textColor;
     
     UIView *shadow = [cell viewWithTag:kShadowViewTag];
 
     if (indexPath.row == _noteCount-1) {
         [shadow setHidden:YES];
-        noteCell.contentView.backgroundColor = _lastRowColor;
+        [noteEntryCell setSubviewsBgColor:_lastRowColor];
     }
     
-    if (indexPath.row==_noteCount-1) {
+    /*
+     int prevIndex = indexPath.row-1;
+     if (prevIndex>=0) {
+     NoteEntry *previous = [model.currentNoteEntries objectAtIndex:prevIndex];
+     [noteEntryCell setCornerColorsWithPrevNoteEntry:previous.noteColor];
+     } else {
+     [noteEntryCell setCornerColorsWithPrevNoteEntry:[UIColor colorWithHexString:@"808080"]];
+     }
+     */
+    
+    if (indexPath.row==0) {
         [self willDisplayLastRowCell:cell atIndexPath:indexPath];
+        NoteEntryCell *noteEntryCell = (NoteEntryCell *)cell;
+        [noteEntryCell roundCorners];
     }
 }
 
@@ -481,7 +491,7 @@ typedef enum {
 
 - (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
   
-    UITableViewCell *cell = [tv cellForRowAtIndexPath:indexPath];
+    //UITableViewCell *cell = [tv cellForRowAtIndexPath:indexPath];
     /*
      BOOL editing = cell.editing;
      if (editing) {
@@ -555,6 +565,15 @@ typedef enum {
     }
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _dragging = YES;
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+     _dragging = NO;
+}
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -565,21 +584,27 @@ typedef enum {
     [self endTouchDemoAnimation];
     
     if (scrollView.contentOffset.y < 0) {
-        [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
+        if (_dragging) {
+            [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
+        } else {
+            NSLog(@"prevented unecessary new note");
+        }
+    
     }
     
-    /*
-     _lastRowVisible = [self isVisibleRow:_noteCount-1 inSection:kNoteItems];
-     if (_lastRowVisible) {
-     CGRect frame = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:_noteCount-1 inSection:kNoteItems]];
-     frame = [self.view convertRect:frame fromView:self.tableView];
-     if (CGRectGetMaxY(frame) < CGRectGetMaxY(self.view.bounds)) {
-     self.tableView.backgroundColor = _lastRowColor;
-     }
-     
-     _lastRowWasVisible = YES;
-     }
-     */
+    CGPoint offset = scrollView.contentOffset;
+    CGRect bounds = scrollView.bounds;
+    CGSize size = scrollView.contentSize;
+    UIEdgeInsets inset = scrollView.contentInset;
+    float y = offset.y + bounds.size.height - inset.bottom;
+    float h = size.height;
+    
+    float reload_distance = 0;
+    if(y > h + reload_distance) {
+        self.tableView.backgroundColor = _lastRowColor;
+    } else {
+        self.tableView.backgroundColor = [UIColor colorWithHexString:@"808080"];
+    }
     
     [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
 
