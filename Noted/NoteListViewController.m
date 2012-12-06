@@ -115,9 +115,7 @@ typedef enum {
     self.view.layer.cornerRadius    = 6.0;
     self.tableView.backgroundView   = nil;
     self.view.clipsToBounds = YES;
-    
-    //[self deleteAll];
-   
+       
     CGRect pullToCreateRect = (CGRect){
         {0, dragToCreateController.view.frame.size.height*(-1)},
         dragToCreateController.view.frame.size
@@ -129,13 +127,7 @@ typedef enum {
     [self.tableView insertSubview:dragView atIndex:0];
     
     [self handleNotifications];
-    
-#ifdef DEBUG
-//    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 320.0, 10.0)];
-//    [v setBackgroundColor:[UIColor redColor]];
-//    [self.tableView setTableHeaderView:v];
-#endif
-    
+
 }
 
 - (void)handleNotifications
@@ -188,7 +180,7 @@ typedef enum {
             NoteEntry *noteEntry = [model noteAtIndex:freshIndexPath.row];
             if (!noteEntry.adding) {
                 [self showNoteStackForSelectedRow:freshIndexPath.row animated:NO];
-                [self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
+                
             }
         }];
 
@@ -283,6 +275,7 @@ typedef enum {
     if (_noteCount>0) {
 
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
+        //[self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
         
         if (!_stackViewController) {
             _stackViewController = [[AnimationStackViewController alloc] init];
@@ -393,7 +386,20 @@ typedef enum {
         NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:self options:nil];
         noteEntryCell = [topLevelObjects objectAtIndex:0];
         noteEntryCell.backgroundView = [[UIView alloc] initWithFrame:CGRectZero];
-        noteEntryCell.backgroundView.backgroundColor = [UIColor clearColor];
+        [noteEntryCell setBackgroundColor:[UIColor redColor]];
+        
+        /*
+        // round the top corners
+        CGRect frame = noteEntryCell.bounds;
+        frame.size.height = [self tableView:tableView heightForRowAtIndexPath:indexPath];
+        UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
+                                                       byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
+                                                             cornerRadii:CGSizeMake(6.0, 6.0)];
+        CAShapeLayer *maskLayer = [CAShapeLayer layer];
+        [maskLayer setFrame:noteEntryCell.bounds];
+        [maskLayer setPath:maskPath.CGPath];
+        
+        noteEntryCell.layer.mask = maskLayer;*/
     }
     
     if (noteEntry.adding) {

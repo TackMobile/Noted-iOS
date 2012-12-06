@@ -29,11 +29,13 @@
 @property (strong, nonatomic) IBOutlet UILabel *optionsDot;
 @property (strong, nonatomic) IBOutlet UILabel *relativeTime;
 @property (strong, nonatomic) IBOutlet UILabel *absoluteTime;
+@property (weak, nonatomic) IBOutlet UIButton *optionsButton;
 
 @property (nonatomic, assign) BOOL isCurrent;
 
 -(void)setColors:(UIColor*)color textColor:(UIColor*)textColor;
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView;
+- (IBAction)optionsSelected:(id)sender;
 
 // helper when swiping to create new notes
 - (void)setWithPlaceholderData:(BOOL)val defaultData:(NoteData *)defaultData;

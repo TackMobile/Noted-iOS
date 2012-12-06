@@ -179,7 +179,7 @@
     return font;
 }
 
-- (IBAction)optionsSelected{
+- (IBAction)optionsSelected:(id)sender {
     [self.delegate showOptions];
 }
 
@@ -306,15 +306,15 @@
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
     CGPoint location = [touch locationInView:self.view];
-    if (CGRectContainsPoint(self.optionsDot.frame, location)){
-        [self optionsSelected];
+    if (CGRectContainsPoint(self.optionsButton.frame, location)){
+        [self optionsSelected:nil];
     }
 }
 
 - (void)handleTapFrom:(UIGestureRecognizer *)recognizer {
     [self.textView resignFirstResponder];
     CGPoint touchPoint = [recognizer locationInView:self.view];
-    if (CGRectContainsPoint(self.optionsDot.frame, touchPoint)) {
+    if (CGRectContainsPoint(self.optionsButton.frame, touchPoint)) {
         [self.delegate showOptions];
     } 
 }
