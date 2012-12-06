@@ -54,9 +54,6 @@
 }
 
 - (void)didLoadNoteEntries:(NSMutableArray *)noteEntries {
-    if (noteEntries.count==0) {
-        NSLog(@"Error loading entries [%d]",__LINE__);
-    }
     [self.delegate fileManager:self didLoadNoteEntries:noteEntries];
 }
 
@@ -228,9 +225,7 @@
     NSArray *notedDocuments = [localDocuments filteredArrayUsingPredicate:notedDocsPredicate];
     
     if (IsEmpty(notedDocuments)) {
-#warning TODO: create first doc
         if ([FileStorageState isFirstUse]) {
-            NSLog(@"Create the first doc if this is first use");
             [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
         }
         
