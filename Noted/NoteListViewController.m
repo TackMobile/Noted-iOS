@@ -281,7 +281,7 @@ typedef enum {
     }
     
     if (_noteCount>0) {
-        
+
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
         
         if (!_stackViewController) {
@@ -346,7 +346,6 @@ typedef enum {
     }
     
     return 66;
-    
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -652,7 +651,7 @@ typedef enum {
     _scrolling = NO;
     
     if (_lastRowWasVisible) {
-        self.tableView.backgroundColor = [UIColor whiteColor];
+        //self.tableView.backgroundColor = [UIColor whiteColor];
         _lastRowWasVisible = NO;
     }
 
