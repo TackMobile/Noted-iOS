@@ -163,7 +163,7 @@ typedef enum {
     
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *note){
         if (_noteCount == 0) {
-            //[[ApplicationModel sharedInstance] refreshNotes];
+            [[ApplicationModel sharedInstance] refreshNotes];
         }
     }];
 }
@@ -360,7 +360,7 @@ typedef enum {
             //
         }];
         _noteCount = model.currentNoteEntries.count;
-        NSLog(@"%i",_noteCount);
+        NSLog(@"Es gibt %i noten",_noteCount);
         
         NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
         _noteCount = notes.count;
@@ -586,10 +586,7 @@ typedef enum {
     if (scrollView.contentOffset.y < 0) {
         if (_dragging) {
             [dragToCreateController scrollingWithYOffset:scrollView.contentOffset.y];
-        } else {
-            NSLog(@"prevented unecessary new note");
-        }
-    
+        } 
     }
     
     CGPoint offset = scrollView.contentOffset;

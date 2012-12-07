@@ -296,6 +296,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 {
     int noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     if ([self walkthroughShouldBlockForStep:walkThroughStepGoToList]) {
+        NSLog(@"prevented pinch gesture");
         return;
     }
     
