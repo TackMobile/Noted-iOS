@@ -434,7 +434,7 @@ static const float  kCellHeight             = 66.0;
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent
 {
     _pinchPercentComplete = pinchPercent;
-    NSLog(@"animating for _pinchPercentComplete %f, num of stack items: %i",pinchPercent,_stackItems.count);
+    //NSLog(@"animating for _pinchPercentComplete %f, num of stack items: %i",pinchPercent,_stackItems.count);
     
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];

@@ -53,6 +53,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     
     NSMutableArray *stackingViews;
     
+    TTAlertView *_alertView;
+    
     BOOL shouldMakeNewNote;
     BOOL shouldDeleteNote;
     BOOL shouldExitStack;
@@ -292,6 +294,16 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
 }
 
+- (void) alertView:(TTAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex==0) {
+        
+        
+    } else if (buttonIndex==1) {
+        _alertView = nil;
+    }
+}
+
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
     int noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
@@ -304,6 +316,14 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     if (noteCount < 2){
         NSLog(@"only show list if there's more than one note, do a bounce animation");
 //#warning Re-comment to prvent exiting last note
+        /*
+         if (!_alertView) {
+         _alertView = [[TTAlertView alloc] initWithTitle:@"Last note!" message:@"No other notes to see here." delegate:self cancelButtonTitle:nil otherButtonTitles:@"Ok", nil];
+         [_alertView.containerView setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
+         [_alertView show];
+         }
+         */
+        
         return;
     }
     
@@ -785,26 +805,39 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)finishDeletingDocument:(CGPoint)point
 {
     // shredding animations for deletion
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteEntry *toDelete = currentNoteViewController.noteEntry;
-    [self setGestureState:kGestureFinished];
-    
-    [slicedNoteScreenShot removeFromSuperview];
-    self.currentNoteViewController.textView.scrollEnabled = YES;
-    
-    self.currentNoteViewController.view.hidden = NO;
+    NoteDocument *doc = self.currentNoteViewController.noteDocument;
+    UIDocumentState state = [doc documentState];
+    NSLog(@"Closing doc %@",doc.fileURL.lastPathComponent);
+    [doc closeWithCompletionHandler:^(BOOL success) {
+        
+        if (success) {
+            NSLog(@"Closed doc %@",doc.fileURL.lastPathComponent);
+            ApplicationModel *model = [ApplicationModel sharedInstance];
+            NoteEntry *toDelete = currentNoteViewController.noteEntry;
+            [self setGestureState:kGestureFinished];
+            
+            [slicedNoteScreenShot removeFromSuperview];
+            self.currentNoteViewController.textView.scrollEnabled = YES;
+            
+            self.currentNoteViewController.view.hidden = NO;
+            
+            [model setCurrentNoteIndexToNextPriorToDelete];
+            [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
+                //NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
+                NSLog(@"\n\ncheck that note is GONE: %@\n\n",toDelete.fileURL.lastPathComponent);
+            }];
+            
+            if (model.currentNoteEntries.count==0) {
+                [self dismissViewControllerAnimated:NO completion:nil];
+            } else {
+                [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
+            }
+        } else {
+            NSLog(@"Couldn't close doc %@",self.currentNoteViewController.noteDocument.fileURL.lastPathComponent);
+        }
+        
 
-    [model setCurrentNoteIndexToNextPriorToDelete];
-    [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
-        //NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
     }];
-    
-    if (model.currentNoteEntries.count==0) {
-        [self dismissViewControllerAnimated:NO completion:nil];
-    } else {
-        [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
-    }
     
     [self walkThroughStepCheck:walkThroughStepDelete];
 }
