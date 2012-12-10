@@ -103,7 +103,7 @@
         button.tag = 1;
     } else {
         [button setTitle:@"OFF" forState:UIControlStateNormal];
-        [button setTitleColor:[UIColor lightTextColor] forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor colorWithHexString:@"999999"] forState:UIControlStateNormal];
         button.tag = 0;
     }
 }
@@ -115,24 +115,6 @@
     self.kernal.backgroundColor = [UIColor colorWithHexString:@"DAC361"];
     self.shadow.backgroundColor = [UIColor colorWithHexString:@"333333"];
     self.tack.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
-    
-    self.shareText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.settingsText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.aboutText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.versionText.textColor  = [UIColor colorWithHexString:@"CCCCCC"];
-    self.optionsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.shareSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.aboutSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.settingsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.emailText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.messageText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.tweetText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.builtText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.websiteText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.tackTwitterText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    
-    self.cancelX.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    
 }
 
 
@@ -202,8 +184,8 @@
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
                          self.cancelX.frame = [self frameForCancelButtonWithXOffset:120.0];
-                         [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.shareSubview button:self.shareText];
+                         [self.view addSubview:self.cancelX];
                      }];
     
 }
@@ -247,8 +229,8 @@
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
                          self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
-                         [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.aboutSubview button:self.aboutText];
+                         [self.view addSubview:self.cancelX];
                      }];
 }
 
@@ -261,13 +243,13 @@
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          self.shareText.frame = CGRectMake(0, -244, 320, 1);
-                         self.settingsText.frame = CGRectMake(0, -244, 320, 1);
-                         self.aboutText.frame = CGRectMake(0, -244, 320, 480);
+                         self.settingsText.frame = CGRectMake(0, -244, 320, 480);
+                         self.aboutText.frame = CGRectMake(0, -244, 320, 53);
                          self.versionText.frame = CGRectMake(0, 322, 320, 53);
                      } completion:^(BOOL success){
                          self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
-                         [self.view addSubview:self.cancelX];
                          [self setSubviewVisible:self.settingsSubview button:self.settingsText];
+                         [self.view addSubview:self.cancelX];
                      }];
 
 }
@@ -275,6 +257,9 @@
 - (void)setSubviewVisible:(UIView *)subview button:(UITextView *)textView
 {
     [self disableMenu];
+    
+    CGPoint subviewStartingPoint = CGPointMake(0, 12);
+    subview.frame = CGRectMake(subviewStartingPoint.x, subviewStartingPoint.y, subview.frame.size.width, subview.frame.size.height);
     
     subview.hidden = NO;
     textView.userInteractionEnabled = NO;
