@@ -103,7 +103,7 @@
         button.tag = 1;
     } else {
         [button setTitle:@"OFF" forState:UIControlStateNormal];
-        [button setTitleColor:[UIColor lightTextColor] forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor colorWithHexString:@"999999"] forState:UIControlStateNormal];
         button.tag = 0;
     }
 }
@@ -115,24 +115,6 @@
     self.kernal.backgroundColor = [UIColor colorWithHexString:@"DAC361"];
     self.shadow.backgroundColor = [UIColor colorWithHexString:@"333333"];
     self.tack.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
-    
-    self.shareText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.settingsText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.aboutText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.versionText.textColor  = [UIColor colorWithHexString:@"CCCCCC"];
-    self.optionsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.shareSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.aboutSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.settingsSubview.backgroundColor = [UIColor colorWithHexString:@"292929"];
-    self.emailText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.messageText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.tweetText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.builtText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.websiteText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    self.tackTwitterText.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    
-    self.cancelX.textColor = [UIColor colorWithHexString:@"CCCCCC"];
-    
 }
 
 
@@ -188,26 +170,6 @@
 
 }
 
--(void)openShare:(id)sender {
-
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(120, 0) completion:nil];
-    [self setColorsToCollapsedStateWithDuration:0.3];
-    [UIView animateWithDuration:0.3 
-                          delay:0.0
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.shareText.frame = CGRectMake(0, -244, 320, 480);
-                         self.settingsText.frame = CGRectMake(0, 216, 320, 53);
-                         self.aboutText.frame = CGRectMake(0, 269, 320, 53);
-                         self.versionText.frame = CGRectMake(0, 322, 320, 53);
-                     } completion:^(BOOL success){
-                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:120.0];
-                         [self.view addSubview:self.cancelX];
-                         [self setSubviewVisible:self.shareSubview button:self.shareText];
-                     }];
-    
-}
-
 - (CGRect)frameForCancelButtonWithXOffset:(CGFloat)xPos
 {
     CGRect frame = [[UIScreen mainScreen] applicationFrame];
@@ -234,47 +196,64 @@
                      }];
 }
 
--(void)openAbout:(id)sender {
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
-    [self setColorsToCollapsedStateWithDuration:0.3];
-    [UIView animateWithDuration:0.3 
-                          delay:0.0
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.shareText.frame = CGRectMake(0, -244, 320, 1);
-                         self.settingsText.frame = CGRectMake(0, -244, 320, 1);
-                         self.aboutText.frame = CGRectMake(0, -244, 320, 480);
-                         self.versionText.frame = CGRectMake(0, 322, 320, 53);
-                     } completion:^(BOOL success){
-                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
-                         [self.view addSubview:self.cancelX];
-                         [self setSubviewVisible:self.aboutSubview button:self.aboutText];
-                     }];
+#pragma mark - Option menu methods
+
+- (CGRect)determineFrameForViewWithTag:(NSInteger)tag senderTag:(NSInteger)senderTag {
+    CGRect frameToReturn = CGRectMake(0, 0, 320, 53);
+    
+    if (tag > senderTag) {
+        frameToReturn.origin.y = 480;
+        frameToReturn.size.height = 53;
+    }
+    else {
+        frameToReturn.origin.y = -244;
+    }
+    
+    if (tag < senderTag) {
+        frameToReturn.size.height = 1;
+    }
+    else if (tag == senderTag) {
+        frameToReturn.size.height = 480;
+    }
+    
+    return frameToReturn;
 }
 
--(void)openSettings:(id)sender {
+- (IBAction)openOptionMenu:(id)sender {
+    NSInteger senderTag = [(UIGestureRecognizer *)sender view].tag;
+    
+    CGRect shareTextFrame = [self determineFrameForViewWithTag:[self.shareText tag] senderTag:senderTag];
+    CGRect settingsTextFrame = [self determineFrameForViewWithTag:[self.settingsText tag] senderTag:senderTag];
+    CGRect aboutTextFrame = [self determineFrameForViewWithTag:[self.aboutText tag] senderTag:senderTag];
+    CGRect versionTextFrame = [self determineFrameForViewWithTag:[self.versionText tag] senderTag:senderTag];
     
     [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
     [self setColorsToCollapsedStateWithDuration:0.3];
-    [UIView animateWithDuration:0.3
-                          delay:0.0
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.shareText.frame = CGRectMake(0, -244, 320, 1);
-                         self.settingsText.frame = CGRectMake(0, -244, 320, 1);
-                         self.aboutText.frame = CGRectMake(0, -244, 320, 480);
-                         self.versionText.frame = CGRectMake(0, 322, 320, 53);
-                     } completion:^(BOOL success){
-                         self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
-                         [self.view addSubview:self.cancelX];
-                         [self setSubviewVisible:self.settingsSubview button:self.settingsText];
-                     }];
-
+    
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        self.shareText.frame = shareTextFrame;
+        self.settingsText.frame = settingsTextFrame;
+        self.aboutText.frame = aboutTextFrame;
+        self.versionText.frame = versionTextFrame;
+    } completion:^(BOOL success) {
+        self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
+        
+        switch (senderTag) {
+            case 1: [self setSubviewVisible:self.shareSubview button:self.shareText]; break;
+            case 2: [self setSubviewVisible:self.settingsSubview button:self.settingsText]; break;
+            case 3: [self setSubviewVisible:self.aboutSubview button:self.aboutText]; break;
+        }
+        
+        [self.view addSubview:self.cancelX];
+    }];
 }
 
 - (void)setSubviewVisible:(UIView *)subview button:(UITextView *)textView
 {
     [self disableMenu];
+    
+    CGPoint subviewStartingPoint = CGPointMake(0, 12);
+    subview.frame = CGRectMake(subviewStartingPoint.x, subviewStartingPoint.y, subview.frame.size.width, subview.frame.size.height);
     
     subview.hidden = NO;
     textView.userInteractionEnabled = NO;
