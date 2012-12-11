@@ -44,6 +44,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     int numberOfTouchesInCurrentPanGesture;
     float NUMBER_OF_SLICES;
     BOOL optionsShowing;
+    BOOL creatingNewNote;
     
     NSMutableArray *deletingViews;
     
@@ -111,6 +112,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         _dismissBlock = dismiss;
         _stackVC = stackVC;
         shouldMakeNewNote = shouldDeleteNote = shouldExitStack = NO;
+        creatingNewNote = NO;
         centerNoteFrame = CGRectZero;
     }
     
@@ -178,6 +180,23 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
       
     [self setCurrentNoteToModel];
     
+    [self handleNotifications];
+    
+    NSArray *slicesArray = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"strip-one"], [UIImage imageNamed:@"strip-two"], [UIImage imageNamed:@"strip-three"], nil];
+    
+    for (int i = 0; i < frame.size.height/30; i++) { //have to add the images here because when i tried to add it to deletePan: the images didn't appear correctly. I don't know why
+        UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:[slicesArray objectAtIndex:arc4random()%3]];
+        sliceImageView.frame = CGRectMake(0, (frame.size.height*i)/(frame.size.height/sliceImageView.image.size.height), sliceImageView.image.size.width, sliceImageView.image.size.height);
+        [self.sliceView addSubview:sliceImageView];
+        
+        NUMBER_OF_SLICES = frame.size.height/sliceImageView.image.size.height;
+    }
+    
+    [self.view addSubview:self.sliceView];
+}
+
+- (void)handleNotifications
+{
     [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
         
         CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
@@ -212,26 +231,26 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         _currentTourStep = nil;
     }];
     
-    NSArray *slicesArray = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"strip-one"], [UIImage imageNamed:@"strip-two"], [UIImage imageNamed:@"strip-three"], nil];
-    
-    for (int i = 0; i < frame.size.height/30; i++) { //have to add the images here because when i tried to add it to deletePan: the images didn't appear correctly. I don't know why
-        UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:[slicesArray objectAtIndex:arc4random()%3]];
-        sliceImageView.frame = CGRectMake(0, (frame.size.height*i)/(frame.size.height/sliceImageView.image.size.height), sliceImageView.image.size.width, sliceImageView.image.size.height);
-        [self.sliceView addSubview:sliceImageView];
-        
-        NUMBER_OF_SLICES = frame.size.height/sliceImageView.image.size.height;
-    }
-    
-    [self.view addSubview:self.sliceView];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIDocumentStateChangedNotification object:self.currentNoteViewController.noteDocument queue:nil usingBlock:^(NSNotification *note){
+        NoteDocument *doc = self.currentNoteViewController.noteDocument;
+        NSLog(@"State of doc %i",doc.documentState);
+        NSLog(@"%i",__LINE__);
+    }];
 }
 
 // on first view of note as well as right after creating note by pan getsure
 - (void)setCurrentNoteToModel
 {
+    NoteDocument *previousDoc = self.currentNoteViewController.noteDocument;
+    [previousDoc closeWithCompletionHandler:^(BOOL success){
+        NSLog(@"closed doc %@",previousDoc.fileURL.lastPathComponent);
+    }];
+    
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [self.currentNoteViewController setNoteEntry:[model noteAtSelectedNoteIndex]];
     [model noteDocumentAtIndex:model.selectedNoteIndex completion:^(NoteDocument *doc){
         self.currentNoteViewController.noteDocument = doc;
+        NSLog(@"\n\nOpened and set as current %@",self.currentNoteViewController.noteDocument.fileURL.lastPathComponent);
     }];
 }
 
@@ -248,6 +267,15 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         AppDelegate *del = APP_DELEGATE;
         [del resumeWalkthroughWithView:self.view];
     });
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    
+    [self.currentNoteViewController.noteDocument closeWithCompletionHandler:^(BOOL success){
+        NSLog(@"\nclosed doc with url: %@",self.currentNoteViewController.noteDocument.fileURL.lastPathComponent);
+    }];
 }
 
 - (void)viewDidUnload {
@@ -545,7 +573,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
-    NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
+    //NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
@@ -649,8 +677,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [self handleSingleTouchPanChangedForPoint:point]; //switches note
             
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
-            NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
-            NSLog(@"%@",NSStringFromCGRect(self.currentNoteViewController.view.frame));
+            //NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
+            //NSLog(@"%@",NSStringFromCGRect(self.currentNoteViewController.view.frame));
             // delete the note if panning w/ 2 fingers to the right
             if (_currentGestureState == kShouldDelete) {
                 
@@ -802,16 +830,38 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
 }
 
+#pragma mark Note deletion
+
 - (void)finishDeletingDocument:(CGPoint)point
 {
     // shredding animations for deletion
     NoteDocument *doc = self.currentNoteViewController.noteDocument;
     UIDocumentState state = [doc documentState];
-    NSLog(@"Closing doc %@",doc.fileURL.lastPathComponent);
-    [doc closeWithCompletionHandler:^(BOOL success) {
+
+    NSLog(@"\n\nClosing doc %@, state was %i",doc.fileURL.lastPathComponent,state);
+    //if ([doc hasUnsavedChanges]) {
+
+    NSUndoManager *undoManager = [doc undoManager];
+    [undoManager disableUndoRegistration];
+    //}
+    
+    if (state != UIDocumentStateNormal) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Document not safe to delete" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+        // optional - add more buttons:
+        [alert addButtonWithTitle:@"Ok"];
+        [alert show];
         
+        return;
+    }
+    
+    if (creatingNewNote) {
+        NSLog(@"aha!");
+    }
+    
+    [doc closeWithCompletionHandler:^(BOOL success) {
+        UIDocumentState state = [doc documentState];
         if (success) {
-            NSLog(@"Closed doc %@",doc.fileURL.lastPathComponent);
+            NSLog(@"Closed doc %@, state was %i",doc.fileURL.lastPathComponent,state);
             ApplicationModel *model = [ApplicationModel sharedInstance];
             NoteEntry *toDelete = currentNoteViewController.noteEntry;
             [self setGestureState:kGestureFinished];
@@ -824,13 +874,14 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [model setCurrentNoteIndexToNextPriorToDelete];
             [[ApplicationModel sharedInstance] deleteNoteEntry:toDelete withCompletionBlock:^{
                 //NSLog(@"selectedindex after delete: %i",model.selectedNoteIndex);
-                NSLog(@"\n\ncheck that note is GONE: %@\n\n",toDelete.fileURL.lastPathComponent);
+                //NSLog(@"\n\ncheck that note is GONE: %@\n\n",toDelete.fileURL.lastPathComponent);
             }];
             
             if (model.currentNoteEntries.count==0) {
                 [self dismissViewControllerAnimated:NO completion:nil];
             } else {
                 [self updateNoteDocumentsForIndex:model.selectedNoteIndex];
+                [self setCurrentNoteToModel];
             }
         } else {
             NSLog(@"Couldn't close doc %@",self.currentNoteViewController.noteDocument.fileURL.lastPathComponent);
@@ -1076,23 +1127,29 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     return NO;
 }
 
+#pragma mark New Note
+
 - (void)finishCreatingNewDocument
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    
+    creatingNewNote = YES;
     if (_currentTourStep) {
         int index = [[_currentTourStep objectForKey:@"index"] intValue];
         NSString *text = index == walkThroughStepCreate1 ? @"My first note" : @"";
         text = index == walkThroughStepCreate2 ? @"My second note" : text;
         [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
             if (!doc.adding) {
-                [self updateNoteDocumentsForIndex:0];
+                [self openNewNoteDocument];
+            } else {
+                NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
             }
         }];
     } else {
         [model createNoteWithCompletionBlock:^(NoteEntry *doc){
             if (!doc.adding) {
-                [self updateNoteDocumentsForIndex:0];
+                [self openNewNoteDocument];
+            } else {
+                NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
             }
         }];
     }
@@ -1108,7 +1165,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.delegate indexDidChange];
             
     [self setGestureState:kGestureFinished];
-    //self.currentNoteViewController.view.hidden = NO;
     
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     [UIView animateWithDuration:DURATION
@@ -1121,6 +1177,21 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          [self.view addSubview:self.currentNoteViewController.view];
                          self.currentNoteViewController.view.hidden = NO;
                      }];
+}
+
+- (void)openNewNoteDocument
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model noteDocumentAtIndex:model.selectedNoteIndex completion:^(NoteDocument *doc){
+        self.currentNoteViewController.noteDocument = doc;
+        NSLog(@"\n\nOpened brand new doc and set as current %@",self.currentNoteViewController.noteDocument.fileURL.lastPathComponent);
+        
+        if (creatingNewNote == YES) {
+            creatingNewNote = NO;
+        }
+    }];
+    [self updateNoteDocumentsForIndex:0];
+    [self setCurrentNoteToModel];
 }
 
 - (void)animateCurrentOutToLeft
@@ -1140,8 +1211,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                              
                              int currentIndex = model.selectedNoteIndex;
                              [self updateNoteDocumentsForIndex:currentIndex];
-                             
-                             
+                             [self setCurrentNoteToModel];
                          }
                      }];
 }
@@ -1312,6 +1382,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 - (void)updateNoteDocumentsForIndex:(NSUInteger)index
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
+    int count = [model currentNoteEntries].count;
+    if (count == 0) {
+        [self showNewNote];
+    }
     
     self.previousNoteEntry = [model previousNoteInStackFromIndex:index];
     self.nextNoteEntry = [model nextNoteInStackFromIndex:index];
@@ -1325,6 +1399,18 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [self.delegate indexDidChange];
 }
 
+- (void)showNewNote
+{
+    // don't allow zero notes
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    NSString *text = @"Back to square one. Write something!";
+    [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
+        if (!doc.adding) {
+            [self updateNoteDocumentsForIndex:0];
+            [self setCurrentNoteToModel];
+        }
+    }];
+}
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     

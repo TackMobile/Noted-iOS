@@ -171,7 +171,15 @@ typedef enum {
 - (void)createAndShowFirstNote
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model createNoteWithText:@"Welcome to Noted, a gesture-driven notepad. Learn how to use it by starting the tour below, or skip it if you're feeling adventurous." andCompletionBlock:^(NoteEntry *entry){
+    
+    NSString *text = nil;
+    if (![FileStorageState isFirstUse]) {
+        text = @"Take note";
+    } else {
+        text = @"Welcome to Noted, a gesture-driven notepad. Learn how to use it by starting the tour below, or skip it if you're feeling adventurous.";
+    }
+    
+    [model createNoteWithText:text andCompletionBlock:^(NoteEntry *entry){
         // new note entry should always appear at row 0, right?
         NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -269,15 +277,14 @@ typedef enum {
     NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
     _noteCount = notes.count;
     
-    [self setHasData:_noteCount > 0];
-    if ([FileStorageState isFirstUse] && _noteCount == 0) {
+    if (_noteCount == 0) {
         [self performSelector:@selector(createAndShowFirstNote) withObject:nil afterDelay:0.5];
     }
     
     if (_noteCount>0) {
 
         _lastRowColor = [(NoteEntry *)[notes lastObject] noteColor];
-        //[self.tableView setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
+        [self updateBackgroundColorForScrollview:self.tableView];
         
         if (!_stackViewController) {
             _stackViewController = [[AnimationStackViewController alloc] init];
@@ -596,6 +603,15 @@ typedef enum {
         } 
     }
     
+    [self updateBackgroundColorForScrollview:scrollView];
+    
+    [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
+
+    _scrolling = YES;
+}
+
+- (void)updateBackgroundColorForScrollview:(UIScrollView *)scrollView
+{
     CGPoint offset = scrollView.contentOffset;
     CGRect bounds = scrollView.bounds;
     CGSize size = scrollView.contentSize;
@@ -604,15 +620,11 @@ typedef enum {
     float h = size.height;
     
     float reload_distance = 0;
-    if(y > h + reload_distance) {
+    if(y > h + reload_distance || _noteCount == 1) {
         self.tableView.backgroundColor = _lastRowColor;
     } else {
         self.tableView.backgroundColor = [UIColor colorWithHexString:@"808080"];
     }
-    
-    [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
-
-    _scrolling = YES;
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -635,9 +647,6 @@ typedef enum {
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model createNoteWithCompletionBlock:^(NoteEntry *entry){
-        // new note entry should always appear at row 0, right?
-        //NSIndexPath *freshIndexPath = [NSIndexPath indexPathForRow:0 inSection:kNoteItems];
-        //y[self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:freshIndexPath, nil] withRowAnimation:UITableViewRowAnimationAutomatic];
         
     }];
     _noteCount = model.currentNoteEntries.count;

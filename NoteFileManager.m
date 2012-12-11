@@ -214,17 +214,15 @@
     // check what's there
     [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableArray *noteEntries){
         
-        if (IsEmpty(noteEntries)) {
+        //if (IsEmpty(noteEntries)) {
             // if 1st use, create one
-            if ([FileStorageState isFirstUse]) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:SHOULD_CREATE_NOTE object:nil];
-            }
-            
-        } else {
+            //[[NSNotificationCenter defaultCenter] postNotificationName:SHOULD_CREATE_NOTE object:nil];
+            //[self.delegate shouldAutoCreateNote];
+        //} else {
             
             // show them
             [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:noteEntries waitUntilDone:NO];
-        }
+        //}
         
     } failBlock:^{
         NSLog(@"iCloud load desired but unavailable [%d]",__LINE__);
