@@ -48,8 +48,6 @@
     [super viewDidLoad];
     self.scrollView.contentSize = self.view.frame.size;
     self.view.layer.cornerRadius = 6.0;
-    
-
 }
 
 - (void)viewDidUnload {
@@ -148,7 +146,7 @@
     if (index >= 4) {
         [self.textView setTextColor:[UIColor whiteColor]];
     } else {
-        [self.textView setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        [self.textView setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
     }
     
     self.relativeTime.textColor = self.textView.textColor;

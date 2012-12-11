@@ -109,9 +109,9 @@
 
 -(void)loadOptionColors {
     self.white.backgroundColor = [UIColor colorWithHexString:@"FFFFFF"];
-    self.sky.backgroundColor = [UIColor colorWithHexString:@"C4D5DD"];
-    self.lime.backgroundColor = [UIColor colorWithHexString:@"C1D184"];
-    self.kernal.backgroundColor = [UIColor colorWithHexString:@"DAC361"];
+    self.sky.backgroundColor = [UIColor colorWithHexString:@"B5D2E0"];
+    self.lime.backgroundColor = [UIColor colorWithHexString:@"BCD66A"];
+    self.kernal.backgroundColor = [UIColor colorWithHexString:@"EFD977"];
     self.shadow.backgroundColor = [UIColor colorWithHexString:@"333333"];
     self.tack.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
 }

@@ -14,9 +14,9 @@
     //colorSchemes: white,lime,sky,kernal,shadow,tack
    return [[NSArray alloc] initWithObjects:
            [UIColor colorWithHexString:@"FFFFFF"],
-           [UIColor colorWithHexString:@"E9F2F6"],
-           [UIColor colorWithHexString:@"F3F6E9"],
-           [UIColor colorWithHexString:@"FBF6EA"],
+           [UIColor colorWithHexString:@"B5D2E0"],
+           [UIColor colorWithHexString:@"BCD66A"],
+           [UIColor colorWithHexString:@"EFD977"],
            [UIColor colorWithHexString:@"333333"],
            [UIColor colorWithHexString:@"1A9FEB"],
            nil];
@@ -25,9 +25,9 @@
 +(NSArray*)getOptionsColorSchemes {
     return [[NSArray alloc] initWithObjects:
             [UIColor colorWithHexString:@"FFFFFF"],
-            [UIColor colorWithHexString:@"C4D5DD"],
-            [UIColor colorWithHexString:@"C1D184"],
-            [UIColor colorWithHexString:@"DAC361"],
+            [UIColor colorWithHexString:@"B5D2E0"],
+            [UIColor colorWithHexString:@"BCD66A"],
+            [UIColor colorWithHexString:@"EFD977"],
             [UIColor colorWithHexString:@"333333"],
             [UIColor colorWithHexString:@"1A9FEB"],
             nil];
