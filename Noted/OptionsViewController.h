@@ -31,31 +31,24 @@
 @property (weak, nonatomic) IBOutlet UIView *shadow;
 @property (weak, nonatomic) IBOutlet UIView *tack;
 @property (weak, nonatomic) IBOutlet UIView *optionsSubview;
-@property (weak, nonatomic) IBOutlet UITextView *shareText;
-@property (weak, nonatomic) IBOutlet UITextView *settingsText;
-@property (weak, nonatomic) IBOutlet UITextView *aboutText;
-@property (weak, nonatomic) IBOutlet UITextView *versionText;
+@property (weak, nonatomic) IBOutlet UIView *shareView;
+@property (weak, nonatomic) IBOutlet UIView *settingsView;
+@property (weak, nonatomic) IBOutlet UIView *aboutView;
+@property (weak, nonatomic) IBOutlet UIView *versionView;
+@property (weak, nonatomic) IBOutlet UILabel *versionText;
 @property (strong, nonatomic) IBOutlet UITextView *cancelX;
 @property (strong, nonatomic) IBOutlet UIView *shareSubview;
-@property (weak, nonatomic) IBOutlet UITextView *emailText;
-@property (weak, nonatomic) IBOutlet UITextView *messageText;
-@property (weak, nonatomic) IBOutlet UITextView *tweetText;
 
 @property (strong, nonatomic) IBOutlet UIView *aboutSubview;
 @property (strong, nonatomic) IBOutlet UIView *settingsSubview;
 
 @property (weak, nonatomic) IBOutlet UITextView *builtText;
-@property (weak, nonatomic) IBOutlet UITextView *websiteText;
-@property (weak, nonatomic) IBOutlet UITextView *tackTwitterText;
 @property (nonatomic, retain) id delegate;
 
 - (IBAction)handleKeyboardToggle:(id)sender;
 - (IBAction)handleStatusBarToggle:(id)sender;
 - (IBAction)toggleCloudStorage:(id)sender;
 
-- (IBAction)openAbout:(id)sender;
-- (IBAction)openShare:(id)sender;
-- (IBAction)openSettings:(id)sender;
 - (IBAction)sendEmail:(id)sender;
 - (IBAction)sendSMS:(id)sender;
 - (IBAction)sendTweet:(id)sender;
