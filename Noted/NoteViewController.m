@@ -252,6 +252,7 @@
 {
     if (self.noteDocument.documentState!=UIDocumentStateNormal ) {
         NSLog(@"couldn't save!");
+        return;
     }
     
     NSString *text = [self removeLeadingNewline:aTextView.text];

@@ -28,7 +28,7 @@ typedef void (^DeleteNoteCompletionBlock)();
 
 @property(nonatomic,strong) id<NoteFileManagerDelegate> delegate;
 
-- (void) loadAllNoteEntriesFromPreferredStorage;
+- (void)loadAllNoteEntriesFromPreferredStorage;
 - (NoteEntry *)addNoteNamed:(NSString *)noteName defaultData:(NoteData *)defaultData withCompletionBlock:(CreateNoteCompletionBlock)block;
 - (void)deleteNoteEntry:(NoteEntry *)noteEntry withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
     
