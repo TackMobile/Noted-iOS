@@ -28,7 +28,7 @@
 @synthesize lime;
 @synthesize kernal;
 @synthesize shadow;
-@synthesize tack,optionsSubview,shareText,settingsText,aboutText,versionText,cancelX,shareSubview,emailText,messageText,tweetText,aboutSubview,builtText,websiteText,tackTwitterText;
+@synthesize tack,optionsSubview,shareView,settingsView,aboutView,versionView,cancelX,shareSubview,aboutSubview,builtText;
 @synthesize delegate;
 
 - (void)viewDidLoad
@@ -63,12 +63,11 @@
     //[self debugView:self.view color:[UIColor redColor]];
 }
 
-- (void)setInitialPositionForColors
-{
-    CGRect frame = CGRectMake(0, 74, 320, 163);
-    self.shareSubview.frame = frame;
-    self.aboutSubview.frame = frame;
-    self.settingsSubview.frame = CGRectMake(0, 74, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
+- (void)setInitialPositionForColors {
+    CGPoint initialPosition = CGPointMake(0, 12);
+    self.shareSubview.frame = CGRectMake(initialPosition.x, initialPosition.y, self.shareSubview.frame.size.width, self.shareSubview.frame.size.height);
+    self.aboutSubview.frame = CGRectMake(initialPosition.x, initialPosition.y, self.aboutSubview.frame.size.width, self.aboutSubview.frame.size.height);
+    self.settingsSubview.frame = CGRectMake(initialPosition.x, initialPosition.y, self.settingsSubview.frame.size.width, self.settingsSubview.frame.size.height);
 }
 
 - (void)debugView:(UIView *)view color:(UIColor *)color
@@ -160,20 +159,14 @@
                          self.kernal.frame = CGRectMake(0, 132, 320, 43);
                          self.shadow.frame = CGRectMake(0, 176, 320, 43);
                          self.tack.frame = CGRectMake(0, 220, 320, 43);
-                         self.shareText.frame = CGRectMake(0, 1, 320, 53);
-                         self.settingsText.frame = CGRectMake(0, 54, 320, 53);
-                         self.aboutText.frame = CGRectMake(0, 108, 320, 53);
-                         self.versionText.frame = CGRectMake(0, 162, 320, 53);
+                         self.shareView.frame = CGRectMake(0, 0, 320, 53);
+                         self.settingsView.frame = CGRectMake(0, 54, 320, 53);
+                         self.aboutView.frame = CGRectMake(0, 108, 320, 53);
+                         self.versionView.frame = CGRectMake(0, 162, 320, 53);
                      } completion:^(BOOL success){
                          [self reenableMenu];
                      }];
 
-}
-
-- (CGRect)frameForCancelButtonWithXOffset:(CGFloat)xPos
-{
-    CGRect frame = [[UIScreen mainScreen] applicationFrame];
-    return CGRectMake(10.0, frame.size.height-35.0, 67.0, 35.0);
 }
 
 - (void)setColorsToCollapsedStateWithDuration:(float)duration
@@ -222,41 +215,46 @@
 - (IBAction)openOptionMenu:(id)sender {
     NSInteger senderTag = [(UIGestureRecognizer *)sender view].tag;
     
-    CGRect shareTextFrame = [self determineFrameForViewWithTag:[self.shareText tag] senderTag:senderTag];
-    CGRect settingsTextFrame = [self determineFrameForViewWithTag:[self.settingsText tag] senderTag:senderTag];
-    CGRect aboutTextFrame = [self determineFrameForViewWithTag:[self.aboutText tag] senderTag:senderTag];
-    CGRect versionTextFrame = [self determineFrameForViewWithTag:[self.versionText tag] senderTag:senderTag];
+    CGRect shareViewFrame = [self determineFrameForViewWithTag:[self.shareView tag] senderTag:senderTag];
+    CGRect settingsViewFrame = [self determineFrameForViewWithTag:[self.settingsView tag] senderTag:senderTag];
+    CGRect aboutViewFrame = [self determineFrameForViewWithTag:[self.aboutView tag] senderTag:senderTag];
+    CGRect versionViewFrame = [self determineFrameForViewWithTag:[self.versionView tag] senderTag:senderTag];
     
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
+    switch (senderTag) {
+        case 1: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.shareSubview.frame.size.width, 0) completion:nil]; break;
+        case 2: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.settingsSubview.frame.size.width, 0) completion:nil]; break;
+        case 3: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.aboutSubview.frame.size.width, 0) completion:nil]; break;
+    }
+    
+    //[self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];
     [self setColorsToCollapsedStateWithDuration:0.3];
     
     [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        self.shareText.frame = shareTextFrame;
-        self.settingsText.frame = settingsTextFrame;
-        self.aboutText.frame = aboutTextFrame;
-        self.versionText.frame = versionTextFrame;
+        self.shareView.frame = shareViewFrame;
+        self.settingsView.frame = settingsViewFrame;
+        self.aboutView.frame = aboutViewFrame;
+        self.versionView.frame = versionViewFrame;
     } completion:^(BOOL success) {
-        self.cancelX.frame = [self frameForCancelButtonWithXOffset:200.0];
+        CGRect applicationFrame = [[UIScreen mainScreen] applicationFrame];
+        self.cancelX.frame = CGRectMake(2.0, applicationFrame.size.height - 35.0, 67.0, 35.0);
         
         switch (senderTag) {
-            case 1: [self setSubviewVisible:self.shareSubview button:self.shareText]; break;
-            case 2: [self setSubviewVisible:self.settingsSubview button:self.settingsText]; break;
-            case 3: [self setSubviewVisible:self.aboutSubview button:self.aboutText]; break;
+            case 1: [self setSubviewVisible:self.shareSubview disableButtonView:self.shareView]; break;
+            case 2: [self setSubviewVisible:self.settingsSubview disableButtonView:self.settingsView]; break;
+            case 3: [self setSubviewVisible:self.aboutSubview disableButtonView:self.aboutView]; break;
         }
         
         [self.view addSubview:self.cancelX];
     }];
 }
 
-- (void)setSubviewVisible:(UIView *)subview button:(UITextView *)textView
-{
+- (void)setSubviewVisible:(UIView *)subview disableButtonView:(UIView *)buttonView {
     [self disableMenu];
     
-    CGPoint subviewStartingPoint = CGPointMake(0, 12);
-    subview.frame = CGRectMake(subviewStartingPoint.x, subviewStartingPoint.y, subview.frame.size.width, subview.frame.size.height);
+    NSLog(@"Subview frame %@", NSStringFromCGRect(subview.frame));
     
     subview.hidden = NO;
-    textView.userInteractionEnabled = NO;
+    buttonView.userInteractionEnabled = NO;
     [self.view addSubview:subview];
 }
 
@@ -266,16 +264,16 @@
     self.aboutSubview.hidden = YES;
     self.settingsSubview.hidden = YES;
     
-    self.shareText.userInteractionEnabled = NO;
-    self.aboutText.userInteractionEnabled = NO;
-    self.settingsText.userInteractionEnabled = NO;
+    self.shareView.userInteractionEnabled = NO;
+    self.aboutView.userInteractionEnabled = NO;
+    self.settingsView.userInteractionEnabled = NO;
 }
 
 - (void)reenableMenu
 {
-    self.shareText.userInteractionEnabled = YES;
-    self.aboutText.userInteractionEnabled = YES;
-    self.settingsText.userInteractionEnabled = YES;
+    self.shareView.userInteractionEnabled = YES;
+    self.aboutView.userInteractionEnabled = YES;
+    self.settingsView.userInteractionEnabled = YES;
     
     self.shareSubview.hidden = YES;
     self.aboutSubview.hidden = YES;
