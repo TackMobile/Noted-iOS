@@ -22,6 +22,9 @@
     BOOL _moveLocalToiCloud;
     BOOL _copyiCloudToLocal;
     BOOL _iCloudAvailable;
+    BOOL _deleting;
+    
+    NoteEntry *_deletedNoteEntry;
     
     NSURL *_localRoot;
     NSURL *_iCloudRoot;
@@ -59,6 +62,7 @@ static CloudManager *sharedInstance;
         _moveLocalToiCloud = NO;
         _copyiCloudToLocal = NO;
         _iCloudAvailable = NO;
+        _deleting = NO;
         
         _objects = [[NSMutableArray alloc] init];
         documents = [[NSMutableArray alloc] init];
@@ -108,7 +112,7 @@ static CloudManager *sharedInstance;
     
     documentsReady = NO;
     [documents removeAllObjects];
-    [_objects removeAllObjects];
+    //[_objects removeAllObjects];
     
     [self initializeiCloudAccessWithCompletion:^(BOOL available) {
         
@@ -240,15 +244,15 @@ static CloudManager *sharedInstance;
 - (int)removeEntryWithURL:(NSURL *)fileURL {
     int index = [self indexOfEntryWithFileURL:fileURL];
     
-    NSString *shortStr = [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-15];
+    NSString *shortStr = [fileURL lastPathComponent];
     
-    NSLog(@"%d is count of _objects before delete of %@",_objects.count,fileURL);
-    if (index != -1) {
-        NSLog(@"Removing url at index %d with name %@",index,shortStr);
-        [_objects removeObjectAtIndex:index];
-    } else {
-        NSLog(@"fileUrl not found in list");
-    }
+//    NSLog(@"%d is count of _objects before delete of %@",_objects.count,fileURL);
+//    if (index != -1) {
+//        NSLog(@"Removing url at index %d with name %@",index,shortStr);
+//        [_objects removeObjectAtIndex:index];
+//    } else {
+//        NSLog(@"fileUrl not found in list");
+//    }
     
     if ([documents indexOfObject:fileURL] != NSNotFound){
         [documents removeObject:fileURL];
@@ -302,12 +306,26 @@ static CloudManager *sharedInstance;
              */
             }
             if (!found) {
-                [_objects addObject:entry];
+                if (_deletedNoteEntry) {
+                    if (![_deletedNoteEntry.fileURL isEqual:entry.fileURL]) {
+                        NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
+                        [_objects addObject:entry];
+                    } else {
+                        NSLog(@"Prevented adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
+                    }
+                } else {
+                    NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
+                    [_objects addObject:entry];
+                }
+                
             }
-        }else {
+        } else {
+            if ([_deletedNoteEntry.fileURL.lastPathComponent isEqualToString:entry.fileURL.lastPathComponent]) {
+                NSLog(@"wtf? [%i]",__LINE__);
+            }
+            NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
             [_objects addObject:entry];
         }
-
         
         entry = nil;
         
@@ -322,7 +340,6 @@ static CloudManager *sharedInstance;
         entry.version = version;
         
         //[self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-        
     }
     
 }
@@ -339,12 +356,16 @@ static CloudManager *sharedInstance;
     // Always disable updates while processing results
     [_query disableUpdates];
     
+    if (_deleting) {
+        NSLog(@"preventing processing during deletion");
+        return;
+    }
+    
     for (NSURL *url in documents) {
         NSLog(@"found %@",[self fileURLShorthand:url]);
     }
     
     NSMutableArray *discoveredFiles = [NSMutableArray array];
-    
     
     // The query reports all files found, every time.
     NSArray * queryResults = [_query results];
@@ -355,12 +376,18 @@ static CloudManager *sharedInstance;
         // Don't include hidden files
         [fileURL getResourceValue:&aBool forKey:NSURLIsHiddenKey error:nil];
         if (aBool && ![aBool boolValue]) {
-            NSLog(@"adding %@",[self fileURLShorthand:fileURL]);
+            if (_deletedNoteEntry) {
+                if ([_deletedNoteEntry.fileURL.lastPathComponent isEqualToString:fileURL.lastPathComponent]) {
+                    NSLog(@"Re-adding a just-deleted doc from iCloud! [%i]",__LINE__);
+                }
+            }
+            
+            NSLog(@"adding %@ [%i]",fileURL.lastPathComponent,__LINE__);
             [discoveredFiles addObject:fileURL];
         }
     }
     
-    
+    // documents is an array of strings
     [documents removeAllObjects];
     [documents addObjectsFromArray:discoveredFiles];
     NSLog(@"Found %d iCloud file URLS", documents.count);
@@ -369,10 +396,45 @@ static CloudManager *sharedInstance;
     if ([FileStorageState iCloudOn]) {
         // Remove deleted files
         // Iterate backwards because we need to remove items from the NoteEntries array
+        
+#ifdef DEBUG
+        NSLog(@"Documents:");
+        for (NSURL *url in documents) {
+            NSLog(@"%@",url.lastPathComponent);
+        }
+        NSLog(@"\n\n");
+        
+        NSLog(@"Objects count: %i",_objects.count);
+#endif
+        
+        
+        /*
+         for (int i = documents.count -1; i >= 0; --i) {
+         NSURL *docURL = [documents objectAtIndex:i];
+         NoteEntry *entry = [_objects objectAtIndex:i];
+         NSLog(@"possibly stale/deleted file: %@",entry.fileURL.lastPathComponent);
+         if (![_objects containsObject:docURL]) {
+         [self removeEntryWithURL:entry.fileURL];
+         //[self deleteEntry:entry withCompletion:^(){
+         //  NSLog(@"deleted a doc that was still in iCloud after deleting locally");
+         //}];
+         }
+         }
+         
+         */
+        
         for (int i = _objects.count -1; i >= 0; --i) {
+            if (_deletedNoteEntry) {
+                NSLog(@"Deleted note: %@",_deletedNoteEntry.fileURL.lastPathComponent);
+            }
+            
             NoteEntry *entry = [_objects objectAtIndex:i];
-            if (![documents containsObject:entry.fileURL]) {
-                [self removeEntryWithURL:entry.fileURL];
+            NSLog(@"possibly stale/deleted file: %@",entry.fileURL.lastPathComponent);
+            if ([documents containsObject:_deletedNoteEntry.fileURL]) {
+                [self removeEntryWithURL:_deletedNoteEntry.fileURL];
+                //[self deleteEntry:entry withCompletion:^(){
+                  //  NSLog(@"deleted a doc that was still in iCloud after deleting locally");
+                //}];
             }
         }
         
@@ -434,7 +496,7 @@ static CloudManager *sharedInstance;
     [iCloudFileLoadPromise addCommitments:[NSSet setWithArray:absoluteFileURLs]];
     
     for (NSURL *fileURL in documents) {
-        NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL,__LINE__);
+        NSLog(@"\n\nOpening doc with commitment: %@ [%d]\n\n",fileURL.lastPathComponent,__LINE__);
         [self loadDocAtURL:fileURL promised:YES];
     }
 }
@@ -446,6 +508,12 @@ static CloudManager *sharedInstance;
     // Open doc so we can read metadata
     NoteDocument * savedDocument = [[NoteDocument alloc] initWithFileURL:fileURL];
     //doc.noteEntry.adding = NO;
+    if (_deletedNoteEntry) {
+        if ([savedDocument.fileURL.lastPathComponent isEqualToString:_deletedNoteEntry.fileURL.lastPathComponent]) {
+            NSLog(@"opening the deleted note! [%i]",__LINE__);
+        }
+    }
+    
     [savedDocument openWithCompletionHandler:^(BOOL success) {
         
         // Check status
@@ -526,11 +594,31 @@ static CloudManager *sharedInstance;
     [_query disableUpdates];
     [self stopQuery];
     
+    _deletedNoteEntry = entry;
+    _deleting = YES;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSMetadataQueryDidUpdateNotification object:nil];
     
-    [self removeEntryWithURL:entry.fileURL];
+    NSLog(@"%@",documents);
+    NSLog(@"%@",_objects);
+    
+    int index = [self indexOfEntryWithFileURL:entry.fileURL];
+    
+    if (index != -1) {
+        [_objects removeObjectAtIndex:index];
+    } else {
+        NSLog(@"fileUrl not found in _objects");
+    }
+    
     // Wrap in file coordinator
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        
+        if (![[NSFileManager defaultManager] fileExistsAtPath:entry.fileURL.path])
+        {
+            NSLog(@"Ubiquitous file not found!");
+            //return NO;
+        }
+        
         NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
         [fileCoordinator coordinateWritingItemAtURL:entry.fileURL
                                             options:NSFileCoordinatorWritingForDeleting
@@ -539,15 +627,28 @@ static CloudManager *sharedInstance;
                                              // Simple delete to start
                                              NSError *error;
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
-                                             [fileManager removeItemAtURL:entry.fileURL error:&error];
-                                             NSLog(@"Deleted item at %@",entry.fileURL);
-                                             NSLog(@"Error? %@", error);
+                                             
+                                             BOOL success;
+                                             [fileManager setUbiquitous:NO itemAtURL:entry.fileURL destinationURL:nil error:&error];
+                                             success = [fileManager removeItemAtURL:entry.fileURL error:&error];
+                                             
+                                             if (success) {
+                                                 
+                                                 NSLog(@"Did delete item at %@",entry.fileURL);
+                                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                                     completion();
+                                                 });
+                                             } else {
+                                                 NSLog(@"Failed to delete item at %@",entry.fileURL);
+                                                 if (error) {
+                                                     NSLog(@"error deleting doc: %@",error.localizedDescription);
+                                                 }
+                                             }
+                                             
+                                             _deleting = NO;
                                              [_query enableUpdates];
                                              
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                                 completion();
-                                             });
-                                             
+                                             //[self startQuery];
                                          }];
     });
     
@@ -723,4 +824,56 @@ static CloudManager *sharedInstance;
     }
 }
 
+#pragma mark Retrieving files utils
+
+/*
+ + (BOOL) isLocal: (NSString *) filename
+ 
+ {
+ if (!filename) return NO;
+ NSURL *targetURL = [self localFileURL:filename];
+ if (!targetURL) return NO;
+ return [[NSFileManager defaultManager]
+ fileExistsAtPath:targetURL.path];
+ }
+ 
+ + (BOOL) isUbiquitousData: (NSString *) filename
+ forContainer: (NSString *) container
+ {
+ if (!filename) return NO;
+ NSURL *targetURL = [self ubiquityDataFileURL:filename
+ forContainer:container];
+ if (!targetURL) return NO;
+ return [[NSFileManager defaultManager]
+ fileExistsAtPath:targetURL.path];
+ }
+ 
+ + (BOOL) isUbiquitousDocument: (NSString *) filename
+ forContainer: (NSString *) container
+ {
+ if (!filename) return NO;
+ NSURL *targetURL = [self ubiquityDocumentsFileURL:filename
+ forContainer:container];
+ if (!targetURL) return NO;
+ return [[NSFileManager defaultManager]
+ fileExistsAtPath:targetURL.path];
+ }
+ 
+ + (NSURL *) fileURL: (NSString *) filename
+ forContainer:(NSString *)container
+ {
+ if ([self isLocal:filename])
+ return [self localFileURL:filename];
+ if ([self isUbiquitousDocument:filename
+ forContainer:container])
+ return [self ubiquityDocumentsFileURL:filename
+ forContainer:container];
+ if ([self isUbiquitousData:filename
+ forContainer:container])
+ return [self ubiquityDataFileURL:filename
+ forContainer:container];
+ return nil;
+ }
+ 
+ */
 @end

@@ -48,6 +48,8 @@
     [super viewDidLoad];
     self.scrollView.contentSize = self.view.frame.size;
     self.view.layer.cornerRadius = 6.0;
+    
+
 }
 
 - (void)viewDidUnload {
@@ -101,6 +103,12 @@
     if (_noteEntry != entry) {
         _noteEntry = entry;
         [self updateUIForCurrentEntry];
+#ifdef DEBUG
+        UILabel *fileURLLabel = (UILabel *)[self.view viewWithTag:889];
+        [fileURLLabel setHidden:NO];
+        NSString *url = _noteEntry.fileURL.lastPathComponent;
+        fileURLLabel.text = [url substringToIndex:15];
+#endif
     }
 }
 
@@ -193,10 +201,14 @@
         self.view.backgroundColor = color;
         [self setTextLabelColorsByBGColor:color];
         
-        [self.delegate didUpdateModel];
-        [self.noteDocument updateChangeCount:UIDocumentChangeDone];
+        [self persistChanges];
     }
-    
+}
+
+- (void)persistChanges
+{
+    [self.delegate didUpdateModel];
+    [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
@@ -243,12 +255,13 @@
     }
     
     NSString *text = [self removeLeadingNewline:aTextView.text];
-    
-    [self.noteDocument setText:text];
-    [self.noteEntry setNoteData:self.noteDocument.data];
-    
-    [self.delegate didUpdateModel];
-    [self.noteDocument updateChangeCount:UIDocumentChangeDone];
+    NSString *currentText = self.noteDocument.data.noteText;
+    if (![currentText isEqualToString:text]) {
+        [self.noteDocument setText:text];
+        [self.noteEntry setNoteData:self.noteDocument.data];
+        
+        [self persistChanges];
+    }  
 }
 
 - (BOOL)usingDefaultKeyboard

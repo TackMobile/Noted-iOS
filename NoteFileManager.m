@@ -147,10 +147,26 @@
 }
 
 - (void)deleteNoteEntry:(NoteEntry *)noteEntry  withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock {
-    //TODO
-    //[_query disableUpdates];
     
+    // what's the current state of this doc
+    //[noteEntry ]
+    UIDocumentState state = noteEntry.state;
+    switch (state) {
+        case UIDocumentStateSavingError:
+            NSLog(@"state = UIDocumentStateSavingError prior to delete operation");
+            return;
+            break;
+        case UIDocumentStateEditingDisabled:
+            NSLog(@"state = UIDocumentStateEditingDisabled prior to delete operation");
+            return;
+        case UIDocumentStateNormal:
+            NSLog(@"Safe to delete");
+        default:
+            break;
+    }
+  
     if (noteEntry.adding) {
+        NSLog(@"exited from delete of note because it was adding (!?)");
         return;
     }
     
@@ -181,8 +197,8 @@
                                                  if (completionBlock) {
                                                      completionBlock();
                                                  }
-                                                 //TODO
-                                                 //[_query enableUpdates];
+             
+             
                                              }];
         });    
 

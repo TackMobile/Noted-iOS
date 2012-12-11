@@ -21,11 +21,9 @@
 typedef void(^StorageChoiceCompletionBlock)();
 
 @interface ApplicationModel()
-{
-    BOOL _refreshingiCloudData;
-}
 
 @property (nonatomic, copy) StorageChoiceCompletionBlock storageChosen;
+@property (nonatomic, assign) BOOL refreshing;
 
 @end
 
@@ -44,7 +42,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     if (nil == noteFileManager) {
         noteFileManager = [[NoteFileManager alloc] init];
         noteFileManager.delegate = self;
-        _refreshingiCloudData = NO;
+        //_refreshingiCloudData = NO;
     }
     return noteFileManager;
 }
@@ -93,11 +91,11 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)refreshNotes {
     
-    if (_refreshingiCloudData) {
+     if (self.refreshing) {
         return;
     }
     
-    _refreshingiCloudData = YES;
+    self.refreshing = YES;
     
     void(^refreshBlock)() = ^{
         [self.noteFileManager loadAllNoteEntriesFromPreferredStorage];
@@ -248,6 +246,13 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 }
 
+
+
+- (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
+{
+    return [self init];
+}
+
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion
 {
     NoteData *data = [[NoteData alloc] init];
@@ -265,16 +270,21 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {
+    NSLog(@"Vorher gibt %i model currentNoteEntries %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
+    
     NoteEntry *noteEntry = [self.currentNoteEntries objectAtIndex:index];
     [self deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
+    
+    NSLog(@"Es gibt %i model currentNoteEntries, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
 }
 
 - (void) deleteNoteEntry:(NoteEntry *)noteEntry withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {
-    
+    NSLog(@"Vorher gibt %i noten %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
     [self.currentNoteEntries removeObject:noteEntry];
     [self.noteFileManager deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
   
+    NSLog(@"Es gibt %i noten, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
 }
 
 #pragma mark - Note File Manager Delegate
@@ -282,7 +292,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 - (void) fileManager:(NoteFileManager *)fileManager didLoadNoteEntries:(NSMutableArray *)noteEntries {
     
     self.currentNoteEntries = [NSMutableOrderedSet orderedSetWithArray:noteEntries];
-    _refreshingiCloudData = NO;
+    self.refreshing = NO;
     NSLog(@"currentNoteEntries count: %d",self.currentNoteEntries.count);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNoteListChangedNotification object:nil];

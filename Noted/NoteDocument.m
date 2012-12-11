@@ -151,6 +151,7 @@ NSString *const kDataFilename = @"note.data";
 
 -(void)setText:(NSString *)text {
     if([self.data.noteText isEqual:text]) return;
+    
     NSString *oldText = self.data.noteText;
     self.data.noteText = text;
     [self.undoManager registerUndoWithTarget:self selector:@selector(setText:) object:oldText];

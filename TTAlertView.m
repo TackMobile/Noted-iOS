@@ -291,7 +291,7 @@ static CGFloat const kTTDefaultDialogButtonHeight = 44.0f;
     }
     
     self.buttons = [NSMutableArray array];
-    
+  
     UIButton *cancelButton = [[UIButton alloc] init];
     [cancelButton setBackgroundColor:[UIColor blackColor]];
     [cancelButton addTarget:self action:@selector(cancelButtonAction:) forControlEvents:UIControlEventTouchUpInside];
