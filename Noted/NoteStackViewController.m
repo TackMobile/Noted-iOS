@@ -917,7 +917,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [doc closeWithCompletionHandler:^(BOOL success) {
         UIDocumentState state = [doc documentState];
         if (success) {
-            NSLog(@"Closed doc %@, state was %i",doc.fileURL.lastPathComponent,state);
+            NSLog(@"\n\n\n**************\nClosed & deleted doc:\n%@, state was %i\n*****************\n\n",doc.fileURL.lastPathComponent,state);
             ApplicationModel *model = [ApplicationModel sharedInstance];
             NoteEntry *toDelete = currentNoteViewController.noteEntry;
             [self setGestureState:kGestureFinished];

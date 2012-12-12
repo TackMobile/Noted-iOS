@@ -246,9 +246,9 @@ static CloudManager *sharedInstance;
 
 - (int)removeEntryWithURL:(NSURL *)fileURL {
     
-    NSLog(@"%d is count of _noteEntryObjects before delete of %@",_noteEntryObjects.count,fileURL.lastPathComponent);
+    NSLog(@"%d is count of _documentURLs before delete of %@",_documentURLs.count,fileURL.lastPathComponent);
     
-    int index = [self indexOfEntryWithFileURL:fileURL];
+    int index = [self indexOfNoteEntryObjectWithFileURL:fileURL];
     
     if ([_documentURLs indexOfObject:fileURL] != NSNotFound){
         [_documentURLs removeObject:fileURL];
@@ -256,14 +256,14 @@ static CloudManager *sharedInstance;
         NSLog(@"not found [%i]",__LINE__);
     }
     
-    NSLog(@"%d is count of _noteEntryObjects after delete of %@",_noteEntryObjects.count,fileURL.lastPathComponent);
+    NSLog(@"%d is count of _documentURLs after delete of %@",_documentURLs.count,fileURL.lastPathComponent);
     
     return index;
 }
 
 #pragma mark NoteEntry management methods
 
-- (int)indexOfEntryWithFileURL:(NSURL *)fileURL {
+- (int)indexOfNoteEntryObjectWithFileURL:(NSURL *)fileURL {
     __block int retval = -1;
     [_noteEntryObjects enumerateObjectsUsingBlock:^(NoteEntry * entry, NSUInteger idx, BOOL *stop) {
         if ([entry.fileURL isEqual:fileURL]) {
@@ -276,7 +276,7 @@ static CloudManager *sharedInstance;
 }
 
 - (void)addOrUpdateEntryWithURL:(NSURL *)fileURL noteData:(NoteData *)noteData state:(UIDocumentState)state version:(NSFileVersion *)version {
-    int index = [self indexOfEntryWithFileURL:fileURL];
+    int index = [self indexOfNoteEntryObjectWithFileURL:fileURL];
     
     // Not found, so add
     if (index == -1) {
@@ -406,7 +406,7 @@ static CloudManager *sharedInstance;
         
             
         if (_deletedNoteEntry) {
-            NSLog(@"Deleted note: %@",_deletedNoteEntry.fileURL.lastPathComponent);
+            NSLog(@"\n\nDELETED NOTE: %@\n\n",_deletedNoteEntry.fileURL.lastPathComponent);
         }
 
         for (int i = _documentURLs.count -1; i >= 0; --i) {
@@ -418,13 +418,14 @@ static CloudManager *sharedInstance;
                 if ([entryURL isEqual:_deletedNoteEntry.fileURL]) {
                     [self removeEntryWithURL:entryURL];
                     
-                    int index = [self indexOfEntryWithFileURL:entryURL];
-                    if (index != NSNotFound) {
-                        [self deleteEntry:[_noteEntryObjects objectAtIndex:index] withCompletion:^(){
-                            NSLog(@"re-removed %@",entryURL.lastPathComponent);
+                    //int index = [self indexOfNoteEntryObjectWithFileURL:entryURL];
+                    int64_t delayInSeconds = 60 * 2;
+                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                        [self performDeleteOnURL:entryURL withCompletionHandler:^{
+                            NSLog(@"check re-deletion of document %@",entryURL.lastPathComponent);
                         }];
-                    }
-                
+                    });
                 }
             }
         }
@@ -591,7 +592,7 @@ static CloudManager *sharedInstance;
     NSLog(@"%@",_documentURLs);
     NSLog(@"%@",_noteEntryObjects);
     
-    int index = [self indexOfEntryWithFileURL:entry.fileURL];
+    int index = [self indexOfNoteEntryObjectWithFileURL:entry.fileURL];
     
     if (index != -1) {
         [_noteEntryObjects removeObjectAtIndex:index];
@@ -599,17 +600,67 @@ static CloudManager *sharedInstance;
         NSLog(@"fileUrl not found in _noteEntryObjects");
     }
     
+    [self performDeleteOnURL:entry.fileURL withCompletionHandler:completion];
+    
+    /*
+     // Wrap in file coordinator
+     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+     
+     if (![[NSFileManager defaultManager] fileExistsAtPath:entry.fileURL.path])
+     {
+     NSLog(@"Ubiquitous file not found!");
+     //return NO;
+     }
+     
+     NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+     [fileCoordinator coordinateWritingItemAtURL:entry.fileURL
+     options:NSFileCoordinatorWritingForDeleting
+     error:nil
+     byAccessor:^(NSURL* writingURL) {
+     // Simple delete to start
+     NSError *error;
+     NSFileManager* fileManager = [[NSFileManager alloc] init];
+     
+     BOOL success;
+     [fileManager setUbiquitous:NO itemAtURL:entry.fileURL destinationURL:nil error:&error];
+     success = [fileManager removeItemAtURL:entry.fileURL error:&error];
+     
+     if (success) {
+     
+     NSLog(@"\n\nDid delete item at:\n%@\n\n",entry.fileURL);
+     dispatch_async(dispatch_get_main_queue(), ^{
+     completion();
+     });
+     } else {
+     NSLog(@"Failed to delete item at %@",entry.fileURL);
+     if (error) {
+     NSLog(@"error deleting doc: %@",error.localizedDescription);
+     }
+     }
+     
+     _deleting = NO;
+     [_query enableUpdates];
+     
+     //[self startQuery];
+     }];
+     });
+     
+     
+     */
+}
+
+- (void)performDeleteOnURL:(NSURL *)fileURL withCompletionHandler:(void(^)())completion {
     // Wrap in file coordinator
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         
-        if (![[NSFileManager defaultManager] fileExistsAtPath:entry.fileURL.path])
+        if (![[NSFileManager defaultManager] fileExistsAtPath:fileURL.path])
         {
             NSLog(@"Ubiquitous file not found!");
             //return NO;
         }
         
         NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
-        [fileCoordinator coordinateWritingItemAtURL:entry.fileURL
+        [fileCoordinator coordinateWritingItemAtURL:fileURL
                                             options:NSFileCoordinatorWritingForDeleting
                                               error:nil
                                          byAccessor:^(NSURL* writingURL) {
@@ -618,17 +669,17 @@ static CloudManager *sharedInstance;
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
                                              
                                              BOOL success;
-                                             [fileManager setUbiquitous:NO itemAtURL:entry.fileURL destinationURL:nil error:&error];
-                                             success = [fileManager removeItemAtURL:entry.fileURL error:&error];
+                                             //[fileManager setUbiquitous:NO itemAtURL:fileURL destinationURL:nil error:&error];
+                                             success = [fileManager removeItemAtURL:writingURL error:&error];
                                              
                                              if (success) {
                                                  
-                                                 NSLog(@"\n\nDid delete item at:\n%@\n\n",entry.fileURL);
+                                                 NSLog(@"\n\nDid delete item at:\n%@\n\n",writingURL);
                                                  dispatch_async(dispatch_get_main_queue(), ^{
                                                      completion();
                                                  });
                                              } else {
-                                                 NSLog(@"Failed to delete item at %@",entry.fileURL);
+                                                 NSLog(@"Failed to delete item at %@",writingURL);
                                                  if (error) {
                                                      NSLog(@"error deleting doc: %@",error.localizedDescription);
                                                  }
@@ -636,13 +687,10 @@ static CloudManager *sharedInstance;
                                              
                                              _deleting = NO;
                                              [_query enableUpdates];
-                                             
-                                             //[self startQuery];
                                          }];
     });
-    
-}
 
+}
 
 - (void)iCloudToLocalImpl {
     
