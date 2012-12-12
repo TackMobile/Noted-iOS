@@ -63,6 +63,9 @@ typedef void (^TTAlertViewActionHandler)(NSInteger index);
 
 #pragma mark - TTAlertView methods
 
+// Set the background color for the specified button if an image is overkill.
+- (void)setButtonBackgroundColor:(UIColor *)color forButtonAtIndex:(NSUInteger)index;
+
 /**
  * Set the background image for the button at a given index.
  * This is intended to be used with the button title text and a resizable image.

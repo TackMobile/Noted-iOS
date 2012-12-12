@@ -140,16 +140,19 @@
 - (void)setTextLabelColorsByBGColor:(UIColor *)color
 {
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
-    if (index==NSNotFound) {
+    if (index == NSNotFound) {
         index = 0;
     }
     if (index >= 4) {
         [self.textView setTextColor:[UIColor whiteColor]];
+        [self.relativeTime setTextColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
+        [self.optionsButton setImage:[UIImage imageNamed:@"menu-icon-white"] forState:UIControlStateNormal];
     } else {
-        [self.textView setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
+        [self.textView setTextColor:[UIColor colorWithHexString:@"333333"]];
+        [self.relativeTime setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
+        [self.optionsButton setImage:[UIImage imageNamed:@"menu-icon-grey"] forState:UIControlStateNormal];
     }
     
-    self.relativeTime.textColor = self.textView.textColor;
     self.optionsDot.textColor = self.textView.textColor;
     
     [self setOptionsDotForBGColor];

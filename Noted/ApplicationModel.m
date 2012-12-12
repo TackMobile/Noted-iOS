@@ -119,11 +119,24 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     }
 }
 
-- (void)promptForPreferredStorageWithCompletion:(void(^)())completionBlock
-{
+- (void)promptForPreferredStorageWithCompletion:(void(^)())completionBlock {
+    // old title: iCloud is Available
+    // old message: Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web.
+    // old cancel title: Later
+    // old other button title: Use iCloud
+    
     _storageChosen = completionBlock;
-    TTAlertView *alertCustom = [[TTAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." delegate:self cancelButtonTitle:@"Later" otherButtonTitles:@"Use iCloud", nil];
+    TTAlertView *alertCustom = [[TTAlertView alloc] initWithTitle:@"iCloud Sync" message:@"Would you like to sync the notes you create in Noted with iCloud?" delegate:self cancelButtonTitle:@"Not Now" otherButtonTitles:@"Yes", nil];
     [alertCustom.containerView setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
+    [alertCustom.backgroundView setBackgroundColor:[UIColor whiteColor]];
+    [alertCustom.titleLabel setTextColor:[UIColor whiteColor]];
+    [alertCustom.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Bold" size:16]];
+    [alertCustom.messageLabel setTextColor:[UIColor whiteColor]];
+    [alertCustom.messageLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:16]];
+    
+    [alertCustom setButtonBackgroundColor:[UIColor colorWithHexString:@"008AD0"] forButtonAtIndex:0];
+    [alertCustom setButtonBackgroundColor:[UIColor colorWithHexString:@"008AD0"] forButtonAtIndex:1];
+    
     [alertCustom show];
     
     /*
