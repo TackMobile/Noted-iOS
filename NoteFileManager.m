@@ -29,7 +29,7 @@
 @synthesize delegate;
 
 - (id) init {
-    if (self == [super init]) {
+    if (self = [super init]) {
         NSArray *paths = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
         localDocumentRoot = [paths objectAtIndex:0];
         currentDocumentRoot = localDocumentRoot;

@@ -503,7 +503,7 @@ static const float  kCellHeight             = 66.0;
     
     float diff = -(startY-destY);
     diff = diff*_pinchPercentComplete;
-    CGFloat newY = startY;
+    CGFloat newY;
     
     UITextView *textView = [self makeFullTextForStackItem:item];
     [textView setHidden:YES];
@@ -880,9 +880,11 @@ static const float  kCellHeight             = 66.0;
 
 - (float)finalYOriginForCurrentNote
 {
-    float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
-    finalY = _centerNoteDestinationFrame.origin.y;
-    return finalY;
+    //float finalY = (self.view.bounds.size.height-kCellHeight)*0.5;
+    //finalY = _centerNoteDestinationFrame.origin.y;
+    //return finalY;
+    
+    return _centerNoteDestinationFrame.origin.y;
 }
  
 

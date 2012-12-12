@@ -60,7 +60,7 @@ static CloudManager *sharedInstance;
 
 - (id)init
 {
-    if (self == [super init]) {
+    if (self = [super init]) {
         documentsReady = NO;
         _moveLocalToiCloud = NO;
         _copyiCloudToLocal = NO;

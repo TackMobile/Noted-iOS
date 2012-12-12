@@ -445,6 +445,7 @@ typedef enum {
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
     NoteEntryCell *noteEntryCell = (NoteEntryCell *)cell;
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
@@ -469,20 +470,21 @@ typedef enum {
         [noteEntryCell setSubviewsBgColor:_lastRowColor];
     }
     
-    /*
-     int prevIndex = indexPath.row-1;
-     if (prevIndex>=0) {
-     NoteEntry *previous = [model.currentNoteEntries objectAtIndex:prevIndex];
-     [noteEntryCell setCornerColorsWithPrevNoteEntry:previous.noteColor];
-     } else {
-     [noteEntryCell setCornerColorsWithPrevNoteEntry:[UIColor colorWithHexString:@"808080"]];
-     }
-     */
-    
-    if (indexPath.row==0) {
-        [self willDisplayLastRowCell:cell atIndexPath:indexPath];
-        NoteEntryCell *noteEntryCell = (NoteEntryCell *)cell;
-        [noteEntryCell roundCorners];
+    if (indexPath.row == _noteCount - 1) {
+        // Create a CGSize variable that represents the MAXIMUM size the label can be.
+        CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
+        
+        //NSString *noteText = @"This is a test string. I just want to see if this damn thing will actually calculate the way it is supposed to.";
+        NSString *actualNoteText = noteEntry.title;
+        
+        // Create a CGSize variable that represents 
+        CGSize expectedLabelSize = [actualNoteText sizeWithFont:noteEntryCell.subtitleLabel.font constrainedToSize:maximumLabelSize lineBreakMode:noteEntryCell.subtitleLabel.lineBreakMode];
+        
+        CGRect updatedFrame = [noteEntryCell.subtitleLabel frame];
+        updatedFrame.size.height = expectedLabelSize.height;
+        
+        [noteEntryCell.subtitleLabel setNumberOfLines:0];
+        [noteEntryCell.subtitleLabel setFrame:updatedFrame];
     }
 }
 

@@ -590,8 +590,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     CGPoint velocity = [recognizer velocityInView:self.view];
     //NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
     //NSLog(@"hidden: %s, frame: %@",self.nextNoteViewController.view.hidden ? "yes" : "no",NSStringFromCGRect(self.nextNoteViewController.view.frame));
-    CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
-    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+    //CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
+    //CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
     //NSLog(@"gesture state %i",_currentGestureState);
     
@@ -1673,10 +1673,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          CGRect newFrame = keyboard.frame;
-                         CGFloat newY = CGRectGetMaxY(keyboard.window.frame);
+                         //CGFloat newY = CGRectGetMaxY(keyboard.window.frame); // unused variable
                          newFrame.origin.y = keyboard.window.frame.size.height;
                          [keyboard setFrame: newFrame];
-                         CGRect aFrame = self.view.frame;
+                         //CGRect aFrame = self.view.frame; // unused variable
                          //self.currentNoteViewController.textView.frame = self.view.frame;
 
                      }

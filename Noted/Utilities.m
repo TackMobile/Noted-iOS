@@ -105,7 +105,7 @@
     int totalNowDays = floorf(365.0*nowYear) + floorf(nowYear/4.0) - floorf(nowYear/100.0) + floorf(nowYear/400.0) + nowDay + floorf((153*nowMonth+8)/5);
     
     int daysAgo = totalNowDays - totalDays;
-    NSString *dateString = [NSString alloc];
+    NSString *dateString;
     
     if (daysAgo == 0) {
         dateString = [NSString stringWithFormat:@"Today"];

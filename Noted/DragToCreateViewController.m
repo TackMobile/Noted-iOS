@@ -88,8 +88,8 @@
     if (!_newNote) {
         NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
         _newNote = (NoteEntryCell *)[topLevelObjects lastObject];
-        UIColor *tempColor = [UIColor colorWithHexString:@"AAAAAA"];
-        _newNote.relativeTimeText.textColor = tempColor;
+        UIColor *tempTimeColor = [UIColor colorWithWhite:0.2 alpha:0.5];
+        _newNote.relativeTimeText.textColor = tempTimeColor;
         _newNote.subtitleLabel.numberOfLines = 0;
         [_newNote.subtitleLabel setText:@""];
         [_newNote.subtitleLabel sizeToFit];

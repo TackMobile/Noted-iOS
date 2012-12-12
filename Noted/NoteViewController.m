@@ -179,7 +179,7 @@
 
 + (UIFont *)optionsDotFontForColor:(UIColor *)color
 {
-    UIFont *font = [UIFont systemFontOfSize:10];
+    UIFont *font;
     if ([UIColor isWhiteColor:color] || [UIColor isShadowColor:color]) {
         font = [UIFont systemFontOfSize:10];
     } else {
