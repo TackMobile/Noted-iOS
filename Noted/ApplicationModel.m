@@ -189,6 +189,11 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     assert(index <= count);
     assert(index >= 0);
     NSInteger previousIndex = (index == 0) ? count - 1 : index - 1;
+    
+    if (previousIndex > count || previousIndex < 0) {
+        return nil;
+    }
+    
     return [self noteAtIndex:previousIndex];
 }
 
