@@ -34,6 +34,7 @@ static const int NEXT_DIRECTION = 0;
 static const int PREVIOUS_DIRECTION = 1;
 static const float DURATION = 0.3;
 static const float FLIP_VELOCITY_THRESHOLD = 500;
+static const float CREATE_NEW_VELOCITY_THRESHOLD = 125;
 
 static const float kCornerRadius = 6.0;
 static const float kSectionZeroHeight = 44.0;
@@ -587,29 +588,28 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
     CGPoint point = [recognizer translationInView:self.view];
     CGPoint velocity = [recognizer velocityInView:self.view];
-    NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
-    NSLog(@"hidden: %s, frame: %@",self.nextNoteViewController.view.hidden ? "yes" : "no",NSStringFromCGRect(self.nextNoteViewController.view.frame));
+    //NSLog(@"velocity %@",NSStringFromCGPoint(velocity));
+    //NSLog(@"hidden: %s, frame: %@",self.nextNoteViewController.view.hidden ? "yes" : "no",NSStringFromCGRect(self.nextNoteViewController.view.frame));
     CGRect nextNoteFrame = self.nextNoteViewController.view.frame;
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
     
-    NSLog(@"gesture state %i",_currentGestureState);
+    //NSLog(@"gesture state %i",_currentGestureState);
     
     if (self.currentNoteViewController.view.frame.origin.x < 0) {
         self.optionsViewController.view.hidden = YES;
     }
     
-    if (self.currentNoteViewController.textView.isDragging) { //prevents accidental switching of note when user is scrolling current note
-        return;
-    }
+    //if (self.currentNoteViewController.textView.isDragging) { //prevents accidental switching of note when user is scrolling current note
+    //    return;
+    //}
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-                
+        self.currentNoteViewController.textView.scrollEnabled = NO;
         numberOfTouchesInCurrentPanGesture = recognizer.numberOfTouches;
         
         if (numberOfTouchesInCurrentPanGesture == 1) { //switches note
             
             if ([self wantsToCycleWithVelocity:velocity]) {
-                NSLog(@"cycle 'em");
                 
                  [self endTouchDemoAnimation];
                  [self setGestureState:kCycle];
@@ -625,7 +625,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 [self.view addSubview:self.nextNoteViewController.view];
                 self.nextNoteViewController.view.hidden = NO;
             } else {
-                NSLog(@"no gesture captured for x %f y %f",velocity.x,velocity.y);
+                NSLog(@"\n\nNo gesture captured for velocity %@\n\n",NSStringFromCGPoint(velocity));
             }
             
         } else if (numberOfTouchesInCurrentPanGesture >= 2) { //two finger delete
@@ -634,8 +634,32 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 [self setGestureState:kShouldDelete];
                 self.currentNoteViewController.textView.scrollEnabled = NO;
                 [self.view bringSubviewToFront:self.sliceView];
-                
             } 
+        }
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
+        
+        if (numberOfTouchesInCurrentPanGesture == 1) {
+            if (_currentGestureState == kCycle) {
+                [self handleSingleTouchPanChangedForPoint:point]; //switches note
+            } else if (_currentGestureState == kShouldCreateNew) {
+                // move next document in from the far right, on top
+                [self updatePositionOfNextDocumentToPoint:point];
+            }
+        } else if (numberOfTouchesInCurrentPanGesture == 2) {
+            //NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
+            //NSLog(@"%@",NSStringFromCGRect(self.currentNoteViewController.view.frame));
+            // delete the note if panning w/ 2 fingers to the right
+            if (_currentGestureState == kShouldDelete) {
+                float newX = 0.0;
+                if (velocity.x > 0.0) {
+                    newX = point.x - self.view.frame.size.width;
+                } else if (velocity.x < 0.0) {
+                    newX = self.view.frame.size.width + point.x;
+                }
+                
+                self.sliceView.frame = CGRectMake(newX, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
+                
+            }
         }
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         
@@ -645,21 +669,21 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             if (_currentGestureState == kCycle) { //if the user ended their one finger pan gesture
                 [self handleSingleTouchPanEndedForVelocity:velocity]; //either changes the note to the next note or animates and "snaps" back the current note depending on whether 1. there's another note in the stack or 2. the user panned far enough on the screen or not
             } else if (_currentGestureState == kShouldCreateNew) {
-                NSLog(@"%@",NSStringFromCGRect(nextNoteFrame));
-                NSLog(@"if (%f < %f || %i < %f) then should cancel",CGRectGetMaxY(nextNoteFrame),viewFrame.size.height/2,abs(velocity.y),FLIP_VELOCITY_THRESHOLD/4);
-                if (CGRectGetMaxY(nextNoteFrame) < viewFrame.size.height/2 || abs(velocity.y) < FLIP_VELOCITY_THRESHOLD/4) { //midpoint not working
+                //NSLog(@"%@",NSStringFromCGRect(nextNoteFrame));
+                //NSLog(@"if (%f < %f || %i < %f) then should cancel",CGRectGetMaxY(nextNoteFrame),viewFrame.size.height/2,abs(velocity.y),FLIP_VELOCITY_THRESHOLD/4);
+                if ([self shouldCancelForPoint:point velocity:velocity]) { //midpoint not working
                     [self setGestureState:kGestureFinished];
                     [self snapBackNextNote];
                     // undo the dummy placeholder data
-                    
+                    //NSLog(@"CANCELED NEW WITH velocity %@",NSStringFromCGPoint(velocity));
                 } else {
                     
-                    [self finishCreatingNewDocument];
+                    [self finishCreatingNewDocumentWithVelocity:velocity];
                 }
             }
         }
         
-        if (numberOfTouchesInCurrentPanGesture >= 2) {
+        if (numberOfTouchesInCurrentPanGesture == 2) {
             
             if (_currentGestureState == kShouldDelete) { //if the user panned from left to right to delete
                 BOOL shouldCancel = NO;
@@ -693,16 +717,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                     [UIView animateWithDuration:0.5
                                      animations:^(void){
                                          
-                                         /*
-                                          float newX = 0.0;
-                                          if (velocity.x > 0) {
-                                          newX = 0.0;
-                                          } else if (velocity.x < 0) {
-                                          newX = 320.0;
-                                          }
-                                          */
-                                         
-                                         self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
+                                        self.sliceView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height); //complete the animation to "slice" the whole note
                                      }completion:^(BOOL finished){
                                          UIGraphicsBeginImageContext(CGSizeMake(self.view.frame.size.width, self.view.frame.size.height));
                                          CGContextRef context = UIGraphicsGetCurrentContext();
@@ -718,34 +733,23 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 }
             }
         }
-    } else if (recognizer.state == UIGestureRecognizerStateChanged) { //this handles the drag animation
-        
-        if (numberOfTouchesInCurrentPanGesture == 1) {
-            if (_currentGestureState == kCycle) {
-                [self handleSingleTouchPanChangedForPoint:point]; //switches note
-            } else if (_currentGestureState == kShouldCreateNew) {
-                // move next document in from the far right, on top
-                [self updatePositionOfNextDocumentToPoint:point];
-            }
-        } else if (numberOfTouchesInCurrentPanGesture == 2) {
-            //NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
-            //NSLog(@"%@",NSStringFromCGRect(self.currentNoteViewController.view.frame));
-            // delete the note if panning w/ 2 fingers to the right
-            if (_currentGestureState == kShouldDelete) {
-                float newX = 0.0;
-                if (velocity.x > 0.0) {
-                    newX = point.x - self.view.frame.size.width;
-                } else if (velocity.x < 0.0) {
-                    newX = self.view.frame.size.width + point.x;
-                }
-                
-                self.sliceView.frame = CGRectMake(newX, 0, self.view.frame.size.width, self.view.frame.size.height); //move the self.sliceView UIView with the slice Images to wherever the fingers are dragged
-
-            }
-        }
     }
 }
 
+- (BOOL)shouldCancelForPoint:(CGPoint)point velocity:(CGPoint)velocity
+{
+    BOOL shouldCancel = YES;
+    CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+    if (point.y < viewFrame.size.height/2) {
+        if (abs(velocity.y) > CREATE_NEW_VELOCITY_THRESHOLD) {
+            shouldCancel = NO;
+        }
+    } else {
+        shouldCancel = NO;
+    }
+
+    return shouldCancel;
+}
 
 /*
  -(void)deletePan:(UIPanGestureRecognizer *)gesture{ //animation for deleting the note with a two finger pan
@@ -1181,45 +1185,22 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 
 #pragma mark New Note
 
-- (void)finishCreatingNewDocument
+- (void)finishCreatingNewDocumentWithVelocity:(CGPoint)velocity
 {
-    ApplicationModel *model = [ApplicationModel sharedInstance];
     creatingNewNote = YES;
-    if (_currentTourStep) {
-        int index = [[_currentTourStep objectForKey:@"index"] intValue];
-        NSString *text = index == walkThroughStepCreate1 ? @"My first note" : @"";
-        text = index == walkThroughStepCreate2 ? @"My second note" : text;
-        [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
-            if (!doc.adding) {
-                [self openNewNoteDocument];
-            } else {
-                NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
-            }
-        }];
-    } else {
-        [model createNoteWithCompletionBlock:^(NoteEntry *doc){
-            if (!doc.adding) {
-                [self openNewNoteDocument];
-            } else {
-                NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
-            }
-        }];
-    }
-    
-    if (model.currentNoteEntries.count == 2) {
-        [self walkThroughStepCheck:walkThroughStepCreate1];
-    } else if (model.currentNoteEntries.count == 3) {
-        [self walkThroughStepCheck:walkThroughStepCreate2];
-    }
-    
+    ApplicationModel *model = [ApplicationModel sharedInstance];
     [model setSelectedNoteIndex:0];
     
-    [self.delegate indexDidChange];
-            
-    [self setGestureState:kGestureFinished];
-    
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-    [UIView animateWithDuration:DURATION
+    CGRect currentFrame = self.nextNoteViewController.view.frame;
+    CGFloat velocityY = velocity.y;
+    CGFloat pointsY = abs(currentFrame.origin.y);
+    NSTimeInterval duration = pointsY / velocityY;
+    if (duration < 0.0) {
+        duration = DURATION;
+    }
+    
+    [UIView animateWithDuration:duration
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
@@ -1229,6 +1210,49 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                          [self.view addSubview:self.currentNoteViewController.view];
                          self.currentNoteViewController.view.hidden = NO;
                      }];
+    
+    dispatch_queue_t concurrentQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(concurrentQueue, ^{
+        
+        dispatch_sync(concurrentQueue, ^{
+
+            if (_currentTourStep) {
+                int index = [[_currentTourStep objectForKey:@"index"] intValue];
+                NSString *text = index == walkThroughStepCreate1 ? @"My first note" : @"";
+                text = index == walkThroughStepCreate2 ? @"My second note" : text;
+                [model createNoteWithText:text andCompletionBlock:^(NoteEntry *doc){
+                    if (!doc.adding) {
+                        [self openNewNoteDocument];
+                    } else {
+                        NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
+                    }
+                }];
+            } else {
+                [model createNoteWithCompletionBlock:^(NoteEntry *doc){
+                    if (!doc.adding) {
+                        [self openNewNoteDocument];
+                    } else {
+                        NSLog(@"note as adding, did not update UI! [%i]",__LINE__);
+                    }
+                }];
+            }
+
+        });
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+
+            if (model.currentNoteEntries.count == 2) {
+                [self walkThroughStepCheck:walkThroughStepCreate1];
+            } else if (model.currentNoteEntries.count == 3) {
+                [self walkThroughStepCheck:walkThroughStepCreate2];
+            }
+            
+            [self.delegate indexDidChange];
+            [self setGestureState:kGestureFinished];
+        });
+        
+    });
+
 }
 
 - (void)openNewNoteDocument
@@ -1298,8 +1322,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NSLog(@"offset: %f",offset);
     float newYLoc = offset-height;
     NSLog(@"new Y: %f",newYLoc);
-    if (newYLoc>height) {
-        newYLoc = height;
+    if (newYLoc>0.0) {
+        newYLoc = 0.0;
     }
     
     CGRect newFrame = CGRectMake(0.0, newYLoc, frame.size.width, frame.size.height);
