@@ -456,11 +456,11 @@ typedef enum {
     }
     if (index >= 4) {
         [noteEntryCell.subtitleLabel setTextColor:[UIColor whiteColor]];
+        [noteEntryCell.relativeTimeText setTextColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
     } else {
-        [noteEntryCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        [noteEntryCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"333333"]];
+        [noteEntryCell.relativeTimeText setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
     }
-
-    noteEntryCell.relativeTimeText.textColor = noteEntryCell.subtitleLabel.textColor;
     
     UIView *shadow = [cell viewWithTag:kShadowViewTag];
 

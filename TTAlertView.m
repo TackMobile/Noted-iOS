@@ -220,6 +220,10 @@ static CGFloat const kTTDefaultDialogButtonHeight = 44.0f;
     [self.containerView setImage:image];
 }
 
+- (void)setButtonBackgroundColor:(UIColor *)color forButtonAtIndex:(NSUInteger)index {
+    [(UIButton *)[self.buttons objectAtIndex:index] setBackgroundColor:color];
+}
+
 - (void)setButtonBackgroundImage:(UIImage *)image forState:(UIControlState)state atIndex:(NSUInteger)index
 {
     [(UIButton *)[self.buttons objectAtIndex:index] setBackgroundImage:image forState:state];
