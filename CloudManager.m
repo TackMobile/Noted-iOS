@@ -13,6 +13,8 @@
 #import "FileStorageState.h"
 #import "TKPromise.h"
 
+NSString *const kDeletedNotesArray = @"deletedNotesArray";
+
 @interface CloudManager()
 {
     NSMetadataQuery * _query;
@@ -303,25 +305,18 @@ static CloudManager *sharedInstance;
              */
             }
             if (!found) {
-                if (_deletedNoteEntry) {
-                    if (![_deletedNoteEntry.fileURL isEqual:entry.fileURL]) {
-                        NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
-                        [_noteEntryObjects addObject:entry];
-                    } else {
-                        NSLog(@"Prevented adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
-                    }
-                } else {
+                if (![self deletedNotesContainsNoteURL:entry.fileURL]) {
                     NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
                     [_noteEntryObjects addObject:entry];
                 }
-                
             }
         } else {
-            if ([_deletedNoteEntry.fileURL.lastPathComponent isEqualToString:entry.fileURL.lastPathComponent]) {
-                NSLog(@"wtf? [%i]",__LINE__);
+            
+            
+            if (![self deletedNotesContainsNoteURL:entry.fileURL]) {
+                NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
+                [_noteEntryObjects addObject:entry];
             }
-            NSLog(@"adding %@ [%i]",entry.fileURL.lastPathComponent,__LINE__);
-            [_noteEntryObjects addObject:entry];
         }
         
         entry = nil;
@@ -346,6 +341,55 @@ static CloudManager *sharedInstance;
 - (NSString *)fileURLShorthand:(NSURL *)fileURL
 {
     return [fileURL.absoluteString substringFromIndex:fileURL.absoluteString.length-10];
+}
+
+
+- (NSArray *)deletedNotes
+{
+    NSArray *deletedNotesURLS = [[NSUserDefaults standardUserDefaults] objectForKey:kDeletedNotesArray];
+    if (deletedNotesURLS) {
+        return deletedNotesURLS;
+    }
+    
+    return nil;
+}
+
+- (void)saveDeletedNoteURL:(NSURL *)url
+{
+    NSMutableArray *deletedNotesURLS = [[[NSUserDefaults standardUserDefaults] objectForKey:kDeletedNotesArray] mutableCopy];
+    if (!deletedNotesURLS) {
+        deletedNotesURLS = [[NSMutableArray alloc] init];
+    }
+    
+    [deletedNotesURLS addObject:url.absoluteString];
+    
+    [[NSUserDefaults standardUserDefaults] setObject:deletedNotesURLS forKey:kDeletedNotesArray];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)removeDeletedNoteURL:(NSURL *)url
+{
+    NSMutableArray *deletedNotesURLS = [[[NSUserDefaults standardUserDefaults] objectForKey:kDeletedNotesArray] mutableCopy];
+    if (deletedNotesURLS) {
+        if ([deletedNotesURLS containsObject:url.absoluteString]) {
+            [deletedNotesURLS removeObject:url.absoluteString];
+        }
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setObject:deletedNotesURLS forKey:kDeletedNotesArray];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)deletedNotesContainsNoteURL:(NSURL *)url
+{
+    NSMutableArray *deletedNotesURLS = [[[NSUserDefaults standardUserDefaults] objectForKey:kDeletedNotesArray] mutableCopy];
+    if (deletedNotesURLS) {
+        if ([deletedNotesURLS containsObject:url.absoluteString]) {
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (void)processFiles:(NSNotification *)notification
@@ -404,30 +448,40 @@ static CloudManager *sharedInstance;
         NSLog(@"Objects count: %i",_noteEntryObjects.count);
 #endif
         
-            
-        if (_deletedNoteEntry) {
-            NSLog(@"\n\nDELETED NOTE: %@\n\n",_deletedNoteEntry.fileURL.lastPathComponent);
-        }
-
+        NSArray *deletedURLS = [self deletedNotes];
+        BOOL checkDeleted = !IsEmpty(deletedURLS);
+                    
         for (int i = _documentURLs.count -1; i >= 0; --i) {
             
             NSURL *entryURL = [_documentURLs objectAtIndex:i];
-            NSLog(@"possibly stale/deleted file: %@",entryURL.lastPathComponent);
             
-            if (_deletedNoteEntry){
-                if ([entryURL isEqual:_deletedNoteEntry.fileURL]) {
-                    [self removeEntryWithURL:entryURL];
+            if (checkDeleted) {
+                for (NSString *absPath in deletedURLS) {
+                    NSURL *fileURL = [NSURL URLWithString:absPath];
                     
-                    //int index = [self indexOfNoteEntryObjectWithFileURL:entryURL];
-                    int64_t delayInSeconds = 60 * 2;
-                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                        [self performDeleteOnURL:entryURL withCompletionHandler:^{
-                            NSLog(@"check re-deletion of document %@",entryURL.lastPathComponent);
-                        }];
-                    });
+                    if ([entryURL isEqual:fileURL]) {
+                        
+                        NSLog(@"Possibly stale/deleted file: %@",entryURL.lastPathComponent);
+                        [self removeEntryWithURL:entryURL];
+                        
+                        if ([[NSFileManager defaultManager] fileExistsAtPath:fileURL.path]) {
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+                                [self performDeleteOnURL:entryURL withCompletionHandler:^{
+                                    NSLog(@"check re-deletion of document %@",entryURL.lastPathComponent);
+                                    [self removeDeletedNoteURL:entryURL];
+                                }];
+                            });
+                        } else {
+                            NSLog(@"Removing url from deleted docs that wasn't found in iCloud");
+                            
+                            [self removeDeletedNoteURL:entryURL];
+                        }
+                        
+                        break;
+                    }
                 }
             }
+         
         }
         
         if (_documentURLs.count==0) {
@@ -586,7 +640,9 @@ static CloudManager *sharedInstance;
     //[_query disableUpdates];
     //[self stopQuery];
     
-    _deletedNoteEntry = entry;
+    [self saveDeletedNoteURL:entry.fileURL];
+    
+    //_deletedNoteEntry = entry;
     _deleting = YES;
     
     NSLog(@"%@",_documentURLs);
