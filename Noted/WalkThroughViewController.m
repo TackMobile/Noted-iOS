@@ -67,7 +67,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
     
     _steps = [NSArray arrayWithObjects:
               [NSDictionary dictionaryWithObjectsAndKeys:
-               @"Use a two-finger swipe from the right of the note area to create a new note",kStepDescription,
+               @"Pull down to create a new note",kStepDescription,
                [NSNumber numberWithInt:walkThroughStepCreate1],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Awesome! You amaze me. Try creating another note.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStepCreate2],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
@@ -77,7 +77,7 @@ NSString *const kWalkThroughStepComplete =  @"stepCompleteNotification";
                [NSNumber numberWithInt:walkThroughStepDelete],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Pinch the note to bring all your notes into view.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStepGoToList],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],
-              [NSDictionary dictionaryWithObjectsAndKeys:@"Pulling down on the list is another way to create a note.",kStepDescription,
+              [NSDictionary dictionaryWithObjectsAndKeys:@"Pull down one more time to create a new note.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStepPullToCreate],@"index",@"NoteListViewController",kStepViewControllerClass,nil],
               [NSDictionary dictionaryWithObjectsAndKeys:@"Tap on the menu icon in the upper-right to share your note, access settings and change the note color.",kStepDescription,
                [NSNumber numberWithInt:walkThroughStepOptions],@"index",@"NoteStackViewController",kStepViewControllerClass,nil],

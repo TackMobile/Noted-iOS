@@ -1082,17 +1082,23 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         case walkThroughStepCreate2:
         {
             [self.view addSubview:container];
-            [container addSubview:circle2];
             [circle1 setFrame:CGRectMake(0.0, 0.0, circleRadius, circleRadius)];
-            [circle2 setFrame:CGRectMake(10.0, 50.0, circleRadius, circleRadius)];
-            [container setFrame:CGRectMake(viewFrame.size.width - container.frame.size.width - padding, (viewFrame.size.height - 60.0)*0.5-20.0, width, 75.0)];
-            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
+            [container setFrame:CGRectMake((viewFrame.size.width - container.frame.size.width)*0.5, 15.0, circleRadius, circleRadius)];
+            float yTranslate = viewFrame.size.height - 185.0;
+            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseOut
                              animations:^{
-                                 [container setTransform:CGAffineTransformMakeTranslation(-(container.frame.origin.x - padding), 0.0)];
-                                 [container setAlpha:0.0];
+                                 [container setFrameY:yTranslate];
                              }
                              completion:^(BOOL finished){
-                                 [container removeFromSuperview];
+                                 [UIView animateWithDuration:0.5 delay:0.1 options:UIViewAnimationOptionBeginFromCurrentState
+                                                  animations:^{
+                                                      [container setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+                                                      [container setAlpha:0.0];
+                                                  }
+                                                  completion:^(BOOL finished){
+                                                      [container removeFromSuperview];
+                                                  }];
+                                 
                              }];
         }
             break;
