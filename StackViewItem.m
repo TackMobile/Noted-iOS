@@ -54,7 +54,7 @@
     }
     if (index >= 4) {
         [noteEntryCell.subtitleLabel setTextColor:[UIColor whiteColor]];
-        [noteEntryCell.relativeTimeText setTextColor:[UIColor whiteColor]];
+        [noteEntryCell.relativeTimeText setTextColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
     } else {
         [noteEntryCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"333333"]];
         [noteEntryCell.relativeTimeText setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
@@ -65,6 +65,7 @@
     UITextView *fullText = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
     if (fullText) {
         fullText.text = _noteEntry.text;
+        [fullText setFrame:CGRectMake(6, 23, 308, fullText.frame.size.height)];
     }
     noteEntryCell.relativeTimeText.text = [_noteEntry relativeDateString];
     
