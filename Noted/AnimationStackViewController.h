@@ -29,7 +29,6 @@ typedef void(^animationCompleteBlock)();
 @property (nonatomic, weak) id <AnimationStackDelegate> delegate;
 
 - (float)finalYOriginForCurrentNote;
-- (UIView *)currentNote;
 
 - (void)prepareForCollapse;
 
