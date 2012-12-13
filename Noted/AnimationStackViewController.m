@@ -666,7 +666,7 @@ static const float  kCellHeight             = 66.0;
     if (index >= 4) {
         [noteCell.subtitleLabel setTextColor:[UIColor whiteColor]];
     } else {
-        [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"AAAAAA"]];
+        [noteCell.subtitleLabel setTextColor:[UIColor colorWithHexString:@"CCCCCC"]];
     }
     
     noteCell.relativeTimeText.textColor = noteCell.subtitleLabel.textColor;
