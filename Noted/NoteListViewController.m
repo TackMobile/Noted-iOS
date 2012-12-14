@@ -661,7 +661,6 @@ typedef enum {
     }];
     
     [self performSelector:@selector(slideOffTableView) withObject:nil afterDelay:0.0];
-    
 }
 
 - (void)slideOffTableView

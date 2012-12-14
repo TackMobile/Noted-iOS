@@ -85,6 +85,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @property (nonatomic, strong) UIImageView *slicedNoteScreenShot;
 @property (nonatomic, strong) NSMutableArray *slicedNoteArray;
 
+@property (weak, nonatomic) IBOutlet UIView *addNoteView;
+@property (weak, nonatomic) IBOutlet UILabel *addNoteLabel;
+
 - (void) presentNotes;
 
 @end
@@ -105,6 +108,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 @synthesize mailVC,messageVC;
 @synthesize delegate;
 @synthesize keyboard, originalLocation, originalKeyboardY, sliceView, screenShot, slicedNoteScreenShot, slicedNoteArray;
+@synthesize addNoteView, addNoteLabel;
 
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC
 {
@@ -288,6 +292,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.overView = nil;
     self.nextNoteEntry = nil;
     self.previousNoteEntry = nil;
+    [self setAddNoteView:nil];
+    [self setAddNoteLabel:nil];
     [super viewDidUnload];
 }
 
@@ -642,8 +648,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             if (_currentGestureState == kCycle) {
                 [self handleSingleTouchPanChangedForPoint:point]; //switches note
             } else if (_currentGestureState == kShouldCreateNew) {
+                NSLog(@"%@", NSStringFromCGPoint(point));
                 // move next document in from the far right, on top
                 [self updatePositionOfNextDocumentToPoint:point];
+                //[self handleCreationGestureForPoint:point];
             }
         } else if (numberOfTouchesInCurrentPanGesture == 2) {
             //NSLog(@"hidden? %s",[self.currentNoteViewController.view isHidden] ? "yes" : " no");
@@ -974,6 +982,13 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     
 }
 
+- (void)handleCreationGestureForPoint:(CGPoint)point {
+    CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
+    CGRect newFrame = CGRectMake(0, 0 + point.y, currentNoteFrame.size.width, currentNoteFrame.size.height);
+    
+    self.currentNoteViewController.view.frame = newFrame;
+}
+
 - (void)handleSingleTouchPanChangedForPoint:(CGPoint)point
 {
     // move the current note vc with the touch location
@@ -1198,7 +1213,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     [model setSelectedNoteIndex:0];
     
     CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-    CGRect currentFrame = self.nextNoteViewController.view.frame;
+    CGRect currentFrame = self.currentNoteViewController.view.frame;
     CGFloat velocityY = velocity.y;
     CGFloat pointsY = abs(currentFrame.origin.y);
     NSTimeInterval duration = pointsY / velocityY;
@@ -1210,7 +1225,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.nextNoteViewController.view.frame = CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height);
+                         self.currentNoteViewController.view.frame = CGRectMake(0.0, viewFrame.size.height, currentFrame.size.width, currentFrame.size.height);
+                         
+                         //self.nextNoteViewController.view.frame = CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height);
                      }
                      completion:^(BOOL success) {
                          [self.view addSubview:self.currentNoteViewController.view];
@@ -1317,23 +1334,46 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      }];
 }
 
-- (void)updatePositionOfNextDocumentToPoint:(CGPoint)point
-{
-    // bring 'new'/next note vc in on top of current note vc
-    CGRect frame = self.nextNoteViewController.view.frame;
+- (void)updatePositionOfNextDocumentToPoint:(CGPoint)point {
+    float offset = point.y;
     
-    // multiplier to make sure note is aligned left by time fingers reach left side of screen
-    float height = self.view.frame.size.height;
-    float offset = abs(point.y);
-    NSLog(@"offset: %f",offset);
-    float newYLoc = offset-height;
-    NSLog(@"new Y: %f",newYLoc);
-    if (newYLoc>0.0) {
-        newYLoc = 0.0;
+    float newNoteViewOffset;
+    float newNoteOffset;
+    float currentNoteOffset = offset >= 0 ? offset : 0;
+    
+    if (offset <= 40 && offset >= 0) {
+        newNoteOffset = offset;
+        newNoteViewOffset = offset;
+    }
+    else if (offset <= 80) {
+        newNoteOffset = 40 - (offset - 40);
+        newNoteViewOffset = 40;
+    }
+    else {
+        newNoteOffset = 0;
+        newNoteViewOffset = 40;
     }
     
-    CGRect newFrame = CGRectMake(0.0, newYLoc, frame.size.width, frame.size.height);
-    self.nextNoteViewController.view.frame = newFrame;
+    if (offset >= 40) {
+        self.addNoteLabel.text = @"Release to create a new note.";
+    }
+    else {
+        self.addNoteLabel.text = @"Pull to create a new note.";
+    }
+    
+    CGRect newNoteViewFrame = self.addNoteView.frame;
+    CGRect newNoteFrame = self.nextNoteViewController.view.frame;
+    CGRect currentNoteFrame = self.currentNoteViewController.view.frame;
+    
+    CGRect newNoteViewUpdatedFrame = CGRectMake(0, -40 + newNoteViewOffset, newNoteViewFrame.size.width, newNoteViewFrame.size.height);
+    CGRect newNoteUpdatedFrame = CGRectMake(0.0, 0 + newNoteOffset, newNoteFrame.size.width, newNoteFrame.size.height);
+    CGRect currentNoteUpdatedFrame = CGRectMake(0.0, 0 + currentNoteOffset, currentNoteFrame.size.width, currentNoteFrame.size.height);
+    
+    self.addNoteView.frame = newNoteViewUpdatedFrame;
+    self.nextNoteViewController.view.frame = newNoteUpdatedFrame;
+    self.currentNoteViewController.view.frame = currentNoteUpdatedFrame;
+    
+    [self.view bringSubviewToFront:self.currentNoteViewController.view];
 }
 
 - (void)createDeletingViews //deletes the note from two finger right pan

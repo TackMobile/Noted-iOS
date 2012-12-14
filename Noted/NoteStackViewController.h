@@ -39,7 +39,6 @@ typedef void(^TMDismissalBlock)(float);
 @property(nonatomic,strong) OptionsViewController *optionsViewController;
 @property(nonatomic,strong) UIView *overView;
 
-
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
 
 @property (nonatomic, strong) UIView *keyboard;
