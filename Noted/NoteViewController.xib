@@ -45,7 +45,7 @@
 							<object class="IBUILabel" id="1006704724">
 								<reference key="NSNextResponder" ref="215590808"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{14, 12}, {146, 14}}</string>
+								<string key="NSFrame">{{14, 12}, {256, 14}}</string>
 								<reference key="NSSuperview" ref="215590808"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="135640589"/>
@@ -93,7 +93,7 @@
 						<string key="NSFrameSize">{320, 480}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
+						<reference key="NSNextKeyView" ref="735756420"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">3</int>
@@ -133,6 +133,7 @@
 						<string key="NSFrame">{{280, 0}, {40, 38}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<int key="IBUIContentMode">4</int>
@@ -342,25 +343,15 @@
 						</object>
 					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="absoluteTime">UILabel</string>
 						<string key="optionsButton">UIButton</string>
-						<string key="optionsDot">UILabel</string>
 						<string key="relativeTime">UILabel</string>
 						<string key="scrollView">UIScrollView</string>
 						<string key="textView">UITextView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="absoluteTime">
-							<string key="name">absoluteTime</string>
-							<string key="candidateClassName">UILabel</string>
-						</object>
 						<object class="IBToOneOutletInfo" key="optionsButton">
 							<string key="name">optionsButton</string>
 							<string key="candidateClassName">UIButton</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="optionsDot">
-							<string key="name">optionsDot</string>
-							<string key="candidateClassName">UILabel</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="relativeTime">
 							<string key="name">relativeTime</string>

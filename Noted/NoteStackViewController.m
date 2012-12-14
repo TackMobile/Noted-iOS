@@ -1355,10 +1355,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     }
     
     if (offset >= 40) {
-        self.addNoteLabel.text = @"Release to create a new note.";
+        self.nextNoteViewController.relativeTime.text = @"Release to create a new note.";
     }
     else {
-        self.addNoteLabel.text = @"Pull to create a new note.";
+        self.nextNoteViewController.relativeTime.text = @"Today";
     }
     
     CGRect newNoteViewFrame = self.addNoteView.frame;
