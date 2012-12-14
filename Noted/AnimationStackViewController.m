@@ -568,8 +568,14 @@ static const float  kCellHeight             = 66.0;
     if (currentNoteIsLast) {
         newHeight = self.view.bounds.size.height - newY;
     } else {
-        float factor = 1.0-((1.0-_pinchPercentComplete)*.3);
-        fullText.alpha = 1.0-(_pinchPercentComplete*factor);
+        float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
+        fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
+        
+        CGRect currentFullTextFrame = fullText.frame;
+        CGRect newFrame = CGRectMake(currentFullTextFrame.origin.x, currentFullTextFrame.origin.y, currentFullTextFrame.size.width, newHeight - currentFullTextFrame.origin.y);
+        
+        fullText.frame = newFrame;
+        
         currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
     }
     
