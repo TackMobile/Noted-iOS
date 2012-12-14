@@ -70,16 +70,9 @@
     [self updateViewsWithOffset:yOffset];
     
     if (abs(yOffset) > THRESHOLD) {
-        instructionLabel.text = NSLocalizedString(@"Release to create a new note.", @"Release to create");
-        
         [self.view setFrameY:yOffset];
-        
-                       
     } else {
-        
         [_newNoteContainer removeFromSuperview];
-
-        instructionLabel.text = NSLocalizedString(@"Pull to create a new note.", @"Pull down to create");
     }
 }
 
