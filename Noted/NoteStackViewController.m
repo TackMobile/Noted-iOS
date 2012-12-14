@@ -681,7 +681,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 //NSLog(@"if (%f < %f || %i < %f) then should cancel",CGRectGetMaxY(nextNoteFrame),viewFrame.size.height/2,abs(velocity.y),FLIP_VELOCITY_THRESHOLD/4);
                 if ([self shouldCancelForPoint:point velocity:velocity]) { //midpoint not working
                     [self setGestureState:kGestureFinished];
-                    [self snapBackNextNote];
+                    [self snapBackCurrentNote];
                     // undo the dummy placeholder data
                     //NSLog(@"CANCELED NEW WITH velocity %@",NSStringFromCGPoint(velocity));
                 } else {
@@ -1226,8 +1226,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          self.currentNoteViewController.view.frame = CGRectMake(0.0, viewFrame.size.height, currentFrame.size.width, currentFrame.size.height);
-                         
-                         //self.nextNoteViewController.view.frame = CGRectMake(0.0, 0.0, viewFrame.size.width, viewFrame.size.height);
                      }
                      completion:^(BOOL success) {
                          [self.view addSubview:self.currentNoteViewController.view];
