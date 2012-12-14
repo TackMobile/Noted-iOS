@@ -23,7 +23,6 @@
 @implementation NoteViewController
 
 @synthesize scrollView;
-@synthesize optionsDot;
 @synthesize relativeTime;
 @synthesize delegate, textView;
 @synthesize noteEntry=_noteEntry;
@@ -53,7 +52,6 @@
 - (void)viewDidUnload {
     [self setTextView:nil];
     [self setScrollView:nil];
-    [self setOptionsDot:nil];
     [self setRelativeTime:nil];
     [super viewDidUnload];
 
@@ -70,10 +68,8 @@
         [self.view setBackgroundColor:[UIColor whiteColor]];
         [self setTextLabelColorsByBGColor:self.view.backgroundColor];
         [self setShadowForXOffset];
-        [self.optionsDot setHidden:YES];
     } else {
         [self updateUIForCurrentEntry];
-        [self.optionsDot setHidden:NO];
     }
 }
 
@@ -152,17 +148,6 @@
         [self.relativeTime setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
         [self.optionsButton setImage:[UIImage imageNamed:@"menu-icon-grey"] forState:UIControlStateNormal];
     }
-    
-    self.optionsDot.textColor = self.textView.textColor;
-    
-    [self setOptionsDotForBGColor];
-}
-
-- (void)setOptionsDotForBGColor
-{
-    UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
-    self.optionsDot.text = [NoteViewController optionsDotTextForColor:bgColor];
-    self.optionsDot.font = [NoteViewController optionsDotFontForColor:bgColor];
 }
 
 + (NSString *)optionsDotTextForColor:(UIColor *)color

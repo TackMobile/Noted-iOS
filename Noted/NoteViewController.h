@@ -26,9 +26,7 @@
 
 @property(strong, nonatomic) IBOutlet UITextView *textView;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
-@property (strong, nonatomic) IBOutlet UILabel *optionsDot;
 @property (strong, nonatomic) IBOutlet UILabel *relativeTime;
-@property (strong, nonatomic) IBOutlet UILabel *absoluteTime;
 @property (weak, nonatomic) IBOutlet UIButton *optionsButton;
 
 @property (nonatomic, assign) BOOL isCurrent;

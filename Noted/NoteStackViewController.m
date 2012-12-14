@@ -648,7 +648,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             if (_currentGestureState == kCycle) {
                 [self handleSingleTouchPanChangedForPoint:point]; //switches note
             } else if (_currentGestureState == kShouldCreateNew) {
-                NSLog(@"%@", NSStringFromCGPoint(point));
                 // move next document in from the far right, on top
                 [self updatePositionOfNextDocumentToPoint:point];
                 //[self handleCreationGestureForPoint:point];
@@ -682,6 +681,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 if ([self shouldCancelForPoint:point velocity:velocity]) { //midpoint not working
                     [self setGestureState:kGestureFinished];
                     [self snapBackCurrentNote];
+                    
+                    self.nextNoteViewController.view.hidden = YES;
+                    [self snapBackNextNote];
                     // undo the dummy placeholder data
                     //NSLog(@"CANCELED NEW WITH velocity %@",NSStringFromCGPoint(velocity));
                 } else {

@@ -49,7 +49,7 @@
     [self scrollingWithYOffset:0.0];
     [self.view setClipsToBounds:YES];
 
-    [self.view setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
+    //[self.view setBackgroundColor:[UIColor colorWithHexString:@"808080"]];
     // Do any additional setup after loading the view from its nib.
 }
 
@@ -70,7 +70,7 @@
     [self updateViewsWithOffset:yOffset];
     
     if (abs(yOffset) > THRESHOLD) {
-        instructionLabel.text = NSLocalizedString(@"Release to Create a New Note",@"Release to create");
+        instructionLabel.text = NSLocalizedString(@"Release to create a new note.", @"Release to create");
         
         [self.view setFrameY:yOffset];
         
@@ -79,7 +79,7 @@
         
         [_newNoteContainer removeFromSuperview];
 
-        instructionLabel.text = NSLocalizedString(@"Pull Down to Create a New Note",@"Pull down to create");
+        instructionLabel.text = NSLocalizedString(@"Pull to create a new note.", @"Pull down to create");
     }
 }
 
