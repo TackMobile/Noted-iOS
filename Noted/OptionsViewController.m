@@ -189,6 +189,16 @@
                      }];
 }
 
+- (void)animateDoneButtonUp:(BOOL)up withDuration:(float)duration {
+    float changeInY = up ? -20 : 20;
+    
+    CGRect currentDoneFrame = self.cancelX.frame;
+    
+    [UIView animateWithDuration:duration animations:^{
+        self.cancelX.frame = CGRectMake(currentDoneFrame.origin.x, currentDoneFrame.origin.y + changeInY, currentDoneFrame.size.width, currentDoneFrame.size.height);
+    }];
+}
+
 #pragma mark - Option menu methods
 
 - (CGRect)determineFrameForViewWithTag:(NSInteger)tag senderTag:(NSInteger)senderTag {
@@ -302,6 +312,7 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     [self setColorsToCollapsedStateWithDuration:0.5];
+    [self animateDoneButtonUp:show withDuration:0.5];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:@"didToggleStatusBar" object:nil userInfo:nil];
 }
