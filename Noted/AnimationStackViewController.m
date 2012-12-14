@@ -790,12 +790,14 @@ static const float  kCellHeight             = 66.0;
     }
     
     //NSLog(@"%@",_activeStackItem);
-    UITableViewCell *cell = _activeStackItem.cell;
+    NoteEntryCell *cell = (NoteEntryCell *)_activeStackItem.cell;
     
     NSLog(@"will animate from %@ to %@",NSStringFromCGRect(cell.frame),NSStringFromCGRect(_activeStackItem.destinationFrame));
     
     UITextView *textView = (UITextView *)[_activeStackItem.cell.contentView viewWithTag:FULL_TEXT_TAG];
     [textView setFrameHeight:_activeStackItem.destinationFrame.size.height];
+    [textView setFrameWidth:308];
+    [textView setFrameOrigin:CGPointMake(6, 27)];
     
     [UIView animateWithDuration:[self animationDuration]
                      animations:^{
@@ -810,11 +812,11 @@ static const float  kCellHeight             = 66.0;
                          
                      }
                      completion:^(BOOL finished){
+                         
                          _animating = NO;
                          completeBlock();
                          
                          [self finishExpansion];
-                         
                      }];
 }
 
