@@ -470,12 +470,11 @@ static const float  kCellHeight             = 66.0;
 {
     //UITableViewCell *cell = item.cell;
     CGRect frame = self.view.bounds;
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, item.startingFrame.size.height)];
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(6, 27, frame.size.width, item.startingFrame.size.height)];
     
     textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     textView.backgroundColor = [UIColor clearColor];
     textView.tag = FULL_TEXT_TAG;
-    [textView setFrameY:21.0];
     [textView setEditable:NO];
     [textView setUserInteractionEnabled:NO];
     
@@ -601,6 +600,8 @@ static const float  kCellHeight             = 66.0;
     UITableViewCell *cell = item.cell;
     UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
+    
+    [textView setHidden:YES];
     
     NoteEntry *noteEntry = item.noteEntry;
     

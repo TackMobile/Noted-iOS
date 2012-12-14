@@ -478,7 +478,6 @@ typedef enum {
         // Create a CGSize variable that represents the MAXIMUM size the label can be.
         CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
         
-        //NSString *noteText = @"This is a test string. I just want to see if this damn thing will actually calculate the way it is supposed to.";
         NSString *actualNoteText = noteEntry.title;
         
         // Create a CGSize variable that represents 
