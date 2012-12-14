@@ -94,6 +94,8 @@
         [_newNote.subtitleLabel setText:@""];
         [_newNote.subtitleLabel sizeToFit];
         
+        _newNote.relativeTimeText.text = @"Release to create a new note.";
+        
         UIView *shadow = [_newNote viewWithTag:SHADOW_TAG];
         UIView *shadow2 = [_newNote viewWithTag:SHADOW_TAG2];
         UIView *corners = [_newNote viewWithTag:91];
