@@ -340,11 +340,15 @@ typedef enum {
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _noteCount-1) {
-        if (_noteCount == 1) {
-            return self.view.bounds.size.height;
-        } else {
-            return self.view.bounds.size.height - 66.0;
+        NSInteger totalSize = _noteCount * 66;
+            
+        CGFloat calculatedCellSize = 66.0;
+            
+        if (totalSize < self.view.bounds.size.height) {
+            calculatedCellSize = self.view.bounds.size.height - totalSize;
         }
+            
+        return calculatedCellSize;
     }
     
     return 66;
