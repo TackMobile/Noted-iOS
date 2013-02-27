@@ -29,10 +29,17 @@
 
 - (void)awakeFromNib
 {
+    self.clipsToBounds = YES;
+    
     self.selectionStyle = UITableViewCellSelectionStyleNone;
+    
     self.textLabel.adjustsFontSizeToFitWidth = YES;
-    self.subtitleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.textLabel.backgroundColor = [UIColor clearColor];
+    
+    //self.subtitleLabel.numberOfLines = 2;
+    //self.subtitleLabel.autoresizingMask = UIViewAutoresizingNone;
+    //self.subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    
     
     [self setTimeLabelsForNew];
     
@@ -58,6 +65,12 @@
     [self.contentView addSubview:_cornerRight];
     
     [self roundCornersForView:_bgView];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
 }
 
 - (void)setSubviewsBgColor:(UIColor *)color {
