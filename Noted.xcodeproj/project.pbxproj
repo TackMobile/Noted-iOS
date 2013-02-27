@@ -55,6 +55,10 @@
 		379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97D71678EE650051218D /* menu-icon-grey@2x.png */; };
 		379E97DD1678EE710051218D /* menu-icon-white.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DB1678EE710051218D /* menu-icon-white.png */; };
 		379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DC1678EE710051218D /* menu-icon-white@2x.png */; };
+		577A9B2816DEBFC100AF8D74 /* DCCrossHairView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */; };
+		577A9B2916DEBFC100AF8D74 /* DCFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2216DEBFC100AF8D74 /* DCFrameView.m */; };
+		577A9B2A16DEBFC100AF8D74 /* DCIntrospect.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2416DEBFC100AF8D74 /* DCIntrospect.m */; };
+		577A9B2B16DEBFC100AF8D74 /* DCStatusBarOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2716DEBFC100AF8D74 /* DCStatusBarOverlay.m */; };
 		584E150415B73DDA00DD24D2 /* KeyboardScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
@@ -183,6 +187,15 @@
 		379E97D71678EE650051218D /* menu-icon-grey@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-grey@2x.png"; sourceTree = "<group>"; };
 		379E97DB1678EE710051218D /* menu-icon-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white.png"; sourceTree = "<group>"; };
 		379E97DC1678EE710051218D /* menu-icon-white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white@2x.png"; sourceTree = "<group>"; };
+		577A9B1F16DEBFC100AF8D74 /* DCCrossHairView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCCrossHairView.h; sourceTree = "<group>"; };
+		577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCCrossHairView.m; sourceTree = "<group>"; };
+		577A9B2116DEBFC100AF8D74 /* DCFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCFrameView.h; sourceTree = "<group>"; };
+		577A9B2216DEBFC100AF8D74 /* DCFrameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCFrameView.m; sourceTree = "<group>"; };
+		577A9B2316DEBFC100AF8D74 /* DCIntrospect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCIntrospect.h; sourceTree = "<group>"; };
+		577A9B2416DEBFC100AF8D74 /* DCIntrospect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCIntrospect.m; sourceTree = "<group>"; };
+		577A9B2516DEBFC100AF8D74 /* DCIntrospectSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCIntrospectSettings.h; sourceTree = "<group>"; };
+		577A9B2616DEBFC100AF8D74 /* DCStatusBarOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCStatusBarOverlay.h; sourceTree = "<group>"; };
+		577A9B2716DEBFC100AF8D74 /* DCStatusBarOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCStatusBarOverlay.m; sourceTree = "<group>"; };
 		584E150215B73DDA00DD24D2 /* KeyboardScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardScrollView.h; sourceTree = "<group>"; };
 		584E150315B73DDA00DD24D2 /* KeyboardScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardScrollView.m; sourceTree = "<group>"; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
@@ -363,6 +376,7 @@
 				29960C661573F4C50054347A /* Assets */,
 				29FC4939156EE1590007BBAD /* Model */,
 				29FC4919156EE0CD0007BBAD /* Noted */,
+				577A9B1116DEBE4B00AF8D74 /* DCIntrospect-ARC */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
 			);
@@ -444,6 +458,22 @@
 				B5EF4390165FE69100B59099 /* StackViewItem.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		577A9B1116DEBE4B00AF8D74 /* DCIntrospect-ARC */ = {
+			isa = PBXGroup;
+			children = (
+				577A9B1F16DEBFC100AF8D74 /* DCCrossHairView.h */,
+				577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */,
+				577A9B2116DEBFC100AF8D74 /* DCFrameView.h */,
+				577A9B2216DEBFC100AF8D74 /* DCFrameView.m */,
+				577A9B2316DEBFC100AF8D74 /* DCIntrospect.h */,
+				577A9B2416DEBFC100AF8D74 /* DCIntrospect.m */,
+				577A9B2516DEBFC100AF8D74 /* DCIntrospectSettings.h */,
+				577A9B2616DEBFC100AF8D74 /* DCStatusBarOverlay.h */,
+				577A9B2716DEBFC100AF8D74 /* DCStatusBarOverlay.m */,
+			);
+			name = "DCIntrospect-ARC";
 			sourceTree = "<group>";
 		};
 		B50C98B9160CCD45002A3909 /* TestFlightSDK1.1 */ = {
@@ -708,6 +738,10 @@
 				B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */,
 				B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */,
 				B56A87AD166A778E00BE1BAE /* TTAlertView.m in Sources */,
+				577A9B2816DEBFC100AF8D74 /* DCCrossHairView.m in Sources */,
+				577A9B2916DEBFC100AF8D74 /* DCFrameView.m in Sources */,
+				577A9B2A16DEBFC100AF8D74 /* DCIntrospect.m in Sources */,
+				577A9B2B16DEBFC100AF8D74 /* DCStatusBarOverlay.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
