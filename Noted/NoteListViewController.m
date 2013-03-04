@@ -454,7 +454,7 @@ typedef enum {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
     
-    NSLog(@"NoteList::willDisplayCell:: %@", noteEntry.text );
+    NSLog(@"NoteList::willDisplayCell:: %i", indexPath.row);
     
     UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
     int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
@@ -479,24 +479,24 @@ typedef enum {
         // Create a CGSize variable that represents the MAXIMUM size the label can be.
         CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
         
-        NSLog(@"%i::maximumLabelSize: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
+        //NSLog(@"%i::maximumLabelSize: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
         
         NSString *actualNoteText = noteEntry.title;
         
         // Create a CGSize variable that represents 
         CGSize expectedLabelSize = [actualNoteText sizeWithFont:noteEntryCell.subtitleLabel.font constrainedToSize:maximumLabelSize lineBreakMode:noteEntryCell.subtitleLabel.lineBreakMode];
         
-        NSLog(@"%i::expectedLabelSize: %@", indexPath.row, NSStringFromCGSize(expectedLabelSize));
+        //NSLog(@"%i::expectedLabelSize: %@", indexPath.row, NSStringFromCGSize(expectedLabelSize));
         
         CGRect updatedFrame = [noteEntryCell.subtitleLabel frame];
         updatedFrame.size.height = expectedLabelSize.height;
         
-        NSLog(@"%i::updatedFrame: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
+        //NSLog(@"%i::updatedFrame: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
         
         [noteEntryCell.subtitleLabel setNumberOfLines:0];
         [noteEntryCell.subtitleLabel setFrame:updatedFrame];
     } else {
-        noteEntryCell.subtitleLabel.numberOfLines = 0;
+        noteEntryCell.subtitleLabel.numberOfLines = 3;
         [noteEntryCell.subtitleLabel sizeToFit];
     }
 }

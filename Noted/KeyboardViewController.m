@@ -382,14 +382,12 @@
 -(void) touchesEnded: (NSSet *)touches withEvent: (UIEvent *)event {
 	
 	// find the element that is being touched, if any.
-    
-    
      CGPoint currentLocation = [[touches anyObject] locationInView:self.view];
      if (swipeDownTwoFinger) {
      //[self.delegate closeKeyboard];
      //swipeDownTwoFinger = NO;
      //} else if (!swipeUp && !swipeDown && !swipeLeftTwoFinger && !swipeRightTwoFinger) {
-     [self keyHitDetected:currentLocation];
+         [self keyHitDetected:currentLocation];
      }
      
      // reset the selected and prior selected interface elements

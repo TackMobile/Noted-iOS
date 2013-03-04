@@ -33,10 +33,10 @@
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    self.textLabel.adjustsFontSizeToFitWidth = YES;
-    self.textLabel.backgroundColor = [UIColor clearColor];
+    //self.textLabel.adjustsFontSizeToFitWidth = YES;
+    self.textLabel.backgroundColor = [UIColor redColor];
     
-    //self.subtitleLabel.numberOfLines = 2;
+    self.subtitleLabel.numberOfLines = 3;
     //self.subtitleLabel.autoresizingMask = UIViewAutoresizingNone;
     //self.subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
     
@@ -70,7 +70,7 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    
+    [self.subtitleLabel sizeToFit];
 }
 
 - (void)setSubviewsBgColor:(UIColor *)color {

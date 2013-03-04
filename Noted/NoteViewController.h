@@ -18,14 +18,13 @@
 - (void)didUpdateModel;
 @end
 
-@interface NoteViewController : UIViewController <UIScrollViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>
+@interface NoteViewController : UIViewController <UITextViewDelegate, UIGestureRecognizerDelegate>
 
 @property(strong, nonatomic) id<NoteViewControllerDelegate> delegate;
 @property(strong, nonatomic) NoteEntry *noteEntry;
 @property (strong, nonatomic) NoteDocument *noteDocument;
 
 @property(strong, nonatomic) IBOutlet UITextView *textView;
-@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) IBOutlet UILabel *relativeTime;
 @property (weak, nonatomic) IBOutlet UIButton *optionsButton;
 

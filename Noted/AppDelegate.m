@@ -42,7 +42,6 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 
     [self.window makeKeyAndVisible];
     
-    // always call after makeKeyAndDisplay.
 #if TARGET_IPHONE_SIMULATOR
     [[DCIntrospect sharedIntrospector] start];
 #endif
@@ -68,7 +67,7 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 
 - (void)tour
 {
-        
+    
 }
 
 - (void)resumeWalkthroughWithView:(UIView *)view

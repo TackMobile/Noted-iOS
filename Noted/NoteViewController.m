@@ -22,7 +22,6 @@
 
 @implementation NoteViewController
 
-@synthesize scrollView;
 @synthesize relativeTime;
 @synthesize delegate, textView;
 @synthesize noteEntry=_noteEntry;
@@ -45,13 +44,18 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.scrollView.contentSize = self.view.frame.size;
+    
     self.view.layer.cornerRadius = 6.0;
+    
+    // Remove the edge insets of the scroll view to make the text line up with the
+    // corresponding cell's UILabel (which is not inside a scrollview so it has no inset)
+    self.textView.contentInset = UIEdgeInsetsMake(-8,-7,0,0);
+    self.textView.textAlignment = UITextAlignmentLeft;
+    
 }
 
 - (void)viewDidUnload {
     [self setTextView:nil];
-    [self setScrollView:nil];
     [self setRelativeTime:nil];
     [super viewDidUnload];
 
@@ -90,7 +94,7 @@
     }
 }
 
-- (void) setNoteEntry:(NoteEntry *)entry {
+- (void)setNoteEntry:(NoteEntry *)entry {
     if (_isCurrent) {
         NSLog(@"stop");
     }
@@ -109,7 +113,10 @@
 - (void)updateUIForCurrentEntry
 {
     // prepends a newline for display
-    self.textView.text = [_noteEntry displayText];
+    //self.textView.text = [_noteEntry displayText];
+    // [dm] 02-28-13 removed this because it seems like a hack...
+    self.textView.text = _noteEntry.text;
+    
     self.relativeTime.text = [_noteEntry relativeDateString];
     
     UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
@@ -135,6 +142,7 @@
 
 - (void)setTextLabelColorsByBGColor:(UIColor *)color
 {
+    
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
     if (index == NSNotFound) {
         index = 0;
@@ -147,6 +155,11 @@
         [self.textView setTextColor:[UIColor colorWithHexString:@"333333"]];
         [self.relativeTime setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
         [self.optionsButton setImage:[UIImage imageNamed:@"menu-icon-grey"] forState:UIControlStateNormal];
+    }
+    if (DEBUG) {
+        [self.textView setTextColor:[UIColor redColor]];
+        [self.textView setBackgroundColor:[UIColor greenColor]];
+        [self.textView setAlpha:0.7f];
     }
 }
 
@@ -197,24 +210,7 @@
     [self.noteDocument updateChangeCount:UIDocumentChangeDone];
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)aScrollView {
-    self.scrollView.contentOffset = aScrollView.contentOffset;
-}
-
-- (void)textViewDidChange:(UITextView *)aTextView {
-//    if ([aTextView.text hasPrefix:@"\n"]) {
-//        aTextView.text = [NSString stringWithFormat:@"\n%@", aTextView.text];
-//
-//    }
-    
-    NSString *shorthand = @":time";
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-    [dateFormatter setDateStyle:NSDateFormatterNoStyle];
-    
-    [self checkForShorthand:shorthand withReplacement:[dateFormatter stringFromDate:[NSDate date]]];
-}
+#pragma mark - Helper methods
 
 - (void)checkForShorthand:(NSString *)shorthand withReplacement:(NSString *)replacement
 {
@@ -225,44 +221,11 @@
     }
 }
 
-- (NSString *)removeLeadingNewline:(NSString *)text
-{
-    if ([text hasPrefix:@"\n"]) {
-        text = [text substringFromIndex:1];
-    }
-    
-    return text;
-}
-
-- (void)textViewDidEndEditing:(UITextView *)aTextView
-{
-    if (self.noteDocument.documentState!=UIDocumentStateNormal ) {
-        NSLog(@"couldn't save!");
-        return;
-    }
-    
-    NSString *text = [self removeLeadingNewline:aTextView.text];
-    NSString *currentText = self.noteDocument.data.noteText;
-    if (![currentText isEqualToString:text]) {
-        [self.noteDocument setText:text];
-        [self.noteEntry setNoteData:self.noteDocument.data];
-        
-        [self persistChanges];
-    }  
-}
-
-- (BOOL)usingDefaultKeyboard
-{
-    BOOL using = [[NSUserDefaults standardUserDefaults] boolForKey:@"useDefaultKeyboard"];
-    return using;
-}
+#pragma mark - UITextViewDelegate
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    if (![self usingDefaultKeyboard]) {
-        return YES;
-    }
-    
+    // [dm] I commented this out for now to get the keyboard functioning in a normal state
     UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
@@ -270,21 +233,31 @@
     self.tapGestureRecognizer = tap;
     
     [keyWindow addGestureRecognizer:self.tapGestureRecognizer];
-    
-    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
-    pan.delegate = self;
-    self.panGestureRecognizer = pan;
-    
-    [keyWindow addGestureRecognizer:self.panGestureRecognizer];
+//
+//    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+//    pan.delegate = self;
+//    self.panGestureRecognizer = pan;
+//    
+//    [keyWindow addGestureRecognizer:self.panGestureRecognizer];
     
     return YES;
 }
 
+- (void)textViewDidChange:(UITextView *)aTextView {
+    // TODO: This should be refactored to enable support for multiple shorthand codes
+    // (i.e. :time, :date, :name, etc...)
+    
+//    NSString *shorthand = @":time";
+//    
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+//    [dateFormatter setDateStyle:NSDateFormatterNoStyle];
+//    
+//    [self checkForShorthand:shorthand withReplacement:[dateFormatter stringFromDate:[NSDate date]]];
+}
+
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView
 {
-    if (![self usingDefaultKeyboard]) {
-        return YES;
-    }
     
     UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
     
@@ -295,14 +268,34 @@
     return YES;
 }
 
-#pragma mark - Touches
+- (void)textViewDidEndEditing:(UITextView *)aTextView
+{
+    if (self.noteDocument.documentState!=UIDocumentStateNormal ) {
+        NSLog(@"couldn't save!");
+        return;
+    }
+    
+    NSString *text = aTextView.text;
+    NSString *currentText = self.noteDocument.data.noteText;
+    if (![currentText isEqualToString:text]) {
+        [self.noteDocument setText:text];
+        [self.noteEntry setNoteData:self.noteDocument.data];
+        
+        [self persistChanges];
+    }
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 
 }
 
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    
 }
 
+// Gesture handler for when the user touches the options button.
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
     CGPoint location = [touch locationInView:self.view];
@@ -333,7 +326,5 @@
     // Return YES to prevent this gesture from interfering with, say, a pan on a map or table view, or a tap on a button in the tool bar.
     return YES;
 }
-
-
 
 @end
