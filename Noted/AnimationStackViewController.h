@@ -29,16 +29,12 @@ typedef void(^animationCompleteBlock)();
 @property (nonatomic, weak) id <AnimationStackDelegate> delegate;
 
 - (float)finalYOriginForCurrentNote;
-
 - (void)prepareForCollapse;
-
 - (void)animateCollapseForScale:(float)scale percentComplete:(float)pinchPercent;
 - (void)finishCollapse:(void(^)())complete;
-
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 - (void)openSingleNoteForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock;
 - (void)resetToExpanded:(void(^)())completion;
-
 - (void)updateNoteText;
 - (BOOL)needsAnimation;
 

@@ -320,45 +320,7 @@ static const float  kCellHeight             = 66.0;
     }
     
     if (DEBUG_VIEWS) {
-        
-        DrawView *debug = (DrawView *)[self.view viewWithTag:888];
-        if (debug) {
-            [debug removeFromSuperview];
-        }
-        
-        debug = [[DrawView alloc] initWithFrame:self.view.bounds];
-        [debug setUserInteractionEnabled:NO];
-        [debug setTag:888];
-        [debug setBackgroundColor:[UIColor clearColor]];
-        
-        [debug setDrawBlock:^(UIView* v,CGContextRef context){
-            
-            for (StackViewItem *item in _stackItems) {
-                
-                CGRect frame = item.destinationFrame;
-                UIBezierPath* bezierPath = [UIBezierPath bezierPath];
-                const float p[2] = {2, 2.9};
-                [bezierPath setLineDash:p count:2 phase:0.3];
-                if (!item.isActive) {
-                    [[UIColor blueColor] setStroke];
-                    bezierPath.lineWidth = 1.0;
-                } else {
-                    [[UIColor orangeColor] setStroke];
-                    bezierPath.lineWidth = 3.0;
-                }
-                
-                float yOrigin = frame.origin.y;
-                [bezierPath moveToPoint: CGPointMake(0.0, yOrigin)];
-                [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin)];
-                [bezierPath moveToPoint: CGPointMake(0.0, yOrigin+frame.size.height)];
-                [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin+frame.size.height)];
-                
-                [bezierPath stroke];
-            }
-        }];
-        
-        [self.view addSubview:debug];
-
+        [self showDebugViews];
     }
     
     [self setNotesToCollapseBeginPositions:NO];
@@ -368,6 +330,47 @@ static const float  kCellHeight             = 66.0;
         fullText.alpha = 1.0;
         currentNoteCell.subtitleLabel.alpha = 0.0;
     }
+}
+
+- (void)showDebugViews
+{
+    DrawView *debug = (DrawView *)[self.view viewWithTag:888];
+    if (debug) {
+        [debug removeFromSuperview];
+    }
+    
+    debug = [[DrawView alloc] initWithFrame:self.view.bounds];
+    [debug setUserInteractionEnabled:NO];
+    [debug setTag:888];
+    [debug setBackgroundColor:[UIColor clearColor]];
+    
+    [debug setDrawBlock:^(UIView* v,CGContextRef context){
+        
+        for (StackViewItem *item in _stackItems) {
+            
+            CGRect frame = item.destinationFrame;
+            UIBezierPath* bezierPath = [UIBezierPath bezierPath];
+            const float p[2] = {2, 2.9};
+            [bezierPath setLineDash:p count:2 phase:0.3];
+            if (!item.isActive) {
+                [[UIColor blueColor] setStroke];
+                bezierPath.lineWidth = 1.0;
+            } else {
+                [[UIColor orangeColor] setStroke];
+                bezierPath.lineWidth = 3.0;
+            }
+            
+            float yOrigin = frame.origin.y;
+            [bezierPath moveToPoint: CGPointMake(0.0, yOrigin)];
+            [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin)];
+            [bezierPath moveToPoint: CGPointMake(0.0, yOrigin+frame.size.height)];
+            [bezierPath addLineToPoint: CGPointMake(320.0, yOrigin+frame.size.height)];
+            
+            [bezierPath stroke];
+        }
+    }];
+    
+    [self.view addSubview:debug];
 }
 
 - (void)setNotesToCollapseBeginPositions:(BOOL)animated
@@ -387,10 +390,14 @@ static const float  kCellHeight             = 66.0;
         UIView *shadow = [cell viewWithTag:SHADOW_TAG];
         
         UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
-        textView.textColor = [UIColor whiteColor];
+        
+        if (DEBUG_VIEWS) {
+            textView.backgroundColor = [UIColor purpleColor];
+            textView.textColor = [UIColor yellowColor];
+        }
+        
         if (item.isLast) {
             [textView setFrameHeight:item.destinationFrame.size.height];
-            
         } else {
             [textView setFrameHeight:item.startingFrame.size.height];
         }
@@ -436,7 +443,6 @@ static const float  kCellHeight             = 66.0;
             } else {
                 [cell setFrame:frame];
             }
-        
         }
     }];
 }
@@ -546,7 +552,7 @@ static const float  kCellHeight             = 66.0;
     
     CGRect newFrame = CGRectMake(0.0, newY, self.view.bounds.size.width, newHeight);
     [cell setFrame:newFrame];
-    NSLog(@"newFrame::%@", NSStringFromCGRect(newFrame));
+    //NSLog(@"newFrame::%@", NSStringFromCGRect(newFrame));
     
     if (item.indexPath.row == [[ApplicationModel sharedInstance] currentNoteEntries].count-1) {
         [self.view addSubview:cell];
@@ -743,7 +749,7 @@ static const float  kCellHeight             = 66.0;
     [_activeStackItem.cell setFrame:_activeStackItem.destinationFrame];
     _activeStackItem.cell.layer.cornerRadius = 6.0;
     
-    // transistion its subviews
+    // transition its subviews
     UILabel *circle = (UILabel *)[_activeStackItem.cell viewWithTag:78];
     [circle setHidden:NO];
     circle.alpha = 1.0;
@@ -924,7 +930,6 @@ static const float  kCellHeight             = 66.0;
 }
 
 #pragma mark Data source
-
 
 - (float)finalYOriginForCurrentNote
 {

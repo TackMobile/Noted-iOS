@@ -344,8 +344,11 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
 }
 
+// This method handles notifications when the pinch gesture is used to collapse the note back to the list.
 - (void)handlePinch:(UIPinchGestureRecognizer *)gesture
 {
+    NSLog(@"AnimationStackVC::handlePinch %i", gesture.state);
+    
     int noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     if ([self walkthroughShouldBlockForStep:walkThroughStepGoToList]) {
         NSLog(@"prevented pinch gesture");
@@ -353,17 +356,10 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
     
     [self endTouchDemoAnimation];
-    if (noteCount < 2){
+    
+    if (noteCount < 2) {
         NSLog(@"only show list if there's more than one note, do a bounce animation");
-//#warning Re-comment to prvent exiting last note
-        /*
-         if (!_alertView) {
-         _alertView = [[TTAlertView alloc] initWithTitle:@"Last note!" message:@"No other notes to see here." delegate:self cancelButtonTitle:nil otherButtonTitles:@"Ok", nil];
-         [_alertView.containerView setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
-         [_alertView show];
-         }
-         */
-        
+        // TODO: implement bounce animation to indicate there is nothing to collapse.
         return;
     }
     
@@ -371,8 +367,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         
     pinchYTarget = [gesture locationInView:self.view].y;
     pinchVelocity = gesture.velocity;
-
-    if ([gesture numberOfTouches] == 2 && _currentGestureState==kStackingPinch) {
+    
+    if ([gesture numberOfTouches] == 2 && _currentGestureState == kStackingPinch) {
         CGPoint p1 = [gesture locationOfTouch:0 inView:self.view]; //first finger
         CGPoint p2 = [gesture locationOfTouch:1 inView:self.view]; //second finger
         
@@ -381,7 +377,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         CGFloat yd = p1.y - p2.y;
         pinchDistance = sqrt(xd*xd + yd*yd);
         
-        if (initialPinchDistance==0.0) {
+        if (initialPinchDistance == 0.0) {
             initialPinchDistance = pinchDistance;
         }
     }
@@ -389,23 +385,28 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self setPinchPercentComplete:(initialPinchDistance-pinchDistance)/(initialPinchDistance-kPinchDistanceCompleteThreshold)];
         
     if (gesture.state == UIGestureRecognizerStateBegan) {
-        
+        NSLog(@"Pinch state Began");
         [self endTouchDemoAnimation];
         
         if (_stackVC.view.frame.origin.x < 0.0) {
             [_stackVC.view setFrameX: 0.0];
         }
+        
         [self pinchToCollapseBegun:YES];
+        
         [_stackVC prepareForCollapse];
+        
         if (![_stackVC needsAnimation]) {
             [self finishPinch];
             return;
         }
+        
         [self.view addSubview:_stackVC.view];
+        
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
         
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
-        
+        NSLog(@"Pinch state Changed");
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
 
         if (pinchPercentComplete>=1.0) {
@@ -419,14 +420,12 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         if (pinchVelocity < -0.8 && pinchComplete) {
             [self.view setUserInteractionEnabled:NO];
         }
-        
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        
+        NSLog(@"Pinch state Ended");
         [self pinchToCollapseBegun:NO];
         
         if (pinchComplete) {
             [self finishPinch];
-            
         } else {
             [_stackVC resetToExpanded:^{
                 [self.currentNoteViewController setWithNoDataTemp:NO];
@@ -441,18 +440,13 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 - (void)pinchToCollapseBegun:(BOOL)val
 {
     pinchPercentComplete = 0.0;
-    
     if (val) {
-
         [self.currentNoteViewController.textView resignFirstResponder];
         [self.currentNoteViewController.textView setScrollEnabled:NO];
         [self setGestureState:kStackingPinch];
-        
     } else {
-        
         [self.currentNoteViewController.textView setScrollEnabled:YES];
         [self setGestureState:kGestureFinished];
-        
     }
 }
 
@@ -1721,7 +1715,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     newFrame.origin.y = newY;
     [keyboard setFrame: newFrame];
     
-    
     if (location.y >= keyboard.frame.origin.y) { //make sure the touch is at or below where the keyboard is
         CGRect textFrame = self.view.frame;
         textFrame.size.height = location.y; //changes the height of the textbox to the y value of the location of the touch/pan
@@ -1920,7 +1913,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
             [self presentViewController:composeViewController animated:YES completion:nil];
         }
     }
-
 }
 
 - (void)sendSMS
@@ -1945,11 +1937,5 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-
-
-
-
-
-
 
 @end
