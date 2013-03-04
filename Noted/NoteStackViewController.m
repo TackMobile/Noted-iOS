@@ -404,7 +404,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self.view addSubview:_stackVC.view];
         
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
-        
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         NSLog(@"Pinch state Changed");
         [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];

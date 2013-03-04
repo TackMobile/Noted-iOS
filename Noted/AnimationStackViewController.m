@@ -325,6 +325,8 @@ static const float  kCellHeight             = 66.0;
     
     [self setNotesToCollapseBeginPositions:NO];
     
+    // ??? If collapsing from the last (top) note then this should display the
+    // note text in the note cell
     if (currentNoteIsLast) {
         UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
         fullText.alpha = 1.0;
@@ -428,7 +430,7 @@ static const float  kCellHeight             = 66.0;
                 } else if (prevNote) {
                     [self.view insertSubview:cell belowSubview:prevNote];
                 }
-            } 
+            }
             prevNote = cell;
         } else {
             NSAssert([_activeStackItem isEqual:item],@"should be active item");
@@ -452,11 +454,14 @@ static const float  kCellHeight             = 66.0;
     _pinchPercentComplete = pinchPercent;
     NSLog(@"AnimationStackVC::animateCollapseForScale for _pinchPercentComplete %f, num of stack items: %i",pinchPercent,_stackItems.count);
     
+    // If the animation stack view is not on the screen???
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
         
         UITextView *textView = [self makeFullTextForStackItem:_activeStackItem];
-        textView.textColor = [UIColor purpleColor];
+        textView.textColor = [UIColor greenColor];
+        textView.backgroundColor = [UIColor redColor];
+        
         [textView setHidden:NO];
     }
     
@@ -515,7 +520,6 @@ static const float  kCellHeight             = 66.0;
     NoteEntryCell *cell = (NoteEntryCell *)item.cell;
     
     CGRect destinationFrame = item.destinationFrame;
-    
     CGRect originFrame = item.startingFrame;[(NSValue *)[originFrames objectAtIndex:index] CGRectValue];
     
     CGFloat startY = originFrame.origin.y;
@@ -583,7 +587,7 @@ static const float  kCellHeight             = 66.0;
         newY = _centerNoteDestinationFrame.origin.y * _pinchPercentComplete;
     }  
     
-    NSLog(@"newY: %f", newY);
+    //NSLog(@"newY: %f", newY);
     
     if (newY < 0) {
         newY = 0;
@@ -591,23 +595,25 @@ static const float  kCellHeight             = 66.0;
     
     UIView *fullText = [self makeFullTextForStackItem:_activeStackItem];
     
-    
     if (currentNoteIsLast) {
         newHeight = self.view.bounds.size.height - newY;
     } else {
-        float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
-        fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
+    
+        // [dm] 3-5-13 removing the alpha fade.  not needed now that text truncation is removed in note list text
+        //float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
+        //fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
         
         CGRect currentFullTextFrame = fullText.frame;
         CGRect newFrame = CGRectMake(currentFullTextFrame.origin.x,
                                      currentFullTextFrame.origin.y,
                                      currentFullTextFrame.size.width,
                                      newHeight - currentFullTextFrame.origin.y);
-        NSLog(@"fullText frame: %@", NSStringFromCGRect(newFrame));
+        //NSLog(@"fullText frame: %@", NSStringFromCGRect(newFrame));
         
         fullText.frame = newFrame;
         
-        currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
+        //currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
+        currentNoteCell.subtitleLabel.hidden = YES;
     }
     
     _centerNoteFrame = CGRectMake(0.0, newY, self.view.bounds.size.width, newHeight);
@@ -631,12 +637,10 @@ static const float  kCellHeight             = 66.0;
 - (UITextView *)makeFullTextForStackItem:(StackViewItem *)item
 {
     NSLog(@"AnimationStackVC::makeFullTextForStackItem row %i", item.indexPath.row);
-          
+
     UITableViewCell *cell = item.cell;
     UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
     UILabel *subtitle = (UILabel *)[cell.contentView viewWithTag:LABEL_TAG];
-    
-    [textView setHidden:YES];
     
     NoteEntry *noteEntry = item.noteEntry;
     
@@ -644,21 +648,7 @@ static const float  kCellHeight             = 66.0;
         textView = [self textFieldForItem:item];
         [cell.contentView addSubview:textView];
     }
-    
-    //NSLog(@"range for '\n': %i -> %i", range.location, (range.location + range.length));
-    
-    BOOL isCurrentAndLast = currentNoteIsLast && [cell isEqual:currentNoteCell];
-    if (_pinchPercentComplete > 0.0 && !isCurrentAndLast && !item.isLast) {
-        NSString *text = noteEntry.text;
-        NSRange range = [text rangeOfString:@"\n"];
-        if (range.location != NSNotFound) {
-            text = [text stringByReplacingCharactersInRange:NSMakeRange(0, range.location) withString:@""];
-        }
-        textView.text = text;
-    } else {
-        textView.text = noteEntry.text;
-    }
-    
+    textView.text = noteEntry.text;
     textView.textColor = subtitle.textColor;
     [textView setHidden:NO];
     
