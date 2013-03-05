@@ -608,6 +608,8 @@ static const float  kCellHeight             = 66.0;
     
     if (currentNoteIsLast) {
         newHeight = self.view.bounds.size.height - newY;
+        [fullText setFrameX:TEXT_VIEW_X];
+        [fullText setFrameY:TEXT_VIEW_Y];
     } else {
         // [dm] 3-5-13 removing the alpha fade.  not needed now that text truncation is removed in note list text
         //float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
@@ -618,8 +620,6 @@ static const float  kCellHeight             = 66.0;
                                      TEXT_VIEW_Y,
                                      currentFullTextFrame.size.width,
                                      newHeight - currentFullTextFrame.origin.y);
-        NSLog(@"fullText frame: %@", NSStringFromCGRect(newFrame));
-        
         fullText.frame = newFrame;
         
         //currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
