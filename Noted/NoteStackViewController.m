@@ -420,9 +420,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
             [self.view setUserInteractionEnabled:NO];
         }
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        NSLog(@"Pinch state Ended");
+        NSLog(@"Pinch state Ended  isOffScreen: %d",[self pinchDidEndOffScreen:gesture]);
         [self pinchToCollapseBegun:NO];
-        
         if (pinchComplete) {
             [self finishPinch];
         } else {
@@ -434,6 +433,22 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
             }];
         }
     }
+}
+
+- (BOOL)pinchDidEndOffScreen:(UIPinchGestureRecognizer*)gesture
+{
+    CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
+    CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
+    NSLog(@"p1: %@, p2: %@", NSStringFromCGPoint(p1), NSStringFromCGPoint(p2));
+    
+    return (gesture.state == UIGestureRecognizerStateEnded &&
+            ([self pointIsOffScreen:p1] || [self pointIsOffScreen:p2]));
+}
+
+-(BOOL)pointIsOffScreen:(CGPoint)point
+{
+    return (point.x < 0 || point.x > self.view.frame.size.width) ||
+           (point.y < 0 || point.y > self.view.frame.size.height);
 }
 
 - (void)pinchToCollapseBegun:(BOOL)val
@@ -452,7 +467,6 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 - (void)finishPinch
 {
     [_stackVC finishCollapse:^{
-        
         [self.view setUserInteractionEnabled:YES];
         initialPinchDistance = 0.0;
         _currentGestureState = kGestureFinished;
@@ -505,7 +519,6 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
 }
 
 #pragma mark Stacking animation helpers
-
 
 - (float)indexOffsetForStackedNoteAtIndex:(int)index
 {
@@ -674,7 +687,7 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
         
         self.currentNoteViewController.textView.scrollEnabled = YES;
         
-        if (numberOfTouchesInCurrentPanGesture == 1){
+        if (numberOfTouchesInCurrentPanGesture == 1) {
             if (_currentGestureState == kCycle) { //if the user ended their one finger pan gesture
                 [self handleSingleTouchPanEndedForVelocity:velocity]; //either changes the note to the next note or animates and "snaps" back the current note depending on whether 1. there's another note in the stack or 2. the user panned far enough on the screen or not
             } else if (_currentGestureState == kShouldCreateNew) {
