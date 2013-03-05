@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+#define DEBUG_ANIMATIONS    0
+#define DEBUG_VIEWS         0
+
 typedef enum {
     kTableView,
     kNoteStack

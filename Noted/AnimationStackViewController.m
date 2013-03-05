@@ -31,9 +31,6 @@ typedef enum {
 #define SHADOW_TAG          56
 #define SHADOW_TAG_DUP      57
 
-#define DEBUG_ANIMATIONS    1
-#define DEBUG_VIEWS         1
-
 #define IS_NOTE_SECTION(indexPath) indexPath.section==0
 
 static const float  kAnimationDuration      = 0.5;

@@ -12,6 +12,7 @@
 #import "NoteDocument.h"
 #import "NoteData.h"
 #import "Utilities.h"
+#import "AnimationStackViewController.h"
 
 @interface NoteViewController ()
 
@@ -155,7 +156,7 @@
         [self.relativeTime setTextColor:[UIColor colorWithWhite:0.2 alpha:0.5]];
         [self.optionsButton setImage:[UIImage imageNamed:@"menu-icon-grey"] forState:UIControlStateNormal];
     }
-    if (DEBUG) {
+    if (DEBUG_VIEWS) {
         [self.textView setTextColor:[UIColor redColor]];
         [self.textView setBackgroundColor:[UIColor greenColor]];
         [self.textView setAlpha:0.7f];

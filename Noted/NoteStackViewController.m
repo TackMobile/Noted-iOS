@@ -627,7 +627,9 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                 [self setGestureState:kShouldCreateNew];
                 
                 [self.nextNoteViewController setWithPlaceholderData:YES defaultData:nil];
+
                 //[self debugView:self.nextNoteViewController.view color:[UIColor greenColor]];
+                
                 [self.view addSubview:self.nextNoteViewController.view];
                 self.nextNoteViewController.view.hidden = NO;
             } else {
