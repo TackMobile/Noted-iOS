@@ -34,7 +34,6 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     
     //self.textLabel.adjustsFontSizeToFitWidth = YES;
-    self.textLabel.backgroundColor = [UIColor redColor];
     
     self.subtitleLabel.numberOfLines = 3;
     //self.subtitleLabel.autoresizingMask = UIViewAutoresizingNone;

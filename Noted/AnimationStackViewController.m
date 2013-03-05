@@ -459,8 +459,11 @@ static const float  kCellHeight             = 66.0;
         [self.view setFrameX:0.0];
         
         UITextView *textView = [self makeFullTextForStackItem:_activeStackItem];
-        textView.textColor = [UIColor greenColor];
-        textView.backgroundColor = [UIColor redColor];
+        
+        if (DEBUG_VIEWS) {
+            textView.textColor = [UIColor greenColor];
+            textView.backgroundColor = [UIColor redColor];
+        }
         
         [textView setHidden:NO];
     }
@@ -533,7 +536,9 @@ static const float  kCellHeight             = 66.0;
     [textView setHidden:YES];
     [cell.subtitleLabel setHidden:NO];
     cell.subtitleLabel.alpha = 1.0;
-    cell.subtitleLabel.textColor = [UIColor redColor];
+    if (DEBUG_VIEWS) {
+        cell.subtitleLabel.textColor = [UIColor redColor];
+    }
     
     if (diff == 0 && _pinchPercentComplete == 1.0) {
         newY = destY;
@@ -598,7 +603,6 @@ static const float  kCellHeight             = 66.0;
     if (currentNoteIsLast) {
         newHeight = self.view.bounds.size.height - newY;
     } else {
-    
         // [dm] 3-5-13 removing the alpha fade.  not needed now that text truncation is removed in note list text
         //float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
         //fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
