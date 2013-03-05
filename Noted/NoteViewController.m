@@ -47,11 +47,10 @@
     
     self.view.layer.cornerRadius = 6.0;
     
-    // Remove the edge insets of the scroll view to make the text line up with the
+    // Remove the edge insets of the text view's scroll view to make the text line up with the
     // corresponding cell's UILabel (which is not inside a scrollview so it has no inset)
-    self.textView.contentInset = UIEdgeInsetsMake(-8,-7,0,0);
+    self.textView.contentInset = UIEdgeInsetsMake(TEXT_VIEW_INSET_TOP, TEXT_VIEW_INSET_LEFT, 0, 0);
     self.textView.textAlignment = UITextAlignmentLeft;
-    
 }
 
 - (void)viewDidUnload {

@@ -394,8 +394,8 @@ static const float  kCellHeight             = 66.0;
         UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
         
         if (DEBUG_VIEWS) {
-            textView.backgroundColor = [UIColor purpleColor];
-            textView.textColor = [UIColor yellowColor];
+            textView.backgroundColor = [UIColor yellowColor];
+            textView.textColor = [UIColor purpleColor];
         }
         
         if (item.isLast) {
@@ -497,10 +497,19 @@ static const float  kCellHeight             = 66.0;
 {
     //UITableViewCell *cell = item.cell;
     CGRect frame = self.view.bounds;
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(6, 27, frame.size.width, item.startingFrame.size.height)];
+    CGRect textFrame = CGRectMake(TEXT_VIEW_X+8, TEXT_VIEW_Y,
+                                  frame.size.width, item.startingFrame.size.height);
     
+    UITextView *textView = [[UITextView alloc] initWithFrame:textFrame];
+    textView.contentInset = UIEdgeInsetsMake(TEXT_VIEW_INSET_TOP,TEXT_VIEW_INSET_LEFT,0,0);
     textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
-    textView.backgroundColor = [UIColor clearColor];
+    
+    if (DEBUG_VIEWS) {
+        textView.backgroundColor = [UIColor yellowColor];
+    } else {
+        textView.backgroundColor = [UIColor clearColor];
+    }
+    
     textView.tag = FULL_TEXT_TAG;
     [textView setEditable:NO];
     [textView setUserInteractionEnabled:NO];
@@ -608,11 +617,11 @@ static const float  kCellHeight             = 66.0;
         //fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
         
         CGRect currentFullTextFrame = fullText.frame;
-        CGRect newFrame = CGRectMake(currentFullTextFrame.origin.x,
-                                     currentFullTextFrame.origin.y,
+        CGRect newFrame = CGRectMake(TEXT_VIEW_X,
+                                     TEXT_VIEW_Y,
                                      currentFullTextFrame.size.width,
                                      newHeight - currentFullTextFrame.origin.y);
-        //NSLog(@"fullText frame: %@", NSStringFromCGRect(newFrame));
+        NSLog(@"fullText frame: %@", NSStringFromCGRect(newFrame));
         
         fullText.frame = newFrame;
         
@@ -837,7 +846,7 @@ static const float  kCellHeight             = 66.0;
     UITextView *textView = (UITextView *)[_activeStackItem.cell.contentView viewWithTag:FULL_TEXT_TAG];
     [textView setFrameHeight:_activeStackItem.destinationFrame.size.height];
     [textView setFrameWidth:308];
-    [textView setFrameOrigin:CGPointMake(6, 27)];
+    [textView setFrameOrigin:CGPointMake(12, 35)];
     
     [UIView animateWithDuration:[self animationDuration]
                      animations:^{
