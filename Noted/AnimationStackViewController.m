@@ -85,7 +85,7 @@ static const float  kCellHeight             = 66.0;
 {
     self = [super initWithNibName:@"AnimationStackView" bundle:nil];
     if (self){
-        NSLog(@"AnimationStackVC::init");
+        //NSLog(@"AnimationStackVC::init");
         
         _isPinching = NO;
         
@@ -114,7 +114,7 @@ static const float  kCellHeight             = 66.0;
 - (void)viewDidLoadOptionsViewController
 {
     [super viewDidLoad];
-    NSLog(@"AnimationStackVC::viewDidLoadOptionsViewController");
+    //NSLog(@"AnimationStackVC::viewDidLoadOptionsViewController");
     
     [self.view setUserInteractionEnabled:NO];
     [self.view setBackgroundColor:[UIColor whiteColor]];
@@ -123,7 +123,7 @@ static const float  kCellHeight             = 66.0;
 
 - (BOOL)needsAnimation;
 {
-    NSLog(@"AnimationStackVC::needsAnimation");
+    //NSLog(@"AnimationStackVC::needsAnimation");
     BOOL needsAnimation = YES;
     needsAnimation = !CGRectEqualToRect(_activeStackItem.cell.frame, _centerNoteDestinationFrame);
     
@@ -280,7 +280,7 @@ static const float  kCellHeight             = 66.0;
         
     }
     
-    NSLog(@"num of vis index paths %i, num of stack items created for it %i",visibleIndexPaths.count,_stackItems.count);
+    //NSLog(@"num of vis index paths %i, num of stack items created for it %i",visibleIndexPaths.count,_stackItems.count);
     
     return YES;
 }
@@ -288,7 +288,7 @@ static const float  kCellHeight             = 66.0;
 - (UITableViewCell *)cellForIndex:(NSUInteger)index
 {
     UITableViewCell *cell = nil;
-    NSLog(@"AnimationStackVC::cellForIndex - %i", index);
+    //NSLog(@"AnimationStackVC::cellForIndex - %i", index);
     
     NSString *key = [NSNumber numberWithInt:index].stringValue;
     cell = (UITableViewCell *)[_stackViews objectForKey:key];
@@ -471,7 +471,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)shrinkStackedNotesForScale:(CGFloat)scale
 {
-    NSLog(@"AnimationStackVC::shrinkStackedNotesForScale: %f", scale);
+    //NSLog(@"AnimationStackVC::shrinkStackedNotesForScale: %f", scale);
     for (int i = 0; i < _stackItems.count; i ++) {
         [self collapseStackedNoteAtIndex:i withScale:scale];
     }
@@ -486,7 +486,7 @@ static const float  kCellHeight             = 66.0;
             count++;
         }
     }
-    NSLog(@"AnimationStackVC::noteEntryViewsCount for _pinchPercentComplete %i", count);
+    //NSLog(@"AnimationStackVC::noteEntryViewsCount for _pinchPercentComplete %i", count);
     return count;
 }
 
@@ -511,7 +511,7 @@ static const float  kCellHeight             = 66.0;
     [textView setEditable:NO];
     [textView setUserInteractionEnabled:NO];
     
-    NSLog(@"AnimationStackVC::textFieldForItem: %@", item.noteEntry.title);
+    //NSLog(@"AnimationStackVC::textFieldForItem: %@", item.noteEntry.title);
     
     return textView;
 }
@@ -586,7 +586,7 @@ static const float  kCellHeight             = 66.0;
     //NSLog(@"animation stack view bounds: %@",NSStringFromCGRect(self.view.bounds));
     //NSLog(@"dest height: %f", destHeight);
     //NSLog(@"diff: %f",diff);
-    NSLog(@"new height: %f", newHeight);
+    //NSLog(@"new height: %f", newHeight);
     
     [self updateSubviewsForNote:currentNoteCell scaled:YES];
     
@@ -667,7 +667,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)showFullTextForOpeningNote:(StackViewItem *)item animated:(BOOL)animated
 {
-    NSLog(@"AnimationStackVC::showFullTextForOpeningNote");
+    //NSLog(@"AnimationStackVC::showFullTextForOpeningNote");
     
     UITextView *textView = [self makeFullTextForStackItem:item];
 
@@ -696,7 +696,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)updateNoteText
 {
-    NSLog(@"AnimationStackVC::updateNoteText");
+    //NSLog(@"AnimationStackVC::updateNoteText");
     
     NoteEntryCell *noteCell = (NoteEntryCell *)_activeStackItem.cell;
     UITextView *fullText = (UITextView *)[noteCell.contentView viewWithTag:FULL_TEXT_TAG];
@@ -736,7 +736,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)openSingleNoteForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
-    NSLog(@"AnimationStackVC::openSingleNoteForIndexPath");
+    //NSLog(@"AnimationStackVC::openSingleNoteForIndexPath");
     if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kOpening]) {
         return;
     }
@@ -763,7 +763,7 @@ static const float  kCellHeight             = 66.0;
 
 - (void)animateOpenForIndexPath:(NSIndexPath *)selectedIndexPath completion:(animationCompleteBlock)completeBlock
 {
-    NSLog(@"AnimationStackVC::animateOpenForIndexPath: %i", selectedIndexPath.row);
+    //NSLog(@"AnimationStackVC::animateOpenForIndexPath: %i", selectedIndexPath.row);
     
     if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kOpening]) {
         return;
@@ -806,7 +806,7 @@ static const float  kCellHeight             = 66.0;
             [self openNote:item isLast:item.isLast isBelow:item.offsetFromActive>0];
         }
         
-        NSLog(@"%@",item.description);
+        //NSLog(@"%@",item.description);
     }
 }
 
@@ -838,7 +838,7 @@ static const float  kCellHeight             = 66.0;
     //NSLog(@"%@",_activeStackItem);
     NoteEntryCell *cell = (NoteEntryCell *)_activeStackItem.cell;
     
-    NSLog(@"will animate from %@ to %@",NSStringFromCGRect(cell.frame),NSStringFromCGRect(_activeStackItem.destinationFrame));
+    //NSLog(@"will animate from %@ to %@",NSStringFromCGRect(cell.frame),NSStringFromCGRect(_activeStackItem.destinationFrame));
     
     UITextView *textView = (UITextView *)[_activeStackItem.cell.contentView viewWithTag:FULL_TEXT_TAG];
     [textView setFrameHeight:_activeStackItem.destinationFrame.size.height];

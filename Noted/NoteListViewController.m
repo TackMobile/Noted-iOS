@@ -454,7 +454,7 @@ typedef enum {
     ApplicationModel *model = [ApplicationModel sharedInstance];
     NoteEntry *noteEntry = [model.currentNoteEntries objectAtIndex:indexPath.row];
     
-    NSLog(@"NoteList::willDisplayCell:: %i", indexPath.row);
+    //NSLog(@"NoteList::willDisplayCell:: %i", indexPath.row);
     
     UIColor *bgColor = noteEntry.noteColor ? noteEntry.noteColor : [UIColor whiteColor];
     int index = [[UIColor getNoteColorSchemes] indexOfObject:bgColor];
