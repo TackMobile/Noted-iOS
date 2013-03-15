@@ -264,8 +264,6 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 }
 
-
-
 - (id)initWithNibName:(NSString *)n bundle:(NSBundle *)b
 {
     return [self init];
@@ -284,7 +282,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.currentNoteEntries];
     [tempSet insertObject:noteEntry atIndex:0];
     self.currentNoteEntries = tempSet;  
-  }
+}
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
 {
@@ -345,7 +343,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
  [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
  [[NSUserDefaults standardUserDefaults] synchronize];
  }
- */
+*/
 
 
 @end

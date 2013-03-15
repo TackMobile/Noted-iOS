@@ -385,63 +385,50 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     [self setPinchPercentComplete:(initialPinchDistance-pinchDistance)/(initialPinchDistance-kPinchDistanceCompleteThreshold)];
         
     if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self pinchGestureBegan:gesture];
+        NSLog(@"Pinch state Began");
+        [self endTouchDemoAnimation];
+        
+        if (_stackVC.view.frame.origin.x < 0.0) {
+            [_stackVC.view setFrameX: 0.0];
+        }
+        
+        [self pinchToCollapseBegun:YES];
+        
+        [_stackVC prepareForCollapse];
+        
+        if (![_stackVC needsAnimation]) {
+            [self finishPinch];
+            return;
+        }
+        
+        [self.view addSubview:_stackVC.view];
+        
+        [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
-        [self pinchGestureChanged:gesture];
+        NSLog(@"Pinch state Changed");
+        [_stackVC animateCollapseForScale:scale percentComplete:pinchPercentComplete];
+
+        if (pinchPercentComplete>=1.0) {
+            NSLog(@"reported as complete");
+            pinchComplete = YES;
+        } else {
+            pinchComplete = NO;
+        }
+        
+        // a strong pinch should finish things immediately
+        if (pinchVelocity < -0.8 && pinchComplete) {
+            //NSLog(@"STRONG PINCH FINISH EARLY???");
+            //[self.view setUserInteractionEnabled:NO];
+            [self pinchGestureEnded:gesture];
+        }
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         [self pinchGestureEnded:gesture];
     }
 }
 
-- (void)pinchGestureBegan:(UIPinchGestureRecognizer*)gesture
-{
-    NSLog(@"Pinch Began");
-    [self endTouchDemoAnimation];
-    
-    if (_stackVC.view.frame.origin.x < 0.0) {
-        [_stackVC.view setFrameX: 0.0];
-    }
-    
-    [self pinchToCollapseBegun:YES];
-    
-    [_stackVC prepareForCollapse];
-    
-    if (![_stackVC needsAnimation]) {
-        [self finishPinch];
-        return;
-    }
-    
-    [self.view addSubview:_stackVC.view];
-    
-    [_stackVC animateCollapseForScale:gesture.scale percentComplete:pinchPercentComplete];
-}
-
-- (void)pinchGestureChanged:(UIPinchGestureRecognizer*)gesture
-{
-    NSLog(@"Pinch Changed");
-    [_stackVC animateCollapseForScale:gesture.scale percentComplete:pinchPercentComplete];
-    
-    if (pinchPercentComplete>=1.0) {
-        NSLog(@"reported as complete");
-        pinchComplete = YES;
-    } else {
-        pinchComplete = NO;
-    }
-    
-    // [dm] this makes no sense. commenting out because it puts the card in a bad state. 
-    
-    // A strong pinch should finish things immediately
-    //if (pinchVelocity < -0.8 && pinchComplete) {
-    //    [self.view setUserInteractionEnabled:NO];
-    //}
-}
-
-- (void)pinchGestureEnded:(UIPinchGestureRecognizer*)gesture
-{
-    NSLog(@"Pinch Ended  isOffScreen: %d",[self pinchDidEndOffScreen:gesture]);
-
+- (BOOL)pinchGestureEnded:(UIPinchGestureRecognizer*)gesture {
+    NSLog(@"Pinch state Ended  isOffScreen: %d",[self pinchDidEndOffScreen:gesture]);
     [self pinchToCollapseBegun:NO];
-    
     if (pinchComplete) {
         [self finishPinch];
     } else {

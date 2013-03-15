@@ -212,7 +212,7 @@
 - (void) loadICloudNoteEntriesInBackground {
 
     // check what's there
-    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableArray *noteEntries){
+    [[CloudManager sharedInstance] refreshWithCompleteBlock:^(NSMutableArray *noteEntries) {
         
         //if (IsEmpty(noteEntries)) {
             // if 1st use, create one
