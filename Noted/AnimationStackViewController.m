@@ -689,7 +689,7 @@ static const float  kCellHeight             = 66.0;
                          completion:nil];
     } else {
         textView.alpha = 1.0;
-        subtitle.alpha = 1.0;
+        subtitle.alpha = 0.0;
     }
 }
 
