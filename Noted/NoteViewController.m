@@ -17,6 +17,7 @@
 @interface NoteViewController ()
 
 @property (nonatomic, retain) UITapGestureRecognizer *tapGestureRecognizer;
+@property (nonatomic, retain) UITapGestureRecognizer *doubleTapGestureRecognizer;
 @property (nonatomic, retain) UIPanGestureRecognizer *panGestureRecognizer;
 
 @end
@@ -232,6 +233,14 @@
     tap.delegate = self;
     self.tapGestureRecognizer = tap;
     
+    UITapGestureRecognizer *doubletap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapFrom:)];
+    [doubletap setNumberOfTapsRequired:2];
+    [keyWindow addGestureRecognizer:doubletap];
+    doubletap.delegate = self;
+    self.doubleTapGestureRecognizer = doubletap;
+    
+    [self.tapGestureRecognizer requireGestureRecognizerToFail:self.doubleTapGestureRecognizer];
+    
     [keyWindow addGestureRecognizer:self.tapGestureRecognizer];
 //
 //    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
@@ -241,6 +250,10 @@
 //    [keyWindow addGestureRecognizer:self.panGestureRecognizer];
     
     return YES;
+}
+
+- (void) handleDoubleTapFrom:(UITapGestureRecognizer *)tap {
+    // do nothing
 }
 
 - (void)textViewDidChange:(UITextView *)aTextView {
@@ -264,6 +277,7 @@
     // Remove the gesture recognizers when the keyboard is dismissed.
     [keyWindow removeGestureRecognizer:self.tapGestureRecognizer];
     [keyWindow removeGestureRecognizer:self.panGestureRecognizer];
+    [keyWindow removeGestureRecognizer:self.doubleTapGestureRecognizer];
     
     return YES;
 }
@@ -283,6 +297,11 @@
         
         [self persistChanges];
     }
+}
+
+- (void) textViewDidChangeSelection:(UITextView *)aTextView {
+    // TODO: hanlde word selections a little more politely
+    // in conjunction with the keyboard interaction
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -305,11 +324,14 @@
 }
 
 - (void)handleTapFrom:(UIGestureRecognizer *)recognizer {
-    [self.textView resignFirstResponder];
-    CGPoint touchPoint = [recognizer locationInView:self.view];
-    if (CGRectContainsPoint(self.optionsButton.frame, touchPoint)) {
-        [self.delegate showOptions];
-    } 
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        [self.textView resignFirstResponder];
+        CGPoint touchPoint = [recognizer locationInView:self.view];
+        if (CGRectContainsPoint(self.optionsButton.frame, touchPoint)) {
+            [self.delegate showOptions];
+        }
+    }
+    NSLog(@"called %s",__PRETTY_FUNCTION__);
 }
 
 - (void)handlePanFrom:(UIGestureRecognizer *)recognizer {
