@@ -545,43 +545,6 @@ typedef enum {
     _viewingNoteStack = YES;
 }
 
-- (void)willDisplayLastRowCell:(UITableViewCell *)lastCell atIndexPath:(NSIndexPath *)lastIndexPath
-{
-    _lastRow = (NoteEntryCell *)lastCell;
-    _lastIndexPath = lastIndexPath;
-    
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    NoteEntry *noteEntry = [model.currentNoteEntries lastObject];
-    if (_lastRowFullText) {
-        [_lastRowFullText removeFromSuperview];
-    }
-    UITextView *textView = (UITextView *)[lastCell.contentView viewWithTag:FULL_TEXT_TAG];
-    UILabel *subtitle = (UILabel *)[lastCell.contentView viewWithTag:LABEL_TAG];
-    if (!textView) {
-        CGRect frame = self.view.bounds;
-        textView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, frame.size.height)];
-        
-        textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
-        textView.backgroundColor = [UIColor clearColor];
-        textView.tag = FULL_TEXT_TAG;
-        [textView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
-        [textView setFrameY:21.0];
-        
-        textView.textColor = subtitle.textColor;
-
-        textView.text = noteEntry.text;
-        [textView setEditable:NO];
-        [textView setUserInteractionEnabled:NO];
-        [textView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
-        
-        [subtitle setHidden:YES];
-        [lastCell.contentView addSubview:textView];
-        
-        _lastRowFullText = textView;
-    }
- 
-}
-
 - (void)verifyFullTextParent
 {
     if (!_lastRowFullText) {
