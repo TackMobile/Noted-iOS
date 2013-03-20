@@ -426,7 +426,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     }
 }
 
-- (BOOL)pinchGestureEnded:(UIPinchGestureRecognizer*)gesture {
+- (void)pinchGestureEnded:(UIPinchGestureRecognizer*)gesture {
     NSLog(@"Pinch state Ended  isOffScreen: %d",[self pinchDidEndOffScreen:gesture]);
     [self pinchToCollapseBegun:NO];
     if (pinchComplete) {
@@ -443,12 +443,16 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (BOOL)pinchDidEndOffScreen:(UIPinchGestureRecognizer*)gesture
 {
+    BOOL gestureEnded = gesture.state == UIGestureRecognizerStateEnded;
+    // if less than two fingers, a pinch is done
+    if (gesture.numberOfTouches < 2) {
+        return YES;
+    }
     CGPoint p1 = [gesture locationOfTouch:0 inView:self.view];
     CGPoint p2 = [gesture locationOfTouch:1 inView:self.view];
     NSLog(@"p1: %@, p2: %@", NSStringFromCGPoint(p1), NSStringFromCGPoint(p2));
     
-    return (gesture.state == UIGestureRecognizerStateEnded &&
-            ([self pointIsOffScreen:p1] || [self pointIsOffScreen:p2]));
+    return (gestureEnded && ([self pointIsOffScreen:p1] || [self pointIsOffScreen:p2]));
 }
 
 -(BOOL)pointIsOffScreen:(CGPoint)point
