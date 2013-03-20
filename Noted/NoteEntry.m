@@ -46,7 +46,7 @@
         NSArray *components = [titleText componentsSeparatedByString:@"\n"];
         titleText = [components objectAtIndex:0];
     }     
-    return titleText;
+    return self.noteData.noteText;//rtitleText;
 }
 
 - (NSString *)removeLeadingNewline:(NSString *)text
