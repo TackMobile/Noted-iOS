@@ -176,9 +176,7 @@ static const float  kCellHeight             = 66.0;
             
            cell = [self cellForIndex:i];
             [item setCell:cell];
-            [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];
-            
-            
+            [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];            
             
             if (i==0) {
                 [item setIsFirst:YES];
@@ -187,7 +185,7 @@ static const float  kCellHeight             = 66.0;
                     [cell setClipsToBounds:YES];
                 }
             } else {
-                [cell setClipsToBounds:NO];
+                //[cell setClipsToBounds:NO];
             }
             [item setIndex:i];
             [item setIsNoteEntry:YES];
