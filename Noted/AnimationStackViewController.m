@@ -307,7 +307,8 @@ static const float  kCellHeight             = 66.0;
 
 - (void)prepareForCollapse
 {
-    NSIndexPath *selectedIndexPath = [_tableView indexPathForSelectedRow];
+    NSIndexPath *selectedIndexPath = [self selectedIndexPath];
+    
     NSLog(@"AnimationStackVC::prepareForCollapse - %i", selectedIndexPath.row);
     
     if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kClosing]) {
@@ -327,6 +328,16 @@ static const float  kCellHeight             = 66.0;
         fullText.alpha = 1.0;
         currentNoteCell.subtitleLabel.alpha = 0.0;
     }
+}
+
+- (NSIndexPath *) selectedIndexPath {
+    NSIndexPath *selectedIndexPath = [_tableView indexPathForSelectedRow];
+    if (!selectedIndexPath) {
+        selectedIndexPath = [NSIndexPath indexPathForRow:_selectedViewIndex inSection:0];
+        [_tableView selectRowAtIndexPath:selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+    }
+    NSAssert(selectedIndexPath,@"It doesn\'t work without a selected index path!");
+    return selectedIndexPath;
 }
 
 - (void)showDebugViews
