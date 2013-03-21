@@ -10,6 +10,7 @@
 #import "NoteEntryCell.h"
 #import "UIColor+HexColor.h"
 #import "NoteViewController.h"
+#import "AnimationStackViewController.h"
 
 #define FULL_TEXT_TAG       190
 
@@ -20,6 +21,8 @@
     if (self = [super init]) {
         _indexPath = anIndexPath;
         _offsetFromActive = 0;
+        _startingFrame = CGRectZero;
+        _destinationFrame = CGRectZero;
     }
     
     return self;
@@ -35,6 +38,7 @@
     
     if (_noteEntry != noteEntry && noteEntry) {
         _noteEntry = noteEntry;
+        _isNoteEntry = YES;
         [self updateForEntry];
     }
 }

@@ -395,6 +395,9 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
         [self pinchToCollapseBegun:YES];
         
         [_stackVC prepareForCollapse];
+        self.currentNoteViewController.view.layer.borderColor = [UIColor orangeColor].CGColor;
+        self.currentNoteViewController.view.layer.borderWidth = 3.0;
+        //#import <QuartzCore/QuartzCore.h>
         
         if (![_stackVC needsAnimation]) {
             [self finishPinch];

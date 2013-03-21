@@ -16,6 +16,11 @@ typedef enum {
     kNoteStack
 } StackState;
 
+typedef enum {
+    kOpening,
+    kClosing
+} AnimationDirection;
+
 typedef void(^animationCompleteBlock)();
 
 @class NoteDocument;

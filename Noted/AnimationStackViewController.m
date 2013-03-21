@@ -19,11 +19,6 @@
 #import "NoteListViewController.h"
 #import "DrawView.h"
 
-typedef enum {
-    kOpening,
-    kClosing
-} AnimationDirection;
-
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
 #define SECZERO_ROWZERO_TAG 687
@@ -130,10 +125,20 @@ static const float  kCellHeight             = 66.0;
     return YES;
 }
 
+- (void) reset {
+    _sectionZeroRowOneVisible = NO;
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    [self.view setFrame:appFrame];
+    _selectedViewIndex = 0;
+    currentNoteIsLast = NO;
+    _centerNoteDestinationFrame = CGRectZero;
+    _activeStackItem = nil;
+}
+
 - (BOOL)updatedStackItemsForIndexPath:(NSIndexPath *)selectedIndexPath andDirection:(AnimationDirection)direction {
     
     NSLog(@"AnimationStackVC::updatedStackItemsForIndexPath %i  %i", selectedIndexPath.row, direction);
-    
+    [self reset];
     [_tableView visibleCells];
     NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
     _currentDirection = direction;
@@ -151,32 +156,32 @@ static const float  kCellHeight             = 66.0;
          }
      }
     
-    _sectionZeroRowOneVisible = NO;
     NSIndexPath *firstVisibleNote = [visibleIndexPaths objectAtIndex:0];
       
     if (selectedIndexPath.row < firstVisibleNote.row) {
-        // scrolling too fast, or some other weirdness
+        // scrolling "too" fast, or some other weirdness
         return NO;
     }
     
     [_stackItems removeAllObjects];
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    [self.view setFrame:appFrame];
-    _selectedViewIndex = 0;
-    currentNoteIsLast = NO;
-    
+
     _selectedViewIndex = selectedIndexPath.row - [firstVisibleNote row];
     
     NSArray *allNoteEntries = [[[ApplicationModel sharedInstance] currentNoteEntries] array];
     int i = 0;
+    NSAssert(allNoteEntries.count>0 && visibleIndexPaths.count>0, @"There should be note and cells to loop through");
     for (NSIndexPath *indexPath in visibleIndexPaths) {
         StackViewItem *item = [[StackViewItem alloc] initWithIndexPath:indexPath];
         UITableViewCell *cell = nil;
         if (IS_NOTE_SECTION(indexPath)) {
             
-           cell = [self cellForIndex:i];
+            cell = [self cellForIndex:i];
+            NSAssert(cell,@"There MUST be a cell to animate! %i",__LINE__);
             [item setCell:cell];
-            [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];            
+            [item setNoteEntry:[allNoteEntries objectAtIndex:indexPath.row]];
+            [item setIndex:i];
+            
+            NSAssert(item.noteEntry,@"There MUST be a note to serve as a model! %i",__LINE__);
             
             if (i==0) {
                 [item setIsFirst:YES];
@@ -187,17 +192,17 @@ static const float  kCellHeight             = 66.0;
             } else {
                 //[cell setClipsToBounds:NO];
             }
-            [item setIndex:i];
-            [item setIsNoteEntry:YES];
+            
             
             if ([indexPath isEqual:[visibleIndexPaths lastObject]]) {
                 [item setIsLast:YES];
                 lastNoteCell = (NoteEntryCell *)cell;
-                
             }
             
             if ([indexPath isEqual:selectedIndexPath]) {
                 [item setIsActive:YES];
+                _activeStackItem = item;
+                NSAssert([_activeStackItem isEqual:item],@"should be active item");
                 if (_currentDirection==kOpening){
                     _centerNoteDestinationFrame = self.view.frame;
                 }
@@ -206,7 +211,7 @@ static const float  kCellHeight             = 66.0;
                 rect = [_tableView rectForRowAtIndexPath:indexPath];
                 rect = [_tableView.superview convertRect:rect fromView:_tableView];
                 [currentNoteCell setFrame:rect];
-                _activeStackItem = item;
+                
                 if (item.isLast) {
                     currentNoteIsLast = YES;
                 } else {
@@ -243,6 +248,8 @@ static const float  kCellHeight             = 66.0;
                     [item setStartingFrame:CGRectMake(0.0, yOrigin, 320.0, kCellHeight)];
                 }
                 
+                
+                
             } else if (_currentDirection==kOpening) {
                 if (item.isActive) {
                     rect = [[UIScreen mainScreen] applicationFrame];
@@ -260,12 +267,24 @@ static const float  kCellHeight             = 66.0;
                 originFrame = [_tableView.superview convertRect:originFrame fromView:_tableView];
                 item.startingFrame = originFrame;
             }
+        
+            NSAssert(!CGRectEqualToRect(rect, CGRectZero), @"Don\'t animate to a zero rect");
             [item setDestinationFrame:rect];
+            
+            if (item.isActive) {
+                if (allNoteEntries.count>1) {
+                    NSAssert(!CGRectEqualToRect(item.startingFrame, item.destinationFrame), @"Rects should not be equal, else you\'ll see no animation");
+                }
+                
+            }
             
             i ++;
         }
         
         [_stackItems addObject:item];
+        
+        NSAssert(!CGRectEqualToRect(item.startingFrame, CGRectZero), @"Rect for item at index %i should not be zero",i);
+        NSAssert(!CGRectEqualToRect(item.destinationFrame, CGRectZero), @"Rect for item at index %i should not be zero",i);
         
         for (StackViewItem *item in _stackItems) {
             UITableViewCell *cell = item.cell;
@@ -278,6 +297,16 @@ static const float  kCellHeight             = 66.0;
         
     }
     
+    NSAssert(_activeStackItem, @"there should be an active item");
+    int numActive = 0;
+    for (StackViewItem *item in _stackItems) {
+        NSLog(@"Item at index %i is active: %s",item.index, item.isActive ? "yes" : "no");
+        if (item.isActive) {
+            numActive++;
+        }
+    }
+    NSAssert(_stackItems.count <= allNoteEntries.count, @"There can't be more models than note entries");
+    NSAssert(numActive==1, @"There should be only one active item");
     //NSLog(@"num of vis index paths %i, num of stack items created for it %i",visibleIndexPaths.count,_stackItems.count);
     
     return YES;
@@ -334,7 +363,7 @@ static const float  kCellHeight             = 66.0;
     NSIndexPath *selectedIndexPath = [_tableView indexPathForSelectedRow];
     if (!selectedIndexPath) {
         selectedIndexPath = [NSIndexPath indexPathForRow:_selectedViewIndex inSection:0];
-        [_tableView selectRowAtIndexPath:selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+        [_tableView selectRowAtIndexPath:selectedIndexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
     }
     NSAssert(selectedIndexPath,@"It doesn\'t work without a selected index path!");
     return selectedIndexPath;
