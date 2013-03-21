@@ -39,8 +39,10 @@
     if (_noteEntry != noteEntry && noteEntry) {
         _noteEntry = noteEntry;
         _isNoteEntry = YES;
-        [self updateForEntry];
+        
     }
+    
+    [self updateForEntry];
 }
 
 - (void)updateForEntry
@@ -66,11 +68,11 @@
     
     noteEntryCell.contentView.backgroundColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
     [noteEntryCell.subtitleLabel setText:_noteEntry.title];
-    UITextView *fullText = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
-    if (fullText) {
-        fullText.text = _noteEntry.text;
-        [fullText setFrame:CGRectMake(6, 27, 308, fullText.frame.size.height)];
-    }
+    //UITextView *fullText = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
+    //if (fullText) {
+      //  fullText.text = _noteEntry.text;
+        //[fullText setFrame:CGRectMake(6, 27, 308, fullText.frame.size.height)];
+    //}
     noteEntryCell.relativeTimeText.text = [_noteEntry relativeDateString];
     
     UILabel *circle = (UILabel *)[noteEntryCell viewWithTag:78];

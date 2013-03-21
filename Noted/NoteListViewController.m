@@ -433,13 +433,13 @@ typedef enum {
         [noteEntryCell setSubviewsBgColor:noteEntry.noteColor];
     }
     
-    noteEntryCell.subtitleLabel.text = noteEntry.title;
+    noteEntryCell.subtitleLabel.text = noteEntry.text;
     
-    BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
-    UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
-    if (textView && !isLastNote) {
-        [textView removeFromSuperview];
-    }
+    //BOOL isLastNote = indexPath.row == _noteCount-1 ? YES : NO;
+    //UITextView *textView = (UITextView *)[noteEntryCell.contentView viewWithTag:FULL_TEXT_TAG];
+    //if (textView && !isLastNote) {
+      //  [textView removeFromSuperview];
+    //}
     
     noteEntryCell.relativeTimeText.text = [noteEntry relativeDateString];
     
@@ -477,24 +477,25 @@ typedef enum {
         [noteEntryCell setSubviewsBgColor:_lastRowColor];
         
         // Create a CGSize variable that represents the MAXIMUM size the label can be.
-        CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
-        
-        //NSLog(@"%i::maximumLabelSize: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
-        
-        NSString *actualNoteText = noteEntry.title;
-        
-        // Create a CGSize variable that represents 
-        CGSize expectedLabelSize = [actualNoteText sizeWithFont:noteEntryCell.subtitleLabel.font constrainedToSize:maximumLabelSize lineBreakMode:noteEntryCell.subtitleLabel.lineBreakMode];
-        
-        //NSLog(@"%i::expectedLabelSize: %@", indexPath.row, NSStringFromCGSize(expectedLabelSize));
-        
-        CGRect updatedFrame = [noteEntryCell.subtitleLabel frame];
-        updatedFrame.size.height = expectedLabelSize.height;
+//        CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
+//        
+//        //NSLog(@"%i::maximumLabelSize: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
+//        
+//        NSString *actualNoteText = noteEntry.title;
+//        
+//        // Create a CGSize variable that represents 
+//        CGSize expectedLabelSize = [actualNoteText sizeWithFont:noteEntryCell.subtitleLabel.font constrainedToSize:maximumLabelSize lineBreakMode:noteEntryCell.subtitleLabel.lineBreakMode];
+//        
+//        //NSLog(@"%i::expectedLabelSize: %@", indexPath.row, NSStringFromCGSize(expectedLabelSize));
+//        
+//        CGRect updatedFrame = [noteEntryCell.subtitleLabel frame];
+//        updatedFrame.size.height = expectedLabelSize.height;
         
         //NSLog(@"%i::updatedFrame: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
         
-        [noteEntryCell.subtitleLabel setNumberOfLines:0];
-        [noteEntryCell.subtitleLabel setFrame:updatedFrame];
+        //[noteEntryCell.subtitleLabel setNumberOfLines:0];
+        CGRect frame = [noteEntryCell frameForText:noteEntry.title];
+        [noteEntryCell.subtitleLabel setFrame:frame];
     } else {
         noteEntryCell.subtitleLabel.numberOfLines = 3;
         [noteEntryCell.subtitleLabel sizeToFit];

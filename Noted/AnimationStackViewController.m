@@ -353,9 +353,10 @@ static const float  kCellHeight             = 66.0;
     // ??? If collapsing from the last (top) note then this should display the
     // note text in the note cell
     if (currentNoteIsLast) {
-        UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
-        fullText.alpha = 1.0;
-        currentNoteCell.subtitleLabel.alpha = 0.0;
+        //UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
+        //fullText.alpha = 1.0;
+        //NSAssert(![currentNoteCell.subtitleLabel isEqual:fullText], @"these should be different things...");
+        //currentNoteCell.subtitleLabel.alpha = 0.0;
     }
 }
 
@@ -493,14 +494,14 @@ static const float  kCellHeight             = 66.0;
     if (self.view.frame.origin.x != 0.0) {
         [self.view setFrameX:0.0];
         
-        UITextView *textView = [self makeFullTextForStackItem:_activeStackItem];
-        
-        if (DEBUG_VIEWS) {
-            textView.textColor = [UIColor greenColor];
-            textView.backgroundColor = [UIColor redColor];
-        }
-        
-        [textView setHidden:NO];
+//        UITextView *textView = [self makeFullTextForStackItem:_activeStackItem];
+//        
+//        if (DEBUG_VIEWS) {
+//            textView.textColor = [UIColor greenColor];
+//            textView.backgroundColor = [UIColor redColor];
+//        }
+//        
+//        [textView setHidden:NO];
     }
     
     [self collapseCurrentNoteWithScale:scale];
@@ -576,8 +577,8 @@ static const float  kCellHeight             = 66.0;
     diff = diff*_pinchPercentComplete;
     CGFloat newY;
     
-    UITextView *textView = [self makeFullTextForStackItem:item];
-    [textView setHidden:YES];
+    //UITextView *textView = [self makeFullTextForStackItem:item];
+    //[textView setHidden:YES];
     [cell.subtitleLabel setHidden:NO];
     cell.subtitleLabel.alpha = 1.0;
     if (DEBUG_VIEWS) {
@@ -595,8 +596,8 @@ static const float  kCellHeight             = 66.0;
     float newHeight = kCellHeight;
     
     if (item.isLast) {
-        [textView setHidden:NO];
-        [cell.subtitleLabel setHidden:YES];
+        //[textView setHidden:NO];
+        //[cell.subtitleLabel setHidden:YES];
         newHeight = kCellHeight + (destinationFrame.size.height - kCellHeight)*_pinchPercentComplete;
         
         UIView *shadow = [cell viewWithTag:SHADOW_TAG];
@@ -642,26 +643,26 @@ static const float  kCellHeight             = 66.0;
         newY = 0;
     } 
     
-    UIView *fullText = [self makeFullTextForStackItem:_activeStackItem];
+    //UIView *fullText = [self makeFullTextForStackItem:_activeStackItem];
     
     if (currentNoteIsLast) {
         newHeight = self.view.bounds.size.height - newY;
-        [fullText setFrameX:TEXT_VIEW_X];
-        [fullText setFrameY:TEXT_VIEW_Y];
+        //[fullText setFrameX:TEXT_VIEW_X];
+        //[fullText setFrameY:TEXT_VIEW_Y];
     } else {
         // [dm] 3-5-13 removing the alpha fade.  not needed now that text truncation is removed in note list text
         //float factor = 1.0 - ((1.0 - _pinchPercentComplete) * .3);
         //fullText.alpha = 1.0 - (_pinchPercentComplete * factor);
         
-        CGRect currentFullTextFrame = fullText.frame;
-        CGRect newFrame = CGRectMake(TEXT_VIEW_X,
-                                     TEXT_VIEW_Y,
-                                     currentFullTextFrame.size.width,
-                                     newHeight - currentFullTextFrame.origin.y);
-        fullText.frame = newFrame;
+        //CGRect currentFullTextFrame = fullText.frame;
+        //CGRect newFrame = CGRectMake(TEXT_VIEW_X,
+                                     //TEXT_VIEW_Y,
+                                     //currentFullTextFrame.size.width,
+                                     //newHeight - currentFullTextFrame.origin.y);
+        //fullText.frame = newFrame;
         
         //currentNoteCell.subtitleLabel.alpha = _pinchPercentComplete+factor;
-        currentNoteCell.subtitleLabel.hidden = YES;
+        //currentNoteCell.subtitleLabel.hidden = YES;
     }
     
     _centerNoteFrame = CGRectMake(0.0, newY, self.view.bounds.size.width, newHeight);
@@ -707,28 +708,28 @@ static const float  kCellHeight             = 66.0;
 {
     //NSLog(@"AnimationStackVC::showFullTextForOpeningNote");
     
-    UITextView *textView = [self makeFullTextForStackItem:item];
+    //UITextView *textView = [self makeFullTextForStackItem:item];
 
     UILabel *subtitle = (UILabel *)[item.cell.contentView viewWithTag:LABEL_TAG];
     
-    if (_currentDirection==kOpening && !item.isLast) {
-        subtitle.alpha = 1.0;
-    } else {
-        subtitle.alpha = 0.0;
-    }
-    
-    if (animated) {
-        textView.alpha = 0.0;
-        [UIView animateWithDuration:[self animationDuration]*0.4
-                         animations:^{
-                             textView.alpha = 1.0;
-                             subtitle.alpha = 0.0;
-                         }
-                         completion:nil];
-    } else {
-        textView.alpha = 1.0;
-        subtitle.alpha = 0.0;
-    }
+//    if (_currentDirection==kOpening && !item.isLast) {
+//        subtitle.alpha = 1.0;
+//    } else {
+//        subtitle.alpha = 0.0;
+//    }
+//    
+//    if (animated) {
+//        //textView.alpha = 0.0;
+//        [UIView animateWithDuration:[self animationDuration]*0.4
+//                         animations:^{
+//                             //textView.alpha = 1.0;
+//                             subtitle.alpha = 1.0;
+//                         }
+//                         completion:nil];
+//    } else {
+//        //textView.alpha = 1.0;
+//        subtitle.alpha = 0.0;
+//    }
 }
 
 

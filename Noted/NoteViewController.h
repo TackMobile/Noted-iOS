@@ -13,7 +13,7 @@
 
 #define TEXT_VIEW_X             12
 #define TEXT_VIEW_Y             35
-#define TEXT_VIEW_INSET_TOP     -7
+#define TEXT_VIEW_INSET_TOP     -6
 #define TEXT_VIEW_INSET_LEFT    -8
 
 @protocol NoteViewControllerDelegate <NSObject>

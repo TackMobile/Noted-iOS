@@ -59,14 +59,10 @@
     [self setTextView:nil];
     [self setRelativeTime:nil];
     [super viewDidUnload];
-
 }
 
 - (void)setWithNoDataTemp:(BOOL)val
 {
-    if (_isCurrent) {
-        NSLog(@"stop");
-    }
     if (val) {
         self.textView.text = @"";
         self.relativeTime.text = @"";
@@ -80,9 +76,6 @@
 
 - (void)setWithPlaceholderData:(BOOL)val defaultData:(NoteData *)defaultData
 {
-    if (_isCurrent) {
-        NSLog(@"stop");
-    }
     if (val) {
         NoteData *placeholder = defaultData ? defaultData : [[NoteData alloc] init];
         self.textView.text = [placeholder noteText];
@@ -96,9 +89,6 @@
 }
 
 - (void)setNoteEntry:(NoteEntry *)entry {
-    if (_isCurrent) {
-        NSLog(@"stop");
-    }
     if (_noteEntry != entry) {
         _noteEntry = entry;
         [self updateUIForCurrentEntry];
@@ -113,18 +103,11 @@
 
 - (void)updateUIForCurrentEntry
 {
-    // prepends a newline for display
-    //self.textView.text = [_noteEntry displayText];
-    // [dm] 02-28-13 removed this because it seems like a hack...
     self.textView.text = _noteEntry.text;
-    
     self.relativeTime.text = [_noteEntry relativeDateString];
-    
     UIColor *bgColor = _noteEntry.noteColor ? _noteEntry.noteColor : [UIColor whiteColor];
     [self.view setBackgroundColor:bgColor];
-    
     [self setTextLabelColorsByBGColor:bgColor];
-    
     [self setShadowForXOffset];
 }
 
@@ -137,13 +120,11 @@
     self.view.layer.shouldRasterize = YES;
     [self.view.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.view.bounds cornerRadius:6.5] CGPath]];
     self.view.layer.cornerRadius = 6.5;
-    
     [self.view setNeedsDisplay];
 }
 
 - (void)setTextLabelColorsByBGColor:(UIColor *)color
 {
-    
     int index = [[UIColor getNoteColorSchemes] indexOfObject:color];
     if (index == NSNotFound) {
         index = 0;
@@ -172,7 +153,6 @@
     } else {
         text = @"•";
     }
-    
     return text;
 }
 

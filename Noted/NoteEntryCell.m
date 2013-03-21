@@ -112,31 +112,16 @@
     
 }
 
-/*
- - (IBAction)deleteTapped:(id)sender {
- [self.delegate didDeleteCellWithIndexPath:self];
- }
- */
-
-/*
- - (void)setSelected:(BOOL)selected animated:(BOOL)animated
- {
- [super setSelected:selected animated:animated];
- 
- // Configure the view for the selected state
- }
- */
-
-
-/*
- - (void)setEditing:(BOOL)editing animated:(BOOL)animated
- {
- [super setEditing:editing animated:animated];
- 
- 
- }
- */
-
+- (CGRect) frameForText:(NSString *)text {
+    UILabel *subtitle = self.subtitleLabel;
+    CGSize maximumLabelSize = CGSizeMake(subtitle.frame.size.width, self.frame.size.height - 14 - self.subtitleLabel.frame.origin.y);
+    CGSize expectedLabelSize = [text sizeWithFont:subtitle.font constrainedToSize:maximumLabelSize lineBreakMode:subtitle.lineBreakMode];
+    CGRect updatedFrame = [subtitle frame];
+    updatedFrame.size.height = expectedLabelSize.height;
+    
+    [subtitle setNumberOfLines:0];
+    return updatedFrame;
+}
 
 
 @end

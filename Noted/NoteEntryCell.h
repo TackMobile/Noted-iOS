@@ -25,6 +25,7 @@
 - (void)setSubviewsBgColor:(UIColor *)color;
 - (void)setCornerColorsWithPrevNoteEntry:(UIColor *)noteColor;
 - (void)roundCorners;
+- (CGRect)frameForText:(NSString *)text;
 
 @end
 
