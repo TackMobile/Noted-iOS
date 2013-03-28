@@ -531,10 +531,11 @@ typedef enum {
      */
     
     _selectedIndexPath = indexPath;
+    NSAssert(_selectedIndexPath != nil, @"The selected row must be non-nil %s",__PRETTY_FUNCTION__);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
-   
     model.selectedNoteIndex = indexPath.row;
+    
     [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
         
         NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
