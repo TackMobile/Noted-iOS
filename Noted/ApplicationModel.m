@@ -16,7 +16,7 @@
 #import "FileStorageState.h"
 #import "UIAlertView+Blocks.h"
 #import "TTAlertView.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 
 typedef void(^StorageChoiceCompletionBlock)();
 

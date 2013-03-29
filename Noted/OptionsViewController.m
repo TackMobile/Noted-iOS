@@ -9,7 +9,7 @@
 #import "OptionsViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <Social/Social.h>
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import "FileStorageState.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"

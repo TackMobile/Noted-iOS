@@ -20,7 +20,7 @@
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C5B1573E2860054347A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 29960C5A1573E2860054347A /* Settings.bundle */; };
 		29960C651573F4BF0054347A /* warning.png in Resources */ = {isa = PBXBuildFile; fileRef = 29960C641573F4BF0054347A /* warning.png */; };
-		29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+HexColor.m */; };
+		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
 		29960C881574103F0054347A /* TransformableNoteCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C871574103F0054347A /* TransformableNoteCell.m */; };
 		29960C8A157413020054347A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29960C89157413010054347A /* QuartzCore.framework */; };
 		29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8C157418850054347A /* NoteTableGestureRecognizer.m */; };
@@ -143,8 +143,8 @@
 		29960C581573E1190054347A /* Noted.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Noted.entitlements; sourceTree = "<group>"; };
 		29960C5A1573E2860054347A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		29960C641573F4BF0054347A /* warning.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = warning.png; sourceTree = "<group>"; };
-		29960C7F15740F2D0054347A /* UIColor+HexColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+HexColor.h"; path = "Noted/UIColor+HexColor.h"; sourceTree = "<group>"; };
-		29960C8015740F2D0054347A /* UIColor+HexColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+HexColor.m"; path = "Noted/UIColor+HexColor.m"; sourceTree = "<group>"; };
+		29960C7F15740F2D0054347A /* UIColor+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+Utils.h"; path = "Noted/UIColor+Utils.h"; sourceTree = "<group>"; };
+		29960C8015740F2D0054347A /* UIColor+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+Utils.m"; path = "Noted/UIColor+Utils.m"; sourceTree = "<group>"; };
 		29960C861574103F0054347A /* TransformableNoteCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformableNoteCell.h; sourceTree = "<group>"; };
 		29960C871574103F0054347A /* TransformableNoteCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TransformableNoteCell.m; sourceTree = "<group>"; };
 		29960C89157413010054347A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -356,8 +356,8 @@
 				B548666715F7FEF7005FBC60 /* RIButtonItem.m */,
 				B548666315F7FEDE005FBC60 /* UIAlertView+Blocks.h */,
 				B548666415F7FEDE005FBC60 /* UIAlertView+Blocks.m */,
-				29960C7F15740F2D0054347A /* UIColor+HexColor.h */,
-				29960C8015740F2D0054347A /* UIColor+HexColor.m */,
+				29960C7F15740F2D0054347A /* UIColor+Utils.h */,
+				29960C8015740F2D0054347A /* UIColor+Utils.m */,
 				29960C8B157418850054347A /* NoteTableGestureRecognizer.h */,
 				29960C8C157418850054347A /* NoteTableGestureRecognizer.m */,
 				298F8D1B15780FA2004D11A4 /* Utilities.h */,
@@ -711,7 +711,7 @@
 				298EBFFA15702B5C00B72F5C /* KeyboardKey.m in Sources */,
 				298EC00215702C6F00B72F5C /* KeyboardViewController.m in Sources */,
 				298EC0071570415800B72F5C /* OptionsViewController.m in Sources */,
-				29960C8115740F2D0054347A /* UIColor+HexColor.m in Sources */,
+				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				29960C881574103F0054347A /* TransformableNoteCell.m in Sources */,
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,

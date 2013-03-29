@@ -46,8 +46,6 @@ typedef void(^animationCompleteBlock)();
 - (void)updateNoteText;
 - (BOOL)needsAnimation;
 
-- (UIColor *)randomColor;
-
 @end
 
 @protocol AnimationStackDelegate <NSObject>

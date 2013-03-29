@@ -7,7 +7,7 @@
 //
 
 #import "NoteViewController.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import <QuartzCore/QuartzCore.h>
 #import "NoteDocument.h"
 #import "NoteData.h"

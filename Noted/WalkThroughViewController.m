@@ -9,7 +9,7 @@
 #import "WalkThroughViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+position.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 
 #define RIGHT_BTN_START     0
 #define RIGHT_BTN_EXIT      1

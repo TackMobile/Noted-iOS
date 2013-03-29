@@ -7,7 +7,7 @@
 //
 
 #import "TransformableNoteCell.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface UnfoldingNoteCell : TransformableNoteCell

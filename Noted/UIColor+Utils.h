@@ -1,5 +1,5 @@
 //
-//  UIColor+HexColor.h
+//  UIColor+Utils.h
 //  Noted
 //
 //  Created by James Bartolotta on 5/28/12.
@@ -8,7 +8,8 @@
 
 
 
-@interface UIColor (HexColor)
+@interface UIColor (Utils)
+
 +(UIColor*)colorWithHexString:(NSString*)hex;
 +(NSArray*)getNoteColorSchemes;
 +(NSArray*)getOptionsColorSchemes;
@@ -18,5 +19,6 @@
 - (UIColor *)colorWithBrightness:(CGFloat)brightness;
 - (UIColor *)colorWithHueOffset:(CGFloat)hueOffset;
 + (UIColor *)randomColor;
+- (BOOL)isEqualToColor:(UIColor *)otherColor;
 
 @end

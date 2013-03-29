@@ -8,8 +8,8 @@
 
 #import "KeyboardViewController.h"
 #import "KeyboardKey.h"
+#import "UIColor+Utils.h"
 #import <QuartzCore/QuartzCore.h>
-#import "UIColor+HexColor.h"
 
 @interface KeyboardViewController()
 

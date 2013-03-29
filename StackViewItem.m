@@ -8,7 +8,7 @@
 
 #import "StackViewItem.h"
 #import "NoteEntryCell.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import "NoteViewController.h"
 #import "AnimationStackViewController.h"
 

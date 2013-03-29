@@ -8,7 +8,7 @@
 
 #import "DragToCreateViewController.h"
 #import "NoteEntryCell.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import "UIView+position.h"
 
 #define SHADOW_TAG           56

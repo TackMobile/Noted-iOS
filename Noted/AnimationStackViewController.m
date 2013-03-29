@@ -7,17 +7,19 @@
 //
 
 #import "AnimationStackViewController.h"
-#import <QuartzCore/QuartzCore.h>
+
 #import "StackViewItem.h"
 #import "NoteEntryCell.h"
-#import "UIView+position.h"
 #import "ApplicationModel.h"
 #import "NoteDocument.h"
 #import "NoteEntry.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import "NoteViewController.h"
 #import "NoteListViewController.h"
 #import "DrawView.h"
+#import "UIColor+Utils.h"
+#import "UIView+position.h"
+#import <QuartzCore/QuartzCore.h>
 
 #define FULL_TEXT_TAG       190
 #define LABEL_TAG           200
@@ -25,6 +27,7 @@
 #define NOTE_TAG            697
 #define SHADOW_TAG          56
 #define SHADOW_TAG_DUP      57
+#define BG_COLOR            [UIColor whiteColor]
 
 #define IS_NOTE_SECTION(indexPath) indexPath.section==0
 
@@ -36,7 +39,7 @@ static const float  kCellHeight             = 66.0;
 {
     UITableView *_tableView;
     
-    StackState _state;
+    //StackState _state;
         
     BOOL _sectionZeroRowOneVisible;
     
@@ -72,7 +75,7 @@ static const float  kCellHeight             = 66.0;
 
 @synthesize noteViews=_noteViews;
 @synthesize tableView=_tableView;
-@synthesize state=_state;
+//@synthesize state=_state;
 @synthesize delegate;
 @synthesize sectionZeroRowOneVisible = _sectionZeroRowOneVisible;
 
@@ -80,22 +83,16 @@ static const float  kCellHeight             = 66.0;
 {
     self = [super initWithNibName:@"AnimationStackView" bundle:nil];
     if (self){
-        //NSLog(@"AnimationStackVC::init");
-        
         _isPinching = NO;
-        
         _noteViews = [[NSMutableArray alloc] init];
         _centerNoteFrame = CGRectZero;
         _animating = NO;
-        
-        _state = kNoteStack;
+        //_state = kNoteStack;
  
         _stackItems = [[NSMutableArray alloc] init];
         _stackViews = [[NSMutableDictionary alloc] init];
         
-        [self.view setBackgroundColor:[UIColor clearColor]];
-        //[self debugView:self.view color:[UIColor greenColor]];
-        [self.view setBackgroundColor:[UIColor whiteColor]];
+        [self.view setBackgroundColor:BG_COLOR];
     }
     
     return self;
@@ -110,26 +107,23 @@ static const float  kCellHeight             = 66.0;
 - (void)viewDidLoadOptionsViewController
 {
     [super viewDidLoad];
-    //NSLog(@"AnimationStackVC::viewDidLoadOptionsViewController");
     
     [self.view setUserInteractionEnabled:NO];
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    
 }
 
 - (BOOL)needsAnimation;
 {
-    //NSLog(@"AnimationStackVC::needsAnimation");
+    // default to yes, THEN check frame of active
     BOOL needsAnimation = YES;
     needsAnimation = !CGRectEqualToRect(_activeStackItem.cell.frame, _centerNoteDestinationFrame);
-    
     return YES;
 }
 
 - (void) reset {
     _sectionZeroRowOneVisible = NO;
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    [self.view setFrame:appFrame];
+    [self.view setFrame:[[UIScreen mainScreen] applicationFrame]];
+    [self.tableView addSubview:self.view];
     _selectedViewIndex = 0;
     currentNoteIsLast = NO;
     _centerNoteDestinationFrame = CGRectZero;
@@ -140,7 +134,7 @@ static const float  kCellHeight             = 66.0;
 - (BOOL)updatedStackItemsForIndexPath:(NSIndexPath *)selectedIndexPath andDirection:(AnimationDirection)direction {
     
     [self reset];
-    NSLog(@"AnimationStackVC::updatedStackItemsForIndexPath %i  %i", selectedIndexPath.row, direction);
+    //NSLog(@"AnimationStackVC::updatedStackItemsForIndexPath %i  %i", selectedIndexPath.row, direction);
     [_tableView visibleCells];
     NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
     _currentDirection = direction;
@@ -160,8 +154,7 @@ static const float  kCellHeight             = 66.0;
     
     NSIndexPath *firstVisibleNote = [visibleIndexPaths objectAtIndex:0];
       
-    if (selectedIndexPath.row < firstVisibleNote.row) {
-        // scrolling "too" fast, or some other weirdness
+    if (selectedIndexPath.row < firstVisibleNote.row) { // scrolling "too" fast, or some other weirdness
         return NO;
     }
     
@@ -303,14 +296,13 @@ static const float  kCellHeight             = 66.0;
     NSAssert(_activeStackItem, @"there should be an active item");
     int numActive = 0;
     for (StackViewItem *item in _stackItems) {
-        NSLog(@"Item at index %i is active: %s",item.index, item.isActive ? "yes" : "no");
+        //NSLog(@"Item at index %i is active: %s",item.index, item.isActive ? "yes" : "no");
         if (item.isActive) {
             numActive++;
         }
     }
     NSAssert(_stackItems.count <= allNoteEntries.count, @"There can't be more models than note entries");
     NSAssert(numActive==1, @"There should be only one active item");
-    //NSLog(@"num of vis index paths %i, num of stack items created for it %i",visibleIndexPaths.count,_stackItems.count);
     
     return YES;
 }
@@ -326,7 +318,7 @@ static const float  kCellHeight             = 66.0;
         NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"NoteEntryCell" owner:nil options:nil];
         cell = (UITableViewCell *)[views lastObject];
         
-        cell.contentView.backgroundColor = [self randomColor];
+        cell.contentView.backgroundColor = [UIColor randomColor];
     }
     
     [_stackViews setObject:cell forKey:key];
@@ -340,8 +332,7 @@ static const float  kCellHeight             = 66.0;
 - (void)prepareForCollapse
 {
     NSIndexPath *selectedIndexPath = [self selectedIndexPath];
-    
-    NSLog(@"AnimationStackVC::prepareForCollapse - %i", selectedIndexPath.row);
+    //NSLog(@"AnimationStackVC::prepareForCollapse - %i", selectedIndexPath.row);
     
     if (![self updatedStackItemsForIndexPath:selectedIndexPath andDirection:kClosing]) {
         return;
@@ -353,14 +344,6 @@ static const float  kCellHeight             = 66.0;
     
     [self setNotesToCollapseBeginPositions:NO];
     
-    // ??? If collapsing from the last (top) note then this should display the
-    // note text in the note cell
-    if (currentNoteIsLast) {
-        //UIView *fullText = [currentNoteCell.contentView viewWithTag:FULL_TEXT_TAG];
-        //fullText.alpha = 1.0;
-        //NSAssert(![currentNoteCell.subtitleLabel isEqual:fullText], @"these should be different things...");
-        //currentNoteCell.subtitleLabel.alpha = 0.0;
-    }
 }
 
 - (NSIndexPath *) selectedIndexPath {
@@ -707,35 +690,6 @@ static const float  kCellHeight             = 66.0;
     return textView;
 }
 
-- (void)showFullTextForOpeningNote:(StackViewItem *)item animated:(BOOL)animated
-{
-    //NSLog(@"AnimationStackVC::showFullTextForOpeningNote");
-    
-    //UITextView *textView = [self makeFullTextForStackItem:item];
-
-    UILabel *subtitle = (UILabel *)[item.cell.contentView viewWithTag:LABEL_TAG];
-    
-//    if (_currentDirection==kOpening && !item.isLast) {
-//        subtitle.alpha = 1.0;
-//    } else {
-//        subtitle.alpha = 0.0;
-//    }
-//    
-//    if (animated) {
-//        //textView.alpha = 0.0;
-//        [UIView animateWithDuration:[self animationDuration]*0.4
-//                         animations:^{
-//                             //textView.alpha = 1.0;
-//                             subtitle.alpha = 1.0;
-//                         }
-//                         completion:nil];
-//    } else {
-//        //textView.alpha = 1.0;
-//        subtitle.alpha = 0.0;
-//    }
-}
-
-
 - (void)updateNoteText
 {
     //NSLog(@"AnimationStackVC::updateNoteText");
@@ -783,8 +737,6 @@ static const float  kCellHeight             = 66.0;
         return;
     }
     
-    [self showFullTextForOpeningNote:_activeStackItem animated:NO];
-        
     UITextView *textView = (UITextView *)[_activeStackItem.cell.contentView viewWithTag:FULL_TEXT_TAG];
     [textView setFrameHeight:_activeStackItem.destinationFrame.size.height];
     
@@ -816,7 +768,7 @@ static const float  kCellHeight             = 66.0;
         return;
     }
 
-    [self.view setFrameX:0.0];
+    //[self.view setFrameX:0.0];
     
     _animating = YES;
     
@@ -871,12 +823,6 @@ static const float  kCellHeight             = 66.0;
 
 - (void)openCurrentNoteWithCompletion:(animationCompleteBlock)completeBlock
 {
-    if (currentNoteIsLast) {
-        [self showFullTextForOpeningNote:_activeStackItem animated:NO];
-    } else {
-        [self showFullTextForOpeningNote:_activeStackItem animated:YES];
-    }
-    
     //NSLog(@"%@",_activeStackItem);
     NoteEntryCell *cell = (NoteEntryCell *)_activeStackItem.cell;
     
@@ -898,6 +844,14 @@ static const float  kCellHeight             = 66.0;
                          [circle setHidden:NO];
                          circle.alpha = 1.0;
                          
+                         assert([[[self.view subviews] lastObject] isEqual:_activeStackItem.cell]);
+                         assert(currentNoteCell.layer.zPosition == 0);
+                         assert([currentNoteCell isEqual:_activeStackItem.cell]);
+                         assert(currentNoteCell.frameX == 0.0);
+                         assert(currentNoteCell.alpha == 1.0);
+                         
+                         [self.view addSubview:currentNoteCell];
+                         
                      }
                      completion:^(BOOL finished){
                          
@@ -910,10 +864,6 @@ static const float  kCellHeight             = 66.0;
 
 - (void)openNote:(StackViewItem *)item isLast:(bool)isLast isBelow:(BOOL)isBelow
 {
-    if (isLast) {
-        [self showFullTextForOpeningNote:item animated:NO];
-    } 
-    
     float duration = DEBUG_ANIMATIONS ? kDebugAnimationDuration : kAnimationDuration;
     [UIView animateWithDuration:duration
                      animations:^{
@@ -1100,16 +1050,6 @@ static const float  kCellHeight             = 66.0;
  }
  */
 
-- (UIColor *)randomColor
-{
-    CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
-    CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
-    CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
-    UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-    return color;
-}
-
-
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -1129,5 +1069,7 @@ static const float  kCellHeight             = 66.0;
     
     return completelyVisible;
 }
+
+
 
 @end

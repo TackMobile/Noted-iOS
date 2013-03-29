@@ -18,7 +18,7 @@
 #import "AnimationStackViewController.h"
 #import "NoteEntryCell.h"
 #import "WalkThroughViewController.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 
 typedef enum {
     kGestureFinished,

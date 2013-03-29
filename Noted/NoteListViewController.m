@@ -12,7 +12,7 @@
 #import "NoteEntryCell.h"
 #import "NoteEntry.h"
 #import "NoteDocument.h"
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 #import "NoteStackViewController.h"
 #import "NoteStackViewController.h"
 #import "FileStorageState.h"
@@ -256,9 +256,6 @@ typedef enum {
     }
         
     [self.tableView reloadData];
-    if (_stackViewController) {
-        [self setStackState];
-    }
 }
 
 - (int)selectedIndexPathForStack
@@ -300,7 +297,6 @@ typedef enum {
             for (NSIndexPath *indexPath in allVisibleRows) {
                 if (indexPath.section == kNoteItems) {
                     [_stackViewController setSectionZeroRowOneVisible:[self rowZeroVisible]];
-                    [self setStackState];
                     break;
                 }
             }
@@ -581,11 +577,7 @@ typedef enum {
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     _scrolling = NO;
-    
-    if (!decelerate) {
-        [self setStackState];
-    } 
-    
+
     if (scrollView.contentOffset.y < 0) {
         if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
             [dragToCreateController setDragging:NO];
@@ -614,7 +606,6 @@ typedef enum {
 
 - (void)slideOffTableView
 {
-    //[self.tableView setScrollEnabled:NO];
     [UIView animateWithDuration:0.7
                      animations:^{
                          [self.tableView setFrameY:CGRectGetMaxY(self.view.frame)];
@@ -630,38 +621,14 @@ typedef enum {
     [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:kNoteItems]];
 }
 
-- (void)setStackState
-{
-    if (_stackViewController.state != kTableView) {
-        [_stackViewController setState:kTableView];
-        [self.view addSubview:_stackViewController.view];
-        [_stackViewController.view setFrameX:-320.0];
-    }
-}
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     _scrolling = NO;
     
     if (_lastRowWasVisible) {
-        //self.tableView.backgroundColor = [UIColor whiteColor];
         _lastRowWasVisible = NO;
     }
-
-    [self setStackState];
-    /*
-     NSLog(@"frame %@",NSStringFromCGRect(self.tableView.frame));
-     NSLog(@"content size %@",NSStringFromCGSize(self.tableView.contentSize));
-     NSLog(@"");
-     */
 }
-
-/*
- - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
- {
- return YES;
- }
- */
 
 - (NSString *)displayTitleForNoteEntry:(NoteEntry *)entry
 {

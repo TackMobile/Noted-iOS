@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 Tack Mobile. All rights reserved.
 //
 
-#import "UIColor+HexColor.h"
+#import "UIColor+Utils.h"
 
-@implementation UIColor (HexColor)
+@implementation UIColor (Utils)
 
 +(NSArray*)getNoteColorSchemes {
     //colorSchemes: white,lime,sky,kernal,shadow,tack
@@ -152,6 +152,25 @@
     CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
     UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
     return color;
+}
+
+- (BOOL)isEqualToColor:(UIColor *)otherColor {
+    CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+    
+    UIColor *(^convertColorToRGBSpace)(UIColor*) = ^(UIColor *color) {
+        if(CGColorSpaceGetModel(CGColorGetColorSpace(color.CGColor)) == kCGColorSpaceModelMonochrome) {
+            const CGFloat *oldComponents = CGColorGetComponents(color.CGColor);
+            CGFloat components[4] = {oldComponents[0], oldComponents[0], oldComponents[0], oldComponents[1]};
+            return [UIColor colorWithCGColor:CGColorCreate(colorSpaceRGB, components)];
+        } else
+            return color;
+    };
+    
+    UIColor *selfColor = convertColorToRGBSpace(self);
+    otherColor = convertColorToRGBSpace(otherColor);
+    CGColorSpaceRelease(colorSpaceRGB);
+    
+    return [selfColor isEqual:otherColor];
 }
 
 @end
