@@ -369,7 +369,7 @@ typedef enum {
             //
         }];
         _noteCount = model.currentNoteEntries.count;
-        NSLog(@"Es gibt %i model currentNoteEntries, %s",_noteCount,__PRETTY_FUNCTION__);
+        NSLog(@"There are %i model currentNoteEntries, %s",_noteCount,__PRETTY_FUNCTION__);
         
         NSMutableOrderedSet *notes = [[ApplicationModel sharedInstance] currentNoteEntries];
         _noteCount = notes.count;
@@ -577,7 +577,6 @@ typedef enum {
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     _scrolling = NO;
-
     if (scrollView.contentOffset.y < 0) {
         if ( ABS(scrollView.contentOffset.y) >= dragToCreateController.view.frame.size.height) {
             [dragToCreateController setDragging:NO];

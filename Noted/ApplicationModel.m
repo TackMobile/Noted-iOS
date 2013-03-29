@@ -291,7 +291,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     NoteEntry *noteEntry = [self.currentNoteEntries objectAtIndex:index];
     [self deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
     
-    NSLog(@"Es gibt %i model currentNoteEntries, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
+    NSLog(@"There are %i model currentNoteEntries, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
 }
 
 - (void) deleteNoteEntry:(NoteEntry *)noteEntry withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock
@@ -300,7 +300,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [self.currentNoteEntries removeObject:noteEntry];
     [self.noteFileManager deleteNoteEntry:noteEntry withCompletionBlock:callersCompletionBlock];
   
-    NSLog(@"Es gibt %i noten, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
+    NSLog(@"There are %i noten, %s",self.currentNoteEntries.count,__PRETTY_FUNCTION__);
 }
 
 #pragma mark - Note File Manager Delegate

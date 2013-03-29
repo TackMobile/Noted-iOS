@@ -314,11 +314,8 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)setStackState
 {
-    if (_stackVC.state != kNoteStack) {
-        [_stackVC setState:kNoteStack];
-        [self.view addSubview:_stackVC.view];
-        [_stackVC.view setFrameX:-320.0];
-    }
+    [self.view addSubview:_stackVC.view];
+    [_stackVC.view setFrameX:-320.0];
 }
 
 #pragma mark Pinch gesture to collapse notes stack
@@ -913,6 +910,8 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
     NoteEntry *entryUnderneath;
     if (noteCount == 1) {
         self.nextNoteViewController.view.hidden = YES;
+        // hide the pull to create-view
+        [self.addNoteView setHidden:YES];
     } else {
         self.nextNoteViewController.view.hidden = NO;
         if (xDirection == PREVIOUS_DIRECTION) {
@@ -1491,7 +1490,10 @@ static const float kAverageMinimumDistanceBetweenTouches = 110.0;
                      animations:^{
                          self.currentNoteViewController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewFrame.size.height);
                      }
-                     completion:NULL];
+                     completion:^(BOOL completed){
+                         // reshow the pull to create view
+                         [self.addNoteView setHidden:NO];
+                     }];
 }
 
 - (void)snapBackNextNote

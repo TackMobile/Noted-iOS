@@ -45,8 +45,6 @@ typedef void(^TMDismissalBlock)(float);
 @property int originalKeyboardY;
 @property int originalLocation;
 
-
-
 - (id)initWithDismissalBlock:(TMDismissalBlock)dismiss andStackVC:(AnimationStackViewController *)stackVC;
 
 @end
