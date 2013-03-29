@@ -95,6 +95,7 @@ static const float  kCellHeight             = 66.0;
         
         [self.view setBackgroundColor:[UIColor clearColor]];
         //[self debugView:self.view color:[UIColor greenColor]];
+        [self.view setBackgroundColor:[UIColor whiteColor]];
     }
     
     return self;
@@ -133,12 +134,13 @@ static const float  kCellHeight             = 66.0;
     currentNoteIsLast = NO;
     _centerNoteDestinationFrame = CGRectZero;
     _activeStackItem = nil;
+    assert(self.view.frameX == 0.0);
 }
 
 - (BOOL)updatedStackItemsForIndexPath:(NSIndexPath *)selectedIndexPath andDirection:(AnimationDirection)direction {
     
-    NSLog(@"AnimationStackVC::updatedStackItemsForIndexPath %i  %i", selectedIndexPath.row, direction);
     [self reset];
+    NSLog(@"AnimationStackVC::updatedStackItemsForIndexPath %i  %i", selectedIndexPath.row, direction);
     [_tableView visibleCells];
     NSArray *visibleIndexPaths = [_tableView indexPathsForVisibleRows];
     _currentDirection = direction;
@@ -290,13 +292,14 @@ static const float  kCellHeight             = 66.0;
             UITableViewCell *cell = item.cell;
             [self.view addSubview:cell];
         }
-        
-        if (direction==kOpening) {
-            [self.view addSubview:currentNoteCell];
-        }
-        
     }
-    
+
+    if (direction==kOpening) {
+        assert(currentNoteCell);
+        assert(currentNoteCell.frameX == 0.0);
+        [self.view addSubview:currentNoteCell];
+    }
+
     NSAssert(_activeStackItem, @"there should be an active item");
     int numActive = 0;
     for (StackViewItem *item in _stackItems) {
@@ -821,7 +824,7 @@ static const float  kCellHeight             = 66.0;
         [self openCurrentNoteWithCompletion:completeBlock];
         return;
     }
-    
+    [self.view addSubview:_activeStackItem.cell];
     for (StackViewItem *item in _stackItems) {
         
         NoteEntryCell *modelCellView = (NoteEntryCell* )[_tableView cellForRowAtIndexPath:item.indexPath];

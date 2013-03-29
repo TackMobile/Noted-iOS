@@ -34,22 +34,20 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    [TestFlight takeOff:kTestflightToken];
-    
-    self.window.rootViewController = [[NoteListViewController alloc] init];
-    self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
 
-    [self.window makeKeyAndVisible];
-    
+#if !DEBUG
+    [TestFlight takeOff:kTestflightToken];
+#else
 #if TARGET_IPHONE_SIMULATOR
     [[DCIntrospect sharedIntrospector] start];
 #endif
+#endif
     
-    [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:^(BOOL available){
-        
-    }];
+    self.window.rootViewController = [[NoteListViewController alloc] init];
+    self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
+    [self.window makeKeyAndVisible];
     
+    [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:nil];
     if ([FileStorageState isFirstUse]) {
         [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:USE_STANDARD_SYSTEM_KEYBOARD];
         [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:HIDE_STATUS_BAR];
@@ -59,14 +57,8 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     if (!tourVC) {
         tourVC = tourVC = [[WalkThroughViewController alloc] init];
     }
-
     
     return YES;
-}
-
-- (void)tour
-{
-    
 }
 
 - (void)resumeWalkthroughWithView:(UIView *)view

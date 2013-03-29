@@ -476,24 +476,6 @@ typedef enum {
         [shadow setHidden:YES];
         [noteEntryCell setSubviewsBgColor:_lastRowColor];
         
-        // Create a CGSize variable that represents the MAXIMUM size the label can be.
-//        CGSize maximumLabelSize = CGSizeMake(noteEntryCell.subtitleLabel.frame.size.width, noteEntryCell.frame.size.height - 14 - noteEntryCell.subtitleLabel.frame.origin.y);
-//        
-//        //NSLog(@"%i::maximumLabelSize: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
-//        
-//        NSString *actualNoteText = noteEntry.title;
-//        
-//        // Create a CGSize variable that represents 
-//        CGSize expectedLabelSize = [actualNoteText sizeWithFont:noteEntryCell.subtitleLabel.font constrainedToSize:maximumLabelSize lineBreakMode:noteEntryCell.subtitleLabel.lineBreakMode];
-//        
-//        //NSLog(@"%i::expectedLabelSize: %@", indexPath.row, NSStringFromCGSize(expectedLabelSize));
-//        
-//        CGRect updatedFrame = [noteEntryCell.subtitleLabel frame];
-//        updatedFrame.size.height = expectedLabelSize.height;
-        
-        //NSLog(@"%i::updatedFrame: %@", indexPath.row, NSStringFromCGSize(maximumLabelSize));
-        
-        //[noteEntryCell.subtitleLabel setNumberOfLines:0];
         CGRect frame = [noteEntryCell frameForText:noteEntry.title];
         [noteEntryCell.subtitleLabel setFrame:frame];
     } else {
@@ -519,25 +501,14 @@ typedef enum {
 
 }
 
-- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath { //random comment
-  
-    //UITableViewCell *cell = [tv cellForRowAtIndexPath:indexPath];
-    /*
-     BOOL editing = cell.editing;
-     if (editing) {
-     //[cell setEditing:NO animated:YES];
-     return;
-     }
-     */
+- (void) tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     _selectedIndexPath = indexPath;
     NSAssert(_selectedIndexPath != nil, @"The selected row must be non-nil %s",__PRETTY_FUNCTION__);
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     model.selectedNoteIndex = indexPath.row;
-    
-    [_stackViewController animateOpenForIndexPath:indexPath completion:^(){
-        
+    [_stackViewController animateOpenForIndexPath:indexPath completion:^() {
         NoteEntry *noteEntry = [model noteAtIndex:indexPath.row];
         if (!noteEntry.adding) {
             [self showNoteStackForSelectedRow:indexPath.row animated:NO];
@@ -643,7 +614,6 @@ typedef enum {
 
 - (void)slideOffTableView
 {
-    
     //[self.tableView setScrollEnabled:NO];
     [UIView animateWithDuration:0.7
                      animations:^{
