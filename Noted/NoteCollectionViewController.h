@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSInteger PullToCreateLabelTag;
 @interface NoteCollectionViewController : UICollectionViewController
 
 - (IBAction)actionButtonPressed:(id)sender;

@@ -12,6 +12,8 @@
 #import "NoteCollectionViewCell.h"
 #import "UIView+FrameAdditions.h"
 
+NSInteger PullToCreateLabelTag = 500;
+
 @interface NoteCollectionViewController ()
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) UICollectionViewFlowLayout *pagingLayout;
@@ -41,6 +43,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
+    self.pullToCreateLabel.tag = PullToCreateLabelTag;
     [self.collectionView addSubview:self.pullToCreateLabel];
     [self.pullToCreateLabel sizeToFit];
     CGRect frame = CGRectMake(14.0,
@@ -48,6 +51,15 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                               self.collectionView.bounds.size.width,
                               self.pullToCreateLabel.bounds.size.height);
     self.pullToCreateLabel.frame = frame;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // All of the initial cells have been created (occurs after viewWillAppear:),
+    // so this call is safe.
+    [self.collectionView sendSubviewToBack:self.pullToCreateLabel];
 }
 
 - (void)didReceiveMemoryWarning
@@ -68,9 +80,14 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
                 forControlEvents:UIControlEventTouchUpInside];
-    cell.titleLabel.text = @"Test Note";
-    cell.relativeTimeLabel.text = @"a few seconds ago";
     cell.layer.borderWidth = 1.0;
+    if (indexPath.item == 0) {
+        cell.titleLabel.text = @"Release to create note";
+        cell.relativeTimeLabel.text = @"";
+    } else {
+        cell.titleLabel.text = @"Test Note";
+        cell.relativeTimeLabel.text = @"a few seconds ago";
+    }
     return cell;
 }
 

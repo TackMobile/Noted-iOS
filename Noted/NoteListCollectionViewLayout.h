@@ -16,4 +16,8 @@
 
 @property (nonatomic, assign) NSIndexPath *selectedCardIndexPath;
 
+@property (nonatomic, assign) CGFloat pullToCreateShowCardOffset;
+@property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
+@property (nonatomic, assign) CGFloat pullToCreateCreateCardOffset;
+@property (nonatomic, assign) BOOL shouldShowCreateableCard;
 @end

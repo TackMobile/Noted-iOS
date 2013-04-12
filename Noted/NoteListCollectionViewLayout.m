@@ -7,6 +7,8 @@
 //
 
 #import "NoteListCollectionViewLayout.h"
+#import "NoteCollectionViewController.h"
+#import "UIView+FrameAdditions.h"
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -17,10 +19,13 @@
 - (id)init
 {
     if (self = [super init]) {
+        CGRect applicationFrame = [[UIScreen mainScreen] applicationFrame];
         self.contentInset = UIEdgeInsetsZero;
         self.cardOffset = 65.0;
-        CGRect applicationFrame = [[UIScreen mainScreen] applicationFrame];
         self.cardSize = applicationFrame.size;
+        self.pullToCreateShowCardOffset = -40.0;
+        self.pullToCreateScrollCardOffset = -65.0;
+        self.pullToCreateCreateCardOffset = -100.0;
     }
     return self;
 }
@@ -34,8 +39,9 @@
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
         UICollectionViewLayoutAttributes *layoutAttributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
         
+        CGFloat height = (i == 0) ? 0.0 : (i-1) * self.cardOffset + self.contentInset.top;
         CGRect frame = CGRectMake(self.contentInset.left,
-                                  i * self.cardOffset + self.contentInset.top,
+                                  height,
                                   self.cardSize.width - self.contentInset.right,
                                   self.cardSize.height);
         layoutAttributes.frame = frame;
@@ -48,8 +54,8 @@
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    CGRect frame = layoutAttributes.frame;
     if (self.selectedCardIndexPath) {
-        CGRect frame = layoutAttributes.frame;
         if ([indexPath isEqual:self.selectedCardIndexPath]) {
             frame.origin.y = self.contentInset.top;
         } else {
@@ -57,6 +63,17 @@
             layoutAttributes.alpha = 0.0;
         }
         layoutAttributes.frame = frame;        
+    } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
+        CGFloat y = self.collectionView.contentOffset.y;
+        CGFloat pullToCreateLabelHeight = [[self.collectionView viewWithTag:PullToCreateLabelTag] $height];
+        if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
+            frame.origin.y = y + pullToCreateLabelHeight;
+        } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
+            
+        } else if (y <= self.pullToCreateCreateCardOffset) {
+            
+        }
+        layoutAttributes.frame = frame;
     }
     
     return layoutAttributes;    
@@ -68,7 +85,7 @@
         return CGRectIntersectsRect(layoutAttributes.frame, rect);
     }];
     NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
-    if (self.selectedCardIndexPath) {
+    if (self.selectedCardIndexPath || [self shouldShowCreateableCard]) {
         NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
         for (int i = 0, n = [attributesArray count]; i < n; i++) {
             UICollectionViewLayoutAttributes *layoutAttributes = attributesArray[i];
@@ -93,10 +110,20 @@
     }
 }
 
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+{
+   return (newBounds.origin.y < self.pullToCreateShowCardOffset);
+}
+
 - (void)setSelectedCardIndexPath:(NSIndexPath *)selectedCardIndexPath
 {
     _selectedCardIndexPath = selectedCardIndexPath;
 //    [self invalidateLayout];
+}
+
+- (BOOL)shouldShowCreateableCard
+{
+    return (self.collectionView.contentOffset.y < self.pullToCreateShowCardOffset);
 }
 
 @end
