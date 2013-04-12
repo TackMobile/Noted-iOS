@@ -14,4 +14,6 @@
 @property (nonatomic, assign) CGFloat cardOffset;
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 
+@property (nonatomic, assign) NSIndexPath *selectedCardIndexPath;
+
 @end

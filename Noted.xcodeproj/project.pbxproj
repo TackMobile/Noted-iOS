@@ -108,6 +108,10 @@
 		B5D496F01668E3BE004F044F /* fingertip.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EE1668E3BE004F044F /* fingertip.png */; };
 		B5D496F11668E3BE004F044F /* fingertip@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D496EF1668E3BE004F044F /* fingertip@2x.png */; };
 		B5D496F516694C3C004F044F /* WalkThroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D496F416694C3C004F044F /* WalkThroughViewController.m */; };
+		B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */; };
+		B5D5F244171888B0008C60EE /* NoteCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24017188840008C60EE /* NoteCollectionViewController.m */; };
+		B5D5F245171888B3008C60EE /* NoteListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */; };
+		B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
@@ -263,6 +267,13 @@
 		B5D496EF1668E3BE004F044F /* fingertip@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fingertip@2x.png"; sourceTree = "<group>"; };
 		B5D496F316694C3C004F044F /* WalkThroughViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalkThroughViewController.h; sourceTree = "<group>"; };
 		B5D496F416694C3C004F044F /* WalkThroughViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalkThroughViewController.m; sourceTree = "<group>"; };
+		B5D5F23C17188840008C60EE /* NoteCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewCell.h; sourceTree = "<group>"; };
+		B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewCell.m; sourceTree = "<group>"; };
+		B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NoteCollectionViewCell.xib; sourceTree = "<group>"; };
+		B5D5F23F17188840008C60EE /* NoteCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewController.h; sourceTree = "<group>"; };
+		B5D5F24017188840008C60EE /* NoteCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewController.m; sourceTree = "<group>"; };
+		B5D5F24117188840008C60EE /* NoteListCollectionViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteListCollectionViewLayout.h; sourceTree = "<group>"; };
+		B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
@@ -409,6 +420,7 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
+				B5D5F23B17188821008C60EE /* Collection Views */,
 				29FC4922156EE0CD0007BBAD /* AppDelegate.h */,
 				29FC4923156EE0CD0007BBAD /* AppDelegate.m */,
 				EAD695FF15B7B8CA004A2494 /* View controllers */,
@@ -540,6 +552,20 @@
 				29960C641573F4BF0054347A /* warning.png */,
 			);
 			name = images;
+			sourceTree = "<group>";
+		};
+		B5D5F23B17188821008C60EE /* Collection Views */ = {
+			isa = PBXGroup;
+			children = (
+				B5D5F23C17188840008C60EE /* NoteCollectionViewCell.h */,
+				B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */,
+				B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */,
+				B5D5F23F17188840008C60EE /* NoteCollectionViewController.h */,
+				B5D5F24017188840008C60EE /* NoteCollectionViewController.m */,
+				B5D5F24117188840008C60EE /* NoteListCollectionViewLayout.h */,
+				B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */,
+			);
+			name = "Collection Views";
 			sourceTree = "<group>";
 		};
 		EAD695FF15B7B8CA004A2494 /* View controllers */ = {
@@ -692,6 +718,7 @@
 				379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
+				B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -742,6 +769,9 @@
 				577A9B2916DEBFC100AF8D74 /* DCFrameView.m in Sources */,
 				577A9B2A16DEBFC100AF8D74 /* DCIntrospect.m in Sources */,
 				577A9B2B16DEBFC100AF8D74 /* DCStatusBarOverlay.m in Sources */,
+				B5D5F245171888B3008C60EE /* NoteListCollectionViewLayout.m in Sources */,
+				B5D5F244171888B0008C60EE /* NoteCollectionViewController.m in Sources */,
+				B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

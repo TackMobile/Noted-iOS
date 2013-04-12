@@ -20,6 +20,15 @@
     return self;
 }
 
+- (void)awakeFromNib
+{
+    [self.contentView addSubview:self.titleLabel];
+    [self.contentView addSubview:self.relativeTimeLabel];
+    [self.contentView addSubview:self.actionButton];
+    [self.contentView addSubview:self.separatorView];
+    [self.contentView addSubview:self.textView];
+}
+
 - (IBAction)viewSwiped:(id)sender {
 }
 

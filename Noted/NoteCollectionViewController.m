@@ -12,7 +12,8 @@
 #import "NoteCollectionViewCell.h"
 
 @interface NoteCollectionViewController ()
-
+@property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
+@property (nonatomic, strong) UICollectionViewFlowLayout *pagingLayout;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -24,6 +25,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     UICollectionViewLayout *initialLayout = [[NoteListCollectionViewLayout alloc] init];
     self = [super initWithCollectionViewLayout:initialLayout];
     if (self) {
+        self.listLayout = initialLayout;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
     }
     return self;
@@ -50,7 +52,9 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
-
+    [cell.actionButton addTarget:self
+                          action:@selector(actionButtonPressed:)
+                forControlEvents:UIControlEventTouchUpInside];
     cell.titleLabel.text = @"Test Note";
     cell.relativeTimeLabel.text = @"a few seconds ago";
     cell.layer.borderWidth = 1.0;
@@ -60,19 +64,34 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - UICollectionViewDelegate
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    void (^update)() = ^{
-        NSArray *visibleItems = [collectionView indexPathsForVisibleItems];
-        for (NSIndexPath *visibleItemIndexPath in visibleItems) {
-            if ([indexPath isEqual:visibleItemIndexPath])
-                continue;
-            
-            UICollectionViewLayoutAttributes *layoutAttributes = [collectionView layoutAttributesForItemAtIndexPath:visibleItemIndexPath];
-            CGRect frame = layoutAttributes.frame;
-            frame.origin.y += [[UIScreen mainScreen] bounds].size.height;
-            layoutAttributes.frame = frame;
-        }
-    };
-    update();
-    [collectionView performBatchUpdates:NULL completion:NULL];
+//    void (^update)() = ^{
+//        NSArray *visibleItems = [collectionView indexPathsForVisibleItems];
+//        for (NSIndexPath *visibleItemIndexPath in visibleItems) {
+//            if ([indexPath isEqual:visibleItemIndexPath])
+//                continue;
+//            
+//            UICollectionViewLayoutAttributes *layoutAttributes = [collectionView layoutAttributesForItemAtIndexPath:visibleItemIndexPath];
+//            CGRect frame = layoutAttributes.frame;
+//            frame.origin.y += [[UIScreen mainScreen] bounds].size.height;
+//            layoutAttributes.frame = frame;
+//        }
+//    };
+//    update();
+//    [collectionView performBatchUpdates:NULL completion:NULL];
+    [collectionView performBatchUpdates:^{
+        self.listLayout.selectedCardIndexPath = indexPath;
+        NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+        cell.actionButton.hidden = NO;
+    }
+                             completion:NULL];
 }
+
+#pragma mark - Actions
+- (IBAction)actionButtonPressed:(UIButton *)actionButton
+{
+    actionButton.hidden = YES;
+    self.listLayout.selectedCardIndexPath = nil;
+    [self.collectionView performBatchUpdates:NULL completion:NULL];
+}
+
 @end

@@ -47,14 +47,37 @@
 
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return self.layoutAttributesArray[indexPath.item];
+    UICollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    if (self.selectedCardIndexPath) {
+        CGRect frame = layoutAttributes.frame;
+        if ([indexPath isEqual:self.selectedCardIndexPath]) {
+            frame.origin.y = self.contentInset.top;
+        } else {
+            frame.origin.y += [[UIScreen mainScreen] bounds].size.height;
+            layoutAttributes.alpha = 0.0;
+        }
+        layoutAttributes.frame = frame;        
+    }
+    
+    return layoutAttributes;    
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
-    return [self.layoutAttributesArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *layoutAttributes, NSDictionary *bindings) {
+    NSPredicate *inRectPredicate = [NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *layoutAttributes, NSDictionary *bindings) {
         return CGRectIntersectsRect(layoutAttributes.frame, rect);
-    }]];
+    }];
+    NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
+    if (self.selectedCardIndexPath) {
+        NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
+        for (int i = 0, n = [attributesArray count]; i < n; i++) {
+            UICollectionViewLayoutAttributes *layoutAttributes = attributesArray[i];
+            attributesArrayMutable[i] = [self layoutAttributesForItemAtIndexPath:layoutAttributes.indexPath];
+        }
+        return attributesArrayMutable;
+    } else {
+        return attributesArray;
+    }
 }
 
 - (CGSize)collectionViewContentSize
@@ -69,4 +92,11 @@
         return CGSizeMake(contentWidth, contentHeight);
     }
 }
+
+- (void)setSelectedCardIndexPath:(NSIndexPath *)selectedCardIndexPath
+{
+    _selectedCardIndexPath = selectedCardIndexPath;
+//    [self invalidateLayout];
+}
+
 @end

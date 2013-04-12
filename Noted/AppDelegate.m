@@ -17,6 +17,7 @@
 #import "CloudManager.h"
 #import "WalkThroughViewController.h"
 #import "DCIntrospect.h"
+#import "NoteCollectionViewController.h"
 
 NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMDEyLTAzLTIyIDE4OjE2OjE5LjAzNzQ2OA";
 
@@ -42,8 +43,9 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     [[DCIntrospect sharedIntrospector] start];
 #endif
 #endif
-    
-    self.window.rootViewController = [[NoteListViewController alloc] init];
+
+//    self.window.rootViewController = [[NoteListViewController alloc] init];
+    self.window.rootViewController = [[NoteCollectionViewController alloc] init];
     self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
     [self.window makeKeyAndVisible];
     

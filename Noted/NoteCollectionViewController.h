@@ -10,4 +10,6 @@
 
 @interface NoteCollectionViewController : UICollectionViewController
 
+- (IBAction)actionButtonPressed:(id)sender;
+
 @end
