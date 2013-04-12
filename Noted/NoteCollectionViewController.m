@@ -10,10 +10,12 @@
 #import "NoteCollectionViewController.h"
 #import "NoteListCollectionViewLayout.h"
 #import "NoteCollectionViewCell.h"
+#import "UIView+FrameAdditions.h"
 
 @interface NoteCollectionViewController ()
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) UICollectionViewFlowLayout *pagingLayout;
+@property (nonatomic, strong) UILabel *pullToCreateLabel;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -22,7 +24,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
 - (id)init
 {
-    UICollectionViewLayout *initialLayout = [[NoteListCollectionViewLayout alloc] init];
+    NoteListCollectionViewLayout *initialLayout = [[NoteListCollectionViewLayout alloc] init];
     self = [super initWithCollectionViewLayout:initialLayout];
     if (self) {
         self.listLayout = initialLayout;
@@ -34,7 +36,18 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    self.pullToCreateLabel.text = @"Pull to create a new note.";
+    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
+    self.pullToCreateLabel.textColor = [UIColor whiteColor];
+    [self.collectionView addSubview:self.pullToCreateLabel];
+    [self.pullToCreateLabel sizeToFit];
+    CGRect frame = CGRectMake(14.0,
+                              -self.pullToCreateLabel.bounds.size.height,
+                              self.collectionView.bounds.size.width,
+                              self.pullToCreateLabel.bounds.size.height);
+    self.pullToCreateLabel.frame = frame;
 }
 
 - (void)didReceiveMemoryWarning
@@ -94,4 +107,17 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [self.collectionView performBatchUpdates:NULL completion:NULL];
 }
 
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat y = scrollView.bounds.origin.y;
+    if (y < -self.pullToCreateLabel.$height) {
+        self.pullToCreateLabel.$y = y;
+    } else {
+        self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
+    }
+//    NSLog(@"content offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
+//    NSLog(@"center: %@", NSStringFromCGPoint(scrollView.center));
+//    NSLog(@"bounds: %@", NSStringFromCGRect(scrollView.bounds));
+//    NSLog(@"frame: %@", NSStringFromCGRect(scrollView.frame));
+}
 @end

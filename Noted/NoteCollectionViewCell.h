@@ -15,8 +15,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *actionButton;
 @property (weak, nonatomic) IBOutlet UIView *separatorView;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
-@property (strong, nonatomic) IBOutlet UISwipeGestureRecognizer *swipeGestureRecognizer;
+@property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
 
-- (IBAction)viewSwiped:(id)sender;
-- (IBAction)actionButtonPressed:(id)sender;
+
 @end
