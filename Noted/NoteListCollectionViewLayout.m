@@ -7,7 +7,6 @@
 //
 
 #import "NoteListCollectionViewLayout.h"
-#import "NoteCollectionViewController.h"
 #import "UIView+FrameAdditions.h"
 
 @interface NoteListCollectionViewLayout ()
@@ -23,8 +22,8 @@
         self.contentInset = UIEdgeInsetsZero;
         self.cardOffset = 65.0;
         self.cardSize = applicationFrame.size;
-        self.pullToCreateShowCardOffset = -40.0;
-        self.pullToCreateScrollCardOffset = -65.0;
+        self.pullToCreateShowCardOffset = -30.0;
+        self.pullToCreateScrollCardOffset = -50.0;
         self.pullToCreateCreateCardOffset = -100.0;
     }
     return self;
@@ -62,16 +61,24 @@
             frame.origin.y += [[UIScreen mainScreen] bounds].size.height;
             layoutAttributes.alpha = 0.0;
         }
-        layoutAttributes.frame = frame;        
+        layoutAttributes.frame = frame;
     } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
         CGFloat y = self.collectionView.contentOffset.y;
-        CGFloat pullToCreateLabelHeight = [[self.collectionView viewWithTag:PullToCreateLabelTag] $height];
         if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-            frame.origin.y = y + pullToCreateLabelHeight;
+            NSLog(@"show card");
+            frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
         } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-            
+            NSLog(@"scroll card");
+            frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
+            frame.origin.y = MAX(frame.origin.y, y);
+//            if (frame.origin.y <= y) {
+//                frame.origin.y = y;
+//            }
         } else if (y <= self.pullToCreateCreateCardOffset) {
-            
+            NSLog(@"create card");
+            frame.origin.y = y;
+        } else {
+            NSLog(@"do nothing");
         }
         layoutAttributes.frame = frame;
     }
