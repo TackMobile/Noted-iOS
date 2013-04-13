@@ -29,9 +29,14 @@
     [self.contentView addSubview:self.textView];
 }
 
-- (IBAction)viewSwiped:(id)sender {
-}
-
-- (IBAction)actionButtonPressed:(id)sender {
-}
+//- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
+//{
+//    if (!CATransform3DIsIdentity(layoutAttributes.transform3D)) {
+//        self.layer.anchorPoint = CGPointMake(0.5, 0.75);
+//        self.layer.transform = layoutAttributes.transform3D;
+//        self.layer.zPosition = MAXFLOAT;
+//    } else {
+//        self.layer.anchorPoint = CGPointMake(0.5, 0.5);
+//    }
+//}
 @end

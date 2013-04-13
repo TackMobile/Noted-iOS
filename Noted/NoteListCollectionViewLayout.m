@@ -8,6 +8,7 @@
 
 #import "NoteListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -50,6 +51,8 @@
     }
 }
 
+CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
+
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
@@ -65,22 +68,29 @@
     } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
         CGFloat y = self.collectionView.contentOffset.y;
         if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-            NSLog(@"show card");
+//            NSLog(@"show card");
             frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
         } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-            NSLog(@"scroll card");
+//            NSLog(@"scroll card");
             frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
             frame.origin.y = MAX(frame.origin.y, y);
-//            if (frame.origin.y <= y) {
-//                frame.origin.y = y;
-//            }
         } else if (y <= self.pullToCreateCreateCardOffset) {
-            NSLog(@"create card");
+//            NSLog(@"create card");
             frame.origin.y = y;
         } else {
-            NSLog(@"do nothing");
+//            NSLog(@"do nothing");
         }
         layoutAttributes.frame = frame;
+    } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
+        static CGFloat MAX_OFFSET = 80.0, MIN_ALPHA = 0.4;
+        CGFloat offset = MAX(-MAX_OFFSET, MIN(MAX_OFFSET, self.swipedCardOffset));
+        CGFloat angle = (M_PI/6) * (offset/MAX_OFFSET);
+        
+        layoutAttributes.alpha = MAX(MIN_ALPHA, 1 + (MIN_ALPHA - 1.0) * ABS(offset)/MAX_OFFSET);
+        CATransform3D transform = CATransform3DMakeRotation(angle, 0.0, 0.0, 1.0);
+//        transform.m34 = -1.0 / 1000.0;
+        layoutAttributes.transform3D = transform;
+//        NSLog(@"foo: %@", layoutAttributes);
     }
     
     return layoutAttributes;    
@@ -92,7 +102,7 @@
         return CGRectIntersectsRect(layoutAttributes.frame, rect);
     }];
     NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
-    if (self.selectedCardIndexPath || [self shouldShowCreateableCard]) {
+    if ([self shouldRecalcuateLayoutAttributes]) {
         NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
         for (int i = 0, n = [attributesArray count]; i < n; i++) {
             UICollectionViewLayoutAttributes *layoutAttributes = attributesArray[i];
@@ -122,10 +132,16 @@
    return (newBounds.origin.y < self.pullToCreateShowCardOffset);
 }
 
-- (void)setSelectedCardIndexPath:(NSIndexPath *)selectedCardIndexPath
+- (void)setSwipedCardOffset:(CGFloat)swipedCardOffset
 {
-    _selectedCardIndexPath = selectedCardIndexPath;
-//    [self invalidateLayout];
+    _swipedCardOffset = swipedCardOffset;
+    [self invalidateLayout];
+}
+
+#pragma mark - Helpers
+- (BOOL)shouldRecalcuateLayoutAttributes
+{
+    return self.selectedCardIndexPath || [self shouldShowCreateableCard] || self.swipedCardIndexPath;
 }
 
 - (BOOL)shouldShowCreateableCard

@@ -17,5 +17,4 @@
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
 
-
 @end

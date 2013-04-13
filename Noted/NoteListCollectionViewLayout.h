@@ -14,7 +14,10 @@
 @property (nonatomic, assign) CGFloat cardOffset;
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 
-@property (nonatomic, assign) NSIndexPath *selectedCardIndexPath;
+@property (nonatomic, strong) NSIndexPath *selectedCardIndexPath;
+
+@property (nonatomic, strong) NSIndexPath *swipedCardIndexPath;
+@property (nonatomic, assign) CGFloat swipedCardOffset;
 
 @property (nonatomic, assign) CGFloat pullToCreateShowCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
