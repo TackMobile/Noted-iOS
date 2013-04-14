@@ -8,6 +8,7 @@
 
 #import "NoteListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
+#import "NoteCollectionViewLayoutAttributes.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface NoteListCollectionViewLayout ()
@@ -30,6 +31,11 @@
     return self;
 }
 
++ (Class)layoutAttributesClass
+{
+    return [NoteCollectionViewLayoutAttributes class];
+}
+
 - (void)prepareLayout
 {
     NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
@@ -37,7 +43,7 @@
 
     for (NSUInteger i = 0; i < cardCount; i++) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-        UICollectionViewLayoutAttributes *layoutAttributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+        NoteCollectionViewLayoutAttributes *layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
         
         CGFloat height = (i == 0) ? 0.0 : (i-1) * self.cardOffset + self.contentInset.top;
         CGRect frame = CGRectMake(self.contentInset.left,
@@ -55,7 +61,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    UICollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
     CGRect frame = layoutAttributes.frame;
     if (self.selectedCardIndexPath) {
         if ([indexPath isEqual:self.selectedCardIndexPath]) {
@@ -87,10 +93,18 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         CGFloat angle = (M_PI/6) * (offset/MAX_OFFSET);
         
         layoutAttributes.alpha = MAX(MIN_ALPHA, 1 + (MIN_ALPHA - 1.0) * ABS(offset)/MAX_OFFSET);
-        CATransform3D transform = CATransform3DMakeRotation(angle, 0.0, 0.0, 1.0);
-//        transform.m34 = -1.0 / 1000.0;
-        layoutAttributes.transform3D = transform;
-//        NSLog(@"foo: %@", layoutAttributes);
+        layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
+        
+        /* One would think that the code below would work, but I encountered a bug where the hidden
+         * property of the CALayer backing the cell was set to YES. I figured this out using KVO, but
+         * couldn't find a way around it (although admittedly, I was setting the cell's hidden property instead of the layer's). 
+         * Instead, I added a CGAffineTransform property to a custom layout attributes subclass and am 
+         * using that instead.
+         */
+//        CATransform3D transform = CATransform3DIdentity;
+//        transform.m34 = 1.0 / 850.0; // feels like a hack, but all the cool kids do it.
+//        transform = CATransform3DRotate(transform, angle, 0.0, 0.0, 1.0);
+//        layoutAttributes.transform3D = transform;
     }
     
     return layoutAttributes;    

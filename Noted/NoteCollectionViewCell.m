@@ -7,6 +7,7 @@
 //
 
 #import "NoteCollectionViewCell.h"
+#import "NoteCollectionViewLayoutAttributes.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation NoteCollectionViewCell
@@ -29,8 +30,8 @@
     [self.contentView addSubview:self.textView];
 }
 
-//- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
-//{
+- (void)applyLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
+{
 //    if (!CATransform3DIsIdentity(layoutAttributes.transform3D)) {
 //        self.layer.anchorPoint = CGPointMake(0.5, 0.75);
 //        self.layer.transform = layoutAttributes.transform3D;
@@ -38,5 +39,9 @@
 //    } else {
 //        self.layer.anchorPoint = CGPointMake(0.5, 0.5);
 //    }
-//}
+    
+    if (!CGAffineTransformIsIdentity(layoutAttributes.transform2D)) {
+        self.layer.affineTransform = layoutAttributes.transform2D;
+    }
+}
 @end

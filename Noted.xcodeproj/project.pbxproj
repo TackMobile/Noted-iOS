@@ -101,6 +101,7 @@
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
 		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
+		B5A2B0D0171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */; };
 		B5AA89D9160B96320094299B /* cellShadow.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D7160B96320094299B /* cellShadow.png */; };
 		B5AA89DA160B96320094299B /* cellShadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AA89D8160B96320094299B /* cellShadow@2x.png */; };
 		B5B826B316233C6700DD85CE /* topCornerShadows.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B826B116233C6700DD85CE /* topCornerShadows.png */; };
@@ -260,6 +261,8 @@
 		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
 		B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
+		B5A2B0CE171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewLayoutAttributes.h; sourceTree = "<group>"; };
+		B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewLayoutAttributes.m; sourceTree = "<group>"; };
 		B5A83BBD15FF937000CAE2E8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		B5AA89D7160B96320094299B /* cellShadow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cellShadow.png; sourceTree = "<group>"; };
 		B5AA89D8160B96320094299B /* cellShadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cellShadow@2x.png"; sourceTree = "<group>"; };
@@ -561,6 +564,8 @@
 		B5D5F23B17188821008C60EE /* Collection Views */ = {
 			isa = PBXGroup;
 			children = (
+				B5A2B0CE171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.h */,
+				B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */,
 				B5D5F23C17188840008C60EE /* NoteCollectionViewCell.h */,
 				B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */,
 				B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */,
@@ -796,6 +801,7 @@
 				B5D5F245171888B3008C60EE /* NoteListCollectionViewLayout.m in Sources */,
 				B5D5F244171888B0008C60EE /* NoteCollectionViewController.m in Sources */,
 				B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */,
+				B5A2B0D0171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
