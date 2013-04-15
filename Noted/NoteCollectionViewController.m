@@ -78,7 +78,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 6;
+    return 16;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -148,11 +148,15 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         case UIGestureRecognizerStateChanged:
         {
             CGPoint translation = [gestureRecognizer translationInView:self.collectionView];
+            if (self.collectionView.dragging || fabs(translation.x) < 5.0)
+                break;
+            self.collectionView.scrollEnabled = NO;
             self.listLayout.swipedCardOffset = translation.x;
             break;
         }
         case UIGestureRecognizerStateEnded:
         {
+            self.collectionView.scrollEnabled = YES;
             [self.collectionView performBatchUpdates:^{
                 self.listLayout.swipedCardIndexPath = nil;
             } completion:^(BOOL finished) {
@@ -165,12 +169,33 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     }
 }
 
-//- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
+        return YES;
+    else
+        return NO;
+}
+
+//static BOOL shouldPan = YES;
+//
+//- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 //{
-//    if (gestureRecognizer == self.removeCardGestureRecognizer && self.collectionView.dragging == YES) {
-//        return NO;
-//    } else {
-//        return YES;
-//    }
+//    NSLog(@"scrollViewWillBeginDragging");
+//    shouldPan = NO;
+//}
+//
+//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+//{
+//    NSLog(@"scrollViewDidEndDragging:willDecelerate:%@", (decelerate ? @"YES" : @"NO"));
+//
+//    if(!decelerate) shouldPan = YES;
+//}
+//
+//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+//{
+//    NSLog(@"scrollViewDidEndDecelerating");
+//    shouldPan = YES;
 //}
 @end
