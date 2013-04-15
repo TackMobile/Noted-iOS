@@ -83,10 +83,14 @@ NSUInteger kCornerRadius = 6.0;
     self.layer.mask = nil;
 }
 
-- (void)applyLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
+- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
 {
-    if (!CGAffineTransformIsIdentity(layoutAttributes.transform2D)) {
-        self.layer.affineTransform = layoutAttributes.transform2D;
+    if (![layoutAttributes isKindOfClass:[NoteCollectionViewLayoutAttributes class]])
+          return;
+          
+    NoteCollectionViewLayoutAttributes *noteLayoutAttributes = (NoteCollectionViewLayoutAttributes *)layoutAttributes;
+    if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
+        self.layer.affineTransform = noteLayoutAttributes.transform2D;
     }
 }
 

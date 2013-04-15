@@ -32,6 +32,13 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     self = [super initWithCollectionViewLayout:initialLayout];
     if (self) {
         self.listLayout = initialLayout;
+        self.pagingLayout = [[UICollectionViewFlowLayout alloc] init];
+        self.pagingLayout.itemSize = initialLayout.cardSize;
+        self.pagingLayout.minimumLineSpacing = 20.0;
+        self.pagingLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        self.pagingLayout.sectionInset = UIEdgeInsetsMake(0.0, 0.0, 0.0, self.pagingLayout.minimumLineSpacing);
+        self.collectionView.showsHorizontalScrollIndicator = NO;
+        
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
     }
     return self;
@@ -94,6 +101,8 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    [self.collectionView sendSubviewToBack:self.pullToCreateLabel]; /* Kind of a hack to keep this label behind all cells. */
+
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
@@ -125,26 +134,20 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
         cell.actionButton.hidden = NO;
     }
-                             completion:NULL];
+                             completion:^(BOOL finished){
+                                 self.listLayout.selectedCardIndexPath = nil;
+                                 [self updateLayout:self.pagingLayout animated:NO];
+                             }];
 }
 
 #pragma mark - Actions
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
     actionButton.hidden = YES;
-    self.listLayout.selectedCardIndexPath = nil;
+    [self updateLayout:self.listLayout animated:YES];
     [self.collectionView performBatchUpdates:NULL completion:NULL];
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    CGFloat y = scrollView.bounds.origin.y;
-    if (y < -self.pullToCreateLabel.$height) {
-        self.pullToCreateLabel.$y = y;
-    } else {
-        self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
-    }
-}
 
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
@@ -183,6 +186,28 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     }
 }
 
+#pragma mark - Helpers
+- (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
+{
+    [self.collectionView setCollectionViewLayout:layout animated:animated];
+    if (layout == self.pagingLayout) {
+        self.collectionView.pagingEnabled = YES;
+        CGFloat padding = self.pagingLayout.minimumLineSpacing;
+        self.view.$width += padding;
+    } else if (layout == self.listLayout) {
+        self.collectionView.pagingEnabled = NO;
+        self.view.$width = [[UIScreen mainScreen] bounds].size.width;
+    }
+}
+
+#pragma mark - Notifications
+- (void)noteListChanged:(NSNotification *)notification
+{
+    self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
+    [self.collectionView reloadData];
+}
+
+
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
@@ -193,12 +218,15 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 }
 
 #pragma mark - UIScrollViewDelegate
-
-#pragma mark - Notifications
-- (void)noteListChanged:(NSNotification *)notification
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
-    [self.collectionView reloadData];
+    CGFloat y = scrollView.bounds.origin.y;
+    if (y < -self.pullToCreateLabel.$height) {
+        self.pullToCreateLabel.$y = y;
+    } else {
+        self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
+    }
+//    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 }
 
 //static BOOL shouldPan = YES;
