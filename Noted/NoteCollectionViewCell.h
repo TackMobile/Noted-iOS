@@ -16,5 +16,9 @@
 @property (weak, nonatomic) IBOutlet UIView *separatorView;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
+
+- (void)applyCornerMask;
+- (void)removeCornerMask;
 
 @end

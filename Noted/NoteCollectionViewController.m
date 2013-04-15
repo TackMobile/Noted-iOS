@@ -87,7 +87,13 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
                 forControlEvents:UIControlEventTouchUpInside];
-    cell.layer.borderWidth = 1.0;
+    
+    NSInteger noteCount = [self collectionView:collectionView numberOfItemsInSection:0];
+    if (indexPath.item == 0 || indexPath.item == 1 || indexPath.item == (noteCount-1))
+        [cell applyCornerMask];
+    else
+        [cell removeCornerMask];
+    
     if (indexPath.item == 0) {
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
@@ -101,7 +107,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - UICollectionViewDelegate
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return;
     [collectionView performBatchUpdates:^{
         self.listLayout.selectedCardIndexPath = indexPath;
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
