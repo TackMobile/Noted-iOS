@@ -11,14 +11,15 @@
 #import "NoteListCollectionViewLayout.h"
 #import "NoteCollectionViewCell.h"
 #import "UIView+FrameAdditions.h"
-
-NSInteger PullToCreateLabelTag = 500;
+#import "ApplicationModel.h"
+#import "NoteEntry.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) UICollectionViewFlowLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
+@property (nonatomic, assign) NSUInteger noteCount;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -44,7 +45,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
-    self.pullToCreateLabel.tag = PullToCreateLabelTag;
     [self.collectionView addSubview:self.pullToCreateLabel];
     [self.pullToCreateLabel sizeToFit];
     CGRect frame = CGRectMake(14.0,
@@ -58,6 +58,12 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                                                                                action:selector];
     self.removeCardGestureRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:self.removeCardGestureRecognizer];
+    
+    self.noteCount = 0;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(noteListChanged:)
+                                                 name:kNoteListChangedNotification
+                                               object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -75,10 +81,15 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     // Dispose of any resources that can be recreated.
 }
 
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 16;
+    return 1 + self.noteCount;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -98,8 +109,10 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
     } else {
-        cell.titleLabel.text = @"Test Note";
-        cell.relativeTimeLabel.text = @"a few seconds ago";
+        NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:(indexPath.item - 1)];
+        cell.titleLabel.text = entry.text;
+        cell.relativeTimeLabel.text = entry.relativeDateString;
+        [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
     }
     return cell;
 }
@@ -131,10 +144,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     } else {
         self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
     }
-//    NSLog(@"content offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
-//    NSLog(@"center: %@", NSStringFromCGPoint(scrollView.center));
-//    NSLog(@"bounds: %@", NSStringFromCGRect(scrollView.bounds));
-//    NSLog(@"frame: %@", NSStringFromCGRect(scrollView.frame));
 }
 
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
@@ -174,13 +183,22 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     }
 }
 
-
+#pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
         return YES;
     else
         return NO;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+#pragma mark - Notifications
+- (void)noteListChanged:(NSNotification *)notification
+{
+    self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
+    [self.collectionView reloadData];
 }
 
 //static BOOL shouldPan = YES;

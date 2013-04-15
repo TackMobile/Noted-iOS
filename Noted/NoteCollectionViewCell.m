@@ -85,16 +85,18 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)applyLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
 {
-//    if (!CATransform3DIsIdentity(layoutAttributes.transform3D)) {
-//        self.layer.anchorPoint = CGPointMake(0.5, 0.75);
-//        self.layer.transform = layoutAttributes.transform3D;
-//        self.layer.zPosition = MAXFLOAT;
-//    } else {
-//        self.layer.anchorPoint = CGPointMake(0.5, 0.5);
-//    }
-    
     if (!CGAffineTransformIsIdentity(layoutAttributes.transform2D)) {
         self.layer.affineTransform = layoutAttributes.transform2D;
     }
+}
+
+- (void)applyTheme:(NTDTheme *)theme
+{
+    self.contentView.backgroundColor = theme.backgroundColor;
+    self.titleLabel.textColor = theme.headerColor;
+    self.relativeTimeLabel.textColor = theme.subheaderColor;
+    self.textView.backgroundColor = theme.backgroundColor;
+    self.textView.textColor = theme.textColor;
+    self.separatorView.backgroundColor = theme.textColor;
 }
 @end

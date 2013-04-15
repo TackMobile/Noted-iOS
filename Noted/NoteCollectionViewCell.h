@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NTDTheme.h"
 
 @interface NoteCollectionViewCell : UICollectionViewCell <UITextViewDelegate>
 
@@ -21,4 +22,5 @@
 - (void)applyCornerMask;
 - (void)removeCornerMask;
 
+- (void)applyTheme:(NTDTheme *)theme;
 @end
