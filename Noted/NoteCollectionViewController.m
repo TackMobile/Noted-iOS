@@ -201,13 +201,21 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
             self.collectionView.scrollEnabled = NO;
             self.listLayout.swipedCardIndexPath = swipedCardIndexPath;
             self.listLayout.swipedCardOffset = translation.x;
+            if (fabs(translation.x) >= 80) {
+                gestureRecognizer.enabled = NO;
+            }
             break;
         }
         case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
         {
             self.collectionView.scrollEnabled = YES;
             [self.collectionView performBatchUpdates:^{
                 self.listLayout.swipedCardIndexPath = nil;
+                if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
+                    gestureRecognizer.enabled = YES;
+                    [self deleteCardAtIndexPath:swipedCardIndexPath];
+                }
             } completion:^(BOOL finished) {
             }];
             
@@ -241,6 +249,29 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.collectionView.pagingEnabled = NO;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
+}
+
+- (void)insertNewCard
+{
+    NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
+    [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.noteCount++;
+            [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
+        });
+    }];
+}
+
+- (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
+{
+    ApplicationModel *model = [ApplicationModel sharedInstance];
+    [model deleteNoteEntryAtIndex:(indexPath.item - 1)
+              withCompletionBlock:^{
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                      self.noteCount--;
+                      [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+                  });
+              }];
 }
 
 #pragma mark - Notifications
@@ -292,4 +323,17 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 //    NSLog(@"scrollViewDidEndDecelerating");
 //    shouldPan = YES;
 //}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if (self.collectionView.collectionViewLayout != self.listLayout)
+        return;
+    
+    BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+    if (shouldCreateNewCard) {
+        [self insertNewCard];
+        shouldCreateNewCard = NO;
+    }
+}
+
 @end
