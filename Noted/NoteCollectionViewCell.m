@@ -54,7 +54,6 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
 {
-    NSLog(@"Transitioning from: %@ to %@", oldLayout, newLayout);
     if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
         self.actionButton.hidden = YES;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {

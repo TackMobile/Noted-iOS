@@ -124,6 +124,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 }
 
 #pragma mark - UICollectionViewDelegate
+
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [UIView animateWithDuration:0.5
@@ -132,13 +133,16 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                          for (NSIndexPath *visibleIndexPath in indexPaths) {
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:visibleIndexPath];
                              if ([visibleIndexPath isEqual:indexPath]) {
-                                 cell.$y = self.collectionView.frame.origin.y;
+                                 cell.$y = self.collectionView.contentOffset.y;
                              } else {
-                                 cell.$y = self.collectionView.frame.origin.y + self.collectionView.frame.size.height;
+                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
+                                 cell.alpha = 0.1;
                              }
                          }
                      } completion:^(BOOL finished) {
                          [self updateLayout:self.pagingLayout animated:NO];
+                         [collectionView scrollToItemAtIndexPath:indexPath
+                                                atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
                      }];
     return;
     

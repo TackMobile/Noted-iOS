@@ -74,17 +74,13 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
         CGFloat y = self.collectionView.contentOffset.y;
         if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-//            NSLog(@"show card");
             frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
         } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-//            NSLog(@"scroll card");
             frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
             frame.origin.y = MAX(frame.origin.y, y);
         } else if (y <= self.pullToCreateCreateCardOffset) {
-//            NSLog(@"create card");
             frame.origin.y = y;
         } else {
-//            NSLog(@"do nothing");
         }
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
