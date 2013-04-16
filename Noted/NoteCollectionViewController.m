@@ -105,9 +105,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [self.collectionView sendSubviewToBack:self.pullToCreateLabel]; /* Kind of a hack to keep this label behind all cells. */
 
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
-    [cell.actionButton addTarget:self
-                          action:@selector(actionButtonPressed:)
-                forControlEvents:UIControlEventTouchUpInside];
     
     NSInteger noteCount = [self collectionView:collectionView numberOfItemsInSection:0];
     if (indexPath.item == 0 || indexPath.item == 1 || indexPath.item == (noteCount-1))
@@ -164,12 +161,16 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
     NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-    CGRect frame = [[self.listLayout layoutAttributesForItemAtIndexPath:topCardIndexPath] frame];
     self.listLayout.selectedCardIndexPath = topCardIndexPath;
     [self updateLayout:self.listLayout animated:NO];
     [self.collectionView performBatchUpdates:^{
         self.listLayout.selectedCardIndexPath = nil;
-        CGFloat y = fmaxf(0.0, frame.origin.y - (self.collectionView.$height / 2));
+//        NSIndexPath *previousCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item-1 inSection:0];
+//        UICollectionViewLayoutAttributes *layoutAttributes = [self.listLayout layoutAttributesForItemAtIndexPath:previousCardIndexPath];
+//        CGFloat offset = layoutAttributes.frame.origin.y + self.listLayout.cardOffset;
+        CGFloat offset = (topCardIndexPath.item - 1) * self.listLayout.cardOffset;
+        CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
+//        NSLog(@"y: %f, frame; %@", y, NSStringFromCGRect(frame));
         [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
     } completion:^(BOOL finished) {
         
