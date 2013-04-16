@@ -84,6 +84,7 @@
 		B512B12D1611CE1800E0E8B5 /* AnimationStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */; };
 		B512B12E1611CE1800E0E8B5 /* AnimationStackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */; };
 		B52114DB171CA800007670F3 /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
+		B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */; };
 		B531E8281608D2C900168AE5 /* UIView+position.m in Sources */ = {isa = PBXBuildFile; fileRef = B531E8261608D2C900168AE5 /* UIView+position.m */; };
 		B538FA3316155ECC00A85672 /* NSUserDefaults+Convenience.m in Sources */ = {isa = PBXBuildFile; fileRef = B538FA3216155ECC00A85672 /* NSUserDefaults+Convenience.m */; };
 		B548666215F7F807005FBC60 /* FileStorageState.m in Sources */ = {isa = PBXBuildFile; fileRef = B548666115F7F807005FBC60 /* FileStorageState.m */; };
@@ -236,6 +237,8 @@
 		B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AnimationStackView.xib; sourceTree = "<group>"; };
 		B52114D9171CA800007670F3 /* NTDTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTheme.h; sourceTree = "<group>"; };
 		B52114DA171CA800007670F3 /* NTDTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDTheme.m; sourceTree = "<group>"; };
+		B52114DC171DCF9E007670F3 /* NTDPagingCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDPagingCollectionViewLayout.h; sourceTree = "<group>"; };
+		B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDPagingCollectionViewLayout.m; sourceTree = "<group>"; };
 		B531E8261608D2C900168AE5 /* UIView+position.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+position.m"; sourceTree = "<group>"; };
 		B531E8271608D2C900168AE5 /* UIView+position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+position.h"; sourceTree = "<group>"; };
 		B538FA3116155ECC00A85672 /* NSUserDefaults+Convenience.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+Convenience.h"; sourceTree = "<group>"; };
@@ -583,6 +586,8 @@
 				B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */,
 				B5D5F23F17188840008C60EE /* NoteCollectionViewController.h */,
 				B5D5F24017188840008C60EE /* NoteCollectionViewController.m */,
+				B52114DC171DCF9E007670F3 /* NTDPagingCollectionViewLayout.h */,
+				B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */,
 				B5D5F24117188840008C60EE /* NoteListCollectionViewLayout.h */,
 				B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */,
 			);
@@ -816,6 +821,7 @@
 				B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */,
 				B5A2B0D0171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m in Sources */,
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
+				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

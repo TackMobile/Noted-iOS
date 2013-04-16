@@ -13,10 +13,11 @@
 #import "UIView+FrameAdditions.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
+#import "NTDPagingCollectionViewLayout.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
-@property (nonatomic, strong) UICollectionViewFlowLayout *pagingLayout;
+@property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
@@ -32,11 +33,8 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     self = [super initWithCollectionViewLayout:initialLayout];
     if (self) {
         self.listLayout = initialLayout;
-        self.pagingLayout = [[UICollectionViewFlowLayout alloc] init];
+        self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
         self.pagingLayout.itemSize = initialLayout.cardSize;
-        self.pagingLayout.minimumLineSpacing = 20.0;
-        self.pagingLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        self.pagingLayout.sectionInset = UIEdgeInsetsMake(0.0, 0.0, 0.0, self.pagingLayout.minimumLineSpacing);
         self.collectionView.showsHorizontalScrollIndicator = NO;
         
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
@@ -111,12 +109,11 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     NSInteger noteCount = [self collectionView:collectionView numberOfItemsInSection:0];
     if (indexPath.item == 0 || indexPath.item == 1 || indexPath.item == (noteCount-1))
         [cell applyCornerMask];
-    else
-        [cell removeCornerMask];
     
     if (indexPath.item == 0) {
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
+        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];        
     } else {
         NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:(indexPath.item - 1)];
         cell.titleLabel.text = entry.text;
@@ -129,6 +126,22 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - UICollectionViewDelegate
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         NSArray *indexPaths = [collectionView indexPathsForVisibleItems];
+                         for (NSIndexPath *visibleIndexPath in indexPaths) {
+                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:visibleIndexPath];
+                             if ([visibleIndexPath isEqual:indexPath]) {
+                                 cell.$y = self.collectionView.frame.origin.y;
+                             } else {
+                                 cell.$y = self.collectionView.frame.origin.y + self.collectionView.frame.size.height;
+                             }
+                         }
+                     } completion:^(BOOL finished) {
+                         [self updateLayout:self.pagingLayout animated:NO];
+                     }];
+    return;
+    
     [collectionView performBatchUpdates:^{
         self.listLayout.selectedCardIndexPath = indexPath;
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
@@ -143,9 +156,8 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - Actions
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
-    actionButton.hidden = YES;
-    [self updateLayout:self.listLayout animated:YES];
-    [self.collectionView performBatchUpdates:NULL completion:NULL];
+    [self updateLayout:self.listLayout animated:NO];
+//    [self.collectionView performBatchUpdates:NULL completion:NULL];
 }
 
 

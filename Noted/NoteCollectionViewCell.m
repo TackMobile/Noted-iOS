@@ -8,6 +8,8 @@
 
 #import "NoteCollectionViewCell.h"
 #import "NoteCollectionViewLayoutAttributes.h"
+#import "NoteListCollectionViewLayout.h"
+#import "NTDPagingCollectionViewLayout.h"
 #import <QuartzCore/QuartzCore.h>
 
 NSUInteger kCornerRadius = 6.0;
@@ -37,11 +39,41 @@ NSUInteger kCornerRadius = 6.0;
     [self applyCornerImages];
 }
 
+- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
+{
+    if (![layoutAttributes isKindOfClass:[NoteCollectionViewLayoutAttributes class]])
+          return;
+          
+    NoteCollectionViewLayoutAttributes *noteLayoutAttributes = (NoteCollectionViewLayoutAttributes *)layoutAttributes;
+    if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
+        self.layer.affineTransform = noteLayoutAttributes.transform2D;
+    }
+    
+//    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
+}
+
+- (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
+{
+    NSLog(@"Transitioning from: %@ to %@", oldLayout, newLayout);
+    if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
+        self.actionButton.hidden = YES;
+    } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
+        self.actionButton.hidden = NO;
+        [self applyCornerMask];
+    }
+}
+
+- (void)prepareForReuse
+{
+    [self removeCornerMask];
+}
+
+#pragma mark - Helpers
 - (void)applyCornerImages
 {
     UIImage *cornerImg = [UIImage imageNamed:@"corner"];
     CGSize size = cornerImg.size;
-
+    
     UIImageView *topLeftImageView, *topRightImageView, *bottomLeftImageView, *bottomRightImageView;
     topLeftImageView = [[UIImageView alloc] initWithImage:cornerImg];
     topRightImageView = [[UIImageView alloc] initWithImage:cornerImg];
@@ -83,17 +115,7 @@ NSUInteger kCornerRadius = 6.0;
     self.layer.mask = nil;
 }
 
-- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
-{
-    if (![layoutAttributes isKindOfClass:[NoteCollectionViewLayoutAttributes class]])
-          return;
-          
-    NoteCollectionViewLayoutAttributes *noteLayoutAttributes = (NoteCollectionViewLayoutAttributes *)layoutAttributes;
-    if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
-        self.layer.affineTransform = noteLayoutAttributes.transform2D;
-    }
-}
-
+#pragma mark - Theming
 - (void)applyTheme:(NTDTheme *)theme
 {
     self.contentView.backgroundColor = theme.backgroundColor;
