@@ -62,7 +62,10 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    layoutAttributes.zIndex = layoutAttributes.indexPath.item;
+    layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     CGRect frame = layoutAttributes.frame;
+    
     if (self.selectedCardIndexPath) {
         if ([indexPath isEqual:self.selectedCardIndexPath]) {
             frame.origin.y = self.contentInset.top;
@@ -109,7 +112,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
     NSPredicate *inRectPredicate = [NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *layoutAttributes, NSDictionary *bindings) {
-        return CGRectIntersectsRect(layoutAttributes.frame, rect);
+        BOOL intersects = CGRectIntersectsRect(layoutAttributes.frame, rect);
+        if (intersects) {
+            layoutAttributes.zIndex = layoutAttributes.indexPath.item;
+            layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
+        }
+        return intersects;
     }];
     NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
     if ([self shouldRecalcuateLayoutAttributes]) {

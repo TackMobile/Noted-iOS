@@ -46,7 +46,13 @@ NSUInteger kCornerRadius = 6.0;
           
     NoteCollectionViewLayoutAttributes *noteLayoutAttributes = (NoteCollectionViewLayoutAttributes *)layoutAttributes;
     if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
-        self.layer.affineTransform = noteLayoutAttributes.transform2D;
+        if (!CATransform3DIsIdentity(noteLayoutAttributes.transform3D)) {
+            CATransform3D transform3D = CATransform3DMakeAffineTransform(noteLayoutAttributes.transform2D);
+            CATransform3D zTransform = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
+            self.layer.transform = CATransform3DConcat(zTransform, transform3D);
+        } else {
+            self.layer.affineTransform = noteLayoutAttributes.transform2D;
+        }
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));

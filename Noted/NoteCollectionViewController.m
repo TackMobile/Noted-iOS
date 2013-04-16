@@ -36,7 +36,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
         self.pagingLayout.itemSize = initialLayout.cardSize;
         self.collectionView.showsHorizontalScrollIndicator = NO;
-        
+        self.collectionView.allowsSelection = NO;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
     }
     return self;
@@ -63,6 +63,9 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                                                                                action:selector];
     self.removeCardGestureRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:self.removeCardGestureRecognizer];
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                           action:@selector(handleCardTap:)];
+    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     
     self.noteCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -160,20 +163,31 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - Actions
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
+    NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
+    CGRect frame = [[self.listLayout layoutAttributesForItemAtIndexPath:topCardIndexPath] frame];
+    self.listLayout.selectedCardIndexPath = topCardIndexPath;
     [self updateLayout:self.listLayout animated:NO];
-//    [self.collectionView performBatchUpdates:NULL completion:NULL];
+    [self.collectionView performBatchUpdates:^{
+        self.listLayout.selectedCardIndexPath = nil;
+        CGFloat y = fmaxf(0.0, frame.origin.y - (self.collectionView.$height / 2));
+        [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
+    } completion:^(BOOL finished) {
+        
+    }];
 }
 
 
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
+    static NSIndexPath *swipedCardIndexPath = nil;
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
             CGPoint initialPoint = [gestureRecognizer locationInView:self.collectionView];
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:initialPoint];
             if (indexPath) {
-                self.listLayout.swipedCardIndexPath = indexPath;
+                swipedCardIndexPath = indexPath;
+//                self.listLayout.swipedCardIndexPath = indexPath;
                 self.listLayout.swipedCardOffset = 0.0;
             }
             break;
@@ -184,6 +198,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
             if (self.collectionView.dragging || fabs(translation.x) < 5.0)
                 break;
             self.collectionView.scrollEnabled = NO;
+            self.listLayout.swipedCardIndexPath = swipedCardIndexPath;
             self.listLayout.swipedCardOffset = translation.x;
             break;
         }
@@ -202,6 +217,17 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     }
 }
 
+- (void)handleCardTap:(UITapGestureRecognizer *)tapGestureRecognizer
+{
+    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        CGPoint tapPoint = [tapGestureRecognizer locationInView:self.collectionView];
+        NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:tapPoint];
+        if (indexPath) {
+            [self collectionView:self.collectionView
+        didSelectItemAtIndexPath:indexPath];
+        }
+    }
+}
 #pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
 {
