@@ -52,6 +52,7 @@
                                   self.cardSize.height);
         layoutAttributes.frame = frame;
         layoutAttributes.zIndex = i;
+        layoutAttributes.hidden = (i == 0);
         
         [self.layoutAttributesArray addObject:layoutAttributes];
     }
@@ -75,6 +76,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
     } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
+        layoutAttributes.hidden = NO;
         CGFloat y = self.collectionView.contentOffset.y;
         if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
             frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
@@ -84,6 +86,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         } else if (y <= self.pullToCreateCreateCardOffset) {
             frame.origin.y = y;
         } else {
+            layoutAttributes.hidden = YES;
         }
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
