@@ -23,7 +23,7 @@
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
-@property (nonatomic, strong) NSIndexPath *pullToReleaseCardIndexPath;
+@property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -41,7 +41,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
-        self.pullToReleaseCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+        self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     }
     return self;
 }
@@ -198,7 +198,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
             CGPoint initialPoint = [gestureRecognizer locationInView:self.collectionView];
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:initialPoint];
             if (indexPath) {
-                if ([indexPath isEqual:self.pullToReleaseCardIndexPath]) {
+                if ([indexPath isEqual:self.pullToCreateCardIndexPath]) {
                     gestureRecognizer.enabled = NO;
                 } else {
                     swipedCardIndexPath = indexPath;
@@ -272,6 +272,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 //        self.collectionView.scrollEnabled = NO;
 //        self.collectionView.delaysContentTouches = NO;
 //        self.collectionView.canCancelContentTouches = YES;
+        self.collectionView.directionalLockEnabled = YES;
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
         self.removeCardGestureRecognizer.enabled = YES;
@@ -330,7 +331,8 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     } else {
         self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
     }
-//    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
+    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
+//    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
 //static BOOL shouldPan = YES;
@@ -354,12 +356,21 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 //    shouldPan = YES;
 //}
 
+static BOOL shouldCreateNewCard = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (self.collectionView.collectionViewLayout != self.listLayout)
         return;
     
-    BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+    shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+    if (shouldCreateNewCard && !decelerate) {
+        [self insertNewCard];
+        shouldCreateNewCard = NO;
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
     if (shouldCreateNewCard) {
         [self insertNewCard];
         shouldCreateNewCard = NO;
