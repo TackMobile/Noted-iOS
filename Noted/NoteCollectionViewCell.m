@@ -37,9 +37,6 @@ NSUInteger kCornerRadius = 6.0;
     [self.contentView addSubview:self.textView];
     
     [self applyCornerImages];
-    [self.actionButton addTarget:nil
-                          action:@selector(actionButtonPressed:)
-                forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes

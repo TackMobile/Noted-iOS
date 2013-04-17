@@ -106,6 +106,10 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     
+    [cell.actionButton addTarget:self
+                          action:@selector(actionButtonPressed:)
+                forControlEvents:UIControlEventTouchUpInside];
+    
     NSInteger noteCount = [self collectionView:collectionView numberOfItemsInSection:0];
     if (indexPath.item == 0 || indexPath.item == 1 || indexPath.item == (noteCount-1))
         [cell applyCornerMask];
