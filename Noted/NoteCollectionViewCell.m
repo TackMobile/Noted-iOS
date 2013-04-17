@@ -37,6 +37,10 @@ NSUInteger kCornerRadius = 6.0;
     [self.contentView addSubview:self.textView];
     
     [self applyCornerImages];
+    NTDCrossDetectorView *crossDetectorView = [[NTDCrossDetectorView alloc] initWithFrame:self.bounds];
+    crossDetectorView.hidden = YES;
+//    [self.contentView addSubview:crossDetectorView];
+    self.crossDetectorView = crossDetectorView;
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
@@ -62,8 +66,14 @@ NSUInteger kCornerRadius = 6.0;
 {
     if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
         self.actionButton.hidden = YES;
+        self.crossDetectorView.hidden = YES;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.actionButton.hidden = NO;
+//        UIResponder *responder = self.actionButton;
+//        while ((responder = [responder nextResponder])) {
+//            NSLog(@"%@", responder);
+//        }
+        self.crossDetectorView.hidden = NO;
         [self applyCornerMask];
     }
 }

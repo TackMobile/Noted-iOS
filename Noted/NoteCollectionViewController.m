@@ -14,13 +14,16 @@
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
 #import "NTDPagingCollectionViewLayout.h"
+#import "NTDCrossDetectorView.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, NTDCrossDetectorViewDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
+@property (nonatomic, strong) NSIndexPath *pullToReleaseCardIndexPath;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -38,6 +41,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+        self.pullToReleaseCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     }
     return self;
 }
@@ -66,6 +70,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
                                                                                            action:@selector(handleCardTap:)];
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
+    self.selectCardGestureRecognizer = tapGestureRecognizer;
     
     self.noteCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -105,6 +110,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [self.collectionView sendSubviewToBack:self.pullToCreateLabel]; /* Kind of a hack to keep this label behind all cells. */
 
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
+    cell.crossDetectorView.delegate = self;
     
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
@@ -129,7 +135,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
 #pragma mark - UICollectionViewDelegate
 
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+-(void)__collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [UIView animateWithDuration:0.5
                      animations:^{
@@ -185,15 +191,20 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
     static NSIndexPath *swipedCardIndexPath = nil;
+    static BOOL shouldDelete = NO;
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
             CGPoint initialPoint = [gestureRecognizer locationInView:self.collectionView];
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:initialPoint];
             if (indexPath) {
-                swipedCardIndexPath = indexPath;
-//                self.listLayout.swipedCardIndexPath = indexPath;
-                self.listLayout.swipedCardOffset = 0.0;
+                if ([indexPath isEqual:self.pullToReleaseCardIndexPath]) {
+                    gestureRecognizer.enabled = NO;
+                } else {
+                    swipedCardIndexPath = indexPath;
+//                    self.listLayout.swipedCardIndexPath = indexPath;
+                    self.listLayout.swipedCardOffset = 0.0;
+                }
             }
             break;
         }
@@ -207,6 +218,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
             self.listLayout.swipedCardOffset = translation.x;
             if (fabs(translation.x) >= 80) {
                 gestureRecognizer.enabled = NO;
+                shouldDelete = YES;
             }
             break;
         }
@@ -218,7 +230,10 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                 self.listLayout.swipedCardIndexPath = nil;
                 if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
                     gestureRecognizer.enabled = YES;
+                }
+                if (shouldDelete) {
                     [self deleteCardAtIndexPath:swipedCardIndexPath];
+                    shouldDelete = NO;
                 }
             } completion:^(BOOL finished) {
             }];
@@ -232,11 +247,12 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
 - (void)handleCardTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
-    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded) {
+    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded &&
+        self.listLayout == self.collectionView.collectionViewLayout) {
         CGPoint tapPoint = [tapGestureRecognizer locationInView:self.collectionView];
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:tapPoint];
         if (indexPath) {
-            [self collectionView:self.collectionView
+            [self __collectionView:self.collectionView
         didSelectItemAtIndexPath:indexPath];
         }
     }
@@ -246,10 +262,20 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 {
     [self.collectionView setCollectionViewLayout:layout animated:animated];
     if (layout == self.pagingLayout) {
+        self.selectCardGestureRecognizer.enabled = NO;
+        self.removeCardGestureRecognizer.enabled = NO;
+        
         self.collectionView.pagingEnabled = YES;
         CGFloat padding = self.pagingLayout.minimumLineSpacing;
         self.view.$width += padding;
+
+//        self.collectionView.scrollEnabled = NO;
+//        self.collectionView.delaysContentTouches = NO;
+//        self.collectionView.canCancelContentTouches = YES;
     } else if (layout == self.listLayout) {
+        self.selectCardGestureRecognizer.enabled = YES;
+        self.removeCardGestureRecognizer.enabled = YES;
+        
         self.collectionView.pagingEnabled = NO;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
@@ -338,6 +364,12 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         [self insertNewCard];
         shouldCreateNewCard = NO;
     }
+}
+
+#pragma mark - Cross detection
+-(void)crossDetectorViewDidDetectCross:(NTDCrossDetectorView *)view
+{
+    NSLog(@"cross detected");
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NTDTheme.h"
+#import "NTDCrossDetectorView.h"
 
 @interface NoteCollectionViewCell : UICollectionViewCell <UITextViewDelegate>
 
@@ -18,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
+@property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 
 - (void)applyCornerMask;
 - (void)removeCornerMask;
