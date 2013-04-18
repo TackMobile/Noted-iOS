@@ -54,6 +54,10 @@
         layoutAttributes.zIndex = i;
         layoutAttributes.hidden = (i == 0);
         
+        if (i == 0 || i == 1 || i == (cardCount-1)) {
+            layoutAttributes.shouldApplyCornerMask = YES;
+        }
+        
         [self.layoutAttributesArray addObject:layoutAttributes];
     }
 }

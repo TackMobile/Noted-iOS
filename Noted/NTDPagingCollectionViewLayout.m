@@ -27,26 +27,23 @@
     return [NoteCollectionViewLayoutAttributes class];
 }
 
-//-(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-//{
-//    NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
-//    [attributesArray enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *layoutAttributes, NSUInteger idx, BOOL *stop) {
-//        if (0 == layoutAttributes.indexPath.item) {
-//            layoutAttributes.hidden = YES;
-//        }
-//    }];
-//    return attributesArray;
-//}
-//
-//-(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    UICollectionViewLayoutAttributes *layoutAttributes = [super layoutAttributesForItemAtIndexPath:indexPath];
-//    if (0 == indexPath.item) {
-//        layoutAttributes.hidden = YES;
-//    }
-//    return layoutAttributes;
-//}
-//
+-(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
+    NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
+    [attributesArray enumerateObjectsUsingBlock:^(NoteCollectionViewLayoutAttributes *layoutAttributes, NSUInteger idx, BOOL *stop) {
+        layoutAttributes.shouldApplyCornerMask = YES;
+    }];
+    return attributesArray;
+}
+
+-(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    NoteCollectionViewLayoutAttributes *layoutAttributes = (NoteCollectionViewLayoutAttributes *)[super layoutAttributesForItemAtIndexPath:indexPath];
+    layoutAttributes.shouldApplyCornerMask = YES;
+    return layoutAttributes;
+}
+
+
 -(CGSize)collectionViewContentSize
 {
     CGSize size = [super collectionViewContentSize];

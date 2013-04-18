@@ -11,5 +11,6 @@
 @interface NoteCollectionViewLayoutAttributes : UICollectionViewLayoutAttributes
 
 @property (nonatomic, assign) CGAffineTransform transform2D;
+@property (nonatomic, assign) BOOL shouldApplyCornerMask;
 
 @end

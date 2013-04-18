@@ -21,8 +21,5 @@
 @property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 
-- (void)applyCornerMask;
-- (void)removeCornerMask;
-
 - (void)applyTheme:(NTDTheme *)theme;
 @end

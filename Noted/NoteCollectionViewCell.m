@@ -43,6 +43,12 @@ NSUInteger kCornerRadius = 6.0;
     self.crossDetectorView = crossDetectorView;
 }
 
+//-(void)layoutSubviews
+//{
+//    [super layoutSubviews];
+//    [self applyCornerMask];
+//}
+
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
 {
     if (![layoutAttributes isKindOfClass:[NoteCollectionViewLayoutAttributes class]])
@@ -57,6 +63,12 @@ NSUInteger kCornerRadius = 6.0;
         } else {
             self.layer.affineTransform = noteLayoutAttributes.transform2D;
         }
+    }
+    
+    if (noteLayoutAttributes.shouldApplyCornerMask) {
+        [self applyCornerMask];
+    } else {
+        [self removeCornerMask];
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
@@ -74,14 +86,13 @@ NSUInteger kCornerRadius = 6.0;
 //            NSLog(@"%@", responder);
 //        }
         self.crossDetectorView.hidden = NO;
-        [self applyCornerMask];
     }
 }
 
-- (void)prepareForReuse
-{
-    [self removeCornerMask];
-}
+//- (void)prepareForReuse
+//{
+//    [self removeCornerMask];
+//}
 
 #pragma mark - Helpers
 - (void)applyCornerImages
@@ -94,6 +105,11 @@ NSUInteger kCornerRadius = 6.0;
     topRightImageView = [[UIImageView alloc] initWithImage:cornerImg];
     bottomLeftImageView = [[UIImageView alloc] initWithImage:cornerImg];
     bottomRightImageView = [[UIImageView alloc] initWithImage:cornerImg];
+    
+    topLeftImageView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
+    topRightImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+    bottomLeftImageView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |UIViewAutoresizingFlexibleTopMargin;
+    bottomRightImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
     
     topRightImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
     bottomLeftImageView.transform = CGAffineTransformMakeScale(1.0, -1.0);
@@ -112,14 +128,13 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)applyCornerMask
 {
-    return; // This code isn't really doing what I want it to yet.
     
     CGRect frame = self.bounds;
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
-                                                   byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
+                                                   byRoundingCorners:UIRectCornerAllCorners
                                                          cornerRadii:CGSizeMake(kCornerRadius, kCornerRadius)];
+    [maskPath appendPath:[UIBezierPath bezierPathWithRect:self.shadowImageView.frame]];
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
-    [maskLayer setFrame:CGRectOffset(self.bounds, 0, self.shadowImageView.frame.origin.y)];
     [maskLayer setPath:maskPath.CGPath];
     
     self.layer.mask = maskLayer;
