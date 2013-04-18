@@ -276,7 +276,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.view.$width += padding;
 
         self.shouldShowPullToCreateCard = NO;
-//        [self.collectionView deleteItemsAtIndexPaths:@[self.pullToCreateCardIndexPath]];
+        self.pullToCreateLabel.text = @"Pull to return to cards.";
 
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
@@ -286,7 +286,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
 
         self.shouldShowPullToCreateCard = YES;
-//        [self.collectionView insertItemsAtIndexPaths:@[self.pullToCreateCardIndexPath]];
+        self.pullToCreateLabel.text = @"Pull to create a new note.";
     }
     [self.collectionView reloadData];
 }
@@ -319,6 +319,11 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     return (self.shouldShowPullToCreateCard) ? indexPath.item - 1 : indexPath.item;
 }
 
+- (void)returnToListLayout
+{
+    [self actionButtonPressed:nil];
+}
+
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {
@@ -345,6 +350,13 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     } else {
         self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
     }
+    
+    CGFloat x = scrollView.bounds.origin.x;
+    if (self.collectionView.collectionViewLayout == self.pagingLayout) {
+        self.pullToCreateLabel.$x = x;
+    } else {
+        self.pullToCreateLabel.$x = 0;
+    }
     NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
@@ -370,24 +382,42 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 //    shouldPan = YES;
 //}
 
-static BOOL shouldCreateNewCard = NO;
+static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (self.collectionView.collectionViewLayout != self.listLayout)
-        return;
-    
-    shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-    if (shouldCreateNewCard && !decelerate) {
-        [self insertNewCard];
-        shouldCreateNewCard = NO;
+    if (self.collectionView.collectionViewLayout == self.listLayout) {
+        shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+        if (shouldCreateNewCard && !decelerate) {
+            [self insertNewCard];
+            shouldCreateNewCard = NO;
+        }
+    } else if (self.collectionView.collectionViewLayout == self.pagingLayout) {
+        shouldReturnToListLayout = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+        if (shouldReturnToListLayout && !decelerate) {
+            [self returnToListLayout];
+            shouldReturnToListLayout = NO;
+        }
     }
 }
 
+//-(void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+//{
+//    if (self.collectionView.collectionViewLayout == self.pagingLayout) {
+//        [self returnToListLayout];
+//        shouldReturnToListLayout = NO;
+//    }
+//}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if (shouldCreateNewCard) {
-        [self insertNewCard];
-        shouldCreateNewCard = NO;
+    if (self.collectionView.collectionViewLayout == self.listLayout) {
+        if (shouldCreateNewCard) {
+            [self insertNewCard];
+            shouldCreateNewCard = NO;
+        }
+    } else if (self.collectionView.collectionViewLayout == self.pagingLayout) {
+        [self returnToListLayout];
+        shouldReturnToListLayout = NO;
     }
 }
 
