@@ -24,6 +24,7 @@
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
+@property (nonatomic, assign) BOOL shouldShowPullToCreateCard;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -42,6 +43,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.collectionView.allowsSelection = NO;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+        self.shouldShowPullToCreateCard = YES;
     }
     return self;
 }
@@ -102,7 +104,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 1 + self.noteCount;
+    return (int)self.shouldShowPullToCreateCard + self.noteCount;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -120,12 +122,13 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     if (indexPath.item == 0 || indexPath.item == 1 || indexPath.item == (noteCount-1))
         [cell applyCornerMask];
     
-    if (indexPath.item == 0) {
+    if (indexPath.item == 0 && self.shouldShowPullToCreateCard) {
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];        
     } else {
-        NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:(indexPath.item - 1)];
+        NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
+        NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
         cell.titleLabel.text = entry.text;
         cell.relativeTimeLabel.text = entry.relativeDateString;
         [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
@@ -151,27 +154,29 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                          }
                      } completion:^(BOOL finished) {
                          [self updateLayout:self.pagingLayout animated:NO];
-                         [collectionView scrollToItemAtIndexPath:indexPath
+                         NSIndexPath *adjustedIndexPath = [NSIndexPath indexPathForItem:(indexPath.item-1) inSection:indexPath.section];
+                         [collectionView scrollToItemAtIndexPath:adjustedIndexPath
                                                 atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
                      }];
-    return;
-    
-    [collectionView performBatchUpdates:^{
-        self.listLayout.selectedCardIndexPath = indexPath;
-        NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-        cell.actionButton.hidden = NO;
-    }
-                             completion:^(BOOL finished){
-                                 self.listLayout.selectedCardIndexPath = nil;
-                                 [self updateLayout:self.pagingLayout animated:NO];
-                             }];
+//    return;
+//    
+//    [collectionView performBatchUpdates:^{
+//        self.listLayout.selectedCardIndexPath = indexPath;
+//        NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//        cell.actionButton.hidden = NO;
+//    }
+//                             completion:^(BOOL finished){
+//                                 self.listLayout.selectedCardIndexPath = nil;
+//                                 [self updateLayout:self.pagingLayout animated:NO];
+//                             }];
 }
 
 #pragma mark - Actions
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
     NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-    self.listLayout.selectedCardIndexPath = topCardIndexPath;
+    self.listLayout.selectedCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item + 1
+                                                                inSection:topCardIndexPath.section];
     [self updateLayout:self.listLayout animated:NO];
     [self.collectionView performBatchUpdates:^{
         self.listLayout.selectedCardIndexPath = nil;
@@ -264,22 +269,26 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     if (layout == self.pagingLayout) {
         self.selectCardGestureRecognizer.enabled = NO;
         self.removeCardGestureRecognizer.enabled = NO;
-        
+
+        self.collectionView.directionalLockEnabled = YES;
         self.collectionView.pagingEnabled = YES;
         CGFloat padding = self.pagingLayout.minimumLineSpacing;
         self.view.$width += padding;
 
-//        self.collectionView.scrollEnabled = NO;
-//        self.collectionView.delaysContentTouches = NO;
-//        self.collectionView.canCancelContentTouches = YES;
-        self.collectionView.directionalLockEnabled = YES;
+        self.shouldShowPullToCreateCard = NO;
+//        [self.collectionView deleteItemsAtIndexPaths:@[self.pullToCreateCardIndexPath]];
+
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
         self.removeCardGestureRecognizer.enabled = YES;
         
         self.collectionView.pagingEnabled = NO;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
+
+        self.shouldShowPullToCreateCard = YES;
+//        [self.collectionView insertItemsAtIndexPaths:@[self.pullToCreateCardIndexPath]];
     }
+    [self.collectionView reloadData];
 }
 
 - (void)insertNewCard
@@ -296,13 +305,18 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model deleteNoteEntryAtIndex:(indexPath.item - 1)
+    [model deleteNoteEntryAtIndex:[self noteEntryIndexForIndexPath:indexPath]
               withCompletionBlock:^{
                   dispatch_async(dispatch_get_main_queue(), ^{
                       self.noteCount--;
                       [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
                   });
               }];
+}
+
+- (NSInteger)noteEntryIndexForIndexPath:(NSIndexPath *)indexPath
+{
+    return (self.shouldShowPullToCreateCard) ? indexPath.item - 1 : indexPath.item;
 }
 
 #pragma mark - Notifications
