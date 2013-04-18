@@ -39,9 +39,12 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
         self.pagingLayout.itemSize = initialLayout.cardSize;
+
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
+        self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
         self.shouldShowPullToCreateCard = YES;
     }
@@ -412,8 +415,10 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
             shouldCreateNewCard = NO;
         }
     } else if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-        [self returnToListLayout];
-        shouldReturnToListLayout = NO;
+        if (shouldReturnToListLayout) {
+            [self returnToListLayout];
+            shouldReturnToListLayout = NO;
+        }
     }
 }
 

@@ -43,10 +43,4 @@
     return layoutAttributes;
 }
 
-
--(CGSize)collectionViewContentSize
-{
-    CGSize size = [super collectionViewContentSize];
-    return CGSizeMake(size.width, 40+size.height);
-}
 @end

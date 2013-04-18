@@ -248,7 +248,7 @@
     
 #ifdef DEBUG
     NSLog(@"Found %d local noted documents.", notedDocuments.count);    
-    NSLog(@" at URLs %@", fileURLs);    
+//    NSLog(@" at URLs %@", fileURLs);    
 #endif
     NSSet *fileURLSet = [NSSet setWithArray:fileURLs];
     TKPromiseKeptBlock promiseKeptBlock = ^{
