@@ -53,10 +53,10 @@ static NSArray *backgroundColors;
 
 - (UIColor *)textColor
 {
-    if (NTDColorSchemeTack == self.colorScheme)
+    if ([self isDarkColorScheme])
         return [UIColor whiteColor];
     else
-        return [UIColor colorWithHexString:@"#333333"];
+        return [UIColor colorWithHexString:@"333333"];
 }
 
 - (UIColor *)headerColor
@@ -66,7 +66,7 @@ static NSArray *backgroundColors;
 
 - (UIColor *)subheaderColor
 {
-    if (NTDColorSchemeTack == self.colorScheme)
+    if ([self isDarkColorScheme])
         return [UIColor colorWithWhite:1.0 alpha:0.5];
     else
         return [UIColor colorWithWhite:0.2 alpha:0.5];
@@ -79,10 +79,14 @@ static NSArray *backgroundColors;
 
 - (UIImage *)optionsButtonImage
 {
-    if (NTDColorSchemeTack == self.colorScheme)
+    if ([self isDarkColorScheme])
         return [UIImage imageNamed:@"menu-icon-white"];
     else
         return [UIImage imageNamed:@"menu-icon-grey"];
 }
 
+- (BOOL)isDarkColorScheme
+{
+    return (NTDColorSchemeTack == self.colorScheme || NTDColorSchemeShadow == self.colorScheme);
+}
 @end
