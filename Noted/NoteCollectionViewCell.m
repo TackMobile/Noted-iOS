@@ -81,10 +81,6 @@ NSUInteger kCornerRadius = 6.0;
         self.crossDetectorView.hidden = YES;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.actionButton.hidden = NO;
-//        UIResponder *responder = self.actionButton;
-//        while ((responder = [responder nextResponder])) {
-//            NSLog(@"%@", responder);
-//        }
         self.crossDetectorView.hidden = NO;
     }
 }

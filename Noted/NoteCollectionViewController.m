@@ -59,6 +59,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
+    self.pullToCreateLabel.layer.zPosition = -10000;
     [self.collectionView addSubview:self.pullToCreateLabel];
     [self.pullToCreateLabel sizeToFit];
     CGRect frame = CGRectMake(14.0,
@@ -84,21 +85,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
                                                object:nil];
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    // All of the initial cells have been created (occurs after viewWillAppear:),
-    // so this call is safe.
-    [self.collectionView sendSubviewToBack:self.pullToCreateLabel];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -112,8 +98,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self.collectionView sendSubviewToBack:self.pullToCreateLabel]; /* Kind of a hack to keep this label behind all cells. */
-
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     cell.crossDetectorView.delegate = self;
     
