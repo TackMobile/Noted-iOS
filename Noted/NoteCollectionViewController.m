@@ -20,6 +20,7 @@
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
+@property (nonatomic, strong) UIView *pullToCreateContainerView;
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
@@ -54,19 +55,7 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    self.pullToCreateLabel.text = @"Pull to create a new note.";
-    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
-    self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
-    self.pullToCreateLabel.textColor = [UIColor whiteColor];
-    self.pullToCreateLabel.layer.zPosition = -10000;
-    [self.collectionView addSubview:self.pullToCreateLabel];
-    [self.pullToCreateLabel sizeToFit];
-    CGRect frame = CGRectMake(14.0,
-                              -self.pullToCreateLabel.bounds.size.height,
-                              self.collectionView.bounds.size.width,
-                              self.pullToCreateLabel.bounds.size.height);
-    self.pullToCreateLabel.frame = frame;
+    [self setupPullToCreate];
     
     SEL selector = @selector(handleRemoveCardGesture:);
     self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self
@@ -88,6 +77,30 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Setup
+static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
+- (void)setupPullToCreate
+{
+    self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    self.pullToCreateLabel.text = @"Pull to create a new note.";
+    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
+    self.pullToCreateLabel.textColor = [UIColor whiteColor];
+    [self.pullToCreateLabel sizeToFit];
+
+    CGRect containerViewFrame = CGRectMake(0.0,
+                                           -(self.pullToCreateLabel.$height + PullToCreateLabelYOffset),
+                                           self.collectionView.bounds.size.width,
+                                           self.pullToCreateLabel.$height + PullToCreateLabelYOffset);
+    self.pullToCreateContainerView = [[UIView alloc] initWithFrame:containerViewFrame];
+    self.pullToCreateContainerView.layer.zPosition = -10000;
+    [self.collectionView addSubview:self.pullToCreateContainerView];
+
+    self.pullToCreateLabel.$x = PullToCreateLabelXOffset;
+    self.pullToCreateLabel.$y = PullToCreateLabelYOffset;
+    [self.pullToCreateContainerView addSubview:self.pullToCreateLabel];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -328,17 +341,17 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     CGFloat y = scrollView.bounds.origin.y;
-    if (y < -self.pullToCreateLabel.$height) {
-        self.pullToCreateLabel.$y = y;
+    if (y < -self.pullToCreateContainerView.$height) {
+        self.pullToCreateContainerView.$y = y;
     } else {
-        self.pullToCreateLabel.$y = -self.pullToCreateLabel.$height;
+        self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
     }
     
     CGFloat x = scrollView.bounds.origin.x;
     if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-        self.pullToCreateLabel.$x = x;
+        self.pullToCreateContainerView.$x = x;
     } else {
-        self.pullToCreateLabel.$x = 0;
+        self.pullToCreateContainerView.$x = 0.0;
     }
     NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
