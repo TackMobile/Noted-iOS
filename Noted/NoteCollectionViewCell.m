@@ -79,9 +79,11 @@ NSUInteger kCornerRadius = 6.0;
     if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
         self.actionButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
+        self.textView.editable = NO;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.actionButton.hidden = NO;
         self.crossDetectorView.hidden = NO;
+        self.textView.editable = YES;
     }
 }
 

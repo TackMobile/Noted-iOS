@@ -16,7 +16,7 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import "NTDCrossDetectorView.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, NTDCrossDetectorViewDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -112,12 +112,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
+    cell.textView.delegate = self;
     cell.crossDetectorView.delegate = self;
     
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
                 forControlEvents:UIControlEventTouchUpInside];
-        
+    
     if (indexPath.item == 0 && self.shouldShowPullToCreateCard) {
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
@@ -417,6 +418,17 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
             shouldReturnToListLayout = NO;
         }
     }
+}
+
+#pragma mark - UITextViewDelegate
+-  (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    self.collectionView.scrollEnabled = NO;
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    self.collectionView.scrollEnabled = YES;
 }
 
 #pragma mark - Cross detection
