@@ -145,9 +145,10 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     if (cardCount == 0) {
         return self.cardSize;
     } else {
-        CGFloat contentHeight = (cardCount - 1) * self.cardOffset + self.cardSize.height
-            + self.contentInset.top + self.contentInset.bottom;
-        CGFloat contentWidth = self.cardSize.width + self.contentInset.left + self.contentInset.right;
+        CGFloat contentHeight = (cardCount - 1) * self.cardOffset;
+        contentHeight += self.contentInset.top + self.contentInset.bottom;
+        CGFloat contentWidth = self.cardSize.width;
+        contentWidth += self.contentInset.left + self.contentInset.right;
         return CGSizeMake(contentWidth, contentHeight);
     }
 }
