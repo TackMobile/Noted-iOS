@@ -80,10 +80,12 @@ NSUInteger kCornerRadius = 6.0;
         self.actionButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
+        self.textView.scrollEnabled = NO;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
-        self.actionButton.hidden = NO;
+        self.actionButton.hidden = YES ;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
+        self.textView.scrollEnabled = YES;
     }
 }
 

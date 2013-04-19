@@ -15,6 +15,7 @@
 #import "NoteEntry.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import "NTDCrossDetectorView.h"
+#import "NoteData.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -177,6 +178,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     [self updateLayout:self.listLayout animated:NO];
     [self.collectionView performBatchUpdates:^{
         self.listLayout.selectedCardIndexPath = nil;
+        [self.listLayout invalidateLayout];
 //        NSIndexPath *previousCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item-1 inSection:0];
 //        UICollectionViewLayoutAttributes *layoutAttributes = [self.listLayout layoutAttributesForItemAtIndexPath:previousCardIndexPath];
 //        CGFloat offset = layoutAttributes.frame.origin.y + self.listLayout.cardOffset;
@@ -293,6 +295,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
     [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
             self.noteCount++;
             [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
         });

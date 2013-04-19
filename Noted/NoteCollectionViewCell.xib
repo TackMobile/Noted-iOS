@@ -148,6 +148,8 @@
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+						<bool key="IBUIDirectionalLockEnabled">YES</bool>
+						<bool key="IBUIScrollEnabled">NO</bool>
 						<bool key="IBUIEditable">NO</bool>
 						<object class="NSMutableString" key="IBUIText">
 							<bytes key="NS.bytes">TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGVyIGVsaXQgbGFtZXQsIGNvbnNlY3RldGF1ciBjaWxsaXVtIGFk

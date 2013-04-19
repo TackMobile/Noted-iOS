@@ -46,6 +46,11 @@ static NSArray *backgroundColors;
     return nil;
 }
 
++ (NTDTheme *)randomTheme
+{
+    return [self themeForColorScheme:arc4random_uniform(NTDNumberOfColorSchemes)];
+}
+
 -(UIColor *)backgroundColor
 {
     return backgroundColors[self.colorScheme];
