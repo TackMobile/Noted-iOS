@@ -173,22 +173,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (IBAction)actionButtonPressed:(UIButton *)actionButton
 {
     NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-    self.listLayout.selectedCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item + 1
-                                                                inSection:topCardIndexPath.section];
-    [self updateLayout:self.listLayout animated:NO];
-    [self.collectionView performBatchUpdates:^{
-        self.listLayout.selectedCardIndexPath = nil;
-        [self.listLayout invalidateLayout];
-//        NSIndexPath *previousCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item-1 inSection:0];
-//        UICollectionViewLayoutAttributes *layoutAttributes = [self.listLayout layoutAttributesForItemAtIndexPath:previousCardIndexPath];
-//        CGFloat offset = layoutAttributes.frame.origin.y + self.listLayout.cardOffset;
-        CGFloat offset = (topCardIndexPath.item - 1) * self.listLayout.cardOffset;
-        CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
-//        NSLog(@"y: %f, frame; %@", y, NSStringFromCGRect(frame));
-        [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
-    } completion:^(BOOL finished) {
-        
-    }];
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:topCardIndexPath];
+    [cell.textView resignFirstResponder];
 }
 
 
@@ -321,9 +307,42 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (void)returnToListLayout
 {
-    [self actionButtonPressed:nil];
-}
+    NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
+    [self updateLayout:self.listLayout animated:NO];
+    CGFloat offset = (topCardIndexPath.item - 1) * self.listLayout.cardOffset;
+    CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
+    [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
 
+    NSIndexPath *selectedCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item + 1
+                                                             inSection:topCardIndexPath.section];
+    NSArray *attributesArray = [self.listLayout layoutAttributesForElementsInRect:self.collectionView.bounds];
+
+    void (^hideCells)(void) = ^{
+        for (UICollectionViewLayoutAttributes *layoutAttributes in attributesArray) {
+            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:layoutAttributes.indexPath];
+            if ([selectedCardIndexPath isEqual:layoutAttributes.indexPath]) {
+                cell.$y = self.collectionView.contentOffset.y;
+            } else {
+                cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
+                cell.alpha = 0.1;
+            }
+        }
+    };
+    
+    void (^showCells)(void) = ^{
+        for (UICollectionViewLayoutAttributes *layoutAttributes in attributesArray) {
+            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:layoutAttributes.indexPath];
+            cell.$y = layoutAttributes.frame.origin.y;
+            cell.alpha = layoutAttributes.alpha;
+        }
+    };
+    [self.collectionView performBatchUpdates:^{
+        hideCells(); // Animation doesn't run on device, but does on Simulator.
+    } completion:^(BOOL finished) {
+        showCells(); // Does nothing on both platforms.
+    }];
+    
+}
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {
@@ -357,7 +376,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     } else {
         self.pullToCreateContainerView.$x = 0.0;
     }
-    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
+//    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
@@ -426,11 +445,15 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 #pragma mark - UITextViewDelegate
 -  (void)textViewDidBeginEditing:(UITextView *)textView
 {
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[[textView superview] superview];
+    cell.actionButton.hidden = NO;
     self.collectionView.scrollEnabled = NO;
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[[textView superview] superview];
+    cell.actionButton.hidden = YES;
     self.collectionView.scrollEnabled = YES;
 }
 
