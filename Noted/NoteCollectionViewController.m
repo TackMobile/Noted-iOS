@@ -1,4 +1,4 @@
-//
+
 //  NoteCollectionViewController.m
 //  Noted
 //
@@ -44,7 +44,6 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
 
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
-        self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
 
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
@@ -167,6 +166,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 //                                 self.listLayout.selectedCardIndexPath = nil;
 //                                 [self updateLayout:self.pagingLayout animated:NO];
 //                             }];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(NoteCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (collectionView.collectionViewLayout == self.pagingLayout) {
+        cell.textView.scrollEnabled = NO;
+    }
 }
 
 #pragma mark - Actions
@@ -363,6 +369,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - UIScrollViewDelegate
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (scrollView != self.collectionView)
+        return;
+    
     CGFloat y = scrollView.bounds.origin.y;
     if (y < -self.pullToCreateContainerView.$height) {
         self.pullToCreateContainerView.$y = y;
@@ -376,34 +385,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     } else {
         self.pullToCreateContainerView.$x = 0.0;
     }
+    
 //    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
-//static BOOL shouldPan = YES;
-//
-//- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-//{
-//    NSLog(@"scrollViewWillBeginDragging");
-//    shouldPan = NO;
-//}
-//
-//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-//{
-//    NSLog(@"scrollViewDidEndDragging:willDecelerate:%@", (decelerate ? @"YES" : @"NO"));
-//
-//    if(!decelerate) shouldPan = YES;
-//}
-//
-//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-//{
-//    NSLog(@"scrollViewDidEndDecelerating");
-//    shouldPan = YES;
-//}
-
 static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
+    if (scrollView != self.collectionView)
+        return;
+    
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
         if (shouldCreateNewCard && !decelerate) {
@@ -427,8 +419,21 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 //    }
 //}
 
+//- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+//{
+//    if (scrollView != self.collectionView)
+//        return;
+//
+//    BOOL onPageBoundary = (0 == (int)scrollView.contentOffset.x % (int)scrollView.$width);
+//    self.collectionView.alwaysBounceVertical = onPageBoundary;
+//    NSLog(@"bounce %@!", (self.collectionView.alwaysBounceVertical) ? @"on" : @"Off");
+//}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if (scrollView != self.collectionView)
+        return;
+    
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         if (shouldCreateNewCard) {
             [self insertNewCard];
@@ -438,6 +443,11 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
         if (shouldReturnToListLayout) {
             [self returnToListLayout];
             shouldReturnToListLayout = NO;
+        }
+        BOOL onPageBoundary = (0 == (int)scrollView.contentOffset.x % (int)scrollView.$width);
+        if (onPageBoundary) {
+            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
+            cell.textView.scrollEnabled = YES;
         }
     }
 }
