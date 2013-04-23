@@ -10,6 +10,7 @@
 #import "NTDTheme.h"
 #import "NTDCrossDetectorView.h"
 
+@protocol NoteCollectionViewCellDelegate;
 @interface NoteCollectionViewCell : UICollectionViewCell <UITextViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
@@ -20,6 +21,13 @@
 @property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
+@property (weak, nonatomic) IBOutlet id<NoteCollectionViewCellDelegate> delegate;
+@property (assign, nonatomic) BOOL scrollEnabled;
 
 - (void)applyTheme:(NTDTheme *)theme;
+@end
+
+@protocol NoteCollectionViewCellDelegate <NSObject>
+- (void)didTriggerPullToReturn:(NoteCollectionViewCell *)cell;
+- (void)shouldEnableScrolling:(BOOL)shouldEnable forContainerViewOfCell:(NoteCollectionViewCell *)cell;
 @end

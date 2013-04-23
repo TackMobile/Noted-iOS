@@ -11,10 +11,16 @@
 #import "NoteListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import <QuartzCore/QuartzCore.h>
+#import "UIView+FrameAdditions.h"
 
 NSUInteger kCornerRadius = 6.0;
 
-@interface NoteCollectionViewCell ()
+@interface NoteCollectionViewCell () <UIScrollViewDelegate>
+
+@property (strong, nonatomic) UIScrollView *scrollView;
+@property (nonatomic, strong) UILabel *pullToCreateLabel;
+@property (nonatomic, strong) UIView *pullToCreateContainerView;
+
 @end
 
 @implementation NoteCollectionViewCell
@@ -30,11 +36,24 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)awakeFromNib
 {
+    self.scrollView = [[UIScrollView alloc] initWithFrame:self.contentView.frame];
+    self.scrollView.contentSize = self.contentView.frame.size;
+    self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.scrollView.scrollEnabled = NO;
+    self.scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
+    self.scrollView.delegate = self;
+    
+    [self addSubview:self.scrollView];
+    [self.scrollView addSubview:self.contentView];
+    self.backgroundColor = nil;
+    
     [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.actionButton];
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
+    [self setupPullToCreate];
+    [self.contentView addSubview:self.pullToCreateContainerView];
     
     [self applyCornerImages];
     NTDCrossDetectorView *crossDetectorView = [[NTDCrossDetectorView alloc] initWithFrame:self.bounds];
@@ -80,16 +99,26 @@ NSUInteger kCornerRadius = 6.0;
         self.actionButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
+        self.scrollView.alwaysBounceVertical = NO;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.actionButton.hidden = YES ;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
+        self.scrollView.alwaysBounceVertical = YES;
     }
 }
 
 - (void)prepareForReuse
 {
     self.textView.contentOffset = CGPointZero;
+}
+
+- (void)setDelegate:(id<NoteCollectionViewCellDelegate>)delegate
+{
+    if (delegate == nil) {
+        delegate = (id<NoteCollectionViewCellDelegate>)[NSNull null];
+    }
+    _delegate = delegate;
 }
 
 #pragma mark - Helpers
@@ -143,6 +172,34 @@ NSUInteger kCornerRadius = 6.0;
     self.layer.mask = nil;
 }
 
+static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
+- (void)setupPullToCreate
+{
+    self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    self.pullToCreateLabel.text = @"Pull to return to cards.";
+    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
+    self.pullToCreateLabel.textColor = [UIColor whiteColor];
+    [self.pullToCreateLabel sizeToFit];
+    
+    CGRect containerViewFrame = CGRectMake(0.0,
+                                           -(self.pullToCreateLabel.$height + PullToCreateLabelYOffset),
+                                           self.bounds.size.width,
+                                           self.pullToCreateLabel.$height + PullToCreateLabelYOffset);
+    self.pullToCreateContainerView = [[UIView alloc] initWithFrame:containerViewFrame];
+    self.pullToCreateContainerView.layer.zPosition = -10000;
+    
+    self.pullToCreateLabel.$x = PullToCreateLabelXOffset;
+    self.pullToCreateLabel.$y = PullToCreateLabelYOffset;
+    [self.pullToCreateContainerView addSubview:self.pullToCreateLabel];
+}
+
+-(void)setScrollEnabled:(BOOL)scrollEnabled
+{
+    _scrollEnabled = scrollEnabled;
+    self.scrollView.scrollEnabled = self.textView.scrollEnabled = scrollEnabled;
+}
+
 #pragma mark - Theming
 - (void)applyTheme:(NTDTheme *)theme
 {
@@ -152,5 +209,57 @@ NSUInteger kCornerRadius = 6.0;
     self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
     self.separatorView.backgroundColor = theme.textColor;
+}
+
+#pragma mark - UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (scrollView != self.scrollView)
+        return;
+    
+    CGFloat y = scrollView.bounds.origin.y;
+    if (y < -self.pullToCreateContainerView.$height) {
+        self.pullToCreateContainerView.$y = y;
+    } else {
+        self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+    }
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if (scrollView != self.scrollView)
+        return;
+
+    [self.delegate shouldEnableScrolling:NO forContainerViewOfCell:self];
+}
+
+static BOOL shouldReturnToListLayout = NO;
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if (scrollView != self.scrollView)
+        return;
+    
+    shouldReturnToListLayout = (scrollView.contentOffset.y <= -100);
+    if (shouldReturnToListLayout && !decelerate) {
+        [self.delegate didTriggerPullToReturn:self];
+        shouldReturnToListLayout = NO;
+    }
+    
+    if (!decelerate) {
+        [self.delegate shouldEnableScrolling:YES forContainerViewOfCell:self];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if (scrollView != self.scrollView)
+        return;
+    
+    if (shouldReturnToListLayout) {
+        [self.delegate didTriggerPullToReturn:self];
+        shouldReturnToListLayout = NO;
+    }
+    [self.delegate shouldEnableScrolling:YES forContainerViewOfCell:self];
 }
 @end

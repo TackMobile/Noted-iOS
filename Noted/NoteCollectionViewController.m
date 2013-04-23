@@ -17,7 +17,7 @@
 #import "NTDCrossDetectorView.h"
 #import "NoteData.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -114,6 +114,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     cell.textView.delegate = self;
     cell.crossDetectorView.delegate = self;
+    cell.delegate = self;
     
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
@@ -171,7 +172,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(NoteCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
     if (collectionView.collectionViewLayout == self.pagingLayout) {
-        cell.textView.scrollEnabled = NO;
+        cell.scrollEnabled = NO;
     }
 }
 
@@ -419,15 +420,14 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 //    }
 //}
 
-//- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-//{
-//    if (scrollView != self.collectionView)
-//        return;
-//
-//    BOOL onPageBoundary = (0 == (int)scrollView.contentOffset.x % (int)scrollView.$width);
-//    self.collectionView.alwaysBounceVertical = onPageBoundary;
-//    NSLog(@"bounce %@!", (self.collectionView.alwaysBounceVertical) ? @"on" : @"Off");
-//}
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if (scrollView != self.collectionView)
+        return;
+
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
+    cell.scrollEnabled = NO;
+}
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
@@ -447,7 +447,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
         BOOL onPageBoundary = (0 == (int)scrollView.contentOffset.x % (int)scrollView.$width);
         if (onPageBoundary) {
             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-            cell.textView.scrollEnabled = YES;
+            cell.scrollEnabled = YES;
         }
     }
 }
@@ -455,14 +455,14 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 #pragma mark - UITextViewDelegate
 -  (void)textViewDidBeginEditing:(UITextView *)textView
 {
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[[textView superview] superview];
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = NO;
     self.collectionView.scrollEnabled = NO;
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[[textView superview] superview];
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = YES;
     self.collectionView.scrollEnabled = YES;
 }
@@ -471,6 +471,17 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 -(void)crossDetectorViewDidDetectCross:(NTDCrossDetectorView *)view
 {
     NSLog(@"cross detected");
+}
+
+#pragma mark - NoteCollectionViewCellDelegate
+- (void)didTriggerPullToReturn:(NoteCollectionViewCell *)cell
+{
+    [self returnToListLayout];
+}
+
+- (void)shouldEnableScrolling:(BOOL)shouldEnable forContainerViewOfCell:(NoteCollectionViewCell *)cell
+{
+    self.collectionView.scrollEnabled = shouldEnable;
 }
 
 @end
