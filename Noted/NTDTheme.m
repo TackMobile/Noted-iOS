@@ -31,6 +31,7 @@ static NSArray *backgroundColors;
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme
 {
+    NSParameterAssert(scheme >= 0 && scheme < NTDNumberOfColorSchemes);
     NTDTheme *theme = [[NTDTheme alloc] init];
     theme.colorScheme = scheme;
     return theme;

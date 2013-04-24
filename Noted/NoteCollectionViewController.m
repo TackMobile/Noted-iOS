@@ -17,8 +17,9 @@
 #import "NTDCrossDetectorView.h"
 #import "NoteData.h"
 #import "NoteDocument.h"
+#import "NTDNoteSettingsViewController.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate, NTDNoteSettingsViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -28,9 +29,11 @@
 @property (nonatomic, assign) NSUInteger noteCount;
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
 @property (nonatomic, assign) BOOL shouldShowPullToCreateCard;
+@property (nonatomic, strong) NTDNoteSettingsViewController *currentNoteSettingsController;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
+static const CGFloat SettingsTransitionDuration = 0.5;
 
 @implementation NoteCollectionViewController
 
@@ -72,6 +75,11 @@ NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCell
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(statusBarFrameChanged:)
+                                                 name:NTDDidChangeStatusBarHiddenPropertyNotification
                                                object:nil];
 }
 
@@ -120,6 +128,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     [cell.actionButton addTarget:self
                           action:@selector(actionButtonPressed:)
                 forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.settingsButton addTarget:self
+                            action:@selector(showSettings:)
+                  forControlEvents:UIControlEventTouchUpInside];
     
     if (indexPath.item == 0 && self.shouldShowPullToCreateCard) {
         cell.titleLabel.text = @"Release to create note";
@@ -258,6 +270,21 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
     }
 }
+
+-(IBAction)showSettings:(id)sender
+{
+    NTDNoteSettingsViewController *controller = [[NTDNoteSettingsViewController alloc] init];
+    controller.delegate = self;
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
+    [UIView transitionFromView:cell
+                        toView:controller.view
+                      duration:SettingsTransitionDuration
+                       options:UIViewAnimationOptionTransitionFlipFromLeft
+                    completion:NULL];
+    self.currentNoteSettingsController = controller;
+    self.collectionView.scrollEnabled = NO;
+}
+
 #pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
 {
@@ -361,6 +388,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     [self.collectionView reloadData];
 }
 
+- (void)statusBarFrameChanged:(NSNotification *)notification
+{
+    return;
+    self.view.frame = [[[UIApplication sharedApplication] keyWindow] bounds];
+    [self.listLayout invalidateLayout];
+    self.pagingLayout.itemSize = self.listLayout.cardSize;
+    [self.pagingLayout invalidateLayout];
+}
 
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -461,6 +496,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 {
     NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = NO;
+    cell.settingsButton.hidden = YES;
     self.collectionView.scrollEnabled = NO;
 }
 
@@ -468,6 +504,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 {
     NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = YES;
+    cell.settingsButton.hidden = NO;
     self.collectionView.scrollEnabled = YES;
     
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
@@ -511,4 +548,39 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     self.collectionView.scrollEnabled = shouldEnable;
 }
 
+#pragma mark - NTDNoteSettingsViewController
+
+- (void)changeNoteTheme:(NTDTheme *)newTheme
+{
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
+    [cell applyTheme:newTheme];
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
+
+    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
+        
+        UIColor *newColor = [newTheme backgroundColor];
+        if (![noteDocument.color isEqual:newColor]) {
+            noteDocument.color = newColor;
+            [noteEntry setNoteData:noteDocument.data];
+            [noteDocument updateChangeCount:UIDocumentChangeDone];
+        }
+        
+    };
+    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
+                                                completion:completion];
+}
+
+- (void)dismiss:(NTDNoteSettingsViewController *)controller
+{
+    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
+    [UIView transitionFromView:controller.view
+                        toView:cell
+                      duration:SettingsTransitionDuration
+                       options:UIViewAnimationOptionTransitionFlipFromRight
+                    completion:^(BOOL finished) {
+                        self.currentNoteSettingsController = nil;
+                        self.collectionView.scrollEnabled = YES;
+                    }];
+}
 @end

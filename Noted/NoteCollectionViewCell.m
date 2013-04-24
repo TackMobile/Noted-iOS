@@ -53,6 +53,8 @@ NSUInteger kCornerRadius = 6.0;
     [self.contentView addSubview:self.actionButton];
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
+    [self.contentView addSubview:self.settingsButton];
+    
     [self setupPullToCreate];
     [self.contentView addSubview:self.pullToCreateContainerView];
     
@@ -98,10 +100,12 @@ NSUInteger kCornerRadius = 6.0;
 {
     if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
         self.actionButton.hidden = YES;
+        self.settingsButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
-        self.actionButton.hidden = YES ;
+        self.actionButton.hidden = YES;
+        self.settingsButton.hidden = NO;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
     }
@@ -208,6 +212,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
     self.separatorView.backgroundColor = theme.textColor;
+    
 }
 
 #pragma mark - UIScrollViewDelegate

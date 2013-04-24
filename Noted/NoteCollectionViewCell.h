@@ -21,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
+@property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 @property (weak, nonatomic) IBOutlet id<NoteCollectionViewCellDelegate> delegate;
 @property (assign, nonatomic) BOOL scrollEnabled;
 

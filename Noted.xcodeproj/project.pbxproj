@@ -100,6 +100,8 @@
 		B54E0CA116668C0F005BB273 /* WalkThroughView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54E0CA016668C0F005BB273 /* WalkThroughView.xib */; };
 		B554DB871647F12B00047494 /* DrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = B554DB861647F12B00047494 /* DrawView.m */; };
 		B56A87AD166A778E00BE1BAE /* TTAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = B56A87AC166A778E00BE1BAE /* TTAlertView.m */; };
+		B57AC8581728975D00A0E0B2 /* NTDNoteSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B57AC8561728975C00A0E0B2 /* NTDNoteSettingsViewController.m */; };
+		B57AC8591728975D00A0E0B2 /* NTDNoteSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B57AC8571728975C00A0E0B2 /* NTDNoteSettingsViewController.xib */; };
 		B58BD31816134E8D0095D22C /* NoteStackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58BD31716134E8D0095D22C /* NoteStackViewController.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
 		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
@@ -265,6 +267,9 @@
 		B554DB861647F12B00047494 /* DrawView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DrawView.m; sourceTree = "<group>"; };
 		B56A87AB166A778E00BE1BAE /* TTAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTAlertView.h; sourceTree = "<group>"; };
 		B56A87AC166A778E00BE1BAE /* TTAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTAlertView.m; sourceTree = "<group>"; };
+		B57AC8551728975C00A0E0B2 /* NTDNoteSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteSettingsViewController.h; sourceTree = "<group>"; };
+		B57AC8561728975C00A0E0B2 /* NTDNoteSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteSettingsViewController.m; sourceTree = "<group>"; };
+		B57AC8571728975C00A0E0B2 /* NTDNoteSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDNoteSettingsViewController.xib; sourceTree = "<group>"; };
 		B58BD31716134E8D0095D22C /* NoteStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteStackViewController.m; sourceTree = "<group>"; };
 		B58BD31D161374910095D22C /* NoteStackViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteStackViewController.h; sourceTree = "<group>"; };
 		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
@@ -533,6 +538,16 @@
 			name = Views;
 			sourceTree = "<group>";
 		};
+		B52A87521729C07E00DEF085 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				B57AC8551728975C00A0E0B2 /* NTDNoteSettingsViewController.h */,
+				B57AC8561728975C00A0E0B2 /* NTDNoteSettingsViewController.m */,
+				B57AC8571728975C00A0E0B2 /* NTDNoteSettingsViewController.xib */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
 		B58BD31A1613537A0095D22C /* images */ = {
 			isa = PBXGroup;
 			children = (
@@ -609,6 +624,7 @@
 		B5D5F2471718BD34008C60EE /* VF */ = {
 			isa = PBXGroup;
 			children = (
+				B52A87521729C07E00DEF085 /* Controllers */,
 				B52114DF171E15A8007670F3 /* Views */,
 				B52114D8171CA79E007670F3 /* Models */,
 				B5D5F2481718BD3C008C60EE /* Categories */,
@@ -777,6 +793,7 @@
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */,
+				B57AC8591728975D00A0E0B2 /* NTDNoteSettingsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -836,6 +853,7 @@
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B52114E2171E161A007670F3 /* NTDCrossDetectorView.m in Sources */,
+				B57AC8581728975D00A0E0B2 /* NTDNoteSettingsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -915,7 +933,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrew Mclean (787B227237)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -928,7 +946,7 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "F5140883-8A91-4D11-A605-D0237632EA47";
+				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
@@ -938,8 +956,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Benjamin Pilcher (PEYCX5UH38)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Vladimir Fleurima (J99WP6H93F)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vladimir Fleurima (J99WP6H93F)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -951,7 +969,8 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "3D3E8F68-8D3C-446F-ADE4-0DC2594BDA7F";
+				PROVISIONING_PROFILE = "DD1A5B36-DA9B-415D-9AC9-89EBA8223D01";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "DD1A5B36-DA9B-415D-9AC9-89EBA8223D01";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -986,8 +1005,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Vladimir Fleurima (J99WP6H93F)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vladimir Fleurima (J99WP6H93F)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
@@ -999,7 +1018,8 @@
 					"\"$(SRCROOT)/TestFlightSDK1.1\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "DD1A5B36-DA9B-415D-9AC9-89EBA8223D01";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "518329C8-125C-4BBB-A56C-5936B0AC70BE";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Ad Hoc";
