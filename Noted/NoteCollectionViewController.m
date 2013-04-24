@@ -145,6 +145,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:visibleIndexPath];
                              if ([visibleIndexPath isEqual:indexPath]) {
                                  cell.$y = self.collectionView.contentOffset.y;
+                                 cell.scrollEnabled = YES;
                              } else {
                                  cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
                                  cell.alpha = 0.1;
@@ -171,9 +172,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(NoteCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (collectionView.collectionViewLayout == self.pagingLayout) {
-        cell.scrollEnabled = NO;
-    }
+//    if (collectionView.collectionViewLayout == self.pagingLayout) {
+//        cell.scrollEnabled = NO;
+//    }
 }
 
 #pragma mark - Actions

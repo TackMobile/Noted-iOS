@@ -40,6 +40,7 @@ NSUInteger kCornerRadius = 6.0;
     self.scrollView.contentSize = self.contentView.frame.size;
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.scrollView.scrollEnabled = NO;
+    self.scrollView.alwaysBounceVertical = YES;
     self.scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
     self.scrollView.delegate = self;
     
@@ -99,12 +100,10 @@ NSUInteger kCornerRadius = 6.0;
         self.actionButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
-        self.scrollView.alwaysBounceVertical = NO;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.actionButton.hidden = YES ;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
-        self.scrollView.alwaysBounceVertical = YES;
     }
 }
 
