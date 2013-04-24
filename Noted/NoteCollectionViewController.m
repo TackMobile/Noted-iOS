@@ -16,6 +16,7 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import "NTDCrossDetectorView.h"
 #import "NoteData.h"
+#import "NoteDocument.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -123,12 +124,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     if (indexPath.item == 0 && self.shouldShowPullToCreateCard) {
         cell.titleLabel.text = @"Release to create note";
         cell.relativeTimeLabel.text = @"";
+        cell.textView.text = @"";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];        
     } else {
         NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
         NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
-        cell.titleLabel.text = entry.text;
+        cell.titleLabel.text = [entry title];
         cell.relativeTimeLabel.text = entry.relativeDateString;
+        cell.textView.text = entry.text;
         [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
     }
     return cell;
@@ -466,6 +469,29 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = YES;
     self.collectionView.scrollEnabled = YES;
+    
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
+    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
+        if (noteDocument.documentState!=UIDocumentStateNormal ) {
+            NSLog(@"couldn't save!");
+            return;
+        }
+        
+        NSString *text = textView.text;
+        NSString *currentText = noteDocument.data.noteText;
+        if (![currentText isEqualToString:text]) {
+            [noteDocument setText:text];
+            [noteEntry setNoteData:noteDocument.data];
+            [noteDocument updateChangeCount:UIDocumentChangeDone];
+            
+            cell.titleLabel.text = [noteEntry title];
+            cell.relativeTimeLabel.text = noteEntry.relativeDateString;
+        }
+        
+    };
+    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
+                                                completion:completion];
 }
 
 #pragma mark - Cross detection
