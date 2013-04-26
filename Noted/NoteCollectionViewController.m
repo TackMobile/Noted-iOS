@@ -24,7 +24,7 @@
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
-@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer;
+@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, assign) NSUInteger noteCount;
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
@@ -33,6 +33,8 @@
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
+NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
+
 static const CGFloat SettingsTransitionDuration = 0.5;
 
 @implementation NoteCollectionViewController
@@ -49,6 +51,7 @@ static const CGFloat SettingsTransitionDuration = 0.5;
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+        [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forSupplementaryViewOfKind:NTDCollectionElementKindDuplicateCard withReuseIdentifier:NoteCollectionViewDuplicateCardReuseIdentifier];
 
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
         self.shouldShowPullToCreateCard = YES;
@@ -62,14 +65,19 @@ static const CGFloat SettingsTransitionDuration = 0.5;
     [self setupPullToCreate];
     
     SEL selector = @selector(handleRemoveCardGesture:);
-    self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self
-                                                                               action:selector];
+    self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:selector];
     self.removeCardGestureRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:self.removeCardGestureRecognizer];
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                                           action:@selector(handleCardTap:)];
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardTap:)];
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.selectCardGestureRecognizer = tapGestureRecognizer;
+    UIPanGestureRecognizer *panGestureRecognizer;
+    panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCard:)];
+    panGestureRecognizer.enabled = NO;
+    panGestureRecognizer.delegate = self;
+//    [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:panGestureRecognizer];
+    self.panCardGestureRecognizer = panGestureRecognizer;
+    [self.collectionView addGestureRecognizer:panGestureRecognizer];
     
     self.noteCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -147,6 +155,20 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
     }
     return cell;
+}
+
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    if ([kind isEqualToString:NoteCollectionViewDuplicateCardReuseIdentifier]) {
+        NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
+        cell.textView.delegate = nil;
+        cell.crossDetectorView.delegate = nil;
+        cell.delegate = nil;
+        [cell.actionButton removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];
+        return cell;
+    } else {
+        return nil;
+    }
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -285,6 +307,74 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.collectionView.scrollEnabled = NO;
 }
 
+- (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
+{
+    UIView *view = panGestureRecognizer.view;
+    
+    switch (panGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            CGPoint point = [panGestureRecognizer locationInView:self.view.window]; // If we used 'view', point would be relative to content size
+            NTDPagingDirection panDirection = ((point.x / view.$width) < 0.5) ? NTDPagingDirectionLeftToRight : NTDPagingDirectionRightToLeft;
+            
+            NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
+            NSInteger pannedCardIndex = -1, stationaryCardIndex = -1;
+            if (panDirection == NTDPagingDirectionLeftToRight) {
+                pannedCardIndex = topCardIndexPath.item - 1;
+                stationaryCardIndex = topCardIndexPath.item;
+            } else if (panDirection == NTDPagingDirectionRightToLeft) {
+                pannedCardIndex = topCardIndexPath.item ;
+                stationaryCardIndex = topCardIndexPath.item + 1;
+            }
+
+            if (stationaryCardIndex >= self.noteCount || pannedCardIndex < 0) {
+                panGestureRecognizer.enabled = NO;
+            } else {
+                self.pagingLayout.pannedCardIndexPath = [NSIndexPath indexPathForItem:pannedCardIndex inSection:0];;
+                self.pagingLayout.pannedCardXTranslation = [panGestureRecognizer translationInView:view].x;
+                self.pagingLayout.stationaryCardIndexPath = [NSIndexPath indexPathForItem:stationaryCardIndex inSection:0];;
+                self.pagingLayout.pagingDirection = panDirection;
+            }
+            break;
+        }
+        case UIGestureRecognizerStateChanged:
+            self.pagingLayout.pannedCardXTranslation = [panGestureRecognizer translationInView:view].x;
+            break;
+            
+        case UIGestureRecognizerStateCancelled:
+            panGestureRecognizer.enabled = YES;
+            break;
+            
+        default:
+        {
+            CGPoint distance = [panGestureRecognizer translationInView:self.view];
+            CGFloat percentage = fabs(distance.x) / view.$width;
+            BOOL shouldReplaceCard = (percentage >= 0.6);
+            
+            NTDPagingDirection pagingDirection = self.pagingLayout.pagingDirection;
+//            if (pagingDirection == NTDPagingDirectionRightToLeft) {
+//                self.pagingLayout.stationaryCardIndexPath = nil;
+//            }
+            [self.collectionView performBatchUpdates:^{
+                [self.pagingLayout completePanGesture:shouldReplaceCard];
+            } completion:^(BOOL finished) {
+                if (shouldReplaceCard) {
+                    [self.pagingLayout invalidateLayout];
+
+                    CGPoint offset = self.collectionView.contentOffset;
+                    if (pagingDirection == NTDPagingDirectionLeftToRight) {
+                        offset.x -= self.collectionView.bounds.size.width;
+                    } else if (pagingDirection == NTDPagingDirectionRightToLeft) {
+                        offset.x += self.collectionView.bounds.size.width;
+                    }
+                    [self.collectionView setContentOffset:offset animated:NO];
+                }
+            }];
+            break;
+        }
+    }
+}
+
 #pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
 {
@@ -292,7 +382,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     if (layout == self.pagingLayout) {
         self.selectCardGestureRecognizer.enabled = NO;
         self.removeCardGestureRecognizer.enabled = NO;
-
+        self.panCardGestureRecognizer.enabled = YES;
+        
+        self.collectionView.scrollEnabled = NO;
         self.collectionView.directionalLockEnabled = YES;
         self.collectionView.pagingEnabled = YES;
         CGFloat padding = self.pagingLayout.minimumLineSpacing;
@@ -304,7 +396,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
         self.removeCardGestureRecognizer.enabled = YES;
+        self.panCardGestureRecognizer.enabled = NO;
         
+        self.collectionView.scrollEnabled = YES;
         self.collectionView.pagingEnabled = NO;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
 
@@ -406,6 +500,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         return NO;
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if (gestureRecognizer == self.panCardGestureRecognizer) {
+        CGPoint location = [touch locationInView:gestureRecognizer.view];
+        CGFloat percentage = location.x / gestureRecognizer.view.$width;
+        return (percentage >= 0.8 || percentage <= 0.2);
+    }
+    
+    return YES;
+}
+
 #pragma mark - UIScrollViewDelegate
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -505,7 +610,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = YES;
     cell.settingsButton.hidden = NO;
-    self.collectionView.scrollEnabled = YES;
+//    self.collectionView.scrollEnabled = YES;
     
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
@@ -545,7 +650,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 
 - (void)shouldEnableScrolling:(BOOL)shouldEnable forContainerViewOfCell:(NoteCollectionViewCell *)cell
 {
-    self.collectionView.scrollEnabled = shouldEnable;
+//    self.collectionView.scrollEnabled = shouldEnable;
 }
 
 #pragma mark - NTDNoteSettingsViewController
@@ -580,7 +685,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
                        options:UIViewAnimationOptionTransitionFlipFromRight
                     completion:^(BOOL finished) {
                         self.currentNoteSettingsController = nil;
-                        self.collectionView.scrollEnabled = YES;
+//                        self.collectionView.scrollEnabled = YES;
                     }];
 }
 @end
