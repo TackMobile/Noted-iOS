@@ -8,6 +8,7 @@
 
 #import "NTDPagingCollectionViewLayout.h"
 #import "NoteCollectionViewLayoutAttributes.h"
+#import "NSIndexPath+NTDManipulation.h"
 
 NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementKindDuplicateCard";
 
@@ -51,8 +52,9 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
     
     NSMutableArray *mutableAttributesArray = [NSMutableArray arrayWithArray:attributesArray];
     if (self.pannedCardIndexPath != nil && !containsAttributesForPannedCard) {
+        NSLog(@"add pan");
         [mutableAttributesArray addObject:[super layoutAttributesForItemAtIndexPath:self.pannedCardIndexPath]];
-    } else if (self.stationaryCardIndexPath != nil && !containsAttributesForStationaryCard) {
+    } else if (self.stationaryCardIndexPath != nil && !containsAttributesForStationaryCard && self.pagingDirection == NTDPagingDirectionLeftToRight) {
         NSLog(@"add stat?");
         [mutableAttributesArray addObject:[super layoutAttributesForItemAtIndexPath:self.stationaryCardIndexPath]];
     } else if (self.stationaryCardIndexPath != nil && self.pagingDirection == NTDPagingDirectionRightToLeft) {
@@ -64,6 +66,10 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
         [self customizeLayoutAttributes:layoutAttributes];
     };
     
+    if (self.shouldReplaceStationaryCard) {
+        NSLog(@"actual reset");
+        [self resetPanningProperties];
+    }
     return mutableAttributesArray;
 }
 
@@ -77,12 +83,23 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
 -(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
     if ([kind isEqualToString:NTDCollectionElementKindDuplicateCard] && [indexPath isEqual:self.stationaryCardIndexPath]) {
-        NoteCollectionViewLayoutAttributes *layoutAttributes = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:indexPath];
+        NoteCollectionViewLayoutAttributes *cellLayoutAttributes, *layoutAttributes;
+        NSIndexPath *cellIndexPath;
+        
         if (self.pagingDirection == NTDPagingDirectionRightToLeft) {
-            CGRect frame = CGRectOffset(layoutAttributes.frame, -340.0, 0.0);
-            layoutAttributes.frame = frame;
-            layoutAttributes.zIndex = -1;
+            cellIndexPath = [indexPath ntd_indexPathForPreviousItem];
+        } else {
+            cellIndexPath = indexPath;
         }
+        cellLayoutAttributes = (NoteCollectionViewLayoutAttributes *)[super layoutAttributesForItemAtIndexPath:cellIndexPath];
+        layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
+        
+        layoutAttributes.frame = cellLayoutAttributes.frame;
+        layoutAttributes.zIndex = -1;
+        layoutAttributes.transform3D = cellLayoutAttributes.transform3D;
+        layoutAttributes.hidden = cellLayoutAttributes.hidden;
+        layoutAttributes.alpha = cellLayoutAttributes.alpha;
+        
         return layoutAttributes;
     } else {
         return nil;
@@ -97,26 +114,36 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
 
 -(void)applyPanToLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
 {
-    CGRect frame;
-    if ([layoutAttributes.indexPath isEqual:self.pannedCardIndexPath]) {
-        NSLog(@"apply pan");
-        if (self.shouldReplaceStationaryCard) {
-            NSLog(@"resetting");
-            frame = [[super layoutAttributesForItemAtIndexPath:self.stationaryCardIndexPath] frame];
-            [self resetPanningProperties];
-        } else {
-            frame = CGRectOffset(layoutAttributes.frame, self.pannedCardXTranslation, 0.0);
-        }
-        layoutAttributes.frame = frame;
-    } else if ([layoutAttributes.indexPath isEqual:self.stationaryCardIndexPath]) {
-//        if (self.pagingDirection == NTDPagingDirectionRightToLeft) {
-//            frame = CGRectOffset(layoutAttributes.frame, -340.0, 0.0);
-//            layoutAttributes.frame = frame;
-//            layoutAttributes.zIndex = -1;
-//        }
-    }
-}
+    if (![layoutAttributes.indexPath isEqual:self.pannedCardIndexPath])
+        return;
 
+    CGRect frame;
+    NSLog(@"apply pan");
+    
+    if (self.shouldReplaceStationaryCard) {
+        NSLog(@"replacing in pan");
+        NSIndexPath *indexPath;
+        NSInteger pannedCardIndex = self.pannedCardIndexPath.item;
+        if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex > 0) {
+            indexPath = [self.pannedCardIndexPath ntd_indexPathForPreviousItem];
+        } else if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex == 0) {
+            indexPath = self.pannedCardIndexPath;
+        } else if (self.pagingDirection == NTDPagingDirectionLeftToRight) {
+            indexPath = self.stationaryCardIndexPath;
+        } else {
+            @throw @"Shouldn't be here.";
+        }
+
+        frame = [[super layoutAttributesForItemAtIndexPath:indexPath] frame];
+        if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex == 0) {
+            frame = CGRectOffset(frame, -frame.size.width, 0.0);
+        }
+    } else {
+        frame = CGRectOffset(layoutAttributes.frame, self.pannedCardXTranslation, 0.0);
+    }
+    
+    layoutAttributes.frame = frame;
+}
 
 -(void)setPannedCardIndexPath:(NSIndexPath *)pannedCardIndexPath
 {

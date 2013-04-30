@@ -159,12 +159,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
-    if ([kind isEqualToString:NoteCollectionViewDuplicateCardReuseIdentifier]) {
+    if ([kind isEqualToString:NTDCollectionElementKindDuplicateCard]) {
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
         cell.textView.delegate = nil;
         cell.crossDetectorView.delegate = nil;
         cell.delegate = nil;
         [cell.actionButton removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];
+        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeKernal]];
         return cell;
     } else {
         return nil;
@@ -330,9 +331,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (stationaryCardIndex >= self.noteCount || pannedCardIndex < 0) {
                 panGestureRecognizer.enabled = NO;
             } else {
-                self.pagingLayout.pannedCardIndexPath = [NSIndexPath indexPathForItem:pannedCardIndex inSection:0];;
+                self.pagingLayout.pannedCardIndexPath = [NSIndexPath indexPathForItem:pannedCardIndex inSection:0];
                 self.pagingLayout.pannedCardXTranslation = [panGestureRecognizer translationInView:view].x;
-                self.pagingLayout.stationaryCardIndexPath = [NSIndexPath indexPathForItem:stationaryCardIndex inSection:0];;
+                self.pagingLayout.stationaryCardIndexPath = [NSIndexPath indexPathForItem:stationaryCardIndex inSection:0];
                 self.pagingLayout.pagingDirection = panDirection;
             }
             break;

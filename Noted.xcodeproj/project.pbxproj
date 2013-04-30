@@ -120,6 +120,7 @@
 		B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */; };
 		B5D5F24B1718BF5E008C60EE /* UIView+FrameAdditions.h in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */; };
 		B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */; };
+		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
@@ -295,6 +296,8 @@
 		B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+FrameAdditions.h"; sourceTree = "<group>"; };
 		B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+FrameAdditions.m"; sourceTree = "<group>"; };
+		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
+		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
@@ -638,6 +641,8 @@
 			children = (
 				B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */,
 				B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */,
+				B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */,
+				B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -854,6 +859,7 @@
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B52114E2171E161A007670F3 /* NTDCrossDetectorView.m in Sources */,
 				B57AC8581728975D00A0E0B2 /* NTDNoteSettingsViewController.m in Sources */,
+				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
