@@ -18,6 +18,7 @@
 #import "NoteData.h"
 #import "NoteDocument.h"
 #import "NTDNoteSettingsViewController.h"
+#import "DAKeyboardControl.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate, NTDNoteSettingsViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -604,10 +605,12 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     cell.actionButton.hidden = NO;
     cell.settingsButton.hidden = YES;
     self.collectionView.scrollEnabled = NO;
+    [textView addKeyboardPanningWithActionHandler:nil];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
+    [textView removeKeyboardControl];
     NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
     cell.actionButton.hidden = YES;
     cell.settingsButton.hidden = NO;
