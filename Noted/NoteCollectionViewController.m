@@ -19,6 +19,7 @@
 #import "NoteDocument.h"
 #import "NTDNoteSettingsViewController.h"
 #import "DAKeyboardControl.h"
+#import "NSIndexPath+NTDManipulation.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate, NTDNoteSettingsViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -31,6 +32,7 @@
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
 @property (nonatomic, assign) BOOL shouldShowPullToCreateCard;
 @property (nonatomic, strong) NTDNoteSettingsViewController *currentNoteSettingsController;
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -79,6 +81,11 @@ static const CGFloat SettingsTransitionDuration = 0.5;
 //    [self.collectionView.panGestureRecognizer requireGestureRecognizerToFail:panGestureRecognizer];
     self.panCardGestureRecognizer = panGestureRecognizer;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
+    UIPinchGestureRecognizer *pinchGestureRecognizer;
+    pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchToListLayout:)];
+    pinchGestureRecognizer.enabled = NO;
+    self.pinchToListLayoutGestureRecognizer = pinchGestureRecognizer;
+    [self.collectionView addGestureRecognizer:pinchGestureRecognizer];
     
     self.noteCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -377,6 +384,70 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     }
 }
 
+CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
+{
+    UIView *view = pinchGestureRecognizer.view;
+    CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
+    CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
+    return  DistanceBetweenTwoPoints(p1, p2);
+}
+
+CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
+{
+    CGFloat d = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
+    return sqrtf(d);
+}
+
+- (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
+{
+    static CGFloat initialDistance = 0.0f, endDistance = 60.0f;
+    static CGPoint initialContentOffset;
+    switch (pinchGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            NSIndexPath *visibleCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
+            NSIndexPath *pinchedCardIndexPath = [visibleCardIndexPath ntd_indexPathForNextItem];
+            initialDistance = PinchDistance(pinchGestureRecognizer);
+            self.listLayout.pinchedCardIndexPath = pinchedCardIndexPath;
+            self.listLayout.pinchRatio = 1.0;
+            
+            initialContentOffset = self.collectionView.contentOffset;
+            [self updateLayout:self.listLayout animated:NO];
+            
+            // Update content offset so card is correctly positioned.
+            CGFloat offset = (visibleCardIndexPath.item - 1) * self.listLayout.cardOffset;
+            CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
+            [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
+
+            break;
+        }
+            
+        case UIGestureRecognizerStateChanged:
+        {
+            CGFloat currentDistance = PinchDistance(pinchGestureRecognizer);
+            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            self.listLayout.pinchRatio = pinchRatio;
+            break;
+        }
+            
+        case UIGestureRecognizerStateEnded:
+        {
+            CGFloat currentDistance = PinchDistance(pinchGestureRecognizer);
+            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            if (pinchRatio > 0.0) { /* Has to be <= 0.0 to switch layouts. */
+                [self updateLayout:self.pagingLayout animated:NO];
+                [self.collectionView setContentOffset:initialContentOffset animated:NO];
+            } else {
+                pinchGestureRecognizer.enabled = NO;
+            }
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
+
 #pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
 {
@@ -385,6 +456,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         self.selectCardGestureRecognizer.enabled = NO;
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;
         
         self.collectionView.scrollEnabled = NO;
         self.collectionView.directionalLockEnabled = YES;

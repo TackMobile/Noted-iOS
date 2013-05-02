@@ -66,6 +66,9 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.pinchedCardIndexPath)
+        return [self pinchingLayoutAttributesForItemAtIndexPath:indexPath];
+    
     NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
     layoutAttributes.zIndex = layoutAttributes.indexPath.item;
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
@@ -118,6 +121,9 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
+    if (self.pinchedCardIndexPath)
+        return [self pinchingLayoutAttributesForElementsInRect:rect];
+    
     NSPredicate *inRectPredicate = [NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *layoutAttributes, NSDictionary *bindings) {
         BOOL intersects = CGRectIntersectsRect(layoutAttributes.frame, rect);
         if (intersects) {
@@ -175,4 +181,51 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     return (self.collectionView.contentOffset.y < self.pullToCreateShowCardOffset);
 }
 
+#pragma mark - Properties
+- (void)setPinchedCardIndexPath:(NSIndexPath *)pinchedCardIndexPath
+{
+    _pinchedCardIndexPath = pinchedCardIndexPath;
+    [self invalidateLayout];
+}
+
+- (void)setPinchRatio:(CGFloat)pinchRatio
+{
+    _pinchRatio = pinchRatio;
+    [self invalidateLayout];
+}
+
+#pragma mark - Pinching
+- (NSArray *)pinchingLayoutAttributesForElementsInRect:(CGRect)rect
+{
+    NSMutableArray *pinchingLayoutAttributesArray = [NSMutableArray array];
+    NSInteger cardCount = [self.layoutAttributesArray count], cardBuffer = 10, pinchedCardIndex = self.pinchedCardIndexPath.item;
+    NSInteger minIndex = MAX(0, pinchedCardIndex - cardBuffer);
+    NSInteger maxIndex = MIN(cardCount - 1, pinchedCardIndex + cardBuffer);
+    for (NSInteger i = minIndex; i <= maxIndex; i++) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+        UICollectionViewLayoutAttributes *layoutAttributes = [self pinchingLayoutAttributesForItemAtIndexPath:indexPath];
+        if (CGRectIntersectsRect(rect, layoutAttributes.frame)) {
+            [pinchingLayoutAttributesArray addObject:layoutAttributes];
+        }
+    }
+    return pinchingLayoutAttributesArray;
+}
+
+- (UICollectionViewLayoutAttributes *)pinchingLayoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = self.layoutAttributesArray[self.pinchedCardIndexPath.item];
+    
+    CGFloat pinchGap = MAX(0.0, self.pinchRatio * self.cardSize.height);
+    CGFloat pinchOffset = MIN(0.0, self.pinchRatio * -pinchedCardLayoutAttributes.frame.origin.y);
+    
+//    NSLog(@"(%d) gap: %f, offset: %f", indexPath.item, pinchGap, pinchOffset);
+    
+    if (indexPath.item > self.pinchedCardIndexPath.item) {
+        layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);
+    } else if (indexPath.item <= self.pinchedCardIndexPath.item) {
+        layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchOffset);
+    }
+    return layoutAttributes;
+}
 @end

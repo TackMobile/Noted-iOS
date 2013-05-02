@@ -67,7 +67,7 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
     };
     
     if (self.shouldReplaceStationaryCard) {
-        NSLog(@"actual reset");
+//        NSLog(@"actual reset");
         [self resetPanningProperties];
     }
     return mutableAttributesArray;
@@ -118,10 +118,10 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
         return;
 
     CGRect frame;
-    NSLog(@"apply pan");
+//    NSLog(@"apply pan");
     
     if (self.shouldReplaceStationaryCard) {
-        NSLog(@"replacing in pan");
+//        NSLog(@"replacing in pan");
         NSIndexPath *indexPath;
         NSInteger pannedCardIndex = self.pannedCardIndexPath.item;
         if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex > 0) {

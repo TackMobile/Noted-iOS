@@ -23,4 +23,8 @@
 @property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateCreateCardOffset;
 @property (nonatomic, assign) BOOL shouldShowCreateableCard;
+
+@property (nonatomic, strong) NSIndexPath *pinchedCardIndexPath;
+@property (nonatomic, assign) CGFloat pinchRatio;
+
 @end
