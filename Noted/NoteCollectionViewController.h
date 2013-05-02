@@ -9,7 +9,4 @@
 #import <UIKit/UIKit.h>
 
 @interface NoteCollectionViewController : UICollectionViewController
-
-- (IBAction)actionButtonPressed:(id)sender;
-
 @end

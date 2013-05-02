@@ -20,12 +20,11 @@
 #import "NTDCrossDetectorView.h"
 #import "NoteData.h"
 #import "NoteDocument.h"
-#import "NTDNoteSettingsViewController.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "OptionsViewController.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NoteCollectionViewCellDelegate, NTDNoteSettingsViewControllerDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -41,7 +40,6 @@
 @property (nonatomic, assign) BOOL shouldShowPullToCreateCard;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
-@property (nonatomic, strong) NTDNoteSettingsViewController *currentNoteSettingsController;
 @property (nonatomic, strong) OptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 @end
@@ -65,6 +63,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
+        self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forSupplementaryViewOfKind:NTDCollectionElementKindDuplicateCard withReuseIdentifier:NoteCollectionViewDuplicateCardReuseIdentifier];
 
@@ -106,11 +105,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(statusBarFrameChanged:)
-                                                 name:NTDDidChangeStatusBarHiddenPropertyNotification
                                                object:nil];
 }
 
@@ -154,11 +148,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     cell.textView.delegate = self;
     cell.crossDetectorView.delegate = self;
-    cell.delegate = self;
-    
-    [cell.actionButton addTarget:self
-                          action:@selector(actionButtonPressed:)
-                forControlEvents:UIControlEventTouchUpInside];
     
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
@@ -187,8 +176,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
         cell.textView.delegate = nil;
         cell.crossDetectorView.delegate = nil;
-        cell.delegate = nil;
-        [cell.actionButton removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];
 //        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeKernal]]; /* debugging */
         return cell;
     } else {
@@ -207,7 +194,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:visibleIndexPath];
                              if ([visibleIndexPath isEqual:indexPath]) {
                                  cell.$y = self.collectionView.contentOffset.y;
-                                 cell.scrollEnabled = YES;
                              } else {
                                  cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
                                  cell.alpha = 0.1;
@@ -232,19 +218,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 //                             }];
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(NoteCollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
-//    if (collectionView.collectionViewLayout == self.pagingLayout) {
-//        cell.scrollEnabled = NO;
-//    }
-}
-
 #pragma mark - Properties
 -(OptionsViewController *)optionsViewController
 {
     if (_optionsViewController == nil) {
         _optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
-//        _optionsViewController.view.frame = {{0.0, 0.0}, self.pagingLayout.cardSize};
         _optionsViewController.delegate = self;
     }
     return _optionsViewController;
@@ -257,14 +235,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 }
 
 #pragma mark - Actions
-- (IBAction)actionButtonPressed:(UIButton *)actionButton
-{
-    NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:topCardIndexPath];
-    [cell.textView resignFirstResponder];
-}
-
-
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
     static NSIndexPath *swipedCardIndexPath = nil;
@@ -337,15 +307,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 -(IBAction)showSettings:(id)sender
 {
-//    NTDNoteSettingsViewController *controller = [[NTDNoteSettingsViewController alloc] init];
-//    controller.delegate = self;
-//    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-//    [UIView transitionFromView:cell
-//                        toView:controller.view
-//                      duration:SettingsTransitionDuration
-//                       options:UIViewAnimationOptionTransitionFlipFromLeft
-//                    completion:NULL];
-//    self.currentNoteSettingsController = controller;
     NoteCollectionViewCell *visibleCell = self.visibleCell;
     
     /* Don't let user interact with anything but our options. */
@@ -427,6 +388,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
 {
+    NSCParameterAssert([pinchGestureRecognizer numberOfTouches] >= 2);
     UIView *view = pinchGestureRecognizer.view;
     CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
     CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
@@ -446,6 +408,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
+//            NSLog(@"initial scale: %.2f", pinchGestureRecognizer.scale);
             NSIndexPath *visibleCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
             NSIndexPath *pinchedCardIndexPath = [visibleCardIndexPath ntd_indexPathForNextItem];
             initialDistance = PinchDistance(pinchGestureRecognizer);
@@ -465,7 +428,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             
         case UIGestureRecognizerStateChanged:
         {
-            CGFloat currentDistance = PinchDistance(pinchGestureRecognizer);
+//            NSLog(@"current scale: %.2f", pinchGestureRecognizer.scale);
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             self.listLayout.pinchRatio = pinchRatio;
             break;
@@ -473,9 +437,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             
         case UIGestureRecognizerStateEnded:
         {
-            CGFloat currentDistance = PinchDistance(pinchGestureRecognizer);
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-            if (pinchRatio > 0.0) { /* Has to be <= 0.0 to switch layouts. */
+            BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0);
+            if (shouldReturnToPagingLayout) {
                 [self updateLayout:self.pagingLayout animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
             } else {
@@ -483,6 +448,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             }
             break;
         }
+        
+        case UIGestureRecognizerStateCancelled:
+            pinchGestureRecognizer.enabled = YES;
+            break;
             
         default:
             break;
@@ -517,7 +486,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         case UIGestureRecognizerStateEnded:
         {
-            CGPoint currentLocation = [panGestureRecognizer locationInView:nil];
             CGFloat offset = self.visibleCell.$x - self.optionsViewController.view.$x;
             if (offset < InitialNoteOffsetWhenViewingOptions/2) {
                 [self shiftCurrentNoteOriginToPoint:CGPointZero
@@ -552,11 +520,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.collectionView.scrollEnabled = NO;
         self.collectionView.directionalLockEnabled = YES;
         self.collectionView.pagingEnabled = YES;
+        self.collectionView.alwaysBounceVertical = NO;
         CGFloat padding = self.pagingLayout.minimumLineSpacing;
         self.view.$width += padding;
 
         self.shouldShowPullToCreateCard = NO;
-        self.pullToCreateLabel.text = @"Pull to return to cards.";
 
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
@@ -565,6 +533,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         self.collectionView.scrollEnabled = YES;
         self.collectionView.pagingEnabled = NO;
+        self.collectionView.alwaysBounceVertical = YES;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
 
         self.shouldShowPullToCreateCard = YES;
@@ -602,58 +571,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return (self.shouldShowPullToCreateCard) ? indexPath.item - 1 : indexPath.item;
 }
 
-- (void)returnToListLayout
-{
-    NSIndexPath *topCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-    [self updateLayout:self.listLayout animated:NO];
-    CGFloat offset = (topCardIndexPath.item - 1) * self.listLayout.cardOffset;
-    CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
-    [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
-
-    NSIndexPath *selectedCardIndexPath = [NSIndexPath indexPathForItem:topCardIndexPath.item + 1
-                                                             inSection:topCardIndexPath.section];
-    NSArray *attributesArray = [self.listLayout layoutAttributesForElementsInRect:self.collectionView.bounds];
-
-    void (^hideCells)(void) = ^{
-        for (UICollectionViewLayoutAttributes *layoutAttributes in attributesArray) {
-            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:layoutAttributes.indexPath];
-            if ([selectedCardIndexPath isEqual:layoutAttributes.indexPath]) {
-                cell.$y = self.collectionView.contentOffset.y;
-            } else {
-                cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
-                cell.alpha = 0.1;
-            }
-        }
-    };
-    
-    void (^showCells)(void) = ^{
-        for (UICollectionViewLayoutAttributes *layoutAttributes in attributesArray) {
-            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:layoutAttributes.indexPath];
-            cell.$y = layoutAttributes.frame.origin.y;
-            cell.alpha = layoutAttributes.alpha;
-        }
-    };
-    [self.collectionView performBatchUpdates:^{
-        hideCells(); // Animation doesn't run on device, but does on Simulator.
-    } completion:^(BOOL finished) {
-        showCells(); // Does nothing on both platforms.
-    }];
-    
-}
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     [self.collectionView reloadData];
-}
-
-- (void)statusBarFrameChanged:(NSNotification *)notification
-{
-    return;
-    self.view.frame = [[[UIApplication sharedApplication] keyWindow] bounds];
-    [self.listLayout invalidateLayout];
-    self.pagingLayout.itemSize = self.listLayout.cardSize;
-    [self.pagingLayout invalidateLayout];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -688,19 +610,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
     }
-    
-    CGFloat x = scrollView.bounds.origin.x;
-    if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-        self.pullToCreateContainerView.$x = x;
-    } else {
-        self.pullToCreateContainerView.$x = 0.0;
-    }
-    
+        
 //    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
-static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
+static BOOL shouldCreateNewCard = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (scrollView != self.collectionView)
@@ -712,30 +627,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
             [self insertNewCard];
             shouldCreateNewCard = NO;
         }
-    } else if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-        shouldReturnToListLayout = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-        if (shouldReturnToListLayout && !decelerate) {
-            [self returnToListLayout];
-            shouldReturnToListLayout = NO;
-        }
     }
-}
-
-//-(void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
-//{
-//    if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-//        [self returnToListLayout];
-//        shouldReturnToListLayout = NO;
-//    }
-//}
-
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-{
-    if (scrollView != self.collectionView)
-        return;
-
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-    cell.scrollEnabled = NO;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -748,37 +640,26 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
             [self insertNewCard];
             shouldCreateNewCard = NO;
         }
-    } else if (self.collectionView.collectionViewLayout == self.pagingLayout) {
-        if (shouldReturnToListLayout) {
-            [self returnToListLayout];
-            shouldReturnToListLayout = NO;
-        }
-        BOOL onPageBoundary = (0 == (int)scrollView.contentOffset.x % (int)scrollView.$width);
-        if (onPageBoundary) {
-            NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-            cell.scrollEnabled = YES;
-        }
-    }
+    } 
 }
 
 #pragma mark - UITextViewDelegate
 -  (void)textViewDidBeginEditing:(UITextView *)textView
 {
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-    cell.actionButton.hidden = NO;
-    cell.settingsButton.hidden = YES;
-    self.collectionView.scrollEnabled = NO;
+    self.visibleCell.settingsButton.hidden = YES;
+    self.panCardGestureRecognizer.enabled = NO;
+    self.pinchToListLayoutGestureRecognizer.enabled = YES;
     [textView addKeyboardPanningWithActionHandler:nil];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     [textView removeKeyboardControl];
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-    cell.actionButton.hidden = YES;
-    cell.settingsButton.hidden = NO;
-//    self.collectionView.scrollEnabled = YES;
-    
+    self.visibleCell.settingsButton.hidden = NO;
+    self.panCardGestureRecognizer.enabled = YES;
+    self.pinchToListLayoutGestureRecognizer.enabled = YES;
+
+    NoteCollectionViewCell *cell = self.visibleCell;
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
     void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
@@ -809,26 +690,15 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     NSLog(@"cross detected");
 }
 
-#pragma mark - NoteCollectionViewCellDelegate
-- (void)didTriggerPullToReturn:(NoteCollectionViewCell *)cell
-{
-    [self returnToListLayout];
-}
+#pragma mark - OptionsViewController Delegate
 
-- (void)shouldEnableScrolling:(BOOL)shouldEnable forContainerViewOfCell:(NoteCollectionViewCell *)cell
+- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor
 {
-//    self.collectionView.scrollEnabled = shouldEnable;
-}
-
-#pragma mark - NTDNoteSettingsViewController
-
-- (void)changeNoteTheme:(NTDTheme *)newTheme
-{
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-    [cell applyTheme:newTheme];
-    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    NTDTheme *newTheme = [NTDTheme themeForBackgroundColor:color];
+    [self.visibleCell applyTheme:newTheme];
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:self.visibleCell];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
-
+    
     void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
         
         UIColor *newColor = [newTheme backgroundColor];
@@ -842,27 +712,6 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
     [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
                                                 completion:completion];
 }
-
-- (void)dismiss:(NTDNoteSettingsViewController *)controller
-{
-    NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView visibleCells][0];
-    [UIView transitionFromView:controller.view
-                        toView:cell
-                      duration:SettingsTransitionDuration
-                       options:UIViewAnimationOptionTransitionFlipFromRight
-                    completion:^(BOOL finished) {
-                        self.currentNoteSettingsController = nil;
-//                        self.collectionView.scrollEnabled = YES;
-                    }];
-}
-
-#pragma mark - OptionsViewController Delegate
-
-- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor
-{
-    [self changeNoteTheme:[NTDTheme themeForBackgroundColor:color]];
-}
-
 
 -(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock
 {
@@ -881,12 +730,7 @@ static BOOL shouldCreateNewCard = NO, shouldReturnToListLayout = NO;
 
 - (void)sendEmail
 {
-    self.mailViewController = [[MFMailComposeViewController alloc] init];
-    
-    if (!self.mailViewController) {
-        //
-    }
-    
+    self.mailViewController = [[MFMailComposeViewController alloc] init];        
     self.mailViewController.mailComposeDelegate = self;
     
     NSArray* lines = [[ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text componentsSeparatedByString: @"\n"];
