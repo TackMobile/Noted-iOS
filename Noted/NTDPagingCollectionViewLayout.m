@@ -58,7 +58,7 @@ NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementK
         NSLog(@"add stat?");
         [mutableAttributesArray addObject:[super layoutAttributesForItemAtIndexPath:self.stationaryCardIndexPath]];
     } else if (self.stationaryCardIndexPath != nil && self.pagingDirection == NTDPagingDirectionRightToLeft) {
-        NSLog(@"add supp");
+//        NSLog(@"add supp");
         [mutableAttributesArray addObject:[self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindDuplicateCard atIndexPath:self.stationaryCardIndexPath]];
     }
     

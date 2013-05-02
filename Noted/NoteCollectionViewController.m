@@ -177,6 +177,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         cell.textView.text = entry.text;
         [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
     }
+    [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
 }
 
@@ -188,7 +189,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         cell.crossDetectorView.delegate = nil;
         cell.delegate = nil;
         [cell.actionButton removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];
-        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeKernal]];
+//        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeKernal]]; /* debugging */
         return cell;
     } else {
         return nil;

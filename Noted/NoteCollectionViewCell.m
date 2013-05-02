@@ -231,7 +231,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
     self.separatorView.backgroundColor = theme.textColor;
-    
+    [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
 }
 
 #pragma mark - UIScrollViewDelegate
