@@ -88,9 +88,11 @@ NSUInteger kCornerRadius = 6.0;
     }
     
     if (noteLayoutAttributes.shouldApplyCornerMask) {
-        [self applyCornerMask];
+//        [self applyCornerMask];
+        [self applyShadow];
     } else {
-        [self removeCornerMask];
+//        [self removeCornerMask];
+        [self removeShadow];
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
@@ -157,8 +159,7 @@ NSUInteger kCornerRadius = 6.0;
 }
 
 - (void)applyCornerMask
-{
-    
+{    
     CGRect frame = self.bounds;
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
                                                    byRoundingCorners:UIRectCornerAllCorners
@@ -173,6 +174,24 @@ NSUInteger kCornerRadius = 6.0;
 - (void)removeCornerMask
 {
     self.layer.mask = nil;
+}
+
+- (void)applyShadow
+{
+    self.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.layer.shadowOffset = CGSizeMake(-1.0,0);
+    self.layer.shadowOpacity = .70;
+    self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+    self.layer.shouldRasterize = YES;
+    [self.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:6.5] CGPath]];
+    self.layer.cornerRadius = kCornerRadius;
+    [self setNeedsDisplay];
+}
+
+- (void)removeShadow
+{
+    self.layer.shadowPath = nil;
+    [self setNeedsDisplay];
 }
 
 static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
