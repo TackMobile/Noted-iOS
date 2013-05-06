@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
+
 @interface NoteListCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGSize cardSize;
@@ -22,7 +24,7 @@
 @property (nonatomic, assign) CGFloat pullToCreateShowCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateCreateCardOffset;
-@property (nonatomic, assign) BOOL shouldShowCreateableCard;
+@property (nonatomic, assign, readonly) BOOL shouldShowCreateableCard;
 
 @property (nonatomic, strong) NSIndexPath *pinchedCardIndexPath;
 @property (nonatomic, assign) CGFloat pinchRatio;

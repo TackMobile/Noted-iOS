@@ -11,8 +11,11 @@
 #import "NoteCollectionViewLayoutAttributes.h"
 #import <QuartzCore/QuartzCore.h>
 
+NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
+
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
+@property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
 @end
 
 @implementation NoteListCollectionViewLayout
@@ -27,6 +30,7 @@
         self.pullToCreateShowCardOffset = -30.0;
         self.pullToCreateScrollCardOffset = -50.0;
         self.pullToCreateCreateCardOffset = -100.0;
+        self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     }
     return self;
 }
@@ -45,16 +49,15 @@
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
         NoteCollectionViewLayoutAttributes *layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
         
-        CGFloat height = (i == 0) ? 0.0 : (i-1) * self.cardOffset + self.contentInset.top;
+        CGFloat height = i * self.cardOffset + self.contentInset.top;
         CGRect frame = CGRectMake(self.contentInset.left,
                                   height,
                                   self.cardSize.width - self.contentInset.right,
                                   self.cardSize.height);
         layoutAttributes.frame = frame;
         layoutAttributes.zIndex = i;
-        layoutAttributes.hidden = (i == 0);
         
-        if (i == 0 || i == 1 || i == (cardCount-1)) {
+        if (i == 0 || i == (cardCount-1)) {
             layoutAttributes.shouldApplyCornerMask = YES;
         }
         
@@ -82,20 +85,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             layoutAttributes.alpha = 0.0;
         }
         layoutAttributes.frame = frame;
-    } else if (self.shouldShowCreateableCard && indexPath.item == 0) {
-        layoutAttributes.hidden = NO;
-        CGFloat y = self.collectionView.contentOffset.y;
-        if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-            frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
-        } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-            frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
-            frame.origin.y = MAX(frame.origin.y, y);
-        } else if (y <= self.pullToCreateCreateCardOffset) {
-            frame.origin.y = y;
-        } else {
-            layoutAttributes.hidden = YES;
-        }
-        layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
         static CGFloat MAX_OFFSET = 80.0, MIN_ALPHA = 0.4;
         CGFloat offset = MAX(-MAX_OFFSET, MIN(MAX_OFFSET, self.swipedCardOffset));
@@ -119,6 +108,42 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     return layoutAttributes;    
 }
 
+-(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard] && [indexPath isEqual:self.pullToCreateCardIndexPath]) {
+        NoteCollectionViewLayoutAttributes *cellLayoutAttributes, *layoutAttributes;
+        
+        cellLayoutAttributes = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:indexPath];
+        layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
+        
+        layoutAttributes.frame = cellLayoutAttributes.frame;
+        layoutAttributes.zIndex = -1;
+        layoutAttributes.transform3D = cellLayoutAttributes.transform3D;
+        layoutAttributes.hidden = cellLayoutAttributes.hidden;
+        layoutAttributes.alpha = cellLayoutAttributes.alpha;
+        
+        CGRect frame = layoutAttributes.frame;
+        if (self.shouldShowCreateableCard) {
+            layoutAttributes.hidden = NO;
+            CGFloat y = self.collectionView.contentOffset.y;
+            if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
+                frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
+            } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
+                frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
+                frame.origin.y = MAX(frame.origin.y, y);
+            } else if (y <= self.pullToCreateCreateCardOffset) {
+                frame.origin.y = y;
+            } else {
+                layoutAttributes.hidden = YES; NSLog(@"hiding!");
+            }
+            layoutAttributes.frame = frame;
+        }
+        return layoutAttributes;
+    } else {
+        return nil;
+    }
+}
+
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
     if (self.pinchedCardIndexPath)
@@ -133,16 +158,20 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         return intersects;
     }];
     NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
+    
+    NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
     if ([self shouldRecalcuateLayoutAttributes]) {
-        NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
         for (int i = 0, n = [attributesArray count]; i < n; i++) {
             UICollectionViewLayoutAttributes *layoutAttributes = attributesArray[i];
             attributesArrayMutable[i] = [self layoutAttributesForItemAtIndexPath:layoutAttributes.indexPath];
         }
-        return attributesArrayMutable;
-    } else {
-        return attributesArray;
     }
+    
+    if ([self shouldShowCreateableCard]) {
+        [attributesArrayMutable addObject:[self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
+                                                                               atIndexPath:self.pullToCreateCardIndexPath]];
+    }
+    return attributesArrayMutable;
 }
 
 - (CGSize)collectionViewContentSize

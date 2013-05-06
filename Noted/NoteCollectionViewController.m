@@ -36,8 +36,6 @@
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 
 @property (nonatomic, assign) NSUInteger noteCount;
-@property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
-@property (nonatomic, assign) BOOL shouldShowPullToCreateCard;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
 @property (nonatomic, strong) OptionsViewController *optionsViewController;
@@ -66,9 +64,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forSupplementaryViewOfKind:NTDCollectionElementKindDuplicateCard withReuseIdentifier:NoteCollectionViewDuplicateCardReuseIdentifier];
-
-        self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-        self.shouldShowPullToCreateCard = YES;
     }
     return self;
 }
@@ -140,7 +135,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return (int)self.shouldShowPullToCreateCard + self.noteCount;
+    return self.noteCount;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -153,19 +148,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                             action:@selector(showSettings:)
                   forControlEvents:UIControlEventTouchUpInside];
     
-    if (indexPath.item == 0 && self.shouldShowPullToCreateCard) {
-        cell.titleLabel.text = @"Release to create note";
-        cell.relativeTimeLabel.text = @"";
-        cell.textView.text = @"";
-        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];        
-    } else {
-        NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
-        NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
-        cell.titleLabel.text = [entry title];
-        cell.relativeTimeLabel.text = entry.relativeDateString;
-        cell.textView.text = entry.text;
-        [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
-    }
+    NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
+    NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
+    cell.titleLabel.text = [entry title];
+    cell.relativeTimeLabel.text = entry.relativeDateString;
+    cell.textView.text = entry.text;
+    [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
+
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
 }
@@ -177,6 +166,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         cell.textView.delegate = nil;
         cell.crossDetectorView.delegate = nil;
 //        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeKernal]]; /* debugging */
+        return cell;
+    } else if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard]) {
+        NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
+        cell.titleLabel.text = @"Release to create note";
+        cell.relativeTimeLabel.text = @"";
+        cell.textView.text = @"";
+        [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+        cell.textView.delegate = nil;
+        cell.crossDetectorView.delegate = nil;
         return cell;
     } else {
         return nil;
@@ -201,8 +199,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                          }
                      } completion:^(BOOL finished) {
                          [self updateLayout:self.pagingLayout animated:NO];
-                         NSIndexPath *adjustedIndexPath = [NSIndexPath indexPathForItem:(indexPath.item-1) inSection:indexPath.section];
-                         [collectionView scrollToItemAtIndexPath:adjustedIndexPath
+                         [collectionView scrollToItemAtIndexPath:indexPath
                                                 atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
                      }];
 //    return;
@@ -250,13 +247,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             CGPoint initialPoint = [gestureRecognizer locationInView:self.collectionView];
             NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:initialPoint];
             if (indexPath) {
-                if ([indexPath isEqual:self.pullToCreateCardIndexPath]) {
-                    gestureRecognizer.enabled = NO;
-                } else {
-                    swipedCardIndexPath = indexPath;
-//                    self.listLayout.swipedCardIndexPath = indexPath;
-                    self.listLayout.swipedCardOffset = 0.0;
-                }
+                swipedCardIndexPath = indexPath;
+                self.listLayout.swipedCardOffset = 0.0;
             }
             break;
         }
@@ -415,9 +407,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         {
 //            NSLog(@"initial scale: %.2f", pinchGestureRecognizer.scale);
             NSIndexPath *visibleCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
-            NSIndexPath *pinchedCardIndexPath = [visibleCardIndexPath ntd_indexPathForNextItem];
             initialDistance = PinchDistance(pinchGestureRecognizer);
-            self.listLayout.pinchedCardIndexPath = pinchedCardIndexPath;
+            self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
             self.listLayout.pinchRatio = 1.0;
             
             initialContentOffset = self.collectionView.contentOffset;
@@ -528,9 +519,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.collectionView.alwaysBounceVertical = NO;
         CGFloat padding = self.pagingLayout.minimumLineSpacing;
         self.view.$width += padding;
-
-        self.shouldShowPullToCreateCard = NO;
-
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
         self.removeCardGestureRecognizer.enabled = YES;
@@ -540,9 +528,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.collectionView.pagingEnabled = NO;
         self.collectionView.alwaysBounceVertical = YES;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
-
-        self.shouldShowPullToCreateCard = YES;
-        self.pullToCreateLabel.text = @"Pull to create a new note.";
     }
     [self.collectionView reloadData];
 }
@@ -564,6 +549,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model deleteNoteEntryAtIndex:[self noteEntryIndexForIndexPath:indexPath]
               withCompletionBlock:^{
+#warning fix this. race condition.
                   dispatch_async(dispatch_get_main_queue(), ^{
                       self.noteCount--;
                       [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
@@ -573,7 +559,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (NSInteger)noteEntryIndexForIndexPath:(NSIndexPath *)indexPath
 {
-    return (self.shouldShowPullToCreateCard) ? indexPath.item - 1 : indexPath.item;
+    return indexPath.item;
 }
 
 #pragma mark - Notifications
