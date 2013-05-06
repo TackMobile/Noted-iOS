@@ -237,6 +237,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - Actions
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
+    //hack. we should be more discerning about when we trigger anyway. aka, we should cancel
+    //if indexPath==nil when in the 'began' state.
+    if (self.noteCount == 0)
+        return;
+    
     static NSIndexPath *swipedCardIndexPath = nil;
     static BOOL shouldDelete = NO;
     switch (gestureRecognizer.state) {
@@ -623,6 +628,8 @@ static BOOL shouldCreateNewCard = NO;
     
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+        if (self.noteCount == 0) //hack alert
+            shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
         if (shouldCreateNewCard && !decelerate) {
             [self insertNewCard];
             shouldCreateNewCard = NO;
