@@ -534,12 +534,20 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)insertNewCard
 {
-    NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
+    NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
         dispatch_async(dispatch_get_main_queue(), ^{
             entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
             self.noteCount++;
-            [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
+            [self.collectionView performBatchUpdates:^{
+                [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
+            } completion:^(BOOL finished) {
+                /* The animation wasn't running, so I added this dispatch call so it would run on 
+                 * the next turn of the run loop. */
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self __collectionView:self.collectionView didSelectItemAtIndexPath:newCardIndexPath];
+                });
+            }];
         });
     }];
 }
