@@ -442,6 +442,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             } else {
                 pinchGestureRecognizer.enabled = NO;
             }
+            self.listLayout.pinchedCardIndexPath = nil;
             break;
         }
         
