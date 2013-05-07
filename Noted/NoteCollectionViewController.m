@@ -554,14 +554,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
+    self.noteCount--;
+    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     ApplicationModel *model = [ApplicationModel sharedInstance];
     [model deleteNoteEntryAtIndex:[self noteEntryIndexForIndexPath:indexPath]
               withCompletionBlock:^{
-#warning fix this. race condition.
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                      self.noteCount--;
-                      [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-                  });
+                  NSLog(@"Note %d deleted", indexPath.item);
               }];
 }
 
