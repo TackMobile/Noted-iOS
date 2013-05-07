@@ -42,27 +42,7 @@ NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionEleme
 
 - (void)prepareLayout
 {
-    NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
-    self.layoutAttributesArray = [NSMutableArray arrayWithCapacity:cardCount];
-
-    for (NSUInteger i = 0; i < cardCount; i++) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-        NoteCollectionViewLayoutAttributes *layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-        
-        CGFloat height = i * self.cardOffset + self.contentInset.top;
-        CGRect frame = CGRectMake(self.contentInset.left,
-                                  height,
-                                  self.cardSize.width - self.contentInset.right,
-                                  self.cardSize.height);
-        layoutAttributes.frame = frame;
-        layoutAttributes.zIndex = i;
-        
-        if (i == 0 || i == (cardCount-1)) {
-            layoutAttributes.shouldApplyCornerMask = YES;
-        }
-        
-        [self.layoutAttributesArray addObject:layoutAttributes];
-    }
+    [self cacheCellLayoutAttributes];
 }
 
 CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
@@ -72,7 +52,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForItemAtIndexPath:indexPath];
     
-    NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
+    NoteCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
     layoutAttributes.zIndex = layoutAttributes.indexPath.item;
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     CGRect frame = layoutAttributes.frame;
@@ -147,6 +127,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
+    static CGRect lastRect = {0.0, 0.0, 0.0, 0.0};
+    if (!CGRectEqualToRect(lastRect, rect)) {
+        lastRect = rect;
+        NSLog(@"new rect: %@", NSStringFromCGRect(rect));
+    }
+    
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForElementsInRect:rect];
     
@@ -158,6 +144,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         return intersects;
     }];
+    
+    [self extendCacheIfNecessary];
     NSArray *attributesArray = [self.layoutAttributesArray filteredArrayUsingPredicate:inRectPredicate];
     
     NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
@@ -177,16 +165,25 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (CGSize)collectionViewContentSize
 {
+    CGSize size;
     NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
     if (cardCount == 0) {
-        return self.cardSize;
+        size = self.cardSize;
     } else {
         CGFloat contentHeight = (cardCount - 1) * self.cardOffset;
         contentHeight += self.contentInset.top + self.contentInset.bottom;
+        contentHeight = MAX(contentHeight, [[UIScreen mainScreen] bounds].size.height);
         CGFloat contentWidth = self.cardSize.width;
         contentWidth += self.contentInset.left + self.contentInset.right;
-        return CGSizeMake(contentWidth, contentHeight);
+        size = CGSizeMake(contentWidth, contentHeight);
     }
+    
+    static CGSize lastSize = {0.0, 0.0};
+    if (!CGSizeEqualToSize(lastSize, size)) {
+        NSLog(@"new size: %@", NSStringFromCGSize(size));
+        lastSize = size;
+    }
+    return size;
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
@@ -198,6 +195,60 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 {
     _swipedCardOffset = swipedCardOffset;
     [self invalidateLayout];
+}
+
+#pragma mark - Caching
+- (NoteCollectionViewLayoutAttributes *)generateCellLayoutAttributesForItem:(NSInteger)i
+{
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+    NoteCollectionViewLayoutAttributes *layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    
+    CGFloat height = i * self.cardOffset + self.contentInset.top;
+    CGRect frame = CGRectMake(self.contentInset.left,
+                              height,
+                              self.cardSize.width - self.contentInset.right,
+                              self.cardSize.height);
+    layoutAttributes.frame = frame;
+    layoutAttributes.zIndex = i;
+    layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
+    layoutAttributes.hidden = NO;
+    
+    if (i == 0 /*|| i == (cardCount-1)*/) {
+        layoutAttributes.shouldApplyCornerMask = YES;
+    }
+    return layoutAttributes;
+}
+
+- (void)cacheCellLayoutAttributes
+{
+    NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
+    self.layoutAttributesArray = [NSMutableArray arrayWithCapacity:cardCount];
+    
+    for (NSUInteger i = 0; i < cardCount; i++) {
+        NoteCollectionViewLayoutAttributes *layoutAttributes = [self generateCellLayoutAttributesForItem:i];
+        [self.layoutAttributesArray addObject:layoutAttributes];
+    }
+}
+
+- (NoteCollectionViewLayoutAttributes *)cellLayoutAttributesForItem:(NSInteger)i
+{
+    if (i >= 0 && i < [self.layoutAttributesArray count]) {
+        return self.layoutAttributesArray[i];
+    } else {
+        return [self generateCellLayoutAttributesForItem:i];
+    }
+}
+
+- (void)extendCacheIfNecessary
+{
+    NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
+    NSUInteger arrayCount = [self.layoutAttributesArray count];
+    if (arrayCount < cardCount) {
+//        for (int i = arrayCount; i < cardCount; i++) {
+//            [self.layoutAttributesArray addObject:[self cellLayoutAttributesForItem:i]];
+//        }
+        [self cacheCellLayoutAttributes];
+    }
 }
 
 #pragma mark - Helpers
@@ -243,8 +294,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (UICollectionViewLayoutAttributes *)pinchingLayoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    NoteCollectionViewLayoutAttributes *layoutAttributes = self.layoutAttributesArray[indexPath.item];
-    NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = self.layoutAttributesArray[self.pinchedCardIndexPath.item];
+    NoteCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
+    NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = [self cellLayoutAttributesForItem:self.pinchedCardIndexPath.item];
     
     CGFloat pinchGap = MAX(0.0, self.pinchRatio * self.cardSize.height);
     CGFloat pinchOffset = MIN(0.0, self.pinchRatio * -pinchedCardLayoutAttributes.frame.origin.y);
