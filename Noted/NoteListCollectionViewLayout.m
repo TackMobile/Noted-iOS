@@ -111,18 +111,19 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 -(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
     if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard] && [indexPath isEqual:self.pullToCreateCardIndexPath]) {
-        NoteCollectionViewLayoutAttributes *cellLayoutAttributes, *layoutAttributes;
-        
-        cellLayoutAttributes = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:indexPath];
+        NoteCollectionViewLayoutAttributes *layoutAttributes;        
         layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
         
-        layoutAttributes.frame = cellLayoutAttributes.frame;
+        CGRect frame = CGRectMake(self.contentInset.left,
+                                  0.0,
+                                  self.cardSize.width - self.contentInset.right,
+                                  self.cardSize.height);
+        layoutAttributes.frame = frame;
         layoutAttributes.zIndex = -1;
-        layoutAttributes.transform3D = cellLayoutAttributes.transform3D;
-        layoutAttributes.hidden = cellLayoutAttributes.hidden;
-        layoutAttributes.alpha = cellLayoutAttributes.alpha;
+        layoutAttributes.shouldApplyCornerMask = YES;
+        layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
         
-        CGRect frame = layoutAttributes.frame;
+        frame = layoutAttributes.frame;
         if (self.shouldShowCreateableCard) {
             layoutAttributes.hidden = NO;
             CGFloat y = self.collectionView.contentOffset.y;
@@ -134,7 +135,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             } else if (y <= self.pullToCreateCreateCardOffset) {
                 frame.origin.y = y;
             } else {
-                layoutAttributes.hidden = YES; NSLog(@"hiding!");
+                layoutAttributes.hidden = YES;
             }
             layoutAttributes.frame = frame;
         }
