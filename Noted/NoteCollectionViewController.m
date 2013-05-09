@@ -400,7 +400,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
 {
-    static CGFloat initialDistance = 0.0f, endDistance = 60.0f;
+    static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
     static CGPoint initialContentOffset;
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
@@ -433,7 +433,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             
         case UIGestureRecognizerStateEnded:
         {
-            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;;
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0);
             if (shouldReturnToPagingLayout) {
