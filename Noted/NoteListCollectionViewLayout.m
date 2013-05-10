@@ -171,11 +171,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     if (cardCount == 0) {
         size = self.cardSize;
     } else {
-        CGFloat contentHeight = (cardCount - 1) * self.cardOffset;
-        contentHeight += self.contentInset.top + self.contentInset.bottom;
-        contentHeight = MAX(contentHeight, [[UIScreen mainScreen] bounds].size.height);
-        CGFloat contentWidth = self.cardSize.width;
-        contentWidth += self.contentInset.left + self.contentInset.right;
+        CGFloat contentWidth = self.cardSize.width + self.contentInset.left + self.contentInset.right;
+
+        CGFloat screenHeight = [[UIScreen mainScreen] bounds].size.height;
+        CGFloat contentHeight = cardCount * self.cardOffset + self.contentInset.top + self.contentInset.bottom;
+        contentHeight = MAX(contentHeight, screenHeight);
+        
         size = CGSizeMake(contentWidth, contentHeight);
     }
     
