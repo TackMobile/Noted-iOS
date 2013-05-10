@@ -102,6 +102,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.zIndex = -1;
         layoutAttributes.shouldApplyCornerMask = YES;
         layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
+        layoutAttributes.hidden = YES;
         
         frame = layoutAttributes.frame;
         if (self.shouldShowCreateableCard) {
@@ -271,6 +272,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (void)setPinchRatio:(CGFloat)pinchRatio
 {
+    pinchRatio = MIN(MAX(0.0, pinchRatio), 1.0);
     _pinchRatio = pinchRatio;
     [self invalidateLayout];
 }
@@ -297,10 +299,10 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     NoteCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
     NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = [self cellLayoutAttributesForItem:self.pinchedCardIndexPath.item];
     
-    CGFloat pinchGap = MAX(0.0, self.pinchRatio * self.cardSize.height);
-    CGFloat pinchOffset = MIN(0.0, self.pinchRatio * -pinchedCardLayoutAttributes.frame.origin.y);
+    CGFloat pinchGap = self.pinchRatio * self.cardSize.height;
+    CGFloat pinchOffset = self.pinchRatio * -pinchedCardLayoutAttributes.frame.origin.y;
     
-//    NSLog(@"(%d) gap: %f, offset: %f", indexPath.item, pinchGap, pinchOffset);
+//    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     
     if (indexPath.item > self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);

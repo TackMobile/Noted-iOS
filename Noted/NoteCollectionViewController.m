@@ -152,6 +152,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
     cell.titleLabel.text = [entry title];
     cell.relativeTimeLabel.text = entry.relativeDateString;
+#if DEBUG
+    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
+#endif
     cell.textView.text = entry.text;
     [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
 
@@ -405,7 +408,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
-//            NSLog(@"initial scale: %.2f", pinchGestureRecognizer.scale);
             NSIndexPath *visibleCardIndexPath = [self.collectionView indexPathsForVisibleItems][0];
             initialDistance = PinchDistance(pinchGestureRecognizer);
             self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
@@ -414,19 +416,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             initialContentOffset = self.collectionView.contentOffset;
             [self updateLayout:self.listLayout animated:NO];
             
-            // Update content offset so card is correctly positioned.
-            CGFloat offset = (visibleCardIndexPath.item - 1) * self.listLayout.cardOffset;
-            CGFloat y = fmaxf(0.0, offset - (self.collectionView.$height / 2));
-            [self.collectionView setContentOffset:CGPointMake(0.0, y) animated:NO];
-
+            [self.collectionView setContentOffset:CGPointZero animated:NO];
+            self.collectionView.scrollEnabled = NO;
             break;
         }
             
         case UIGestureRecognizerStateChanged:
         {
-//            NSLog(@"current scale: %.2f", pinchGestureRecognizer.scale);
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+//                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
+//                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
             self.listLayout.pinchRatio = pinchRatio;
             break;
         }
@@ -441,6 +441,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
             } else {
                 pinchGestureRecognizer.enabled = NO;
+                self.collectionView.scrollEnabled = YES;
             }
             self.listLayout.pinchedCardIndexPath = nil;
             break;
