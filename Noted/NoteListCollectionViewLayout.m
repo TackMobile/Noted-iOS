@@ -117,7 +117,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
 
-//        if (layoutAttributes.hidden) NSLog(@"pull card is hidden");
+//        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
         return layoutAttributes;
     } else {
         return nil;

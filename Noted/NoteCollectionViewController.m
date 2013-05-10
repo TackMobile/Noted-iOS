@@ -312,7 +312,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     /* Don't let user interact with anything but our options. */
     visibleCell.textView.editable = NO;
     self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
-
+    self.pinchToListLayoutGestureRecognizer.enabled = NO;
+    
     self.optionsViewController.view.frame = self.initialFrameForVisibleNoteWhenViewingOptions = visibleCell.frame;
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     [self shiftCurrentNoteOriginToPoint:CGPointMake(InitialNoteOffsetWhenViewingOptions, 0.0) completion:NULL];
@@ -490,6 +491,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                          completion:^{
                                              panGestureRecognizer.enabled = NO;
                                              self.visibleCell.textView.editable = YES;
+                                             self.pinchToListLayoutGestureRecognizer.enabled = YES;
                                              [self.optionsViewController.view removeFromSuperview];
                                              [self.optionsViewController reset]; // what does this do?
                                          }];
