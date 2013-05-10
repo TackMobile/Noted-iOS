@@ -102,24 +102,22 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.zIndex = -1;
         layoutAttributes.shouldApplyCornerMask = YES;
         layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
-        layoutAttributes.hidden = YES;
         
-        frame = layoutAttributes.frame;
-        if (self.shouldShowCreateableCard) {
-            layoutAttributes.hidden = NO;
-            CGFloat y = self.collectionView.contentOffset.y;
-            if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-                frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
-            } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-                frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
-                frame.origin.y = MAX(frame.origin.y, y);
-            } else if (y <= self.pullToCreateCreateCardOffset) {
-                frame.origin.y = y;
-            } else {
-                layoutAttributes.hidden = YES;
-            }
-            layoutAttributes.frame = frame;
+        CGFloat y = self.collectionView.contentOffset.y;
+        if (y > self.pullToCreateShowCardOffset) {
+            layoutAttributes.hidden = YES;
+//            NSLog(@"gone rogue");
+        } else if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
+            frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
+        } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
+            frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
+            frame.origin.y = MAX(frame.origin.y, y);
+        } else if (y <= self.pullToCreateCreateCardOffset) {
+            frame.origin.y = y;
         }
+        layoutAttributes.frame = frame;
+
+//        if (layoutAttributes.hidden) NSLog(@"pull card is hidden");
         return layoutAttributes;
     } else {
         return nil;
