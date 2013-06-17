@@ -30,18 +30,14 @@ NSUInteger kCornerRadius = 6.0;
 }
 
 - (void)awakeFromNib
-{
+{    
     [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
     [self.contentView addSubview:self.settingsButton];
     
-    [self applyCornerImages];
-//    NTDCrossDetectorView *crossDetectorView = [[NTDCrossDetectorView alloc] initWithFrame:self.bounds];
-//    crossDetectorView.hidden = YES;
-//    [self.contentView addSubview:crossDetectorView];
-//    self.crossDetectorView = crossDetectorView;
+    [self applyShadow];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
@@ -61,11 +57,11 @@ NSUInteger kCornerRadius = 6.0;
     }
     
     if (noteLayoutAttributes.shouldApplyCornerMask) {
-//        [self applyCornerMask];
-        [self applyShadow];
+        //[self applyCornerMask];
+        //[self applyShadow];
     } else {
-//        [self removeCornerMask];
-        [self removeShadow];
+        //[self removeCornerMask];
+        //[self removeShadow];
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
@@ -82,6 +78,7 @@ NSUInteger kCornerRadius = 6.0;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
     }
+    
 }
 
 - (void)prepareForReuse
@@ -90,48 +87,19 @@ NSUInteger kCornerRadius = 6.0;
 }
 
 #pragma mark - Helpers
-- (void)applyCornerImages
-{
-    UIImage *cornerImg = [UIImage imageNamed:@"corner"];
-    CGSize size = cornerImg.size;
-    
-    UIImageView *topLeftImageView, *topRightImageView, *bottomLeftImageView, *bottomRightImageView;
-    topLeftImageView = [[UIImageView alloc] initWithImage:cornerImg];
-    topRightImageView = [[UIImageView alloc] initWithImage:cornerImg];
-    bottomLeftImageView = [[UIImageView alloc] initWithImage:cornerImg];
-    bottomRightImageView = [[UIImageView alloc] initWithImage:cornerImg];
-    
-    topLeftImageView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
-    topRightImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
-    bottomLeftImageView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |UIViewAutoresizingFlexibleTopMargin;
-    bottomRightImageView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
-    
-    topRightImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-    bottomLeftImageView.transform = CGAffineTransformMakeScale(1.0, -1.0);
-    bottomRightImageView.transform = CGAffineTransformMakeScale(-1.0, -1.0);
-    
-    topLeftImageView.frame = CGRectMake(0.0, 0.0, size.width, size.height);
-    topRightImageView.frame = CGRectMake(self.bounds.size.width-size.width, 0.0, size.width, size.height);
-    bottomLeftImageView.frame = CGRectMake(0.0, self.bounds.size.height - size.height, size.width, size.height);
-    bottomRightImageView.frame = CGRectMake(self.bounds.size.width-size.width, self.bounds.size.height - size.height, size.width, size.height);
-    
-    [self.contentView addSubview:topLeftImageView];
-    [self.contentView addSubview:topRightImageView];
-    [self.contentView addSubview:bottomLeftImageView];
-    [self.contentView addSubview:bottomRightImageView];
-}
 
 - (void)applyCornerMask
 {    
     CGRect frame = self.bounds;
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
-                                                   byRoundingCorners:UIRectCornerAllCorners
+                                                   byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
                                                          cornerRadii:CGSizeMake(kCornerRadius, kCornerRadius)];
     [maskPath appendPath:[UIBezierPath bezierPathWithRect:self.shadowImageView.frame]];
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
     [maskLayer setPath:maskPath.CGPath];
-    
-    self.layer.mask = maskLayer;
+    self.contentView.layer.shouldRasterize = YES;
+    self.contentView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+    self.contentView.layer.mask = maskLayer;
 }
 
 - (void)removeCornerMask
@@ -146,8 +114,7 @@ NSUInteger kCornerRadius = 6.0;
     self.layer.shadowOpacity = .70;
     self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     self.layer.shouldRasterize = YES;
-    [self.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:6.5] CGPath]];
-    self.layer.cornerRadius = kCornerRadius;
+    [self.layer setShadowPath:[[UIBezierPath bezierPathWithRect:self.bounds] CGPath]];
     [self setNeedsDisplay];
 }
 
@@ -160,7 +127,7 @@ NSUInteger kCornerRadius = 6.0;
 #pragma mark - Theming
 - (void)applyTheme:(NTDTheme *)theme
 {
-    self.contentView.backgroundColor = theme.backgroundColor;
+    self.contentView.layer.backgroundColor = theme.backgroundColor.CGColor;
     self.titleLabel.textColor = theme.headerColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     self.textView.backgroundColor = theme.backgroundColor;
