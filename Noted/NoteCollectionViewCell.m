@@ -31,13 +31,17 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)awakeFromNib
 {
+    [self setBackgroundColor:[UIColor clearColor]];
+    [self.contentView setBackgroundColor:[UIColor clearColor]];
+    
     [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
     [self.contentView addSubview:self.settingsButton];
     
-    [self applyCornerImages];
+    [self applyCornerMask];
+    [self applyShadow];
 //    NTDCrossDetectorView *crossDetectorView = [[NTDCrossDetectorView alloc] initWithFrame:self.bounds];
 //    crossDetectorView.hidden = YES;
 //    [self.contentView addSubview:crossDetectorView];
@@ -61,11 +65,11 @@ NSUInteger kCornerRadius = 6.0;
     }
     
     if (noteLayoutAttributes.shouldApplyCornerMask) {
-//        [self applyCornerMask];
+        [self applyCornerMask];
         [self applyShadow];
     } else {
-//        [self removeCornerMask];
-        [self removeShadow];
+        //[self removeCornerMask];
+        //[self removeShadow];
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
@@ -92,6 +96,8 @@ NSUInteger kCornerRadius = 6.0;
 #pragma mark - Helpers
 - (void)applyCornerImages
 {
+    return;
+    
     UIImage *cornerImg = [UIImage imageNamed:@"corner"];
     CGSize size = cornerImg.size;
     
@@ -123,44 +129,56 @@ NSUInteger kCornerRadius = 6.0;
 
 - (void)applyCornerMask
 {    
-    CGRect frame = self.bounds;
+    /*CGRect frame = self.bounds;
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
                                                    byRoundingCorners:UIRectCornerAllCorners
                                                          cornerRadii:CGSizeMake(kCornerRadius, kCornerRadius)];
-    [maskPath appendPath:[UIBezierPath bezierPathWithRect:self.shadowImageView.frame]];
+    //[maskPath appendPath:[UIBezierPath bezierPathWithRect:self.shadowImageView.frame]];
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
     [maskLayer setPath:maskPath.CGPath];
+    //self.clipsToBounds = YES;
+    self.layer.mask = maskLayer;*/
     
-    self.layer.mask = maskLayer;
+    self.contentView.layer.cornerRadius = 6.0;
+
 }
 
 - (void)removeCornerMask
 {
-    self.layer.mask = nil;
+    self.layer.cornerRadius = 0;
+    //self.layer.mask = nil;
 }
 
 - (void)applyShadow
 {
-    self.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.layer.shadowOpacity = .5;
+    self.layer.shadowRadius = 2.0;
+    self.layer.shadowOffset = CGSizeMake(0, -1);
+
+    /*self.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.layer.shadowOffset = CGSizeMake(-1.0,0);
     self.layer.shadowOpacity = .70;
     self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     self.layer.shouldRasterize = YES;
     [self.layer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:6.5] CGPath]];
     self.layer.cornerRadius = kCornerRadius;
-    [self setNeedsDisplay];
+    [self setNeedsDisplay];*/
 }
 
 - (void)removeShadow
 {
-    self.layer.shadowPath = nil;
+    self.layer.shadowColor = [UIColor clearColor].CGColor;
     [self setNeedsDisplay];
 }
 
 #pragma mark - Theming
 - (void)applyTheme:(NTDTheme *)theme
 {
-    self.contentView.backgroundColor = theme.backgroundColor;
+    // we set the layer's background color so we can have rounded corners and shadows
+    self.backgroundColor = [UIColor clearColor];
+    self.contentView.layer.backgroundColor = theme.backgroundColor.CGColor;
+    
     self.titleLabel.textColor = theme.headerColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     self.textView.backgroundColor = theme.backgroundColor;
@@ -168,4 +186,5 @@ NSUInteger kCornerRadius = 6.0;
     self.separatorView.backgroundColor = theme.textColor;
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
 }
+
 @end
