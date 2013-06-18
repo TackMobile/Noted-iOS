@@ -10,20 +10,14 @@
 #import "NTDTheme.h"
 #import "NTDCrossDetectorView.h"
 
-@interface NoteCollectionViewCell : UICollectionViewCell {
-    NSArray *cornerImages;
-}
+@interface NoteCollectionViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UIView *separatorView;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
-@property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
-
-@property (strong, nonatomic) UIColor *prevNoteBackgroundColor;
 
 - (void)applyTheme:(NTDTheme *)theme;
 

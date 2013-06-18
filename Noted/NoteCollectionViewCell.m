@@ -36,8 +36,6 @@ NSUInteger kCornerRadius = 6.0;
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
     [self.contentView addSubview:self.settingsButton];
-    
-    [self applyShadowFull:NO];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
@@ -56,14 +54,6 @@ NSUInteger kCornerRadius = 6.0;
         }
     }
     
-    if (noteLayoutAttributes.shouldApplyCornerMask) {
-        //[self applyCornerMask];
-        //[self applyShadow];
-    } else {
-        //[self removeCornerMask];
-        //[self removeShadow];
-    }
-    
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
 }
 
@@ -73,12 +63,12 @@ NSUInteger kCornerRadius = 6.0;
         self.settingsButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
-        [self applyShadowFull:NO];
+        [self applyShadow:NO];
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.settingsButton.hidden = NO;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
-        [self applyShadowFull:YES];
+        [self applyShadow:YES];
     }
     
 }
@@ -90,37 +80,18 @@ NSUInteger kCornerRadius = 6.0;
 
 #pragma mark - Helpers
 
-- (void)applyCornerMask
-{    
-    CGRect frame = self.bounds;
-    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
-                                                   byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
-                                                         cornerRadii:CGSizeMake(kCornerRadius, kCornerRadius)];
-    [maskPath appendPath:[UIBezierPath bezierPathWithRect:self.shadowImageView.frame]];
-    CAShapeLayer *maskLayer = [CAShapeLayer layer];
-    [maskLayer setPath:maskPath.CGPath];
-    self.contentView.layer.shouldRasterize = NO;
-    self.contentView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    self.contentView.layer.mask = maskLayer;
-}
-
-- (void)removeCornerMask
-{
-    self.layer.mask = nil;
-}
 
 // apply a full shadow if we are paging. in list, we only need a small shadow. (performance+)
-- (void)applyShadowFull:(bool)fullShadow
+- (void)applyShadow:(bool)useFullShadow 
 {
     CGRect shadowBounds = self.bounds;
-    if (!fullShadow)
+    if (!useFullShadow)
         shadowBounds.size.height = 70; // list item is 44, but we want shadow for deleting too
     
     self.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.layer.shadowOffset = CGSizeMake(-1.0,0);
     self.layer.shadowOpacity = .70;
     self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    self.layer.shouldRasterize = NO;
     [self.layer setShadowPath:[[UIBezierPath bezierPathWithRect:shadowBounds] CGPath]];
     [self setNeedsDisplay];
 }
@@ -134,7 +105,7 @@ NSUInteger kCornerRadius = 6.0;
 #pragma mark - Theming
 - (void)applyTheme:(NTDTheme *)theme
 {
-    self.contentView.layer.backgroundColor = theme.backgroundColor.CGColor;
+    self.contentView.backgroundColor = theme.backgroundColor;
     self.titleLabel.textColor = theme.headerColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     self.textView.backgroundColor = theme.backgroundColor;
