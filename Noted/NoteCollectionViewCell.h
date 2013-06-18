@@ -16,8 +16,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UIView *separatorView;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
-@property (weak, nonatomic) IBOutlet UIImageView *shadowForNextCardImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *shadowImageView;
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 

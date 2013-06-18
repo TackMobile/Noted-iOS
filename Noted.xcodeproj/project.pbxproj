@@ -235,7 +235,7 @@
 		B50C98BC160CCD45002A3909 /* release_notes.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.md; sourceTree = "<group>"; };
 		B50C98BD160CCD45002A3909 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		B512B12A1611CE1800E0E8B5 /* AnimationStackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationStackViewController.h; sourceTree = "<group>"; };
-		B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimationStackViewController.m; sourceTree = "<group>"; };
+		B512B12B1611CE1800E0E8B5 /* AnimationStackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimationStackViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		B512B12C1611CE1800E0E8B5 /* AnimationStackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AnimationStackView.xib; sourceTree = "<group>"; };
 		B52114D9171CA800007670F3 /* NTDTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTheme.h; sourceTree = "<group>"; };
 		B52114DA171CA800007670F3 /* NTDTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDTheme.m; sourceTree = "<group>"; };
