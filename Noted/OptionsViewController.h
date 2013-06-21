@@ -12,10 +12,10 @@
 @optional
 
 -(void)setNoteColor:(UIColor*)color textColor:(UIColor*)textColor;
--(void)shiftCurrentNoteOriginToPoint:(CGPoint)point completion:(void(^)())completionBlock;
 -(void)sendEmail;
 -(void)sendTweet;
 -(void)sendSMS;
+-(void)changeOptionsViewWidth:(float)width;
 
 @end
 
