@@ -68,10 +68,11 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
         static CGFloat MAX_OFFSET = 80.0, MIN_ALPHA = 0.4;
         CGFloat offset = MAX(-MAX_OFFSET, MIN(MAX_OFFSET, self.swipedCardOffset));
-        CGFloat angle = (M_PI/6) * (offset/MAX_OFFSET);
+        CGFloat angle = (M_PI/12) * (offset/MAX_OFFSET);
         
         layoutAttributes.alpha = MAX(MIN_ALPHA, 1 + (MIN_ALPHA - 1.0) * ABS(offset)/MAX_OFFSET);
         layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
+        layoutAttributes.center = CGPointMake(layoutAttributes.center.x + offset, layoutAttributes.center.y);
         
         /* One would think that the code below would work, but I encountered a bug where the hidden
          * property of the CALayer backing the cell was set to YES. I figured this out using KVO, but

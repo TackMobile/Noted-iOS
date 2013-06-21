@@ -234,6 +234,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 swipedCardIndexPath = indexPath;
                 self.listLayout.swipedCardOffset = 0.0;
             }
+            // make the shadow larger and sticky to the cell's alpha
+            NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+            theCell.layer.shouldRasterize = YES;
+            [theCell applyShadow:YES];
             break;
         }
         case UIGestureRecognizerStateChanged:
@@ -262,6 +266,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 if (shouldDelete) {
                     [self deleteCardAtIndexPath:swipedCardIndexPath];
                     shouldDelete = NO;
+                } else {
+                    // make the shadow larger and sticky to the cell's alpha
+                    NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
+                    theCell.layer.shouldRasterize = NO;
+                    [theCell applyShadow:NO];
                 }
             } completion:^(BOOL finished) {
             }];
