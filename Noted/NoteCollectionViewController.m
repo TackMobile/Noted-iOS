@@ -225,7 +225,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     static NSIndexPath *swipedCardIndexPath = nil;
     static BOOL shouldDelete = NO;
-        
+    
+    CGPoint translation = [gestureRecognizer translationInView:self.collectionView];
+    
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
@@ -243,21 +245,21 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
         case UIGestureRecognizerStateChanged:
         {
-            CGPoint translation = [gestureRecognizer translationInView:self.collectionView];
             if (self.collectionView.dragging || fabs(translation.x) < 5.0)
                 break;
             self.collectionView.scrollEnabled = NO;
             self.listLayout.swipedCardIndexPath = swipedCardIndexPath;
             self.listLayout.swipedCardOffset = translation.x;
-            if (fabs(translation.x) >= 80) {
-                gestureRecognizer.enabled = NO;
-                shouldDelete = YES;
-            }
             break;
         }
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled:
         {
+            
+            if (fabs(translation.x) >= 80) {
+                shouldDelete = YES;
+            }
+            
             if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold)
                 shouldDelete = YES;
                 
@@ -462,7 +464,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             if ((translation.x < 0 && fabs(translation.x) >= self.pagingLayout.currentOptionsOffset/2) ||
                 (velocity < 0 && fabs(velocity) > SwipeVelocityThreshold)) {
                 self.pagingLayout.pannedCardXTranslation = 0;
-                [self.pagingLayout hideOptionsWithCompletion:^{
+                [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
                     panGestureRecognizer.enabled = NO;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;

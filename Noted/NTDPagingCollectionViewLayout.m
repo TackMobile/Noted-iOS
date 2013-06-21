@@ -102,9 +102,9 @@
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     float dur;
     if (isViewingOptions)
-        dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabs(velocity);
+        dur = self.currentOptionsOffset / fabsf(velocity);
     else
-        dur = self.currentOptionsOffset / fabs(velocity);
+        dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabsf(velocity);
     
     // keep dur between .05 and .2. feels comfortable
     dur = fmaxf((dur > .2) ? .2 : dur, .05);
@@ -138,11 +138,11 @@
 
 }
 
-- (void) hideOptionsWithCompletion:(void (^)(void))completionBlock {
+- (void) hideOptionsWithVelocity:(float)veloticy completion:(void (^)(void))completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
     
-    [self finishAnimationWithVelocity:.2 completion:completionBlock];
+    [self finishAnimationWithVelocity:veloticy completion:completionBlock];
     
 }
 

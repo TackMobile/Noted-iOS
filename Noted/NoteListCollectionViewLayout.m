@@ -66,11 +66,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
-        static CGFloat MAX_OFFSET = 80.0, MIN_ALPHA = 0.4;
-        CGFloat offset = MAX(-MAX_OFFSET, MIN(MAX_OFFSET, self.swipedCardOffset));
-        CGFloat angle = (M_PI/12) * (offset/MAX_OFFSET);
+        CGFloat offset = self.swipedCardOffset;
+        CGFloat angle = (M_PI/4) * (offset/self.collectionView.frame.size.width/2);
         
-        layoutAttributes.alpha = MAX(MIN_ALPHA, 1 + (MIN_ALPHA - 1.0) * ABS(offset)/MAX_OFFSET);
+        static CGFloat MIN_ALPHA = .3;
+        
+        layoutAttributes.alpha = fmaxf(MIN_ALPHA, (self.collectionView.frame.size.width/2 - ABS(offset))/(self.collectionView.frame.size.width/2));
         layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
         layoutAttributes.center = CGPointMake(layoutAttributes.center.x + offset, layoutAttributes.center.y);
         
