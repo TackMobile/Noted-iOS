@@ -265,7 +265,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
                     gestureRecognizer.enabled = YES;
                 }
-                if (shouldDelete) {
+                if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
                     [self deleteCardAtIndexPath:swipedCardIndexPath];
                     shouldDelete = NO;
                     didDelete = YES;
