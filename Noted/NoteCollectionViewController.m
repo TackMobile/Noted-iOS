@@ -225,6 +225,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     static NSIndexPath *swipedCardIndexPath = nil;
     static BOOL shouldDelete = NO;
+        
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
@@ -258,6 +259,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateCancelled:
         {
             self.collectionView.scrollEnabled = YES;
+            __block bool didDelete = NO;
             [self.collectionView performBatchUpdates:^{
                 self.listLayout.swipedCardIndexPath = nil;
                 if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
@@ -266,13 +268,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 if (shouldDelete) {
                     [self deleteCardAtIndexPath:swipedCardIndexPath];
                     shouldDelete = NO;
+                    didDelete = YES;
                 } else {
-                    // make the shadow larger and sticky to the cell's alpha
+                    
+                }
+            } completion:^(BOOL finished) {
+                if (!didDelete) {
+                    // make the shadow smaller and un rasterized
                     NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
                     theCell.layer.shouldRasterize = NO;
                     [theCell applyShadow:NO];
                 }
-            } completion:^(BOOL finished) {
             }];
             
             break;
