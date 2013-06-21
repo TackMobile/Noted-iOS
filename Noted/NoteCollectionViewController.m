@@ -258,6 +258,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled:
         {
+            if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold)
+                shouldDelete = YES;
+                
             self.collectionView.scrollEnabled = YES;
             __block bool didDelete = NO;
             [self.collectionView performBatchUpdates:^{
@@ -468,7 +471,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 }] ;
             } else {
                 self.pagingLayout.pannedCardXTranslation = 0;
-                [self.pagingLayout finishAnimationWithVelocity:velocity completion:nil];
+                [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
             }
             
         default:
