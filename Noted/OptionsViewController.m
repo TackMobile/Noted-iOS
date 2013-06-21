@@ -137,7 +137,7 @@
 }
 
 -(void)returnToOptions {
-    [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(96, 0) completion:nil];
+    [self.delegate changeOptionsViewWidth:96];
     
     [self reset];
     
@@ -231,9 +231,12 @@
     CGRect versionViewFrame = [self determineFrameForViewWithTag:[self.versionView tag] senderTag:senderTag];
     
     switch (senderTag) {
-        case 1: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.shareSubview.frame.size.width, 0) completion:nil]; break;
-        case 2: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.settingsSubview.frame.size.width, 0) completion:nil]; break;
-        case 3: [self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(self.aboutSubview.frame.size.width, 0) completion:nil]; break;
+        case 1: [self.delegate changeOptionsViewWidth:self.shareSubview.frame.size.width];
+            break;
+        case 2: [self.delegate changeOptionsViewWidth:self.settingsSubview.frame.size.width];
+            break;
+        case 3: [self.delegate changeOptionsViewWidth:self.aboutSubview.frame.size.width];
+            break;
     }
     
     //[self.delegate shiftCurrentNoteOriginToPoint:CGPointMake(200, 0) completion:nil];

@@ -10,174 +10,134 @@
 #import "NoteCollectionViewLayoutAttributes.h"
 #import "NSIndexPath+NTDManipulation.h"
 
-NSString * const NTDCollectionElementKindDuplicateCard = @"NTDCollectionElementKindDuplicateCard";
 
-@interface NTDPagingCollectionViewLayout ()
-@property (nonatomic, assign) BOOL shouldReplaceStationaryCard;
+@interface NTDPagingCollectionViewLayout () {
+    bool isViewingOptions;
+}
 @end
 
 @implementation NTDPagingCollectionViewLayout
+@synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset;
 
 -(id)init
 {
     if (self = [super init]) {
-        self.minimumLineSpacing = 20.0;
-        self.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        self.sectionInset = UIEdgeInsetsMake(0.0, 0.0, 0.0, self.minimumLineSpacing);
+        isViewingOptions = NO;
     }
     return self;
 }
 
-+ (Class)layoutAttributesClass
-{
-    return [NoteCollectionViewLayoutAttributes class];
-}
 
-//- (CGSize)collectionViewContentSize
-//{
-//    return [[[UIApplication sharedApplication] keyWindow] bounds].size;
-//}
-
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
-    BOOL containsAttributesForPannedCard = NO, containsAttributesForStationaryCard = NO;
-    for (NoteCollectionViewLayoutAttributes *layoutAttributes in attributesArray) {
-        if ([layoutAttributes.indexPath isEqual:self.pannedCardIndexPath]) {
-            containsAttributesForPannedCard = YES;
-        } else if ([layoutAttributes.indexPath isEqual:self.stationaryCardIndexPath]) {
-            containsAttributesForStationaryCard = YES;
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+    NSMutableArray *attributesArray = [NSMutableArray array];
+    
+    // show the current card, the card on bottom, the card on top
+    for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
+        if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+            continue;
+        else {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+            [attributesArray addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
         }
     }
-    
-    NSMutableArray *mutableAttributesArray = [NSMutableArray arrayWithArray:attributesArray];
-    if (self.pannedCardIndexPath != nil && !containsAttributesForPannedCard) {
-        NSLog(@"add pan");
-        [mutableAttributesArray addObject:[super layoutAttributesForItemAtIndexPath:self.pannedCardIndexPath]];
-    } else if (self.stationaryCardIndexPath != nil && !containsAttributesForStationaryCard && self.pagingDirection == NTDPagingDirectionLeftToRight) {
-        NSLog(@"add stat?");
-        [mutableAttributesArray addObject:[super layoutAttributesForItemAtIndexPath:self.stationaryCardIndexPath]];
-    } else if (self.stationaryCardIndexPath != nil && self.pagingDirection == NTDPagingDirectionRightToLeft) {
-//        NSLog(@"add supp");
-        [mutableAttributesArray addObject:[self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindDuplicateCard atIndexPath:self.stationaryCardIndexPath]];
-    }
-    
-    for (NoteCollectionViewLayoutAttributes *layoutAttributes in mutableAttributesArray) {
-        [self customizeLayoutAttributes:layoutAttributes];
-    };
-    
-    if (self.shouldReplaceStationaryCard) {
-//        NSLog(@"actual reset");
-        [self resetPanningProperties];
-    }
-    return mutableAttributesArray;
+    return attributesArray;
 }
 
--(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    NoteCollectionViewLayoutAttributes *layoutAttributes = (NoteCollectionViewLayoutAttributes *)[super layoutAttributesForItemAtIndexPath:indexPath];
-    [self customizeLayoutAttributes:layoutAttributes];
-    return layoutAttributes;
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    [self customizeLayoutAttributes:attr];
+    return attr;
 }
 
--(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
-{
-    if ([kind isEqualToString:NTDCollectionElementKindDuplicateCard] && [indexPath isEqual:self.stationaryCardIndexPath]) {
-        NoteCollectionViewLayoutAttributes *cellLayoutAttributes, *layoutAttributes;
-        NSIndexPath *cellIndexPath;
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
+    return YES;
+}
+
+- (CGSize)collectionViewContentSize {
+    return self.collectionView.frame.size;
+}
+- (void)customizeLayoutAttributes:(UICollectionViewLayoutAttributes *)attr {
+    attr.zIndex = attr.indexPath.row; // stack the cards
+    attr.size = self.collectionView.frame.size;
+    
+    CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
+    CGPoint right = CGPointMake(center.x + self.collectionView.frame.size.width, center.y);
+    
+    // if we're viewing options, offset center
+    if (isViewingOptions && attr.indexPath.row == activeCardIndex) {
+        center = (CGPoint){center.x+currentOptionsOffset, center.y};
+    }
+    
+    // if were panning right, slide active card off of stack
+    if (pannedCardXTranslation > 0 &&
+        attr.indexPath.row == activeCardIndex &&
+        activeCardIndex > 0) {
+        attr.center = (CGPoint){center.x+pannedCardXTranslation, center.y};
         
-        if (self.pagingDirection == NTDPagingDirectionRightToLeft) {
-            cellIndexPath = [indexPath ntd_indexPathForPreviousItem];
-        } else {
-            cellIndexPath = indexPath;
-        }
-        cellLayoutAttributes = (NoteCollectionViewLayoutAttributes *)[super layoutAttributesForItemAtIndexPath:cellIndexPath];
-        layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
+    // if panning left and in options, push it back
+    } else if (pannedCardXTranslation < 0 && isViewingOptions &&
+               attr.indexPath.row == activeCardIndex) {
+        attr.center = (CGPoint){center.x+pannedCardXTranslation, center.y};
+    
+    } else if (pannedCardXTranslation < 0 && !isViewingOptions &&
+               attr.indexPath.row == activeCardIndex+1) {
+        attr.center = (CGPoint){right.x+pannedCardXTranslation, right.y};
         
-        layoutAttributes.frame = cellLayoutAttributes.frame;
-        layoutAttributes.zIndex = -1;
-        layoutAttributes.transform3D = cellLayoutAttributes.transform3D;
-        layoutAttributes.hidden = cellLayoutAttributes.hidden;
-        layoutAttributes.alpha = cellLayoutAttributes.alpha;
+    // if not panning and greater than active, stack outside
+    } else if (attr.indexPath.row > activeCardIndex) {
         
-        return layoutAttributes;
+        attr.center = right;
+        
+    // if not panning and less than or equal to active, stack in center
     } else {
-        return nil;
+        attr.center = center;
     }
 }
 
-- (void)customizeLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
-{
-    layoutAttributes.shouldApplyCornerMask = YES;
-    [self applyPanToLayoutAttributes:layoutAttributes];
-}
-
--(void)applyPanToLayoutAttributes:(NoteCollectionViewLayoutAttributes *)layoutAttributes
-{
-    if (![layoutAttributes.indexPath isEqual:self.pannedCardIndexPath])
-        return;
-
-    CGRect frame;
-//    NSLog(@"apply pan");
+#pragma mark - customAnimation
+- (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
+    // xTranslation will not be zeroed out yet
+    // activeCardIndex will be current
     
-    if (self.shouldReplaceStationaryCard) {
-//        NSLog(@"replacing in pan");
-        NSIndexPath *indexPath;
-        NSInteger pannedCardIndex = self.pannedCardIndexPath.item;
-        if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex > 0) {
-            indexPath = [self.pannedCardIndexPath ntd_indexPathForPreviousItem];
-        } else if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex == 0) {
-            indexPath = self.pannedCardIndexPath;
-        } else if (self.pagingDirection == NTDPagingDirectionLeftToRight) {
-            indexPath = self.stationaryCardIndexPath;
-        } else {
-            @throw @"Shouldn't be here.";
-        }
-
-        frame = [[super layoutAttributesForItemAtIndexPath:indexPath] frame];
-        if (self.pagingDirection == NTDPagingDirectionRightToLeft && pannedCardIndex == 0) {
-            frame = CGRectOffset(frame, -frame.size.width, 0.0);
-        }
-    } else {
-        frame = CGRectOffset(layoutAttributes.frame, self.pannedCardXTranslation, 0.0);
-    }
+    // calculate animation duration (v=p/s)
+    float dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabs(velocity);
+    dur = (dur > .2) ? .2 : dur;
     
-    layoutAttributes.frame = frame;
+    //  animate
+    [UIView animateWithDuration:dur animations:^{
+        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
+            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+                continue;
+            else {
+                NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                
+                UICollectionViewLayoutAttributes *theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                [theCell setFrame:theAttr.frame];
+            }
+        }
+    } completion:^(BOOL finished) {
+        [self invalidateLayout];
+        if (completionBlock)
+            completionBlock();
+    }];
 }
 
--(void)setPannedCardIndexPath:(NSIndexPath *)pannedCardIndexPath
-{
-    _pannedCardIndexPath = pannedCardIndexPath;
-    [self invalidateLayout];
+- (void) animateRevealOptionsViewWithOffset:(float)offset {
+    isViewingOptions = YES;
+    currentOptionsOffset = offset;
+    
+    [self finishAnimationWithVelocity:.2 completion:nil];
+
 }
 
--(void)setPannedCardXTranslation:(CGFloat)pannedCardXTranslation
-{
-    _pannedCardXTranslation = pannedCardXTranslation;
-    [self invalidateLayout];
+- (void) hideOptionsWithCompletion:(void (^)(void))completionBlock {
+    isViewingOptions = NO;
+    currentOptionsOffset = 0.0;
+    
+    [self finishAnimationWithVelocity:.2 completion:completionBlock];
+    
 }
 
--(void)setStationaryCardIndexPath:(NSIndexPath *)stationaryCardIndexPath
-{
-    _stationaryCardIndexPath = stationaryCardIndexPath;
-    [self invalidateLayout];
-}
-
--(void)completePanGesture:(BOOL)shouldReplaceStationaryCard
-{
-    self.shouldReplaceStationaryCard = shouldReplaceStationaryCard;
-    if (!shouldReplaceStationaryCard) {
-        [self resetPanningProperties];
-    }
-    [self invalidateLayout];
-}
-
-- (void)resetPanningProperties
-{
-    _pannedCardIndexPath = nil;
-    _pannedCardXTranslation = 0.0;
-    _shouldReplaceStationaryCard = NO;
-    _stationaryCardIndexPath = nil;
-    _pagingDirection = NTDPagingDirectionInvalidDirection;
-}
 @end

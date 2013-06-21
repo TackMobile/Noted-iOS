@@ -100,13 +100,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                   self.cardSize.height);
         layoutAttributes.frame = frame;
         layoutAttributes.zIndex = -1;
-        layoutAttributes.shouldApplyCornerMask = YES;
         layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
         
         CGFloat y = self.collectionView.contentOffset.y;
         if (y > self.pullToCreateShowCardOffset) {
             layoutAttributes.hidden = YES;
-//            NSLog(@"gone rogue");
+            NSLog(@"gone rogue");
         } else if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
             frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
         } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
@@ -117,7 +116,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
 
-//        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
+        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
         return layoutAttributes;
     } else {
         return nil;
@@ -213,9 +212,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     layoutAttributes.hidden = NO;
     
-    if (i == 0 /*|| i == (cardCount-1)*/) {
-        layoutAttributes.shouldApplyCornerMask = YES;
-    }
     return layoutAttributes;
 }
 
