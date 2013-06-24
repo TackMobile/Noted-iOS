@@ -227,16 +227,19 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
         case UIGestureRecognizerStateChanged:
         {
-            if (self.collectionView.dragging || fabs(translation.x) < 5.0)
+            if (self.collectionView.dragging || fabs(translation.x) < 5.0) {
+                [self.removeCardGestureRecognizer setEnabled:NO];
                 break;
+            }
             self.collectionView.scrollEnabled = NO;
             self.listLayout.swipedCardIndexPath = swipedCardIndexPath;
             self.listLayout.swipedCardOffset = translation.x;
             break;
         }
         case UIGestureRecognizerStateEnded:
-        case UIGestureRecognizerStateCancelled:
         {
+            if (swipedCardIndexPath == nil)
+                break;
             
             if (fabs(translation.x) >= 80)
                 shouldDelete = YES;
@@ -269,6 +272,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             break;
         }
+        
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed :
+        {
+            swipedCardIndexPath = nil;
+            shouldDelete = NO;
+        }
+            
         default:
             break;
     }
@@ -569,6 +580,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView != self.collectionView)
         return;
     
+    // bugfix to prevent remove card from firing
+    if (self.removeCardGestureRecognizer.state == UIGestureRecognizerStateBegan)
+        self.removeCardGestureRecognizer.enabled = NO;
+    
     CGFloat y = scrollView.bounds.origin.y;
     if (y < -self.pullToCreateContainerView.$height) {
         self.pullToCreateContainerView.$y = y;
@@ -585,6 +600,9 @@ static BOOL shouldCreateNewCard = NO;
 {
     if (scrollView != self.collectionView)
         return;
+    
+    // reenable swipe to delete
+    self.removeCardGestureRecognizer.enabled = YES;
     
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
