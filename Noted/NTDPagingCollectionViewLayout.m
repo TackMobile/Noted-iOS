@@ -9,14 +9,13 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import "NSIndexPath+NTDManipulation.h"
 
+static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
 
 @end
-
-const float RevealOptionsAnimationDuration = 0.2f;
 
 @implementation NTDPagingCollectionViewLayout
 @synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset, isViewingOptions;
