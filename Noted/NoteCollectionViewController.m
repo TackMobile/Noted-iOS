@@ -228,6 +228,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateChanged:
         {
             if (self.collectionView.dragging || fabs(translation.x) < 5.0) {
+                // upon scrollview dragging ended, gesture will be re-enabled
                 [self.removeCardGestureRecognizer setEnabled:NO];
                 break;
             }
@@ -601,7 +602,7 @@ static BOOL shouldCreateNewCard = NO;
     if (scrollView != self.collectionView)
         return;
     
-    // reenable swipe to delete
+    // re-enable swipe to delete
     self.removeCardGestureRecognizer.enabled = YES;
     
     if (self.collectionView.collectionViewLayout == self.listLayout) {
