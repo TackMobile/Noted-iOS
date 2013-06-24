@@ -20,5 +20,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 
 - (void)applyTheme:(NTDTheme *)theme;
+- (void)applyShadow:(bool)useFullShadow;
 
 @end

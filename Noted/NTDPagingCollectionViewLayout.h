@@ -8,18 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, NTDPagingDirection) {
-    NTDPagingDirectionInvalidDirection = 0,
-    NTDPagingDirectionLeftToRight,
-    NTDPagingDirectionRightToLeft
-};
-UIKIT_EXTERN NSString * const NTDCollectionElementKindDuplicateCard;
 
-@interface NTDPagingCollectionViewLayout : UICollectionViewFlowLayout
+@interface NTDPagingCollectionViewLayout : UICollectionViewLayout
 
-@property (nonatomic, strong) NSIndexPath *pannedCardIndexPath, *stationaryCardIndexPath;
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
-@property (nonatomic, assign) NTDPagingDirection pagingDirection;
-- (void)completePanGesture:(BOOL)shouldReplaceStationaryCard;
+@property (nonatomic) int activeCardIndex;
+@property (nonatomic, readonly) float currentOptionsOffset;
 
+- (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock ;
+- (void) revealOptionsViewWithOffset:(float)offset;
+- (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock;
 @end

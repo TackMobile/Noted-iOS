@@ -66,12 +66,14 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
-        static CGFloat MAX_OFFSET = 80.0, MIN_ALPHA = 0.4;
-        CGFloat offset = MAX(-MAX_OFFSET, MIN(MAX_OFFSET, self.swipedCardOffset));
-        CGFloat angle = (M_PI/6) * (offset/MAX_OFFSET);
+        CGFloat offset = self.swipedCardOffset;
+        CGFloat angle = (M_PI/4) * (offset/self.collectionView.frame.size.width/2);
         
-        layoutAttributes.alpha = MAX(MIN_ALPHA, 1 + (MIN_ALPHA - 1.0) * ABS(offset)/MAX_OFFSET);
+        static CGFloat MIN_ALPHA = .3;
+        
+        layoutAttributes.alpha = fmaxf(MIN_ALPHA, (self.collectionView.frame.size.width/2 - ABS(offset))/(self.collectionView.frame.size.width/2));
         layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
+        layoutAttributes.center = CGPointMake(layoutAttributes.center.x + offset, layoutAttributes.center.y);
         
         /* One would think that the code below would work, but I encountered a bug where the hidden
          * property of the CALayer backing the cell was set to YES. I figured this out using KVO, but
@@ -100,13 +102,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                   self.cardSize.height);
         layoutAttributes.frame = frame;
         layoutAttributes.zIndex = -1;
-        layoutAttributes.shouldApplyCornerMask = YES;
         layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
         
         CGFloat y = self.collectionView.contentOffset.y;
         if (y > self.pullToCreateShowCardOffset) {
             layoutAttributes.hidden = YES;
-//            NSLog(@"gone rogue");
+            NSLog(@"gone rogue");
         } else if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
             frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
         } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
@@ -117,7 +118,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         }
         layoutAttributes.frame = frame;
 
-//        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
+        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
         return layoutAttributes;
     } else {
         return nil;
@@ -213,9 +214,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     layoutAttributes.hidden = NO;
     
-    if (i == 0 /*|| i == (cardCount-1)*/) {
-        layoutAttributes.shouldApplyCornerMask = YES;
-    }
     return layoutAttributes;
 }
 
