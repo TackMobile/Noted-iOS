@@ -16,6 +16,6 @@
 @property (nonatomic, readonly) float currentOptionsOffset;
 
 - (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock ;
-- (void) animateRevealOptionsViewWithOffset:(float)offset;
+- (void) revealOptionsViewWithOffset:(float)offset;
 - (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock;
 @end

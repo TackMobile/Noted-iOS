@@ -100,6 +100,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
                                                object:nil];
+    
+    self.collectionView.alwaysBounceVertical = YES;
 }
 
 -(void)dealloc
@@ -178,26 +180,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     }
 }
 
--(void)__collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         NSArray *indexPaths = [collectionView indexPathsForVisibleItems];
-                         for (NSIndexPath *visibleIndexPath in indexPaths) {
-                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[collectionView cellForItemAtIndexPath:visibleIndexPath];
-                             if ([visibleIndexPath isEqual:indexPath]) {
-                                 cell.$y = self.collectionView.contentOffset.y;
-                             } else {
-                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
-                                 cell.alpha = 0.1;
-                             }
-                         }
-                     } completion:^(BOOL finished) {
-                         self.pagingLayout.activeCardIndex = indexPath.row;
-                         [self updateLayout:self.pagingLayout animated:NO];
-                     }];
-}
-
 #pragma mark - Properties
 -(OptionsViewController *)optionsViewController
 {
@@ -256,15 +238,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateCancelled:
         {
             
-            if (fabs(translation.x) >= 80) {
+            if (fabs(translation.x) >= 80)
                 shouldDelete = YES;
-            }
             
             if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold)
                 shouldDelete = YES;
                 
             self.collectionView.scrollEnabled = YES;
-            __block bool didDelete = NO;
+            __block BOOL didDelete = NO;
             [self.collectionView performBatchUpdates:^{
                 self.listLayout.swipedCardIndexPath = nil;
                 if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
@@ -300,12 +281,33 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         CGPoint tapPoint = [tapGestureRecognizer locationInView:self.collectionView];
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:tapPoint];
         if (indexPath) {
-            [self __collectionView:self.collectionView
-        didSelectItemAtIndexPath:indexPath];
+            [self didSelectItemAtIndexPath:indexPath];
             
         }
     }
 }
+
+-(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+                         for (NSIndexPath *visibleIndexPath in indexPaths) {
+                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+                             if ([visibleIndexPath isEqual:indexPath]) {
+                                 cell.$y = self.collectionView.contentOffset.y;
+                             } else {
+                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
+                                 cell.alpha = 0.1;
+                             }
+                         }
+                     } completion:^(BOOL finished) {
+                         self.pagingLayout.activeCardIndex = indexPath.row;
+                         [self updateLayout:self.pagingLayout
+                                   animated:NO];
+                     }];
+}
+
 
 -(IBAction)showSettings:(id)sender
 {
@@ -319,7 +321,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.optionsViewController.view.frame = visibleCell.frame;
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     
-    [self.pagingLayout animateRevealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
+    [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
 }
 
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
@@ -403,7 +405,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             self.listLayout.pinchRatio = 1.0;
             
             initialContentOffset = self.collectionView.contentOffset;
-            [self updateLayout:self.listLayout animated:NO];
+            [self updateLayout:self.listLayout
+                      animated:NO];
             
             [self.collectionView setContentOffset:CGPointZero animated:NO];
             self.collectionView.scrollEnabled = NO;
@@ -426,7 +429,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0);
             if (shouldReturnToPagingLayout) {
-                [self updateLayout:self.pagingLayout animated:NO];
+                [self updateLayout:self.pagingLayout
+                          animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
             } else {
                 pinchGestureRecognizer.enabled = NO;
@@ -450,7 +454,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
     float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
-    bool needsTranslation = NO;
+    BOOL needsTranslation = NO;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
@@ -477,62 +481,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             }
             
         default:
-            self.pagingLayout.pannedCardXTranslation = 0;
             break;
     }
     
     
     if (needsTranslation)
         [self.pagingLayout invalidateLayout];
-    
-    /*
-    
-    static CGPoint initialLocation;
-    static CGRect initialFrame;
-    
-    UIView *view = panGestureRecognizer.view;
-    
-    switch (panGestureRecognizer.state) {
-        case UIGestureRecognizerStateBegan:
-        {
-            initialLocation = [panGestureRecognizer locationInView:view];
-            initialFrame = self.visibleCell.frame;
-            break;
-        }
-            
-        case UIGestureRecognizerStateChanged:
-        {
-            CGPoint currentLocation = [panGestureRecognizer locationInView:view];
-            CGFloat offset = currentLocation.x - initialLocation.x;
-            CGRect frame = CGRectOffset(initialFrame, offset, 0.0);
-            if (offset <= 0.0 ) {
-                self.visibleCell.frame = frame;
-            }
-            break;
-        }
-        
-        case UIGestureRecognizerStateEnded:
-        {
-            CGFloat offset = self.visibleCell.$x - self.optionsViewController.view.$x;
-            if (offset < InitialNoteOffsetWhenViewingOptions/2) {
-                [self shiftCurrentNoteOriginToPoint:CGPointZero
-                                         completion:^{
-                                             panGestureRecognizer.enabled = NO;
-                                             self.visibleCell.textView.editable = YES;
-                                             self.pinchToListLayoutGestureRecognizer.enabled = YES;
-                                             [self.optionsViewController.view removeFromSuperview];
-                                             [self.optionsViewController reset]; // what does this do?
-                                         }];
-            } else {
-                [self shiftCurrentNoteOriginToPoint:CGPointMake(InitialNoteOffsetWhenViewingOptions, 0.0)
-                                         completion:NULL];
-            }
-            break;
-        }
-            
-        default:
-            break;
-    }*/
 }
 
 #pragma mark - Helpers
@@ -552,9 +506,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = YES;
         self.panCardGestureRecognizer.enabled = NO;
         
-        //self.collectionView.scrollEnabled = YES;
-        //self.collectionView.pagingEnabled = NO;
-        self.collectionView.alwaysBounceVertical = YES;
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
     [self.collectionView reloadData];
@@ -573,7 +524,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 /* The animation wasn't running, so I added this dispatch call so it would run on 
                  * the next turn of the run loop. */
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self __collectionView:self.collectionView didSelectItemAtIndexPath:newCardIndexPath];
+                    [self didSelectItemAtIndexPath:newCardIndexPath];
                 });
             }];
         });
@@ -709,7 +660,7 @@ static BOOL shouldCreateNewCard = NO;
 #pragma mark - OptionsViewController Delegate
 
 -(void)changeOptionsViewWidth:(float)width {
-    [self.pagingLayout animateRevealOptionsViewWithOffset:width];
+    [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
 - (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor

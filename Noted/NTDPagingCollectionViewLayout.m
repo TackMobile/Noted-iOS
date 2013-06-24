@@ -7,17 +7,19 @@
 //
 
 #import "NTDPagingCollectionViewLayout.h"
-#import "NoteCollectionViewLayoutAttributes.h"
 #import "NSIndexPath+NTDManipulation.h"
 
 
-@interface NTDPagingCollectionViewLayout () {
-    bool isViewingOptions;
-}
+@interface NTDPagingCollectionViewLayout ()
+
+@property (nonatomic) BOOL isViewingOptions;
+
 @end
 
+const float RevealOptionsAnimationDuration = 0.2f;
+
 @implementation NTDPagingCollectionViewLayout
-@synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset;
+@synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset, isViewingOptions;
 
 -(id)init
 {
@@ -62,6 +64,9 @@
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
     CGPoint right = CGPointMake(center.x + self.collectionView.frame.size.width, center.y);
+    
+    // keep the panned translation smaller than screenwidth
+    pannedCardXTranslation = fmaxf(-self.collectionView.frame.size.width, fminf(self.collectionView.frame.size.width, pannedCardXTranslation));
     
     // if we're viewing options, offset center
     if (isViewingOptions && attr.indexPath.row == activeCardIndex) {
@@ -130,19 +135,19 @@
     }];
 }
 
-- (void) animateRevealOptionsViewWithOffset:(float)offset {
+- (void) revealOptionsViewWithOffset:(float)offset {
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
-    [self finishAnimationWithVelocity:.2 completion:nil];
+    [self finishAnimationWithVelocity:RevealOptionsAnimationDuration completion:nil];
 
 }
 
-- (void) hideOptionsWithVelocity:(float)veloticy completion:(void (^)(void))completionBlock {
+- (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
     
-    [self finishAnimationWithVelocity:veloticy completion:completionBlock];
+    [self finishAnimationWithVelocity:velocity completion:completionBlock];
     
 }
 
