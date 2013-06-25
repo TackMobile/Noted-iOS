@@ -9,14 +9,13 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import "NSIndexPath+NTDManipulation.h"
 
+static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
 
 @end
-
-const float RevealOptionsAnimationDuration = 0.2f;
 
 @implementation NTDPagingCollectionViewLayout
 @synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset, isViewingOptions;
@@ -115,23 +114,27 @@ const float RevealOptionsAnimationDuration = 0.2f;
     dur = fmaxf((dur > .2) ? .2 : dur, .05);
     
     //  animate
-    [UIView animateWithDuration:dur animations:^{
-        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
-            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
-                continue;
-            else {
-                NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
-                UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
-                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-                
-                UICollectionViewLayoutAttributes *theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
-                [theCell setFrame:theAttr.frame];
-            }
-        }
-    } completion:^(BOOL finished) {
-        [self invalidateLayout];
-        if (completionBlock)
-            completionBlock();
+    [UIView animateWithDuration:dur
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
+                            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+                                continue;
+                            else {
+                                NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                                UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
+                                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                                
+                                UICollectionViewLayoutAttributes *theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                                [theCell setFrame:theAttr.frame];
+                            }
+                        }
+                    }
+                     completion:^(BOOL finished) {
+                        [self invalidateLayout];
+                        if (completionBlock)
+                            completionBlock();
     }];
 }
 

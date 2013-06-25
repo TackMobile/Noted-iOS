@@ -13,8 +13,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+FrameAdditions.h"
 
-NSUInteger kCornerRadius = 6.0;
-
 @interface NoteCollectionViewCell () 
 @end
 

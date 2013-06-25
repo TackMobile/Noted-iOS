@@ -711,6 +711,16 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
     }
+    
+    /* In iOS 6, scroll indicator views are: the frontmost subview of a scrollview; instances of UIImageVIew
+     * and have a width of 7 points. As you can tell, this is a total hack to place the scroll indicators
+     * on top of all visible cards. */
+    UIView *possibleIndicatorView = [[scrollView subviews] lastObject];
+    if ([possibleIndicatorView isKindOfClass:[UIImageView class]] &&
+        possibleIndicatorView.$width == 7) {
+        if (CATransform3DIsIdentity(possibleIndicatorView.layer.transform))
+            possibleIndicatorView.layer.transform = CATransform3DMakeTranslation(0.0, 0.0, CGFLOAT_MAX);
+    }
         
 //    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
