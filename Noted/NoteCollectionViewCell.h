@@ -19,6 +19,7 @@
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 
+
 - (void)applyTheme:(NTDTheme *)theme;
 - (void)applyShadow:(bool)useFullShadow;
 

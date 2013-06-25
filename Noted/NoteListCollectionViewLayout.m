@@ -12,6 +12,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
+float const NTDCollectionMaxNoteTilt = M_PI/4;
+float const NTDCollectionDeleteAnimationDur = 0.2f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -67,7 +69,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
         CGFloat offset = self.swipedCardOffset;
-        CGFloat angle = (M_PI/4) * (offset/self.collectionView.frame.size.width/2);
+        CGFloat angle = NTDCollectionMaxNoteTilt * (offset/self.collectionView.frame.size.width/2);
         
         static CGFloat MIN_ALPHA = .3;
         
@@ -272,6 +274,29 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     pinchRatio = MIN(MAX(0.0, pinchRatio), 1.0);
     _pinchRatio = pinchRatio;
     [self invalidateLayout];
+}
+
+- (void) completeDeletion:(NSIndexPath *)cardIndexPath completion:(void (^)(void))completionBlock {
+    
+    NoteCollectionViewLayoutAttributes *attr = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:cardIndexPath];
+    UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:cardIndexPath];
+    
+    if (self.swipedCardOffset < 0) {
+        attr.transform2D = CGAffineTransformMakeRotation(-NTDCollectionMaxNoteTilt);
+        attr.center = CGPointMake(attr.center.x-self.collectionView.frame.size.width, attr.center.y);
+    } else {
+        attr.transform2D = CGAffineTransformMakeRotation(NTDCollectionMaxNoteTilt);
+        attr.center = CGPointMake(self.collectionView.frame.size.width+attr.center.x, attr.center.y);
+    }
+    
+    [UIView animateWithDuration:NTDCollectionDeleteAnimationDur animations:^{
+        theCell.center = attr.center;
+        theCell.transform = attr.transform2D;
+        theCell.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        if (completionBlock)
+            completionBlock();
+    }];
 }
 
 #pragma mark - Pinching

@@ -129,6 +129,7 @@
 		EAD6960E15B7C604004A2494 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD6960C15B7C604004A2494 /* NoteViewController.xib */; };
 		F34DDC55165BF72100A43868 /* DragToCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F34DDC53165BF72100A43868 /* DragToCreateViewController.m */; };
 		F34DDC56165BF72100A43868 /* DragToCreateView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F34DDC54165BF72100A43868 /* DragToCreateView.xib */; };
+		F355C5141778FAA7008D1D7E /* UIVIew+Genie.m in Sources */ = {isa = PBXBuildFile; fileRef = F355C5131778FAA7008D1D7E /* UIVIew+Genie.m */; };
 		F3FD5A07165BFEB800A45062 /* pullToCreateIcon.gif in Resources */ = {isa = PBXBuildFile; fileRef = F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */; };
 /* End PBXBuildFile section */
 
@@ -309,6 +310,8 @@
 		F34DDC52165BF72100A43868 /* DragToCreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragToCreateViewController.h; sourceTree = "<group>"; };
 		F34DDC53165BF72100A43868 /* DragToCreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragToCreateViewController.m; sourceTree = "<group>"; };
 		F34DDC54165BF72100A43868 /* DragToCreateView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragToCreateView.xib; sourceTree = "<group>"; };
+		F355C5121778FAA7008D1D7E /* UIVIew+Genie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIVIew+Genie.h"; sourceTree = "<group>"; };
+		F355C5131778FAA7008D1D7E /* UIVIew+Genie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIVIew+Genie.m"; sourceTree = "<group>"; };
 		F3FD5A06165BFEB800A45062 /* pullToCreateIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = pullToCreateIcon.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -394,6 +397,8 @@
 				298F8D1C15780FA2004D11A4 /* Utilities.m */,
 				584E150A15B7A57400DD24D2 /* UIImage+Crop.h */,
 				584E150B15B7A57400DD24D2 /* UIImage+Crop.m */,
+				F355C5121778FAA7008D1D7E /* UIVIew+Genie.h */,
+				F355C5131778FAA7008D1D7E /* UIVIew+Genie.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -842,6 +847,7 @@
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B52114E2171E161A007670F3 /* NTDCrossDetectorView.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
+				F355C5141778FAA7008D1D7E /* UIVIew+Genie.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

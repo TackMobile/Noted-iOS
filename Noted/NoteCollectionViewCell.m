@@ -24,7 +24,6 @@ NSUInteger kCornerRadius = 6.0;
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
         
     }
     return self;
