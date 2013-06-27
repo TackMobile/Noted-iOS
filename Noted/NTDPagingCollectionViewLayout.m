@@ -110,7 +110,8 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
         dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabsf(velocity);
     
     // keep dur between .05 and .2. feels comfortable
-    dur = fmaxf((dur > .2) ? .2 : dur, .05);
+//    float position = dur * fabsf(velocity);
+    dur = CLAMP(dur, .05, .2);
     
     //  animate
     [UIView animateWithDuration:dur

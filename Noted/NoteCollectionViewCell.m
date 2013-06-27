@@ -12,6 +12,7 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+FrameAdditions.h"
+#import "DAKeyboardControl.h"
 
 @interface NoteCollectionViewCell () 
 @end
@@ -34,6 +35,12 @@
     [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
     [self.contentView addSubview:self.settingsButton];
+}
+
+-(void)removeFromSuperview
+{
+    [super removeFromSuperview];
+    [self.textView removeKeyboardControl];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes

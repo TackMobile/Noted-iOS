@@ -322,7 +322,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateFailed :
         {
             // bugfix: return card to upright position
-            [self.collectionView performBatchUpdates:nil completion:nil];
+            if (self.listLayout.swipedCardIndexPath) {
+                [self.collectionView performBatchUpdates:nil completion:nil];
+            }
             
             if (self.hasTwoFingerNoteDeletionBegun)
                 [self cancelShredForVisibleNote];
@@ -689,24 +691,45 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView reloadData];
 }
 
-- (void)insertNewCard
+- (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
-    NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-    [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
-            self.noteCount++;
-            [self.collectionView performBatchUpdates:^{
-                [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
-            } completion:^(BOOL finished) {
-                /* The animation wasn't running, so I added this dispatch call so it would run on 
-                 * the next turn of the run loop. */
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self didSelectItemAtIndexPath:newCardIndexPath];
-                });
-            }];
-        });
-    }];
+    [UIView animateWithDuration:duration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                         NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
+                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+                         for (NSIndexPath *visibleIndexPath in indexPaths) {
+                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+                             cell.$y += self.collectionView.frame.size.height;
+                             [subviews removeObject:cell];
+                         }
+                         for (UIView *view in subviews) {
+                             /* Search for & edit the 'pull to create card' cell. */
+                             if ([view isKindOfClass:[NoteCollectionViewCell class]] &&
+                                 (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
+                                 !view.hidden) {
+                                 NoteCollectionViewCell *cell = (NoteCollectionViewCell *)view;
+                                 cell.titleLabel.text = @"";
+#if DEBUG
+                                 cell.relativeTimeLabel.text = @"[0] Today";
+#else
+                                  cell.relativeTimeLabel.text = @"Today";
+#endif
+                                 break;
+                             }
+                         }
+                     } completion:^(BOOL finished) {
+                         [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
+                             self.noteCount++;
+                             self.pagingLayout.activeCardIndex = 0;
+                             [self updateLayout:self.pagingLayout
+                                       animated:NO];
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                                [self.visibleCell.textView becomeFirstResponder];
+                             });
+                         }];
+                     }];
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
@@ -778,7 +801,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
-static BOOL shouldCreateNewCard = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (scrollView != self.collectionView)
@@ -787,46 +809,55 @@ static BOOL shouldCreateNewCard = NO;
     // re-enable swipe to delete
     self.removeCardGestureRecognizer.enabled = YES;
     
-    if (self.collectionView.collectionViewLayout == self.listLayout) {
-        shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-        if (self.noteCount == 0) //hack alert
-            shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
-        if (shouldCreateNewCard && !decelerate) {
-            [self insertNewCard];
-            shouldCreateNewCard = NO;
-        }
-    }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
-    if (scrollView != self.collectionView)
-        return;
-    
-    if (self.collectionView.collectionViewLayout == self.listLayout) {
-        if (shouldCreateNewCard) {
-            [self insertNewCard];
-            shouldCreateNewCard = NO;
-        }
-    } 
+    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
+    BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+    if (self.noteCount == 0) //hack alert
+        shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
+    if (shouldCreateNewCard && self.collectionView.collectionViewLayout == self.listLayout) {
+        CGPoint panVelocity = [scrollView.panGestureRecognizer velocityInView:scrollView];
+        CGPoint panTranslation = [scrollView.panGestureRecognizer translationInView:scrollView];
+
+//        CGFloat scrollSpeed = fabsf(60 * velocity.y) + 30;
+//        CGFloat scrollPosition = fabsf(scrollView.contentOffset.y);
+//        NSTimeInterval scrollDuration = scrollPosition / scrollSpeed;
+        
+        CGFloat panSpeed = fabsf(panVelocity.y) - 30;
+        CGFloat panPosition = fabsf(panTranslation.y);
+        CGFloat panDuration = panPosition / panSpeed;
+        
+        NSTimeInterval duration = panDuration;
+        duration = CLAMP(duration, 0.2, 0.6);
+        [self insertNewCardWithDuration:duration];
+
+        CGPoint newPoint = scrollView.contentOffset;
+        *targetContentOffset = newPoint;
+    }
+
 }
 
 #pragma mark - UITextViewDelegate
--  (void)textViewDidBeginEditing:(UITextView *)textView
-{
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{    
     self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
+    NSLog(@"textViewShouldBeginEditing");
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
     [textView addKeyboardPanningWithActionHandler:nil];
+    return YES;
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    [textView removeKeyboardControl];
+//    [textView removeKeyboardControl];
     self.visibleCell.settingsButton.hidden = NO;
     self.panCardGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-
+    NSLog(@"textViewDidEndEditing");
+    
     NoteCollectionViewCell *cell = self.visibleCell;
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];

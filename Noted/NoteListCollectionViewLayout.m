@@ -12,8 +12,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
-CGFloat const NTDMaxNoteTiltAngle = M_PI/4;
-NSTimeInterval const NTDCollectionDeleteAnimation = 0.2f;
+static const CGFloat NTDMaxNoteTiltAngle = M_PI/4;
+static const NSTimeInterval NTDDeleteAnimationDuration = 0.2f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -31,7 +31,7 @@ NSTimeInterval const NTDCollectionDeleteAnimation = 0.2f;
         self.cardSize = applicationFrame.size;
         self.pullToCreateShowCardOffset = -30.0;
         self.pullToCreateScrollCardOffset = -50.0;
-        self.pullToCreateCreateCardOffset = -100.0;
+        self.pullToCreateCreateCardOffset = self.pullToCreateScrollCardOffset + self.pullToCreateScrollCardOffset;
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     }
     return self;
@@ -128,13 +128,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    static CGRect lastRect = {0.0, 0.0, 0.0, 0.0};
-    if (!CGRectEqualToRect(lastRect, rect)) {
-        lastRect = rect;
-        NSLog(@"new rect: %@", NSStringFromCGRect(rect));
-    }
-    
+{    
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForElementsInRect:rect];
     
@@ -181,11 +175,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         size = CGSizeMake(contentWidth, contentHeight);
     }
     
-    static CGSize lastSize = {0.0, 0.0};
-    if (!CGSizeEqualToSize(lastSize, size)) {
-        NSLog(@"new size: %@", NSStringFromCGSize(size));
-        lastSize = size;
-    }
     return size;
 }
 
@@ -289,7 +278,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         attr.center = CGPointMake(attr.center.x+ 2*self.collectionView.frame.size.width, attr.center.y);
     }
     
-    [UIView animateWithDuration:NTDCollectionDeleteAnimationDur animations:^{
+    [UIView animateWithDuration:NTDDeleteAnimationDuration animations:^{
         theCell.center = attr.center;
         theCell.transform = attr.transform2D;
         theCell.alpha = 0.0f;
