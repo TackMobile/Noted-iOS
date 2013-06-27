@@ -22,4 +22,6 @@
     CGImageRelease(imageRef);
     return result;
 }
+
+
 @end

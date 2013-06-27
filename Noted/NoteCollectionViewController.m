@@ -14,7 +14,6 @@
 #import "NoteListCollectionViewLayout.h"
 #import "NoteCollectionViewCell.h"
 #import "UIView+FrameAdditions.h"
-#import "UIVIew+Genie.h"
 #import "UIImage+Crop.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
@@ -25,6 +24,24 @@
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "OptionsViewController.h"
+
+@interface ColumnForShredding : NSObject
+
+@property (nonatomic, strong) NSMutableArray *slices;
+@property (nonatomic) float percentLeft;
+
+@end
+
+@implementation ColumnForShredding
+@synthesize slices, percentLeft;
+- (id) init {
+    self = [super init];
+    slices = [NSMutableArray array];
+    percentLeft  = 0;
+    return self;
+}
+
+@end
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -46,7 +63,7 @@
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
 @property (nonatomic) BOOL twoFingerNoteDeletionBegun;
-@property (nonatomic, strong) NSMutableArray *deletedNoteSlices;
+@property (nonatomic, strong) NSMutableArray *deletionNoteColumns;
 
 @end
 
@@ -57,7 +74,9 @@ static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
 static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
-static const int     DeletedNoteSliceCount = 1;
+static const int     DeletedNoteVertSliceCount = 10;
+static const int     DeletedNoteHorizSliceCount = 6;
+
 
 @implementation NoteCollectionViewController
 
@@ -68,7 +87,7 @@ static const int     DeletedNoteSliceCount = 1;
     if (self) {
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
-        self.deletedNoteSlices = [NSMutableArray array];
+        self.deletionNoteColumns = [NSMutableArray array];
 
         self.twoFingerNoteDeletionBegun = NO;
         self.collectionView.showsHorizontalScrollIndicator = NO;
@@ -318,19 +337,29 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
+    CGPoint touchLoc = [panGestureRecognizer locationInView:self.collectionView];
     float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
     BOOL panEnded = NO;
     int newIndex = self.pagingLayout.activeCardIndex;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
-        case UIGestureRecognizerStateChanged :
             // check for 2 finger note deletion
-            if (panGestureRecognizer.numberOfTouches > 1)
+            if (panGestureRecognizer.numberOfTouches > 1) {
                 self.twoFingerNoteDeletionBegun = YES;
+                [self prepareVisibleNoteForShred];
+            }
             
-            if (!self.twoFingerNoteDeletionBegun)
+        case UIGestureRecognizerStateChanged :
+            
+            if (self.twoFingerNoteDeletionBegun) {                
+                // check if we should be shredding
+                if (translation.x > 0)
+                    [self shredVisibleNoteByPercent:touchLoc.x/self.collectionView.frame.size.width completion:nil];
+            } else {
                 self.pagingLayout.pannedCardXTranslation = translation.x;
+            }
+            
             break;
             
         case UIGestureRecognizerStateEnded :
@@ -353,7 +382,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         shouldDelete = YES;
                 }
                 
-                // check for a swipe
+            // check for a swipe
             } else if (fabs(velocity) > SwipeVelocityThreshold ) {
                 // left
                 if (!self.twoFingerNoteDeletionBegun) {
@@ -372,12 +401,19 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 }
             }
             
+            
             if (self.twoFingerNoteDeletionBegun) {
                 NSLog(@"should delete row %i", self.visibleIndexPath.row);
                 if (shouldDelete) {
                     newIndex--;
-                    [self deleteVisibleNoteAnimated:YES];
+                    [self shredVisibleNoteByPercent:1 completion:^{
+                        //[self.deletionNoteColumns removeAllObjects];
+                    }];
+                    //[self deleteVisibleNoteAnimated:YES];
                     self.twoFingerNoteDeletionBegun = NO;
+                    [self cancelShredForVisibleNote];
+                } else {
+                    [self cancelShredForVisibleNote];
                 }
             }
             
@@ -402,7 +438,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     if (panEnded)
         // animate to rest with some added velocity
         [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
-    else
+    else if (!self.twoFingerNoteDeletionBegun)
         [self.pagingLayout invalidateLayout];
     
 }
@@ -507,6 +543,137 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 }
 
 #pragma mark - Actions
+- (void) prepareVisibleNoteForShred {
+    [self.deletionNoteColumns removeAllObjects];
+    
+    CGSize sliceSize = CGSizeMake(self.collectionView.frame.size.width / DeletedNoteHorizSliceCount, self.collectionView.frame.size.height / DeletedNoteVertSliceCount);
+    CGRect sliceRect = (CGRect){CGPointZero,sliceSize};
+    
+    UIImage *noteImage = [self imageForView:self.visibleCell];
+    
+    for (int i=0; i<DeletedNoteHorizSliceCount; i++) {
+        // add a column
+        ColumnForShredding *currentColumn = [[ColumnForShredding alloc] init];
+        currentColumn.percentLeft = (sliceSize.width*i)/self.collectionView.frame.size.width;
+        [self.deletionNoteColumns addObject:currentColumn];
+        
+        // insert the slices
+        for (int j=0; j<DeletedNoteVertSliceCount; j++) {
+            
+            CGRect cropRect = CGRectOffset(sliceRect, i*sliceSize.width, j*sliceSize.height);
+                        
+            UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:[noteImage crop:cropRect]];
+            
+            sliceImageView.frame = cropRect;
+            sliceImageView.layer.shadowOffset = CGSizeZero;
+            sliceImageView.layer.shouldRasterize = YES;
+            
+            [currentColumn.slices addObject:sliceImageView];
+            [self.collectionView insertSubview:sliceImageView belowSubview:self.visibleCell];
+        }
+    }
+    
+    // set up a mask for the note. we'll move the mask right as the user swipes right
+    
+    CAShapeLayer *maskingLayer = [CAShapeLayer layer];
+    
+    CGPathRef path = CGPathCreateWithRect(self.visibleCell.bounds, NULL);
+    maskingLayer.path = path;
+    CGPathRelease(path);
+    
+
+    [self.visibleCell.layer setMask:maskingLayer];
+    self.visibleCell.layer.masksToBounds = YES;
+}
+
+- (void) shredVisibleNoteByPercent:(float)percent completion:(void (^)(void))completionBlock {
+    // percent should range between 0.0 and 1.0
+
+    float noteWidth = self.visibleCell.frame.size.width;    
+        
+    NSMutableArray *colsToRemove = [NSMutableArray array];
+    __block BOOL useNextPercentAsMask = NO;
+
+    // animate them out
+    [UIView animateWithDuration:.5 animations:^{
+        // fade out
+        // decide which rows will be deleted
+        for (ColumnForShredding *column in self.deletionNoteColumns) {
+            if (useNextPercentAsMask) {
+                // shift the mask over
+                [CATransaction begin];
+                [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+                self.visibleCell.layer.mask.frame = (CGRect){{column.percentLeft * noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                [CATransaction commit];
+                
+                // give it a lil shadow
+                [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
+                    slice.layer.shadowOffset = CGSizeMake(-1, 0);
+                    slice.layer.shadowOpacity = .5;
+                }];
+                
+                useNextPercentAsMask = NO;
+            }
+            if (column.percentLeft < percent) {
+                [colsToRemove addObject:column];
+                
+                useNextPercentAsMask = YES;
+                                
+                // animate shredding of the column
+                for (UIImageView *slice in column.slices) {
+                    slice.layer.shadowOffset = CGSizeMake(0,0);
+                    slice.layer.shadowOpacity = (float)rand()/RAND_MAX * .8;
+                    slice.alpha = 0;
+                    
+                    // Rotate some degrees
+                    CGAffineTransform rotate = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+                    // Move to the left
+                    CGAffineTransform translate = CGAffineTransformMakeTranslation((float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+                    // Apply them to a view
+                    slice.transform = CGAffineTransformConcat(translate, rotate);
+                    //slice.transform = CATransform3DGetAffineTransform(CATransform3DMakeRotation(M_PI_2, 2, 0, 0));
+                    //slice.frame = CGRectInset(slice.frame, slice.frame.size.width/3, slice.frame.size.height/3);
+                }
+            }
+        }
+        
+        if (useNextPercentAsMask) {
+            // shift the mask over
+            [CATransaction begin];
+            [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+            self.visibleCell.layer.mask.frame = (CGRect){{1 * noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+            [CATransaction commit];
+            
+            useNextPercentAsMask = NO;
+        }
+        
+        // remove columns from array so they aren't re-animated
+        [self.deletionNoteColumns removeObjectsInArray:colsToRemove];
+        
+    } completion:^(BOOL finished) {
+
+        for (ColumnForShredding *column in colsToRemove) {
+            for (UIImageView *slice in column.slices)
+                [slice removeFromSuperview];
+        }
+            
+        if (completionBlock)
+            completionBlock();
+    }];
+}
+
+- (void) cancelShredForVisibleNote {
+    self.visibleCell.layer.mask = nil;
+    [UIView animateWithDuration:.3 animations:^{
+        self.visibleCell.alpha = 1;
+    } completion:^(BOOL finished) {
+        // remove unneeded subviews
+        for (ColumnForShredding *col in self.deletionNoteColumns)
+            for (UIView *slice in col.slices)
+                [slice removeFromSuperview];
+        [self.deletionNoteColumns removeAllObjects];
+    }];
+}
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -529,65 +696,18 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                      }];
 }
 
-- (void) deleteVisibleNoteAnimated:(BOOL)animated {
-    // screenshot current note
-    UIImage *noteImage = [self imageForView:self.visibleCell];
-    
-    float sliceHeight = noteImage.size.height/DeletedNoteSliceCount;
-    
-    [self.deletedNoteSlices removeAllObjects];
-    
-    // slice it up
-    for (int i = 0; i < DeletedNoteSliceCount; i++) {
-        CGRect cropRect = CGRectMake(0, sliceHeight*i, noteImage.size.width, sliceHeight);
-        
-        UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:[noteImage crop:cropRect]];
-        
-        sliceImageView.frame = cropRect;
-        sliceImageView.layer.shadowOpacity = (float)rand()/RAND_MAX;
-        sliceImageView.layer.shouldRasterize = YES;
-        sliceImageView.layer.shadowOffset = CGSizeZero;
-        
-        [self.deletedNoteSlices addObject:sliceImageView];
-        [self.collectionView insertSubview:sliceImageView aboveSubview:self.visibleCell];
-    }
-    //[self.visibleCell setAlpha:0];
-    CGRect destRect = CGRectMake(self.collectionView.frame.size.width/2-25, self.collectionView.frame.size.height+5, 50, 50);
-    for (UIImageView *sliceImageView in self.deletedNoteSlices) {
-        [sliceImageView genieInTransitionWithDuration:1
-                                      destinationRect:destRect
-                                      destinationEdge:BCRectEdgeTop
-                                           completion:nil];
-    }
-        
-    //[self deleteCardAtIndexPath:self.visibleIndexPath];
-    
-    /* compress the slices
-    [UIView animateWithDuration:.5 animations:^{
-        for (UIImageView *sliceImageView in self.deletedNoteSlices) {
-            CGRect smallRect = CGRectInset(sliceImageView.frame, 0, sliceImageView.frame.size.height/3);
-            [sliceImageView setFrame:smallRect];
-            sliceImageView.alpha = 0;
-        }
-    } completion:^(BOOL finished) {
-        for (UIImageView *sliceImageView in self.deletedNoteSlices) {
-            [sliceImageView removeFromSuperview];
-        }
-        [self.visibleCell setAlpha:1];
-    }];*/
-    
-}
 
 - (UIImage *)imageForView:(UIView *)view
 {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size,YES, [[UIScreen mainScreen] scale]);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    [view.layer renderInContext:context];
-    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-
+    UIGraphicsBeginImageContext(view.frame.size);
+    
+    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    
+    UIImage* ret = UIGraphicsGetImageFromCurrentImageContext();
+    
     UIGraphicsEndImageContext();
-        
-    return viewImage;
+    
+    return ret;
 }
 
 -(IBAction)showSettings:(id)sender
