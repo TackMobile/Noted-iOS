@@ -177,6 +177,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     cell.textView.delegate = self;
     cell.crossDetectorView.delegate = self;
+    cell.layer.masksToBounds = NO;
+    cell.layer.mask = nil;
     
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
@@ -356,6 +358,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 // check if we should be shredding
                 if (translation.x > 0)
                     [self shredVisibleNoteByPercent:touchLoc.x/self.collectionView.frame.size.width completion:nil];
+                NSLog(@"we've begun on row %i", self.visibleIndexPath.row);
             } else {
                 self.pagingLayout.pannedCardXTranslation = translation.x;
             }
@@ -403,15 +406,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             
             if (self.twoFingerNoteDeletionBegun) {
-                NSLog(@"should delete row %i", self.visibleIndexPath.row);
                 if (shouldDelete) {
-                    newIndex--;
-                    [self shredVisibleNoteByPercent:1 completion:^{
-                        //[self.deletionNoteColumns removeAllObjects];
-                    }];
-                    //[self deleteVisibleNoteAnimated:YES];
+                    [self deleteCardAtIndexPath:self.visibleIndexPath];
+                    [self shredVisibleNoteByPercent:1 completion:nil];
+                    newIndex--; // make sure to reveal the card under the deleted one
+
                     self.twoFingerNoteDeletionBegun = NO;
-                    [self cancelShredForVisibleNote];
                 } else {
                     [self cancelShredForVisibleNote];
                 }
@@ -420,6 +420,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             // make sure we stay within bounds
             newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
             self.pagingLayout.activeCardIndex = newIndex ;
+            
+            NSLog(@"new index is %i", newIndex);
             
             // update this so we know to animate to resting position
             panEnded = YES;
@@ -656,6 +658,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             for (UIImageView *slice in column.slices)
                 [slice removeFromSuperview];
         }
+        
+        if (percent >= 1) {
+            self.visibleCell.alpha = 0;
+            self.visibleCell.layer.mask = nil;
+            self.visibleCell.layer.masksToBounds = NO;
+        }
             
         if (completionBlock)
             completionBlock();
@@ -664,6 +672,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (void) cancelShredForVisibleNote {
     self.visibleCell.layer.mask = nil;
+    self.visibleCell.layer.masksToBounds = NO;
+    
     [UIView animateWithDuration:.3 animations:^{
         self.visibleCell.alpha = 1;
     } completion:^(BOOL finished) {
@@ -672,6 +682,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             for (UIView *slice in col.slices)
                 [slice removeFromSuperview];
         [self.deletionNoteColumns removeAllObjects];
+        self.visibleCell.alpha = 1;
+        [self.visibleCell setNeedsDisplay];
     }];
 }
 
@@ -699,12 +711,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (UIImage *)imageForView:(UIView *)view
 {
+    // this does not take scale into account on purpose (performance)
     UIGraphicsBeginImageContext(view.frame.size);
-    
     [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-    
     UIImage* ret = UIGraphicsGetImageFromCurrentImageContext();
-    
     UIGraphicsEndImageContext();
     
     return ret;
