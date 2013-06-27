@@ -29,15 +29,17 @@
 
 @property (nonatomic, strong) NSMutableArray *slices;
 @property (nonatomic) float percentLeft;
+@property (nonatomic) BOOL isDeleted;
 
 @end
 
 @implementation ColumnForShredding
-@synthesize slices, percentLeft;
+@synthesize slices, percentLeft, isDeleted;
 - (id) init {
     self = [super init];
     slices = [NSMutableArray array];
     percentLeft  = 0;
+    isDeleted = NO;
     return self;
 }
 
@@ -180,7 +182,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     cell.crossDetectorView.delegate = self;
     
     if (!self.twoFingerNoteDeletionBegun)
-        cell.layer.masksToBounds = NO;
         cell.layer.mask = nil;
     
     [cell.settingsButton addTarget:self
@@ -374,7 +375,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateEnded :
         {
-            BOOL shouldDelete;
+            BOOL shouldDelete = NO;
             // check if translation is past threshold
             if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
                 if (!self.twoFingerNoteDeletionBegun) {
@@ -386,9 +387,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 } else {
                     // two finger swipe ended
                     // left
-                    if (translation.x < 0)
-                        nil ;
-                    else
+                    if (translation.x > 0)
                         shouldDelete = YES;
                 }
                 
@@ -404,9 +403,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 } else {
                     // two finger swipe ended
                     // left
-                    if (velocity < 0)
-                        nil ;
-                    else
+                    if (velocity > 0)
                         shouldDelete = YES;
                 }
             }
@@ -610,9 +607,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     maskingLayer.path = path;
     CGPathRelease(path);
     
-
     self.currentDeletionCell.layer.mask = maskingLayer;
-    self.currentDeletionCell.layer.masksToBounds = YES;
 }
 
 - (void) shredVisibleNoteByPercent:(float)percent completion:(void (^)(void))completionBlock {
@@ -621,67 +616,132 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     float noteWidth = self.currentDeletionCell.frame.size.width;
         
     NSMutableArray *colsToRemove = [NSMutableArray array];
-    __block BOOL useNextPercentAsMask = NO;
+    __block BOOL useNextPercentForMask = NO;
+    __block BOOL removeNextPercentForMask = NO;
+    __block BOOL shiftMaskAfterAnimation = NO;
+    __block ColumnForShredding *columnForUseAsMaskAfterAnimation = nil;
 
     // animate them out
     [UIView animateWithDuration:.5 animations:^{
         // fade out
         // decide which rows will be deleted
         for (ColumnForShredding *column in self.deletionNoteColumns) {
-            if (useNextPercentAsMask) {
-                // shift the mask over
-                [CATransaction begin];
-                [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-                self.currentDeletionCell.layer.mask.frame = (CGRect){{column.percentLeft * noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
-                [CATransaction commit];
-                
-                // give it a lil shadow
-                [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
-                    slice.layer.shadowOffset = CGSizeMake(-1, 0);
-                    slice.layer.shadowOpacity = .5;
-                }];
-                
-                useNextPercentAsMask = NO;
+            if (column.isDeleted) {
+                if (column.percentLeft >= percent) {
+                    // begin to animate slices back in
+                    // animate un-shredding of the column
+                    for (UIImageView *slice in column.slices) {
+                        slice.alpha = 1;
+                        
+                        // set the transform to normal
+                        slice.transform = CGAffineTransformIdentity;
+                        // give it a lil shadow
+                        slice.layer.shadowOffset = CGSizeMake(-1, 0);
+                        slice.layer.shadowOpacity = .5;
+                        
+                        //mask the shadow so it doesn't overlap other slices
+                        CAShapeLayer *sliceMask = [CAShapeLayer layer];
+                        CGRect sliceMaskRect = (CGRect){{-10, 0},{slice.bounds.size.width+10, slice.bounds.size.height}};
+                        sliceMask.path = CGPathCreateWithRect(sliceMaskRect, nil);
+                        slice.layer.mask = sliceMask;
+
+                    }
+                    
+                    column.isDeleted = NO;
+                    
+                    useNextPercentForMask = YES; // this is really defining the current column to be used
+                    shiftMaskAfterAnimation = YES;  // after the cells animate back to position
+                }
             }
-            if (column.percentLeft < percent) {
-                [colsToRemove addObject:column];
+            
+            if (removeNextPercentForMask) { // need to do this for the animating back in
+                [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
+                    slice.layer.shadowOpacity = 0;
+                }];
+                removeNextPercentForMask = NO;
+            }
+            
+            if (useNextPercentForMask) {
+                if (shiftMaskAfterAnimation) {
+                    columnForUseAsMaskAfterAnimation = column;
+                    shiftMaskAfterAnimation = NO;
+                    removeNextPercentForMask = YES;
+                } else {
+                    // shift the mask over
+                    [CATransaction begin];
+                    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+                    self.currentDeletionCell.layer.mask.frame = (CGRect){{column.percentLeft * noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                    [CATransaction commit];
+                    
+                    // give it a lil shadow
+                    [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
+                        slice.layer.shadowOffset = CGSizeMake(-1, 0);
+                        slice.layer.shadowOpacity = .5;
+                    }];
+                }
+                useNextPercentForMask = NO;
+            }
+            
+            if (!column.isDeleted && column.percentLeft < percent) {
+                //[colsToRemove addObject:column];
                 
-                useNextPercentAsMask = YES;
+                useNextPercentForMask = YES;
                                 
                 // animate shredding of the column
                 for (UIImageView *slice in column.slices) {
+                    // remove any mask and set up properties
+                    slice.layer.mask = nil;
+                    
                     slice.layer.shadowOffset = CGSizeMake(0,0);
                     slice.layer.shadowOpacity = (float)rand()/RAND_MAX * .8;
                     slice.alpha = 0;
-                    
+                
                     // Rotate some degrees
                     CGAffineTransform rotate = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+                    
                     // Move to the left
                     CGAffineTransform translate = CGAffineTransformMakeTranslation((float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+                    
                     // Apply them to a view
                     slice.transform = CGAffineTransformConcat(translate, rotate);
                 }
+                
+                column.isDeleted = YES;
             }
         }
         
-        if (useNextPercentAsMask) { // the last column was deleted
+        if (useNextPercentForMask && !shiftMaskAfterAnimation) { // the last column was deleted
             // remove the mask
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
                 self.currentDeletionCell.layer.mask.frame = (CGRect){{noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
             [CATransaction commit];
             
-            useNextPercentAsMask = NO;
+            useNextPercentForMask = NO;
         }
         
         // remove columns from array so they aren't re-animated
-        [self.deletionNoteColumns removeObjectsInArray:colsToRemove];
+        //[self.deletionNoteColumns removeObjectsInArray:colsToRemove];
         
     } completion:^(BOOL finished) {
 
         for (ColumnForShredding *column in colsToRemove) {
             for (UIImageView *slice in column.slices)
                 [slice removeFromSuperview];
+        }
+        
+        // check if we should change the mask after the animation
+        if (columnForUseAsMaskAfterAnimation != nil) {
+            [CATransaction begin];
+            [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+            self.currentDeletionCell.layer.mask.frame = (CGRect){{columnForUseAsMaskAfterAnimation.percentLeft*noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+            [CATransaction commit];
+            
+            // give it a lil shadow
+            [columnForUseAsMaskAfterAnimation.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
+                slice.layer.mask = nil;
+            }];
+            
         }
         
         if (percent >= 1) {
@@ -697,19 +757,36 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 }
 
 - (void) cancelShredForVisibleNote {
-    [UIView animateWithDuration:.3 animations:^{
+    
+    [self shredVisibleNoteByPercent:0.0 completion:^{
+        // remove slices from view
+        [self.deletionNoteColumns enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(ColumnForShredding *col, NSUInteger idx, BOOL *stop) {
+            [col.slices enumerateObjectsUsingBlock:^(UIView *slice, NSUInteger idx, BOOL *stop) {
+                [slice removeFromSuperview];
+            }];
+        }];
+        self.currentDeletionCell.layer.mask = nil;
+
+    }];
+    
+    /*[UIView animateWithDuration:.3 animations:^{
+        
         self.currentDeletionCell.layer.mask.frame = self.currentDeletionCell.bounds;
     } completion:^(BOOL finished) {
         // remove unneeded subviews
-        for (ColumnForShredding *col in self.deletionNoteColumns)
-            for (UIView *slice in col.slices)
-                [slice removeFromSuperview];
+        
+        for (ColumnForShredding *col in self.deletionNoteColumns) {
+            for (UIView *slice in col.slices) {
+                slice.transform = CGAffineTransformIdentity;
+                slice.alpha = 1;
+            }
+        }
+        
         [self.deletionNoteColumns removeAllObjects];
         
         self.currentDeletionCell.layer.mask = nil;
-        self.currentDeletionCell.layer.masksToBounds = NO;
         
-    }];
+    }];*/
 }
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
