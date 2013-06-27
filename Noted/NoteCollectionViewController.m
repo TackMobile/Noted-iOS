@@ -432,9 +432,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (self.twoFingerNoteDeletionBegun) {
                 if (shouldDelete) {
                     [self shredVisibleNoteByPercent:1 completion:^{
-                        [self deleteCardAtIndexPath:prevVisibleIndexPath];
-                        [self.collectionView reloadData];
-                        [self.collectionView performBatchUpdates:nil completion:nil];
+                        
+                        //[self.collectionView reloadData];
+                        [self.collectionView performBatchUpdates:^{
+                            [self deleteCardAtIndexPath:prevVisibleIndexPath];
+                        } completion:^(BOOL finished) {
+                            [self.collectionView reloadData];
+                        }];
                     }];
 
                 } else {
