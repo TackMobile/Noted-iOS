@@ -230,7 +230,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (NoteCollectionViewCell *)visibleCell
 {
-    NSParameterAssert(self.collectionView.collectionViewLayout == self.pagingLayout);
     return (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:self.visibleIndexPath];
 }
 
@@ -364,9 +363,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             if (self.twoFingerNoteDeletionBegun) {                
                 // check if we should be shredding
-                if (translation.x > 0)
-                    [self shredVisibleNoteByPercent:touchLoc.x/self.collectionView.frame.size.width completion:nil];
-                NSLog(@"we've begun on row %i", self.visibleIndexPath.row);
+                [self shredVisibleNoteByPercent:touchLoc.x/self.collectionView.frame.size.width completion:nil];
+                
             } else {
                 self.pagingLayout.pannedCardXTranslation = translation.x;
             }
@@ -430,7 +428,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 if (shouldDelete) {
                     [self shredVisibleNoteByPercent:1 completion:^{
                         
-                        //[self.collectionView reloadData];
                         [self.collectionView performBatchUpdates:^{
                             [self deleteCardAtIndexPath:prevVisibleIndexPath];
                         } completion:^(BOOL finished) {
@@ -447,6 +444,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
             break;
             
+        case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
             if (self.twoFingerNoteDeletionBegun)
                 [self cancelShredForVisibleNote];
@@ -839,7 +837,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
 {
-    NSCParameterAssert([pinchGestureRecognizer numberOfTouches] >= 2);
     UIView *view = pinchGestureRecognizer.view;
     CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
     CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
@@ -921,6 +918,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+    NSLog(@"%@ ----------------------- %@", gestureRecognizer, otherGestureRecognizer);
     if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
         return YES;
     else
