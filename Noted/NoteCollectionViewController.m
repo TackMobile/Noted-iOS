@@ -355,11 +355,16 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
             // check for 2 finger note deletion
-            if (panGestureRecognizer.numberOfTouches > 1) {
+            if (panGestureRecognizer.numberOfTouches == 2) {
                 [self prepareVisibleNoteForShred];
             }
             
         case UIGestureRecognizerStateChanged :
+            
+            // we want a rtl swipe for shredding to begin
+            if (velocity > 50 && !self.twoFingerNoteDeletionBegun) {
+                self.twoFingerNoteDeletionBegun = YES;
+            }
             
             if (self.twoFingerNoteDeletionBegun) {                
                 // check if we should be shredding
@@ -446,6 +451,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
+            NSLog(@"CANCEL");
             if (self.twoFingerNoteDeletionBegun)
                 [self cancelShredForVisibleNote];
             
@@ -568,7 +574,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - Actions
 - (void) prepareVisibleNoteForShred {
     self.currentDeletionCell = self.visibleCell;
-    self.twoFingerNoteDeletionBegun = YES;
     [self.deletionNoteColumns removeAllObjects];
     
     CGSize sliceSize = CGSizeMake(self.collectionView.frame.size.width / DeletedNoteHorizSliceCount, self.collectionView.frame.size.height / DeletedNoteVertSliceCount);
