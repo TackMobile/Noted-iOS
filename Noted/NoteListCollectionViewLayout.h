@@ -29,4 +29,6 @@ UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
 @property (nonatomic, strong) NSIndexPath *pinchedCardIndexPath;
 @property (nonatomic, assign) CGFloat pinchRatio;
 
+- (void) completeDeletion:(NSIndexPath *)cardIndexPath completion:(void (^)(void))completionBlock;
+
 @end

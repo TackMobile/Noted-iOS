@@ -28,7 +28,6 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     return self;
 }
 
-
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
@@ -99,12 +98,12 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 }
 
 #pragma mark - customAnimation
-- (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
+- (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     // xTranslation will not be zeroed out yet
     // activeCardIndex will be current
     
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
-    float dur;
+    NSTimeInterval dur;
     if (isViewingOptions)
         dur = self.currentOptionsOffset / fabsf(velocity);
     else
@@ -138,7 +137,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     }];
 }
 
-- (void) revealOptionsViewWithOffset:(float)offset {
+- (void) revealOptionsViewWithOffset:(CGFloat)offset {
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
@@ -146,7 +145,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
 }
 
-- (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
+- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
     

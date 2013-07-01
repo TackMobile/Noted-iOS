@@ -7,7 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NoteCollectionViewCell.h"
+
 
 @interface NoteCollectionViewController : UICollectionViewController
+
+@property (nonatomic, strong, readonly) NoteCollectionViewCell *visibleCell;
+
+@property (nonatomic) int deletedNoteVertSliceCount;
+@property (nonatomic) int deletedNoteHorizSliceCount;
+@property (nonatomic, strong) NSMutableArray *columnsForDeletion;
+@property (nonatomic, strong) NoteCollectionViewCell *currentDeletionCell;
+
+
 
 @end
