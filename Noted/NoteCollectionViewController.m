@@ -812,6 +812,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
             self.currentDeletionCell.layer.mask.frame = (CGRect){{noteWidth, 0}, self.currentDeletionCell.layer.mask.frame.size};
             [CATransaction commit];
+            [self.deletionNoteColumns removeAllObjects];
+
         }
             
         if (completionBlock)
@@ -829,7 +831,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             }];
         }];
         self.currentDeletionCell.layer.mask = nil;
-
+        [self.deletionNoteColumns removeAllObjects];
     }];
     
     /*[UIView animateWithDuration:.3 animations:^{

@@ -28,7 +28,6 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     return self;
 }
 
-
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
