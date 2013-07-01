@@ -172,7 +172,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     } else {
         CGFloat contentWidth = self.cardSize.width + self.contentInset.left + self.contentInset.right;
 
-        CGFloat screenHeight = [[UIScreen mainScreen] bounds].size.height;
+        CGFloat screenHeight = [[UIScreen mainScreen] applicationFrame].size.height;
         CGFloat contentHeight = cardCount * self.cardOffset + self.contentInset.top + self.contentInset.bottom;
         contentHeight = MAX(contentHeight, screenHeight);
         

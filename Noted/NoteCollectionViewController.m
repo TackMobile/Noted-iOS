@@ -40,6 +40,8 @@
 
 @property (nonatomic, strong) OptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
+
+@property (nonatomic, assign) BOOL statusBarShowing;
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -101,7 +103,26 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar"
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *note){
+                                                      self.statusBarShowing = !self.statusBarShowing;
+                                                      [self toggledStatusBar];
+                                                      
+                                                  }];
+    
     self.collectionView.alwaysBounceVertical = YES;
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    // Detects whether the app starts up with status bar hidden or shown.
+    if ([UIApplication sharedApplication].statusBarHidden){
+        self.statusBarShowing = NO;
+    } else {
+        self.statusBarShowing = YES;
+    }
 }
 
 -(void)dealloc
@@ -564,6 +585,29 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     [self.collectionView reloadData];
+}
+
+-(void)toggledStatusBar
+{
+    // Main app frame and status bar size
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    
+    // Main view and options view
+    CGRect newViewFrame = self.view.frame;
+    CGRect newOptionsFrame = self.optionsViewController.view.frame;
+    
+    if (self.statusBarShowing){
+        newViewFrame.origin.y = statusBarHeight;
+    } else {
+        newViewFrame.origin.y = 0.0;
+        newOptionsFrame.origin.y = 0.0;
+    }
+    newViewFrame.size.height = appFrame.size.height;
+    newOptionsFrame.size.height = appFrame.size.height;
+    
+    self.view.frame = newViewFrame;
+    self.optionsViewController.view.frame = newOptionsFrame;
 }
 
 #pragma mark - UIGestureRecognizerDelegate
