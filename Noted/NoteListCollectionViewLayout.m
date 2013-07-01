@@ -12,8 +12,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
-float const NTDCollectionMaxNoteTilt = M_PI/4;
-float const NTDCollectionDeleteAnimationDur = 0.2f;
+CGFloat const NTDMaxNoteTiltAngle = M_PI/4;
+NSTimeInterval const NTDCollectionDeleteAnimationDur = 0.2f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -69,7 +69,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
         CGFloat offset = self.swipedCardOffset;
-        CGFloat angle = NTDCollectionMaxNoteTilt * (offset/self.collectionView.frame.size.width/2);
+        CGFloat angle = NTDMaxNoteTiltAngle * (offset/self.collectionView.frame.size.width/2);
         
         static CGFloat MIN_ALPHA = .3;
         
@@ -282,11 +282,11 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:cardIndexPath];
     
     if (self.swipedCardOffset < 0) {
-        attr.transform2D = CGAffineTransformMakeRotation(-NTDCollectionMaxNoteTilt);
-        attr.center = CGPointMake(attr.center.x-self.collectionView.frame.size.width, attr.center.y);
+        attr.transform2D = CGAffineTransformMakeRotation(-NTDMaxNoteTiltAngle);
+        attr.center = CGPointMake(attr.center.x- 2*self.collectionView.frame.size.width, attr.center.y);
     } else {
-        attr.transform2D = CGAffineTransformMakeRotation(NTDCollectionMaxNoteTilt);
-        attr.center = CGPointMake(self.collectionView.frame.size.width+attr.center.x, attr.center.y);
+        attr.transform2D = CGAffineTransformMakeRotation(NTDMaxNoteTiltAngle);
+        attr.center = CGPointMake(attr.center.x+ 2*self.collectionView.frame.size.width, attr.center.y);
     }
     
     [UIView animateWithDuration:NTDCollectionDeleteAnimationDur animations:^{

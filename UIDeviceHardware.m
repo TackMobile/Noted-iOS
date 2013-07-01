@@ -24,26 +24,35 @@ NSString * const LowPerformanceDevice = @"LowPerformanceDevice";
 
 + (NSString *) platformString{
     NSString *platform = [UIDeviceHardware platform];
+    
+    return platform;
+}
+
++ (NTDDevicePerformanceClass) performanceClass {
     // reference: http://ios.e-lite.org/
+
+    NSString *platformString = [self platformString];
     
-    if ([platform isEqualToString:@"iPhone1,1"] ||
-        [platform isEqualToString:@"iPhone1,2"] ||
-        [platform isEqualToString:@"iPhone2,1"] ||
-        [platform isEqualToString:@"iPhone3,1"] ||
-        [platform isEqualToString:@"iPhone3,3"] ||
-        [platform isEqualToString:@"iPod1,1"] ||
-        [platform isEqualToString:@"iPod2,1"] ||
-        [platform isEqualToString:@"iPod3,1"] ||
-        [platform isEqualToString:@"iPod4,1"] ||
-        [platform isEqualToString:@"iPad1,1"] ||
-        [platform isEqualToString:@"iPad2,1"] ||
-        [platform isEqualToString:@"iPad2,2"] ||
-        [platform isEqualToString:@"iPad2,3"])
-    {
-        return LowPerformanceDevice;
-    }
+    // NSSets are faster for finding objects
+    NSSet *lowPerformanceDeviceStrings = [NSSet setWithObjects:@"iPhone1,1",
+                                          @"iPhone1,2",
+                                          @"iPhone2,1",
+                                          @"iPhone3,1",
+                                          @"iPhone3,2",
+                                          @"iPhone3,3",
+                                          @"iPod1,1",
+                                          @"iPod2,1",
+                                          @"iPod3,1",
+                                          @"iPod4,1",
+                                          @"iPad1,1",
+                                          @"iPad2,1",
+                                          @"iPad2,2",
+                                          @"iPad2,3", nil];
     
-    return HighPerformanceDevice;
+    if ([lowPerformanceDeviceStrings containsObject:platformString])
+        return NTDLowPerformanceDevice;
+    
+    return NTDHighPerformanceDevice;
 }
 
 @end
