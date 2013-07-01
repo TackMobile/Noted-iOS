@@ -65,17 +65,12 @@ static NSArray *backgroundColors;
         return [UIColor colorWithHexString:@"333333"];
 }
 
-- (UIColor *)headerColor
-{
-    return [self textColor];
-}
-
 - (UIColor *)subheaderColor
 {
     if ([self isDarkColorScheme])
         return [UIColor colorWithWhite:1.0 alpha:0.5];
     else
-        return [UIColor colorWithWhite:0.2 alpha:0.5];
+        return [UIColor colorWithWhite:0.2 alpha:0.55];
 }
 
 - (UIColor *)borderColor

@@ -416,7 +416,7 @@ static const float  kCellHeight             = 66.0;
         UITextView *textView = (UITextView *)[cell.contentView viewWithTag:FULL_TEXT_TAG];
         
         if (DEBUG_VIEWS) {
-            textView.backgroundColor = [UIColor yellowColor];
+            //textView.backgroundColor = [UIColor yellowColor];
             textView.textColor = [UIColor purpleColor];
         }
         
@@ -527,9 +527,9 @@ static const float  kCellHeight             = 66.0;
     textView.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
     
     if (DEBUG_VIEWS) {
-        textView.backgroundColor = [UIColor yellowColor];
+        //textView.backgroundColor = [UIColor yellowColor];
     } else {
-        textView.backgroundColor = [UIColor clearColor];
+        //textView.backgroundColor = [UIColor clearColor];
     }
     
     textView.tag = FULL_TEXT_TAG;

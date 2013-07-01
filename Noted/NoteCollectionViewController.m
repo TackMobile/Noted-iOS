@@ -217,7 +217,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
     NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
-    cell.titleLabel.text = [entry title];
     cell.relativeTimeLabel.text = entry.relativeDateString;
     
     if (!self.twoFingerNoteDeletionBegun)
@@ -237,9 +236,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard]) {
         NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
-        cell.titleLabel.text = @"Release to create note";
-        cell.relativeTimeLabel.text = @"";
-        cell.textView.text = @"";
+        cell.relativeTimeLabel.text = @"Today";
+        cell.textView.text = @"Release to create a note";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
         cell.textView.delegate = nil;
         cell.crossDetectorView.delegate = nil;
@@ -1096,7 +1094,6 @@ static BOOL shouldCreateNewCard = NO;
             [noteEntry setNoteData:noteDocument.data];
             [noteDocument updateChangeCount:UIDocumentChangeDone];
             
-            cell.titleLabel.text = [noteEntry title];
             cell.relativeTimeLabel.text = noteEntry.relativeDateString;
         }
         
