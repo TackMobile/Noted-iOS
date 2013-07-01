@@ -211,9 +211,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     cell.textView.delegate = self;
     cell.crossDetectorView.delegate = self;
     
-    if (!self.twoFingerNoteDeletionBegun)
-        cell.layer.mask = nil;
-    
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
                   forControlEvents:UIControlEventTouchUpInside];
@@ -222,6 +219,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
     cell.titleLabel.text = [entry title];
     cell.relativeTimeLabel.text = entry.relativeDateString;
+    
+    if (!self.twoFingerNoteDeletionBegun)
+        cell.layer.mask = nil;
+
 #if DEBUG
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
@@ -981,7 +982,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)noteListChanged:(NSNotification *)notification
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
-    [self.collectionView reloadData];
+    
+    if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
+        [self.collectionView reloadData];
+    }
 }
 
 #pragma mark - UIGestureRecognizerDelegate
