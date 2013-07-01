@@ -7,9 +7,6 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-NSString * const HighPerformanceDevice = @"HighPerformanceDevice";
-NSString * const LowPerformanceDevice = @"LowPerformanceDevice";
-
 @implementation UIDeviceHardware
 
 + (NSString *) platform{
