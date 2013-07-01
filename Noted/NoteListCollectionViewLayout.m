@@ -13,7 +13,7 @@
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
 CGFloat const NTDMaxNoteTiltAngle = M_PI/4;
-NSTimeInterval const NTDCollectionDeleteAnimationDur = 0.2f;
+NSTimeInterval const NTDCollectionDeleteAnimation = 0.2f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;

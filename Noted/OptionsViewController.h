@@ -15,7 +15,7 @@
 -(void)sendEmail;
 -(void)sendTweet;
 -(void)sendSMS;
--(void)changeOptionsViewWidth:(float)width;
+-(void)changeOptionsViewWidth:(CGFloat)width;
 
 @end
 

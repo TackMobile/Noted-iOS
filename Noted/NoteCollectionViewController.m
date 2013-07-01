@@ -442,7 +442,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
     
     BOOL panEnded = NO;
     BOOL doNotRefresh = NO;
@@ -516,7 +516,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
     BOOL needsTranslation = NO;
     
     switch (panGestureRecognizer.state) {
@@ -860,7 +860,7 @@ static BOOL shouldCreateNewCard = NO;
 
 #pragma mark - OptionsViewController Delegate
 
--(void)changeOptionsViewWidth:(float)width {
+-(void)changeOptionsViewWidth:(CGFloat)width {
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 

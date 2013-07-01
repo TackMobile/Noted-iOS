@@ -22,16 +22,10 @@ NSString * const LowPerformanceDevice = @"LowPerformanceDevice";
     return platform;
 }
 
-+ (NSString *) platformString{
-    NSString *platform = [UIDeviceHardware platform];
-    
-    return platform;
-}
-
 + (NTDDevicePerformanceClass) performanceClass {
     // reference: http://ios.e-lite.org/
 
-    NSString *platformString = [self platformString];
+    NSString *platformString = [UIDeviceHardware platform];
     
     // NSSets are faster for finding objects
     NSSet *lowPerformanceDeviceStrings = [NSSet setWithObjects:@"iPhone1,1",
