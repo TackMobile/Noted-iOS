@@ -70,7 +70,7 @@ static NSArray *backgroundColors;
     if ([self isDarkColorScheme])
         return [UIColor colorWithWhite:1.0 alpha:0.5];
     else
-        return [UIColor colorWithWhite:0.2 alpha:0.55];
+        return [UIColor colorWithWhite:0.2 alpha:0.5];
 }
 
 - (UIColor *)borderColor
