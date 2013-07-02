@@ -45,6 +45,7 @@
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
+@property (nonatomic) CGRect noteTextViewFrameWhileNotEditing;
 
 @end
 
@@ -83,6 +84,15 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.collectionView.allowsSelection = NO;
         self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+        
+        // register for keyboard notification so we can resize the textview
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardWasShown:)
+                                                     name:UIKeyboardDidShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardWillBeHidden:)
+                                                     name:UIKeyboardWillHideNotification object:nil];
+
         
     }
     return self;
@@ -887,7 +897,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.twoFingerPanGestureRecognizer.enabled = NO;
     NSLog(@"textViewShouldBeginEditing");
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-    [textView addKeyboardPanningWithActionHandler:nil];
+    [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
+        [self keyboardWasPannedToFrame:keyboardFrameInView];
+    }];
+    
+    // resize the textview
+    
     return YES;
 }
 
@@ -922,6 +937,24 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     };
     [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
                                                 completion:completion];
+}
+
+#pragma mark - Keyboard Handling
+- (void)keyboardWasShown:(NSNotification*)notification {
+    // save the frame
+    self.noteTextViewFrameWhileNotEditing = self.visibleCell.textView.frame;
+    
+    // resize the textview
+    NSDictionary* info = [notification userInfo];
+    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    self.visibleCell.textView.$bottom = self.collectionView.frame.size.height - keyboardSize.height;
+}
+- (void)keyboardWillBeHidden:(NSNotification*)notification {
+    self.visibleCell.textView.frame = self.noteTextViewFrameWhileNotEditing;
+}
+- (void)keyboardWasPannedToFrame:(CGRect)frame {
+    // resize the textview
+    self.visibleCell.textView.$bottom = frame.origin.y - self.visibleCell.textView.contentOffset.y + self.visibleCell.textView.frame.origin.y;
 }
 
 #pragma mark - Cross Detection
