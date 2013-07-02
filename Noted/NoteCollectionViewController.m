@@ -623,8 +623,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     
-    CGFloat selectedCellTopOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
-    CGFloat selectedCellSpaceBelow = self.collectionView.frame.size.height - (selectedCellTopOffset + self.listLayout.cardOffset);
+    CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
+    CGFloat bottomOffset = self.collectionView.frame.size.height - (topOffset + self.listLayout.cardOffset);
 
     [UIView animateWithDuration:.25
                           delay:0
@@ -634,9 +634,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                          for (NSIndexPath *visibleCardIndexPath in indexPaths) {
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
                              if (visibleCardIndexPath.row <= indexPath.row) {
-                                 cell.$y -= selectedCellTopOffset;
+                                 cell.$y -= topOffset;
                              } else {
-                                 cell.$y += selectedCellSpaceBelow;
+                                 cell.$y += bottomOffset;
                              }
 
                          }
@@ -644,7 +644,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                          self.pagingLayout.activeCardIndex = indexPath.row;
                          [self updateLayout:self.pagingLayout
                                    animated:NO];
-                         selectedCell.alpha=1;
                      }];
     
 }
