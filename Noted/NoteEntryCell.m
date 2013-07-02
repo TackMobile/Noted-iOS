@@ -24,6 +24,7 @@
 @implementation NoteEntryCell
 
 @synthesize subtitleLabel;
+@synthesize relativeTimeText;
 @synthesize delegate;
 
 - (void)awakeFromNib

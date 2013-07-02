@@ -33,6 +33,17 @@
             nil];
 }
 
++(NSArray*)getHeaderColorSchemes {
+    return [[NSArray alloc] initWithObjects:
+            [UIColor colorWithHexString:@"AAAAAA"],
+            [UIColor colorWithHexString:@"88ACBB"],
+            [UIColor colorWithHexString:@"C1D184"],
+            [UIColor colorWithHexString:@"DAC361"],
+            [UIColor colorWithHexString:@"CCCCCC"],
+            [UIColor colorWithHexString:@"FFFFFF"],
+            nil];
+}
+
 +(BOOL)isWhiteColor:(UIColor *)color {
     UIColor* white = [[self getNoteColorSchemes] objectAtIndex:0];
     if (CGColorEqualToColor(white.CGColor, color.CGColor)) {
