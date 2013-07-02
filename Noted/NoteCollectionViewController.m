@@ -871,6 +871,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {    
     self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
+    self.twoFingerPanGestureRecognizer.enabled = NO;
     NSLog(@"textViewShouldBeginEditing");
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
     [textView addKeyboardPanningWithActionHandler:nil];
@@ -882,6 +883,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 //    [textView removeKeyboardControl];
     self.visibleCell.settingsButton.hidden = NO;
     self.panCardGestureRecognizer.enabled = YES;
+    self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
     NSLog(@"textViewDidEndEditing");
     
