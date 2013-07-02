@@ -53,7 +53,8 @@ NSString *const kFirstUse =                 @"firstUse";
 
 + (BOOL)shouldPrompt
 {
-    return ![self preferredStoragePrompted];
+    return NO; // disable iCloud ftm
+    //return ![self preferredStoragePrompted];
 }
 
 + (TKPreferredStorage)preferredStorage
