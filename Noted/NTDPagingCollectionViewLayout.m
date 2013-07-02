@@ -56,6 +56,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 - (CGSize)collectionViewContentSize {
     return self.collectionView.frame.size;
 }
+
 - (void)customizeLayoutAttributes:(UICollectionViewLayoutAttributes *)attr {
     attr.zIndex = attr.indexPath.row; // stack the cards
     attr.size = self.collectionView.frame.size;

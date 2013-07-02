@@ -30,9 +30,7 @@
 
 - (void)awakeFromNib
 {    
-    [self.contentView addSubview:self.titleLabel];
     [self.contentView addSubview:self.relativeTimeLabel];
-    [self.contentView addSubview:self.separatorView];
     [self.contentView addSubview:self.textView];
     [self.contentView addSubview:self.settingsButton];
 }
@@ -111,11 +109,9 @@
 - (void)applyTheme:(NTDTheme *)theme
 {
     self.contentView.backgroundColor = theme.backgroundColor;
-    self.titleLabel.textColor = theme.headerColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
-    self.textView.backgroundColor = theme.backgroundColor;
+    //self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
-    self.separatorView.backgroundColor = theme.textColor;
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
 }
 @end
