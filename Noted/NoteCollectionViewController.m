@@ -12,7 +12,6 @@
 #import <Twitter/Twitter.h>
 #import "NoteCollectionViewController.h"
 #import "NoteListCollectionViewLayout.h"
-#import "NoteCollectionViewCell.h"
 #import "UIView+FrameAdditions.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
@@ -23,15 +22,20 @@
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "OptionsViewController.h"
+#import "UIDeviceHardware.h"
+#import "NoteCollectionViewController+Shredding.h"
+
+
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
-@property (nonatomic, strong, readonly) NoteCollectionViewCell *visibleCell;
 
-@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
+@property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
+
+@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer, *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 
@@ -41,7 +45,8 @@
 @property (nonatomic, strong) OptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
-@property (nonatomic, assign) BOOL statusBarShowing;
+@property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
+
 @end
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -49,6 +54,7 @@ NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectio
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
+static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 
 @implementation NoteCollectionViewController
@@ -60,69 +66,81 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     if (self) {
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
+        
+        // decide on the slice count
+        if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
+            // 60 slices
+            self.deletedNoteHorizSliceCount = 6;
+            self.deletedNoteVertSliceCount = 10;
+        } else {
+            // 15 slices
+            self.deletedNoteHorizSliceCount = 5;
+            self.deletedNoteVertSliceCount = 3;
+        }
 
+        self.hasTwoFingerNoteDeletionBegun = NO;
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         self.collectionView.alwaysBounceVertical = YES;
         [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+        
     }
     return self;
 }
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+    [super viewDidLoad];   
     [self setupPullToCreate];
     
+    // swipe to remove in listlayout
     SEL selector = @selector(handleRemoveCardGesture:);
     self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:selector];
     self.removeCardGestureRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:self.removeCardGestureRecognizer];
+    
+    // tap to change to page layout
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardTap:)];
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.selectCardGestureRecognizer = tapGestureRecognizer;
+    
+    // pan to page cards
     UIPanGestureRecognizer *panGestureRecognizer;
     panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCard:)];
     panGestureRecognizer.enabled = NO;
     panGestureRecognizer.delegate = self;
     self.panCardGestureRecognizer = panGestureRecognizer;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
+    
+    // 2 finger pan to delete card
+    UIPanGestureRecognizer *twoFingerPanGestureRecognizer;
+    twoFingerPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWithTwoFingers:)];
+    twoFingerPanGestureRecognizer.enabled = NO;
+    twoFingerPanGestureRecognizer.delegate = self;
+    self.twoFingerPanGestureRecognizer = twoFingerPanGestureRecognizer;
+    [self.collectionView addGestureRecognizer:twoFingerPanGestureRecognizer];
+    
+    // pinch to bring back tolist layout
     UIPinchGestureRecognizer *pinchGestureRecognizer;
     pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchToListLayout:)];
     pinchGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer = pinchGestureRecognizer;
     [self.collectionView addGestureRecognizer:pinchGestureRecognizer];
+    
+    // pan while viewing options
     panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWhileViewingOptions:)];
     panGestureRecognizer.enabled = NO;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
     self.panCardWhileViewingOptionsGestureRecognizer = panGestureRecognizer;
     
+    // set up properties
     self.noteCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
                                                object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar"
-                                                      object:nil
-                                                       queue:nil
-                                                  usingBlock:^(NSNotification *note){
-                                                      self.statusBarShowing = !self.statusBarShowing;
-                                                      [self toggledStatusBar];
-                                                      
-                                                  }];
-    
     self.collectionView.alwaysBounceVertical = YES;
-}
-
--(void)viewDidAppear:(BOOL)animated
-{
-    // Detects whether the app starts up with status bar hidden or shown.
-    if ([UIApplication sharedApplication].statusBarHidden){
-        self.statusBarShowing = NO;
-    } else {
-        self.statusBarShowing = YES;
-    }
 }
 
 -(void)dealloc
@@ -175,6 +193,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
     cell.titleLabel.text = [entry title];
     cell.relativeTimeLabel.text = entry.relativeDateString;
+    
+    if (!self.hasTwoFingerNoteDeletionBegun)
+        cell.layer.mask = nil;
+
 #if DEBUG
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
@@ -213,12 +235,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (NoteCollectionViewCell *)visibleCell
 {
-    NSParameterAssert(self.collectionView.collectionViewLayout == self.pagingLayout);
-    NSIndexPath *visibleIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0];
-    return (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+    return (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:self.visibleCardIndexPath];
 }
 
-#pragma mark - Actions
+- (NSIndexPath *)visibleCardIndexPath
+{
+   return [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0];
+}
+
+#pragma mark - Gesture Handling
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
     //hack. we should be more discerning about when we trigger anyway. aka, we should cancel
@@ -248,7 +273,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
         case UIGestureRecognizerStateChanged:
         {
-            if (self.collectionView.dragging || fabs(translation.x) < 5.0) {
+            if (self.collectionView.dragging) {
                 // upon scrollview dragging ended, gesture will be re-enabled
                 [self.removeCardGestureRecognizer setEnabled:NO];
                 break;
@@ -263,41 +288,47 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (swipedCardIndexPath == nil)
                 break;
             
-            if (fabs(translation.x) >= 80)
-                shouldDelete = YES;
-            
-            if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold)
+            if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold
+                || translation.x > self.collectionView.frame.size.width/2)
                 shouldDelete = YES;
                 
-            self.collectionView.scrollEnabled = YES;
-            __block BOOL didDelete = NO;
-            [self.collectionView performBatchUpdates:^{
-                self.listLayout.swipedCardIndexPath = nil;
-                if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
-                    gestureRecognizer.enabled = YES;
-                }
-                if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
-                    [self deleteCardAtIndexPath:swipedCardIndexPath];
-                    shouldDelete = NO;
-                    didDelete = YES;
-                } else {
-                    
-                }
-            } completion:^(BOOL finished) {
-                if (!didDelete) {
-                    // make the shadow smaller and un rasterized
+            self.collectionView.scrollEnabled = YES;            
+            
+            self.listLayout.swipedCardIndexPath = nil;
+            if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
+                gestureRecognizer.enabled = YES;
+            }
+            if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
+                [self.listLayout completeDeletion:swipedCardIndexPath
+                                       completion:^{
+                                           [self deleteCardAtIndexPath:swipedCardIndexPath];
+                                           shouldDelete = NO;
+                                       }];
+            } else {
+                // animate the cell back to its orig position
+                [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
+                    // if it didnt delete, make the shadow smaller and un rasterized
                     NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
                     theCell.layer.shouldRasterize = NO;
                     [theCell applyShadow:NO];
-                }
-            }];
-            
+                }];
+                
+            }
+        
             break;
         }
         
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateFailed :
         {
+            // bugfix: return card to upright position
+            if (self.listLayout.swipedCardIndexPath) {
+                [self.collectionView performBatchUpdates:nil completion:nil];
+            }
+            
+            if (self.hasTwoFingerNoteDeletionBegun)
+                [self cancelShredForVisibleNote];
+            
             swipedCardIndexPath = nil;
             shouldDelete = NO;
         }
@@ -320,60 +351,123 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     }
 }
 
--(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+- (IBAction)panCardWithTwoFingers:(UIPanGestureRecognizer *)panGestureRecognizer
 {
-    [UIView animateWithDuration:0.5
-                     animations:^{
-                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
-                         for (NSIndexPath *visibleIndexPath in indexPaths) {
-                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
-                             if ([visibleIndexPath isEqual:indexPath]) {
-                                 cell.$y = self.collectionView.contentOffset.y;
-                             } else {
-                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
-                                 cell.alpha = 0.1;
-                             }
-                         }
-                     } completion:^(BOOL finished) {
-                         self.pagingLayout.activeCardIndex = indexPath.row;
-                         [self updateLayout:self.pagingLayout
-                                   animated:NO];
-                     }];
-}
+    CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
+    CGPoint touchLocation = [panGestureRecognizer locationInView:self.collectionView];
+    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
 
-
--(IBAction)showSettings:(id)sender
-{
-    NoteCollectionViewCell *visibleCell = self.visibleCell;
-    
-    /* Don't let user interact with anything but our options. */
-    visibleCell.textView.editable = NO;
-    self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
-    self.pinchToListLayoutGestureRecognizer.enabled = NO;
-    
-    self.optionsViewController.view.frame = visibleCell.frame;
-    [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
-    
-    [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
+    switch (panGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            if (panGestureRecognizer.numberOfTouches != 2)
+                panGestureRecognizer.enabled = NO;
+            else
+                [self prepareVisibleNoteForShredding];
+            
+            break;
+            
+        case UIGestureRecognizerStateChanged:
+            
+            // we want a rtl swipe for shredding to begin
+            if (velocity > 50 && !self.hasTwoFingerNoteDeletionBegun) {
+                self.hasTwoFingerNoteDeletionBegun = YES;
+            }
+            
+            if (self.hasTwoFingerNoteDeletionBegun)
+                [self shredVisibleNoteByPercent:touchLocation.x/self.collectionView.frame.size.width completion:nil];
+            
+            break;
+            
+        case UIGestureRecognizerStateEnded:
+        {
+            BOOL shouldDelete = NO;
+            BOOL doNotRefresh = NO;
+            int newIndex = self.visibleCardIndexPath.row;
+            
+            if (self.hasTwoFingerNoteDeletionBegun) {
+                if (translation.x >= self.collectionView.frame.size.width/2)
+                    shouldDelete = YES;
+                else if (velocity > SwipeVelocityThreshold ) {
+                    shouldDelete = YES;
+                }
+                
+                self.hasTwoFingerNoteDeletionBegun = NO;
+            }
+            
+            if (self.noteCount > 1 && shouldDelete) {
+                doNotRefresh = YES;
+                newIndex--;
+            } else {
+                shouldDelete = NO;
+            }
+            
+            NSIndexPath *prevvisibleCardIndexPath = self.visibleCardIndexPath;
+            
+            // make sure we stay within bounds
+            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+            self.pagingLayout.activeCardIndex = newIndex ;
+            
+            // update this so we know to animate to resting position
+            self.pagingLayout.pannedCardXTranslation = 0;
+                        
+            if (shouldDelete) {
+                
+                [self shredVisibleNoteByPercent:1 completion:^{
+                    [self.collectionView performBatchUpdates:^{
+                        [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
+                    } completion:^(BOOL finished) {
+                        [self.collectionView reloadData];
+                    }];
+                }];
+                    
+            } else {
+                [self cancelShredForVisibleNote];
+            }
+            self.hasTwoFingerNoteDeletionBegun = NO;
+            
+        }
+            break;
+            
+        case UIGestureRecognizerStateFailed:
+        case UIGestureRecognizerStateCancelled:            
+        default:
+            [self cancelShredForVisibleNote];
+            
+            self.hasTwoFingerNoteDeletionBegun = NO;
+            
+            panGestureRecognizer.enabled = YES;
+            
+            break;
+    }
 }
 
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
-    bool panEnded = NO;
+    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    
+    BOOL panEnded = NO;
+    BOOL doNotRefresh = NO;
     int newIndex = self.pagingLayout.activeCardIndex;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
+            if (panGestureRecognizer.numberOfTouches != 1)
+                panGestureRecognizer.enabled = NO;
+            
+            break;
+            
         case UIGestureRecognizerStateChanged :
+            
             self.pagingLayout.pannedCardXTranslation = translation.x;
-        break;
+            
+            break;
             
         case UIGestureRecognizerStateEnded :
+        {
             // check if translation is past threshold
             if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
-                //left
+                // left
                 if (translation.x < 0)
                     newIndex ++ ;
                 else
@@ -383,110 +477,48 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             } else if (fabs(velocity) > SwipeVelocityThreshold ) {
                 // left
                 if (velocity < 0)
-                    newIndex ++;
+                    newIndex ++ ;
                 else
-                    newIndex --;
+                    newIndex -- ;
             }
-            
+                                    
             // make sure we stay within bounds
-            if (newIndex >= 0 && newIndex < [self.collectionView numberOfItemsInSection:0])
-                self.pagingLayout.activeCardIndex = newIndex ;
-
+            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+            self.pagingLayout.activeCardIndex = newIndex ;
+            
             // update this so we know to animate to resting position
-            panEnded = YES;
-            
-        default:
-            
             self.pagingLayout.pannedCardXTranslation = 0;
-        break;
-    }
-    
-    
-    if (panEnded)
-        // animate to rest with some added velocity
-        [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
-    else
-        [self.pagingLayout invalidateLayout];
-
-}
-
-CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
-{
-    NSCParameterAssert([pinchGestureRecognizer numberOfTouches] >= 2);
-    UIView *view = pinchGestureRecognizer.view;
-    CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
-    CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
-    return  DistanceBetweenTwoPoints(p1, p2);
-}
-
-CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
-{
-    CGFloat d = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
-    return sqrtf(d);
-}
-
-- (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
-{
-    static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
-    static CGPoint initialContentOffset;
-    switch (pinchGestureRecognizer.state) {
-        case UIGestureRecognizerStateBegan:
-        {
-            NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
-            initialDistance = PinchDistance(pinchGestureRecognizer);
-            self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
-            self.listLayout.pinchRatio = 1.0;
             
-            initialContentOffset = self.collectionView.contentOffset;
-            [self updateLayout:self.listLayout
-                      animated:NO];
-            
-            [self.collectionView setContentOffset:CGPointZero animated:NO];
-            self.collectionView.scrollEnabled = NO;
-            break;
+            panEnded = YES;
+                
         }
+            break;
             
-        case UIGestureRecognizerStateChanged:
-        {
-            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
-            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-//                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
-//                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
-            self.listLayout.pinchRatio = pinchRatio;
-            break;
-        }
-            
-        case UIGestureRecognizerStateEnded:
-        {
-            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
-            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-            BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0);
-            if (shouldReturnToPagingLayout) {
-                [self updateLayout:self.pagingLayout
-                          animated:NO];
-                [self.collectionView setContentOffset:initialContentOffset animated:NO];
-            } else {
-                pinchGestureRecognizer.enabled = NO;
-                self.collectionView.scrollEnabled = YES;
-            }
-            self.listLayout.pinchedCardIndexPath = nil;
-            break;
-        }
-        
-        case UIGestureRecognizerStateCancelled:
-            pinchGestureRecognizer.enabled = YES;
-            break;
+        case UIGestureRecognizerStateFailed :
+        case UIGestureRecognizerStateCancelled :
+            NSLog(@"CANCEL");
+            panGestureRecognizer.enabled = YES;
             
         default:
+            
             break;
     }
+    
+    if (!doNotRefresh) {
+        if (panEnded)
+            // animate to rest with some added velocity
+            [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
+        else if (!self.hasTwoFingerNoteDeletionBegun)
+            [self.pagingLayout invalidateLayout];
+    }
+    
 }
 
 - (IBAction)panCardWhileViewingOptions:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    float velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
     BOOL needsTranslation = NO;
     
     switch (panGestureRecognizer.state) {
@@ -517,10 +549,123 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             break;
     }
     
-    
     if (needsTranslation)
         [self.pagingLayout invalidateLayout];
 }
+
+- (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
+{
+    static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
+    static CGPoint initialContentOffset;
+    switch (pinchGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
+            initialDistance = PinchDistance(pinchGestureRecognizer);
+            self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
+            self.listLayout.pinchRatio = 1.0;
+            
+            initialContentOffset = self.collectionView.contentOffset;
+            [self updateLayout:self.listLayout
+                      animated:NO];
+            
+            [self.collectionView setContentOffset:CGPointZero animated:NO];
+            self.collectionView.scrollEnabled = NO;
+            break;
+        }
+            
+        case UIGestureRecognizerStateChanged:
+        {
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
+            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            //                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
+            //                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
+            self.listLayout.pinchRatio = pinchRatio;
+            break;
+        }
+            
+        case UIGestureRecognizerStateEnded:
+        {
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
+            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            
+            BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0 && pinchGestureRecognizer.velocity > -PinchVelocityThreshold);
+            
+            if (shouldReturnToPagingLayout) {
+                [self updateLayout:self.pagingLayout
+                          animated:NO];
+                [self.collectionView setContentOffset:initialContentOffset animated:NO];
+            } else {
+                pinchGestureRecognizer.enabled = NO;
+                self.collectionView.scrollEnabled = YES;
+            }
+            self.listLayout.pinchedCardIndexPath = nil;
+            break;
+        }
+            
+        case UIGestureRecognizerStateCancelled:
+            pinchGestureRecognizer.enabled = YES;
+            break;
+            
+        default:
+            break;
+    }
+}
+
+#pragma mark - Actions
+
+-(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    [UIView animateWithDuration:0.5
+                     animations:^{
+                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+                         for (NSIndexPath *visibleCardIndexPath in indexPaths) {
+                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
+                             if ([visibleCardIndexPath isEqual:indexPath]) {
+                                 cell.$y = self.collectionView.contentOffset.y;
+                             } else {
+                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
+                                 cell.alpha = 0.1;
+                             }
+                         }
+                     } completion:^(BOOL finished) {
+                         self.pagingLayout.activeCardIndex = indexPath.row;
+                         [self updateLayout:self.pagingLayout
+                                   animated:NO];
+                     }];
+}
+
+
+
+-(IBAction)showSettings:(id)sender
+{
+    NoteCollectionViewCell *visibleCell = self.visibleCell;
+    
+    /* Don't let user interact with anything but our options. */
+    visibleCell.textView.editable = NO;
+    self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
+    self.pinchToListLayoutGestureRecognizer.enabled = NO;
+    
+    self.optionsViewController.view.frame = visibleCell.frame;
+    [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
+    
+    [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
+}
+
+CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
+{
+    UIView *view = pinchGestureRecognizer.view;
+    CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
+    CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
+    return  DistanceBetweenTwoPoints(p1, p2);
+}
+
+CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
+{
+    CGFloat d = (p2.x - p1.x)*(p2.x - p1.x) + (p2.y - p1.y)*(p2.y - p1.y);
+    return sqrtf(d);
+}
+
 
 #pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
@@ -530,6 +675,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.selectCardGestureRecognizer.enabled = NO;
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
+        self.twoFingerPanGestureRecognizer.enabled = YES;
         self.pinchToListLayoutGestureRecognizer.enabled = YES;
         
         self.collectionView.scrollEnabled = NO;
@@ -538,30 +684,52 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.selectCardGestureRecognizer.enabled = YES;
         self.removeCardGestureRecognizer.enabled = YES;
         self.panCardGestureRecognizer.enabled = NO;
+        self.twoFingerPanGestureRecognizer.enabled = NO;
         
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
     [self.collectionView reloadData];
 }
 
-- (void)insertNewCard
+- (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
-    NSIndexPath *newCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-    [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
-            self.noteCount++;
-            [self.collectionView performBatchUpdates:^{
-                [self.collectionView insertItemsAtIndexPaths:@[newCardIndexPath]];
-            } completion:^(BOOL finished) {
-                /* The animation wasn't running, so I added this dispatch call so it would run on 
-                 * the next turn of the run loop. */
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self didSelectItemAtIndexPath:newCardIndexPath];
-                });
-            }];
-        });
-    }];
+    [UIView animateWithDuration:duration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                         NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
+                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+                         for (NSIndexPath *visibleIndexPath in indexPaths) {
+                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+                             cell.$y += self.collectionView.frame.size.height;
+                             [subviews removeObject:cell];
+                         }
+                         for (UIView *view in subviews) {
+                             /* Search for & edit the 'pull to create card' cell. */
+                             if ([view isKindOfClass:[NoteCollectionViewCell class]] &&
+                                 (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
+                                 !view.hidden) {
+                                 NoteCollectionViewCell *cell = (NoteCollectionViewCell *)view;
+                                 cell.titleLabel.text = @"";
+#if DEBUG
+                                 cell.relativeTimeLabel.text = @"[0] Today";
+#else
+                                  cell.relativeTimeLabel.text = @"Today";
+#endif
+                                 break;
+                             }
+                         }
+                     } completion:^(BOOL finished) {
+                         [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
+                             self.noteCount++;
+                             self.pagingLayout.activeCardIndex = 0;
+                             [self updateLayout:self.pagingLayout
+                                       animated:NO];
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                                [self.visibleCell.textView becomeFirstResponder];
+                             });
+                         }];
+                     }];
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
@@ -584,35 +752,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)noteListChanged:(NSNotification *)notification
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
-    [self.collectionView reloadData];
-}
-
--(void)toggledStatusBar
-{
-    // Main app frame and status bar size
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     
-    // Main view and options view
-    CGRect newViewFrame = self.view.frame;
-    CGRect newOptionsFrame = self.optionsViewController.view.frame;
-    
-    if (self.statusBarShowing){
-        newViewFrame.origin.y = statusBarHeight;
-    } else {
-        newViewFrame.origin.y = 0.0;
-        newOptionsFrame.origin.y = 0.0;
+    if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
+        [self.collectionView reloadData];
     }
-    newViewFrame.size.height = appFrame.size.height;
-    newOptionsFrame.size.height = appFrame.size.height;
-    
-    self.view.frame = newViewFrame;
-    self.optionsViewController.view.frame = newOptionsFrame;
 }
 
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+    if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
+        return YES;
+    
     if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
         return YES;
     else
@@ -650,7 +801,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
-static BOOL shouldCreateNewCard = NO;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (scrollView != self.collectionView)
@@ -659,46 +809,55 @@ static BOOL shouldCreateNewCard = NO;
     // re-enable swipe to delete
     self.removeCardGestureRecognizer.enabled = YES;
     
-    if (self.collectionView.collectionViewLayout == self.listLayout) {
-        shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-        if (self.noteCount == 0) //hack alert
-            shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
-        if (shouldCreateNewCard && !decelerate) {
-            [self insertNewCard];
-            shouldCreateNewCard = NO;
-        }
-    }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
-    if (scrollView != self.collectionView)
-        return;
-    
-    if (self.collectionView.collectionViewLayout == self.listLayout) {
-        if (shouldCreateNewCard) {
-            [self insertNewCard];
-            shouldCreateNewCard = NO;
-        }
-    } 
+    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
+    BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
+    if (self.noteCount == 0) //hack alert
+        shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
+    if (shouldCreateNewCard && self.collectionView.collectionViewLayout == self.listLayout) {
+        CGPoint panVelocity = [scrollView.panGestureRecognizer velocityInView:scrollView];
+        CGPoint panTranslation = [scrollView.panGestureRecognizer translationInView:scrollView];
+
+//        CGFloat scrollSpeed = fabsf(60 * velocity.y) + 30;
+//        CGFloat scrollPosition = fabsf(scrollView.contentOffset.y);
+//        NSTimeInterval scrollDuration = scrollPosition / scrollSpeed;
+        
+        CGFloat panSpeed = fabsf(panVelocity.y) - 30;
+        CGFloat panPosition = fabsf(panTranslation.y);
+        CGFloat panDuration = panPosition / panSpeed;
+        
+        NSTimeInterval duration = panDuration;
+        duration = CLAMP(duration, 0.2, 0.6);
+        [self insertNewCardWithDuration:duration];
+
+        CGPoint newPoint = scrollView.contentOffset;
+        *targetContentOffset = newPoint;
+    }
+
 }
 
 #pragma mark - UITextViewDelegate
--  (void)textViewDidBeginEditing:(UITextView *)textView
-{
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{    
     self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
+    NSLog(@"textViewShouldBeginEditing");
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
     [textView addKeyboardPanningWithActionHandler:nil];
+    return YES;
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    [textView removeKeyboardControl];
+//    [textView removeKeyboardControl];
     self.visibleCell.settingsButton.hidden = NO;
     self.panCardGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-
+    NSLog(@"textViewDidEndEditing");
+    
     NoteCollectionViewCell *cell = self.visibleCell;
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
     NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
@@ -732,7 +891,7 @@ static BOOL shouldCreateNewCard = NO;
 
 #pragma mark - OptionsViewController Delegate
 
--(void)changeOptionsViewWidth:(float)width {
+-(void)changeOptionsViewWidth:(CGFloat)width {
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 

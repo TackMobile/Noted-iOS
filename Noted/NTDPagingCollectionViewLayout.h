@@ -8,14 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-
 @interface NTDPagingCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
 @property (nonatomic) int activeCardIndex;
-@property (nonatomic, readonly) float currentOptionsOffset;
+@property (nonatomic, readonly) CGFloat currentOptionsOffset;
 
-- (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock ;
-- (void) revealOptionsViewWithOffset:(float)offset;
-- (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock;
+@property (nonatomic, strong) UIView *settingsView;
+
+- (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock ;
+- (void) revealOptionsViewWithOffset:(CGFloat)offset;
+- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock;
 @end

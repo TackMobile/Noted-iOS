@@ -12,6 +12,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
+static const CGFloat NTDMaxNoteTiltAngle = M_PI/4;
+static const NSTimeInterval NTDDeleteAnimationDuration = 0.2f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -29,7 +31,7 @@ NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionEleme
         self.cardSize = applicationFrame.size;
         self.pullToCreateShowCardOffset = -30.0;
         self.pullToCreateScrollCardOffset = -50.0;
-        self.pullToCreateCreateCardOffset = -100.0;
+        self.pullToCreateCreateCardOffset = self.pullToCreateScrollCardOffset + self.pullToCreateScrollCardOffset;
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
     }
     return self;
@@ -67,7 +69,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.frame = frame;
     } else if (self.swipedCardIndexPath && [indexPath isEqual:self.swipedCardIndexPath]) {
         CGFloat offset = self.swipedCardOffset;
-        CGFloat angle = (M_PI/4) * (offset/self.collectionView.frame.size.width/2);
+        CGFloat angle = NTDMaxNoteTiltAngle * (offset/self.collectionView.frame.size.width/2);
         
         static CGFloat MIN_ALPHA = .3;
         
@@ -126,13 +128,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    static CGRect lastRect = {0.0, 0.0, 0.0, 0.0};
-    if (!CGRectEqualToRect(lastRect, rect)) {
-        lastRect = rect;
-        NSLog(@"new rect: %@", NSStringFromCGRect(rect));
-    }
-    
+{    
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForElementsInRect:rect];
     
@@ -179,11 +175,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         size = CGSizeMake(contentWidth, contentHeight);
     }
     
-    static CGSize lastSize = {0.0, 0.0};
-    if (!CGSizeEqualToSize(lastSize, size)) {
-        NSLog(@"new size: %@", NSStringFromCGSize(size));
-        lastSize = size;
-    }
     return size;
 }
 
@@ -272,6 +263,29 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     pinchRatio = MIN(MAX(0.0, pinchRatio), 1.0);
     _pinchRatio = pinchRatio;
     [self invalidateLayout];
+}
+
+- (void) completeDeletion:(NSIndexPath *)cardIndexPath completion:(void (^)(void))completionBlock {
+    
+    NoteCollectionViewLayoutAttributes *attr = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:cardIndexPath];
+    UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:cardIndexPath];
+    
+    if (self.swipedCardOffset < 0) {
+        attr.transform2D = CGAffineTransformMakeRotation(-NTDMaxNoteTiltAngle);
+        attr.center = CGPointMake(attr.center.x- 2*self.collectionView.frame.size.width, attr.center.y);
+    } else {
+        attr.transform2D = CGAffineTransformMakeRotation(NTDMaxNoteTiltAngle);
+        attr.center = CGPointMake(attr.center.x+ 2*self.collectionView.frame.size.width, attr.center.y);
+    }
+    
+    [UIView animateWithDuration:NTDDeleteAnimationDuration animations:^{
+        theCell.center = attr.center;
+        theCell.transform = attr.transform2D;
+        theCell.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        if (completionBlock)
+            completionBlock();
+    }];
 }
 
 #pragma mark - Pinching

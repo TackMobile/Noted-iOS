@@ -14,7 +14,6 @@
 {
     if (self = [super init]) {
         self.transform2D = CGAffineTransformIdentity;
-        self.shouldApplyCornerMask = NO;
     }
     return self;
 }
@@ -23,7 +22,6 @@
 {
     NoteCollectionViewLayoutAttributes *copy = [super copyWithZone:zone];
     copy.transform2D = self.transform2D;
-    copy.shouldApplyCornerMask = self.shouldApplyCornerMask;
     return copy;
 }
 
