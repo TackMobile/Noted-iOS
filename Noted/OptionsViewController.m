@@ -322,6 +322,9 @@
 
 - (IBAction)toggleCloudStorage:(id)sender {
     
+    return;
+    
+    /* Disabling iCloud storage ftm
     UIButton *btn = (UIButton *)sender;
     
     BOOL useICloud = btn.tag == 1 ? NO : YES;
@@ -330,6 +333,7 @@
     [FileStorageState setPreferredStorage:useICloud ? kTKiCloud : kTKlocal];
     
     [[ApplicationModel sharedInstance] refreshNotes];
+     */
 }
 
 - (IBAction)sendEmail:(id)sender {

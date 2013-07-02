@@ -125,6 +125,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     // old cancel title: Later
     // old other button title: Use iCloud
     
+    
     _storageChosen = completionBlock;
     TTAlertView *alertCustom = [[TTAlertView alloc] initWithTitle:@"iCloud Sync" message:@"Would you like to sync the notes you create in Noted with iCloud?" delegate:self cancelButtonTitle:@"Not Now" otherButtonTitles:@"Yes", nil];
     [alertCustom.containerView setBackgroundColor:[UIColor colorWithHexString:@"1A9FEB"]];
@@ -138,6 +139,7 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
     [alertCustom setButtonBackgroundColor:[UIColor colorWithHexString:@"008AD0"] forButtonAtIndex:1];
     
     [alertCustom show];
+    
     
     /*
      RIButtonItem *iCloudButton = [RIButtonItem item];
