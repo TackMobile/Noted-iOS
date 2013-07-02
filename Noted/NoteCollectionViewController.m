@@ -1,4 +1,3 @@
-
 //  NoteCollectionViewController.m
 //  Noted
 //
@@ -51,7 +50,7 @@
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
 NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
-NSString *const toggleStatusBarNotification = @"didToggleStatusBar";
+NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
@@ -143,7 +142,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
-                                                 name:toggleStatusBarNotification
+                                                 name:NTDDidToggleStatusBarNotification
                                                object:nil];
     
     self.collectionView.alwaysBounceVertical = YES;
