@@ -5,7 +5,11 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, NTDDevicePerformanceClass) {
+    NTDHighPerformanceDevice = 0,
+    NTDLowPerformanceDevice
+};
+
 @interface UIDeviceHardware : NSObject
-+ (NSString *) platform;
-+ (NSString *) platformString;
++ (NTDDevicePerformanceClass) performanceClass;
 @end

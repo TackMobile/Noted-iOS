@@ -14,6 +14,7 @@
 #import "FileStorageState.h"
 #import "CloudManager.h"
 #import "ApplicationModel.h"
+#import "NTDTheme.h"
 
 @interface NoteFileManager ()
 {
@@ -66,7 +67,7 @@
         filePath = [[CloudManager sharedInstance] getDocURL:filename];
     }
     
-    NSLog(@"%@ [%d]",filePath.absoluteString,__LINE__);
+//    NSLog(@"%@ [%d]",filePath.absoluteString,__LINE__);
     
     return filePath;
 }
@@ -77,7 +78,7 @@
     
     // prepend appropriate path to our new randomly generated document name
     NSURL *fileURL = [self URLForFileNamed:noteName];
-    NSLog(@"fileURL for new doc: %@",fileURL);
+//    NSLog(@"fileURL for new doc: %@",fileURL);
     
     // object to pass back to main thread for tableview
     __block NoteEntry *entry = [[NoteEntry alloc] init];
@@ -100,20 +101,21 @@
         if (defaultData) {
             [entry.noteData setNoteText:defaultData.noteText];
         }
-        
+
+        entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
         noteCreationCompleteBlock(entry);
         
     };
     
     if ([FileStorageState preferredStorage]==kTKiCloud) {
         // have CloudManager do it
-        NSLog(@"Want to create file at %@", fileURL);
+//        NSLog(@"Want to create file at %@", fileURL);
         
         doc = [[CloudManager sharedInstance] insertNewEntry:entry atIndex:0 completion:docSaveCompleteBlock];
         
     } else {
 
-        NSLog(@"Want to create file at %@", fileURL);
+//        NSLog(@"Want to create file at %@", fileURL);
         
         doc = [[NoteDocument alloc] initWithFileURL:fileURL];
         
@@ -142,7 +144,7 @@
     // we can immediately return just an
     // object with basic document metadata
     entry.noteData = doc.data;
-    NSLog(@"New note text: %@",entry.noteData.noteText);
+//    NSLog(@"New note text: %@",entry.noteData.noteText);
     return entry;
 }
 

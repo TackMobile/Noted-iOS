@@ -99,19 +99,20 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 }
 
 #pragma mark - customAnimation
-- (void)finishAnimationWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
+- (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     // xTranslation will not be zeroed out yet
     // activeCardIndex will be current
     
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
-    float dur;
+    NSTimeInterval dur;
     if (isViewingOptions)
         dur = self.currentOptionsOffset / fabsf(velocity);
     else
         dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabsf(velocity);
     
     // keep dur between .05 and .2. feels comfortable
-    dur = fmaxf((dur > .2) ? .2 : dur, .05);
+//    float position = dur * fabsf(velocity);
+    dur = CLAMP(dur, .05, .2);
     
     //  animate
     [UIView animateWithDuration:dur
@@ -138,7 +139,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     }];
 }
 
-- (void) revealOptionsViewWithOffset:(float)offset {
+- (void) revealOptionsViewWithOffset:(CGFloat)offset {
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
@@ -146,7 +147,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
 }
 
-- (void) hideOptionsWithVelocity:(float)velocity completion:(void (^)(void))completionBlock {
+- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
     
