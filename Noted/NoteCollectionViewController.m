@@ -708,7 +708,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                  (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
                                  !view.hidden) {
                                  NoteCollectionViewCell *cell = (NoteCollectionViewCell *)view;
-                                 cell.titleLabel.text = @"";
 #if DEBUG
                                  cell.relativeTimeLabel.text = @"[0] Today";
 #else
