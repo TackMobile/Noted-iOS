@@ -51,6 +51,7 @@
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
 NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
+NSString *const toggleStatusBarNotification = @"didToggleStatusBar";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
@@ -138,6 +139,11 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(noteListChanged:)
                                                  name:kNoteListChangedNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(toggledStatusBar:)
+                                                 name:toggleStatusBarNotification
                                                object:nil];
     
     self.collectionView.alwaysBounceVertical = YES;
@@ -756,6 +762,31 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
         [self.collectionView reloadData];
     }
+}
+
+-(void)toggledStatusBar:(NSNotification *)notification
+{
+    // Main app frame and status bar size
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    
+    // Main view and options view
+    CGRect newViewFrame = self.view.frame;
+    CGRect newOptionsFrame = self.optionsViewController.view.frame;
+    
+    // Detects whether the app starts up with status bar hidden or shown.
+    if (![UIApplication sharedApplication].statusBarHidden) {
+        newViewFrame.origin.y = statusBarHeight;
+    } else {
+        newViewFrame.origin.y = 0.0;
+        newOptionsFrame.origin.y = 0.0;
+    }
+    
+    newViewFrame.size.height = appFrame.size.height;
+    newOptionsFrame.size.height = appFrame.size.height;
+    
+    self.view.frame = newViewFrame;
+    self.optionsViewController.view.frame = newOptionsFrame;
 }
 
 #pragma mark - UIGestureRecognizerDelegate
