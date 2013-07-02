@@ -13,7 +13,7 @@
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
 static const CGFloat NTDMaxNoteTiltAngle = M_PI/4;
-static const NSTimeInterval NTDDeleteAnimationDuration = 0.2f;
+static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
 
 @interface NoteListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
@@ -311,7 +311,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = [self cellLayoutAttributesForItem:self.pinchedCardIndexPath.item];
     
     CGFloat pinchGap = self.pinchRatio * self.cardSize.height;
-    CGFloat pinchOffset = self.pinchRatio * -pinchedCardLayoutAttributes.frame.origin.y;
+    CGFloat pinchOffset = self.pinchRatio * (-pinchedCardLayoutAttributes.frame.origin.y + self.collectionView.contentOffset.y);
     
 //    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     

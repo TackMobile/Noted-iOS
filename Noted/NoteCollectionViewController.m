@@ -572,7 +572,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [self updateLayout:self.listLayout
                       animated:NO];
             
-            [self.collectionView setContentOffset:CGPointZero animated:NO];
+            float returnCardToContentOffset = CLAMP(0,
+                                                    (visibleCardIndexPath.row * self.listLayout.cardOffset) - self.collectionView.frame.size.height/3,
+                                                    self.collectionView.contentSize.height - self.collectionView.frame.size.height);
+            
+            [self.collectionView setContentOffset:CGPointMake(0, returnCardToContentOffset) animated:NO];
             self.collectionView.scrollEnabled = NO;
             break;
         }
@@ -619,23 +623,32 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [UIView animateWithDuration:0.5
+    
+    NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    
+    CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
+    CGFloat bottomOffset = self.collectionView.frame.size.height - (topOffset + self.listLayout.cardOffset);
+
+    [UIView animateWithDuration:.25
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleCardIndexPath in indexPaths) {
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
-                             if ([visibleCardIndexPath isEqual:indexPath]) {
-                                 cell.$y = self.collectionView.contentOffset.y;
+                             if (visibleCardIndexPath.row <= indexPath.row) {
+                                 cell.$y -= topOffset;
                              } else {
-                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
-                                 cell.alpha = 0.1;
+                                 cell.$y += bottomOffset;
                              }
+
                          }
                      } completion:^(BOOL finished) {
                          self.pagingLayout.activeCardIndex = indexPath.row;
                          [self updateLayout:self.pagingLayout
                                    animated:NO];
                      }];
+    
 }
 
 
@@ -698,7 +711,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     [UIView animateWithDuration:duration
                           delay:0.0
-                        options:UIViewAnimationOptionCurveLinear
+                        options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
