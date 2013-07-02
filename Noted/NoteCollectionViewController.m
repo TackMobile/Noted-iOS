@@ -616,22 +616,31 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [UIView animateWithDuration:0.5
+    
+    NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    
+    CGFloat selectedCellTopOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
+    CGFloat selectedCellSpaceBelow = self.collectionView.frame.size.height - (selectedCellTopOffset + self.listLayout.cardOffset);
+
+    [UIView animateWithDuration:.25
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleCardIndexPath in indexPaths) {
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
-                             if ([visibleCardIndexPath isEqual:indexPath]) {
-                                 cell.$y = self.collectionView.contentOffset.y;
+                             if (visibleCardIndexPath.row <= indexPath.row) {
+                                 cell.$y -= selectedCellTopOffset;
                              } else {
-                                 cell.$y = self.collectionView.contentOffset.y + self.collectionView.frame.size.height;
-                                 cell.alpha = 0.1;
+                                 cell.$y += selectedCellSpaceBelow;
                              }
+
                          }
                      } completion:^(BOOL finished) {
                          self.pagingLayout.activeCardIndex = indexPath.row;
                          [self updateLayout:self.pagingLayout
                                    animated:NO];
+                         selectedCell.alpha=1;
                      }];
 }
 
@@ -695,7 +704,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     [UIView animateWithDuration:duration
                           delay:0.0
-                        options:UIViewAnimationOptionCurveLinear
+                        options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
