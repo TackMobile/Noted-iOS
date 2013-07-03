@@ -40,8 +40,7 @@
 
 - (void) loadAllNoteEntriesFromPreferredStorage
 {
-    //TKPreferredStorage storage = [FileStorageState preferredStorage];
-    TKPreferredStorage storage = kTKlocal;
+    TKPreferredStorage storage = [FileStorageState preferredStorage];
     
     if (storage==kTKiCloud) {
         [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
