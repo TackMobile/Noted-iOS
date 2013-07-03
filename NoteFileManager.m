@@ -86,7 +86,7 @@
     entry.fileURL = fileURL;
     entry.adding = YES;
     
-    NoteDocument *doc = nil;
+    __block NoteDocument *doc = nil;
     
     void(^docSaveCompleteBlock)() = ^(){
         // get default data for a new note
@@ -98,11 +98,9 @@
         entry.state = state;
         entry.version = version;
         entry.adding = NO;
-        if (defaultData) {
-            [entry.noteData setNoteText:defaultData.noteText];
-        }
-
-        entry.noteData.noteColor = [[NTDTheme randomTheme] backgroundColor];
+        
+        [entry.noteData setNoteText:doc.text];
+        [entry.noteData setNoteColor:doc.color];
         noteCreationCompleteBlock(entry);
         
     };
@@ -110,14 +108,14 @@
     if ([FileStorageState preferredStorage]==kTKiCloud) {
         // have CloudManager do it
 //        NSLog(@"Want to create file at %@", fileURL);
-        
+        NSAssert(defaultData == nil, @"iCloud file creation doesn't take defaultData (e.g. initial text & color) into account. It really should.");
         doc = [[CloudManager sharedInstance] insertNewEntry:entry atIndex:0 completion:docSaveCompleteBlock];
-        
     } else {
 
 //        NSLog(@"Want to create file at %@", fileURL);
         
         doc = [[NoteDocument alloc] initWithFileURL:fileURL];
+        doc.data = defaultData;
         
         [doc saveToURL:fileURL forSaveOperation:UIDocumentSaveForCreating completionHandler:^(BOOL success) {
             

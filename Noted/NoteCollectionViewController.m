@@ -779,10 +779,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     
     if (self.noteCount == 0) {
         NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
+        NSString *secondNoteText = @"Here's another note.";
+        NTDTheme *firstNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeTack], *secondNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
         // add 2 notes
-        [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText andCompletionBlock:^(NoteEntry *entry) {
+        [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText theme:firstNoteTheme completionBlock:^(NoteEntry *entry) {
             self.noteCount++;
-            [[ApplicationModel sharedInstance] createNoteWithText:@"Here's another note." andCompletionBlock:^(NoteEntry *entry) {
+            [[ApplicationModel sharedInstance] createNoteWithText:secondNoteText theme:secondNoteTheme completionBlock:^(NoteEntry *entry) {
                 self.noteCount++;
                 [self.collectionView reloadData];
             }];
@@ -874,7 +876,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
-    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
+//    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
     BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
     if (self.noteCount == 0) //hack alert
         shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
@@ -906,7 +908,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
-    NSLog(@"textViewShouldBeginEditing");
+//    NSLog(@"textViewShouldBeginEditing");
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
     [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
         [self keyboardWasPannedToFrame:keyboardFrameInView];
@@ -924,7 +926,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-    NSLog(@"textViewDidEndEditing");
+//    NSLog(@"textViewDidEndEditing");
     
     NoteCollectionViewCell *cell = self.visibleCell;
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
