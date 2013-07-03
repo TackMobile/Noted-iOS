@@ -23,7 +23,7 @@
 #import "OptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
-
+#import "TestFlight.h"
 
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
@@ -93,7 +93,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(keyboardWillBeHidden:)
                                                      name:UIKeyboardWillHideNotification object:nil];
 
-        
     }
     return self;
 }
@@ -779,7 +778,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
     if (self.noteCount == 0) {
-        NSString *firstNoteText = @"Welcome to Noted.\n\nThis is your first note.\nSwipe a note out of the stack to delete it\nTap a note to see it and edit it.\nSwipe left and right to page through notes\nSwipe right with two fingers to shred a note.\n\nShake the device to send feedback!";
+        NSString *firstNoteText = @"Welcome to Noted.\n\nThis is your first note.\nPull the list down to create a new note.\nSwipe a note out of the stack to delete it.\nTap a note to see it and edit it.\nA menu button will appear.\nSwipe left and right to page through notes.\nSwipe right with two fingers to shred a note.\n\nHave fun and send us your feedback";
         // add 2 notes
         [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText andCompletionBlock:^(NoteEntry *entry) {
             self.noteCount++;
