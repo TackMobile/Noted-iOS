@@ -40,13 +40,13 @@
 
 - (void) loadAllNoteEntriesFromPreferredStorage
 {
-    TKPreferredStorage storage = [FileStorageState preferredStorage];
-    
-    if (storage==kTKiCloud) {
-        [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
-    } else if (storage==kTKlocal) {
+//    TKPreferredStorage storage = [FileStorageState preferredStorage];
+//    
+//    if (storage==kTKiCloud) {
+//        [self performSelectorInBackground:@selector(loadICloudNoteEntriesInBackground) withObject:nil];
+//    } else if (storage==kTKlocal) {
         [self performSelectorInBackground:@selector(loadLocalNoteEntriesInBackground) withObject:nil];
-    }
+//    }
 }
 
 - (void)copyFromCloudAndLoadLocalNoteEntries
@@ -239,7 +239,10 @@
     NSArray *notedDocuments = [localDocuments filteredArrayUsingPredicate:notedDocsPredicate];
     
     if (IsEmpty(notedDocuments)) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SHOULD_CREATE_NOTE object:nil];
+
         if ([FileStorageState isFirstUse]) {
+
             [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
         }
         

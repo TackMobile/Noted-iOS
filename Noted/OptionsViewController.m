@@ -53,6 +53,10 @@
     self.scrollView.scrollEnabled = YES;
     self.scrollView.bounces = YES;
     
+    // set the done button's font
+    UIFont *cancelFont = [UIFont fontWithName:@"Avenir" size:16];
+    self.cancelX.font = cancelFont;
+    
     //make the corners
     self.scrollView.layer.bounds = CGRectMake(0, 0, 320, 480);
 
@@ -362,7 +366,7 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:[[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor]];
+    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:tap.view.tag];
     // if it's dark grey, use white text
     if ([[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor] >= 4) {
         [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];

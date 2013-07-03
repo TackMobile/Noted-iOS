@@ -49,12 +49,13 @@ NSString *const kTestflightToken = @"8c164a2e084013eae880e49cf6a4e005_NTU1MTAyMD
     self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
     [self.window makeKeyAndVisible];
     
+    /*
     [[CloudManager sharedInstance] initializeiCloudAccessWithCompletion:nil];
     if ([FileStorageState isFirstUse]) {
         [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:USE_STANDARD_SYSTEM_KEYBOARD];
         [[NSUserDefaults standardUserDefaults] saveBool:YES forKey:HIDE_STATUS_BAR];
         
-    }
+    }*/
     
     if (!tourVC) {
         tourVC = tourVC = [[WalkThroughViewController alloc] init];
