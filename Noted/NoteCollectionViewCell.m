@@ -66,11 +66,13 @@
         self.settingsButton.hidden = YES;
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
+        self.textView.scrollEnabled = NO;
         [self applyShadow:NO];
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.settingsButton.hidden = NO;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
+        self.textView.scrollEnabled = YES;
         [self applyShadow:YES];
     }
     
