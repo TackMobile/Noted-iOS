@@ -980,7 +980,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
-- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor
+- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)__unused textColor
 {
     NTDTheme *newTheme = [NTDTheme themeForBackgroundColor:color];
     [self.visibleCell applyTheme:newTheme];
