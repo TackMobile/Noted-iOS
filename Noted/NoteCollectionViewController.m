@@ -214,7 +214,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
     cell.textView.text = entry.text;
-    [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
+    NTDTheme *theme = [NTDTheme themeForBackgroundColor:entry.noteColor] ?: [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
+    [cell applyTheme:theme];
 
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
