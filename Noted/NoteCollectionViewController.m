@@ -23,7 +23,7 @@
 #import "OptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
-
+#import "TestFlight.h"
 
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
@@ -93,7 +93,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(keyboardWillBeHidden:)
                                                      name:UIKeyboardWillHideNotification object:nil];
 
-        
     }
     return self;
 }
@@ -778,6 +777,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
+    if (self.noteCount == 0) {
+        NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
+        // add 2 notes
+        [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText andCompletionBlock:^(NoteEntry *entry) {
+            self.noteCount++;
+            [[ApplicationModel sharedInstance] createNoteWithText:@"Here's another note." andCompletionBlock:^(NoteEntry *entry) {
+                self.noteCount++;
+                [self.collectionView reloadData];
+            }];
+        }];
+    }
+    
     if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
         [self.collectionView reloadData];
     }
@@ -969,7 +980,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
-- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor
+- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)__unused textColor
 {
     NTDTheme *newTheme = [NTDTheme themeForBackgroundColor:color];
     [self.visibleCell applyTheme:newTheme];

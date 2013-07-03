@@ -239,7 +239,9 @@
     NSArray *notedDocuments = [localDocuments filteredArrayUsingPredicate:notedDocsPredicate];
     
     if (IsEmpty(notedDocuments)) {
+
         if ([FileStorageState isFirstUse]) {
+
             [self performSelectorOnMainThread:@selector(didLoadNoteEntries:) withObject:list waitUntilDone:NO];
         }
         

@@ -59,7 +59,8 @@ NSString *const kFirstUse =                 @"firstUse";
 
 + (TKPreferredStorage)preferredStorage
 {
-    return [[[NSUserDefaults standardUserDefaults] objectForKey:kPreferredStorage] integerValue];
+    return kTKlocal;
+    //return [[[NSUserDefaults standardUserDefaults] objectForKey:kPreferredStorage] integerValue];
 }
 
 + (void)setPreferredStorage:(TKPreferredStorage)storage

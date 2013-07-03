@@ -9,10 +9,11 @@
 #import "OptionsViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <Social/Social.h>
-#import "UIColor+Utils.h"
 #import "FileStorageState.h"
 #import "ApplicationModel.h"
 #import "NoteEntry.h"
+#import "UIColor+Utils.h"
+#import "NTDTheme.h"
 
 #define KEYBOARD_SETTINGS_SWITCH 88
 #define STATUS_BAR_TOGGLE_SWITCH 89
@@ -52,6 +53,10 @@
     
     self.scrollView.scrollEnabled = YES;
     self.scrollView.bounces = YES;
+    
+    // set the done button's font
+    UIFont *cancelFont = [UIFont fontWithName:@"Avenir" size:16];
+    self.cancelX.font = cancelFont;
     
     //make the corners
     self.scrollView.layer.bounds = CGRectMake(0, 0, 320, 480);
@@ -108,12 +113,12 @@
 }
 
 -(void)loadOptionColors {
-    self.white.backgroundColor = [UIColor colorWithHexString:@"FFFFFF"];
-    self.sky.backgroundColor = [UIColor colorWithHexString:@"B5D2E0"];
-    self.lime.backgroundColor = [UIColor colorWithHexString:@"BCD66A"];
-    self.kernal.backgroundColor = [UIColor colorWithHexString:@"EFD977"];
-    self.shadow.backgroundColor = [UIColor colorWithHexString:@"333333"];
-    self.tack.backgroundColor = [UIColor colorWithHexString:@"1A9FEB"];
+    self.white.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeWhite] backgroundColor];
+    self.sky.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeSky] backgroundColor];
+    self.lime.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeLime] backgroundColor];
+    self.kernal.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeKernal] backgroundColor];
+    self.shadow.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeShadow] backgroundColor];
+    self.tack.backgroundColor = [[NTDTheme themeForColorScheme:NTDColorSchemeTack] backgroundColor];
 }
 
 
@@ -362,13 +367,8 @@
 
 -(IBAction)changeColor:(UITapGestureRecognizer*)tap {
     
-    UIColor *noteColor = [[UIColor getNoteColorSchemes] objectAtIndex:[[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor]];
-    // if it's dark grey, use white text
-    if ([[UIColor getOptionsColorSchemes] indexOfObject:tap.view.backgroundColor] >= 4) {
-        [self.delegate setNoteColor:noteColor textColor:[UIColor whiteColor]];
-    }else {
-        [self.delegate setNoteColor:noteColor textColor:nil];
-    }    
+    UIColor *noteColor = [[NTDTheme themeForColorScheme:tap.view.tag] backgroundColor];
+    [self.delegate setNoteColor:noteColor textColor:nil];
 }
 
 - (void)viewDidUnload

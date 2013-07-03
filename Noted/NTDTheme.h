@@ -10,8 +10,8 @@
 
 typedef NS_ENUM(NSInteger, NTDColorScheme) {
     NTDColorSchemeWhite = 0,
-    NTDColorSchemeLime,
     NTDColorSchemeSky,
+    NTDColorSchemeLime,
     NTDColorSchemeKernal,
     NTDColorSchemeShadow,
     NTDColorSchemeTack,
