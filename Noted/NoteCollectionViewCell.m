@@ -14,7 +14,7 @@
 #import "UIView+FrameAdditions.h"
 #import "DAKeyboardControl.h"
 
-@interface NoteCollectionViewCell () 
+@interface NoteCollectionViewCell ()
 @end
 
 @implementation NoteCollectionViewCell
@@ -30,9 +30,27 @@
 
 - (void)awakeFromNib
 {    
-    [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.textView];
+    [self.contentView addSubview:self.fadeView];
+    [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.settingsButton];
+    
+    // apply the fade for the contentView
+    if (!self.fadeView.layer.mask) {
+        //[self.fadeView setBackgroundColor:[UIColor whiteColor]];
+        
+        CAGradientLayer *maskLayer = [CAGradientLayer layer];
+        maskLayer.colors = [NSArray arrayWithObjects:(id)[UIColor whiteColor].CGColor,
+                            (id)[UIColor clearColor].CGColor, nil];
+        
+        maskLayer.locations = [NSArray arrayWithObjects:[NSNumber numberWithFloat:.5],
+                               [NSNumber numberWithFloat:1.0], nil];
+        
+        maskLayer.bounds = self.fadeView.bounds;
+        maskLayer.anchorPoint = CGPointZero;
+        
+        self.fadeView.layer.mask = maskLayer;
+    }
 }
 
 -(void)removeFromSuperview
@@ -109,6 +127,7 @@
 - (void)applyTheme:(NTDTheme *)theme
 {
     self.contentView.backgroundColor = theme.backgroundColor;
+    self.fadeView.backgroundColor = theme.backgroundColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     //self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
