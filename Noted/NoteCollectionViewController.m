@@ -779,7 +779,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
     if (self.noteCount == 0) {
-        NSString *firstNoteText = @"Welcome to Noted.\n\nThis is your first note.\nTap a note to see it and edit it.\nSwipe left and right to page through notes\nSwipe right with two fingers to shred a note.\n\nHave fun!";
+        NSString *firstNoteText = @"Welcome to Noted.\n\nThis is your first note.\nSwipe a note out of the stack to delete it\nTap a note to see it and edit it.\nSwipe left and right to page through notes\nSwipe right with two fingers to shred a note.\n\nShake the device to send feedback!";
         // add 2 notes
         [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText andCompletionBlock:^(NoteEntry *entry) {
             self.noteCount++;
