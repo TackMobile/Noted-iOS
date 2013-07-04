@@ -210,11 +210,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;
 
-//#if DEBUG
-//    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
-//#endif
-//    cell.textView.text = entry.text;
-    cell.textView.text = @"This is some sample text that is designed to expand to two lines or more da dadad da ad da da.";
+#if DEBUG
+    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
+#endif
+    cell.textView.text = entry.text;
     NTDTheme *theme = [NTDTheme themeForBackgroundColor:entry.noteColor] ?: [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
     [cell applyTheme:theme];
 
@@ -737,11 +736,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                  (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
                                  !view.hidden) {
                                  NoteCollectionViewCell *cell = (NoteCollectionViewCell *)view;
-//#if DEBUG
-//                                 cell.relativeTimeLabel.text = @"[0] Today";
-//#else
+#if DEBUG
+                                 cell.relativeTimeLabel.text = @"[0] Today";
+#else
                                   cell.relativeTimeLabel.text = @"Today";
-//#endif
+#endif
                                  break;
                              }
                          }
