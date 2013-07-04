@@ -837,6 +837,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UIScrollViewDelegate
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (scrollView == self.visibleCell.textView)
+        [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
+    
     if (scrollView != self.collectionView)
         return;
     

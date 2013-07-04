@@ -10,7 +10,7 @@
 #import "NTDTheme.h"
 #import "NTDCrossDetectorView.h"
 
-@interface NoteCollectionViewCell : UICollectionViewCell
+@interface NoteCollectionViewCell : UICollectionViewCell <UIScrollViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
@@ -21,5 +21,7 @@
 
 - (void)applyTheme:(NTDTheme *)theme;
 - (void)applyShadow:(bool)useFullShadow;
+
+-(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset;
 
 @end

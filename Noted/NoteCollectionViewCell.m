@@ -15,6 +15,7 @@
 #import "DAKeyboardControl.h"
 
 @interface NoteCollectionViewCell ()
+@property (nonatomic, strong) CAGradientLayer *maskLayer;
 @end
 
 @implementation NoteCollectionViewCell
@@ -35,21 +36,34 @@
     [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.settingsButton];
     
-    // apply the fade for the contentView
-    if (!self.fadeView.layer.mask) {
-        //[self.fadeView setBackgroundColor:[UIColor whiteColor]];
-        
+    [self applyMaskWithScrolledOffset:0];
+}
+
+-(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
+    float clearLocation = .5 + CLAMP(0, scrolledOffset, 12)/24;
+    
+    NSArray *maskLocationsArray = [NSArray arrayWithObjects:[NSNumber numberWithFloat:.5],
+                                   [NSNumber numberWithFloat:clearLocation], nil];
+    
+    if (!self.maskLayer) {
+        // apply the fade for the textView
+
         CAGradientLayer *maskLayer = [CAGradientLayer layer];
         maskLayer.colors = [NSArray arrayWithObjects:(id)[UIColor whiteColor].CGColor,
                             (id)[UIColor clearColor].CGColor, nil];
         
-        maskLayer.locations = [NSArray arrayWithObjects:[NSNumber numberWithFloat:.5],
-                               [NSNumber numberWithFloat:1.0], nil];
+        maskLayer.locations = maskLocationsArray;
         
         maskLayer.bounds = self.fadeView.bounds;
         maskLayer.anchorPoint = CGPointZero;
         
-        self.fadeView.layer.mask = maskLayer;
+        self.maskLayer = maskLayer;
+        
+        self.fadeView.layer.mask = self.maskLayer;
+    } else {
+        
+        // adjust locations
+        self.maskLayer.locations = maskLocationsArray;
     }
 }
 
