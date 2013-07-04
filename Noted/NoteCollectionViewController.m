@@ -23,7 +23,7 @@
 #import "OptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
-
+#import "TestFlight.h"
 
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
@@ -93,7 +93,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(keyboardWillBeHidden:)
                                                      name:UIKeyboardWillHideNotification object:nil];
 
-        
     }
     return self;
 }
@@ -215,7 +214,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
     cell.textView.text = entry.text;
-    [cell applyTheme:[NTDTheme themeForBackgroundColor:entry.noteColor]];
+    NTDTheme *theme = [NTDTheme themeForBackgroundColor:entry.noteColor] ?: [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
+    [cell applyTheme:theme];
 
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
@@ -778,6 +778,20 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
     
+    if (self.noteCount == 0) {
+        NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
+        NSString *secondNoteText = @"Here's another note.";
+        NTDTheme *firstNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeTack], *secondNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
+        // add 2 notes
+        [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText theme:firstNoteTheme completionBlock:^(NoteEntry *entry) {
+            self.noteCount++;
+            [[ApplicationModel sharedInstance] createNoteWithText:secondNoteText theme:secondNoteTheme completionBlock:^(NoteEntry *entry) {
+                self.noteCount++;
+                [self.collectionView reloadData];
+            }];
+        }];
+    }
+    
     if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
         [self.collectionView reloadData];
     }
@@ -863,7 +877,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
-    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
+//    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
     BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
     if (self.noteCount == 0) //hack alert
         shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
@@ -895,8 +909,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
-    NSLog(@"textViewShouldBeginEditing");
-    self.pinchToListLayoutGestureRecognizer.enabled = YES;
+    self.pinchToListLayoutGestureRecognizer.enabled = NO;
     [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
         [self keyboardWasPannedToFrame:keyboardFrameInView];
     }];
@@ -913,7 +926,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-    NSLog(@"textViewDidEndEditing");
     
     NoteCollectionViewCell *cell = self.visibleCell;
     NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
@@ -969,7 +981,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
-- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)textColor
+- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)__unused textColor
 {
     NTDTheme *newTheme = [NTDTheme themeForBackgroundColor:color];
     [self.visibleCell applyTheme:newTheme];

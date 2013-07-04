@@ -11,7 +11,7 @@
 #import "NoteFileManager.h"
 #import "TTAlertView.h"
 
-@class NoteDocument;
+@class NoteDocument, NTDTheme;
 
 #define kNoteListChangedNotification @"kNoteListChangedNotification"
 
@@ -55,6 +55,7 @@ DEFINE_SHARED_INSTANCE_METHODS_ON_CLASS(ApplicationModel);
 - (void) createNote;
 - (void) createNoteWithCompletionBlock:(CreateNoteCompletionBlock)completion;
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion;
+- (void)createNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionBlock:(CreateNoteCompletionBlock)completion;
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;
 - (void) deleteNoteEntry:(NoteEntry *)noteDoc withCompletionBlock:(DeleteNoteCompletionBlock)completionBlock;

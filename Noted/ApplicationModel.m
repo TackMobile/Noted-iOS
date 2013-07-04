@@ -17,6 +17,7 @@
 #import "UIAlertView+Blocks.h"
 #import "TTAlertView.h"
 #import "UIColor+Utils.h"
+#import "NTDTheme.h"
 
 typedef void(^StorageChoiceCompletionBlock)();
 
@@ -273,17 +274,25 @@ SHARED_INSTANCE_ON_CLASS_WITH_INIT_BLOCK(ApplicationModel, ^{
 
 - (void)createNoteWithText:(NSString *)text andCompletionBlock:(CreateNoteCompletionBlock)completion
 {
+    [self createNoteWithText:text
+                       theme:[NTDTheme randomTheme]
+             completionBlock:completion];
+}
+
+- (void)createNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionBlock:(CreateNoteCompletionBlock)completion
+{
     NoteData *data = [[NoteData alloc] init];
     [data setNoteText:text];
+    [data setNoteColor:[theme backgroundColor]];
     NSString *uniqueName = [NoteDocument uniqueNoteName];
-//    NSLog(@"Unique name for doc: %@",uniqueName);
+    //    NSLog(@"Unique name for doc: %@",uniqueName);
     
     NoteEntry *noteEntry = [self.noteFileManager addNoteNamed:uniqueName defaultData:data withCompletionBlock:completion];
     NSAssert(noteEntry, @"note entry should be non-nil");
     
     NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.currentNoteEntries];
     [tempSet insertObject:noteEntry atIndex:0];
-    self.currentNoteEntries = tempSet;  
+    self.currentNoteEntries = tempSet;
 }
 
 - (void) deleteNoteEntryAtIndex:(NSUInteger)index withCompletionBlock:(DeleteNoteCompletionBlock)callersCompletionBlock

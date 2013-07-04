@@ -15,8 +15,8 @@
    return [[NSArray alloc] initWithObjects:
            [UIColor colorWithHexString:@"FFFFFF"],
            [UIColor colorWithHexString:@"B5D2E0"],
-           [UIColor colorWithHexString:@"BCD66A"],
-           [UIColor colorWithHexString:@"EFD977"],
+           [UIColor colorWithHexString:@"D0F071"],
+           [UIColor colorWithHexString:@"FFF090"],
            [UIColor colorWithHexString:@"333333"],
            [UIColor colorWithHexString:@"1A9FEB"],
            nil];
@@ -26,8 +26,8 @@
     return [[NSArray alloc] initWithObjects:
             [UIColor colorWithHexString:@"FFFFFF"],
             [UIColor colorWithHexString:@"B5D2E0"],
-            [UIColor colorWithHexString:@"BCD66A"],
-            [UIColor colorWithHexString:@"EFD977"],
+            [UIColor colorWithHexString:@"D0F071"],
+            [UIColor colorWithHexString:@"FFF090"],
             [UIColor colorWithHexString:@"333333"],
             [UIColor colorWithHexString:@"1A9FEB"],
             nil];
