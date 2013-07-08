@@ -382,7 +382,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateChanged:
             
             // we want a rtl swipe for shredding to begin
-            if (velocity > 50 && !self.hasTwoFingerNoteDeletionBegun) {
+            if (fabsf(velocity) > 50 && !self.hasTwoFingerNoteDeletionBegun) {
+                if (velocity > 0)
+                    self.deletionDirection = NTDPageDeletionDirectionRight;
+                else
+                    self.deletionDirection = NTDPageDeletionDirectionLeft;
+                
                 self.hasTwoFingerNoteDeletionBegun = YES;
             }
             
@@ -398,9 +403,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             int newIndex = self.visibleCardIndexPath.row;
             
             if (self.hasTwoFingerNoteDeletionBegun) {
-                if (translation.x >= self.collectionView.frame.size.width/2)
+                if ( fabsf(translation.x) >= self.collectionView.frame.size.width/2)
                     shouldDelete = YES;
-                else if (velocity > SwipeVelocityThreshold ) {
+                else if (fabsf(velocity) > SwipeVelocityThreshold ) {
                     shouldDelete = YES;
                 }
                 
@@ -425,7 +430,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         
             if (shouldDelete) {
                 
-                [self shredVisibleNoteByPercent:1 completion:^{
+                [self shredVisibleNoteByPercent:(self.deletionDirection==NTDPageDeletionDirectionRight)?1:0 completion:^{
                     [self.collectionView performBatchUpdates:^{
                         [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
                     } completion:^(BOOL finished) {
