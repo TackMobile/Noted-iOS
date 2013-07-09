@@ -39,8 +39,8 @@
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUITextView" id="629740728">
 						<reference key="NSNextResponder" ref="191373211"/>
-						<int key="NSvFlags">280</int>
-						<string key="NSFrame">{{4, 18}, {310, 452}}</string>
+						<int key="NSvFlags">304</int>
+						<string key="NSFrame">{{5, 18}, {310, 452}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="602324049"/>
@@ -96,7 +96,7 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 					</object>
 					<object class="IBUIView" id="602324049">
 						<reference key="NSNextResponder" ref="191373211"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">288</int>
 						<array class="NSMutableArray" key="NSSubviews"/>
 						<string key="NSFrame">{{4, 18}, {303, 22}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
@@ -148,7 +148,6 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 						<string key="NSFrame">{{280, -2}, {40, 38}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -356,7 +355,6 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 					<string key="className">NoteCollectionViewController</string>
 					<string key="superclassName">UICollectionViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="finishEditing:">id</string>
 						<string key="panCard:">UIPanGestureRecognizer</string>
 						<string key="panCardWhileViewingOptions:">UIPanGestureRecognizer</string>
 						<string key="panCardWithTwoFingers:">UIPanGestureRecognizer</string>
@@ -364,10 +362,6 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 						<string key="showSettings:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="finishEditing:">
-							<string key="name">finishEditing:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="panCard:">
 							<string key="name">panCard:</string>
 							<string key="candidateClassName">UIPanGestureRecognizer</string>

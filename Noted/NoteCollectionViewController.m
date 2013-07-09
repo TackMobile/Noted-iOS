@@ -966,6 +966,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 - (void)keyboardWillBeHidden:(NSNotification*)notification {
     self.visibleCell.textView.frame = self.noteTextViewFrameWhileNotEditing;
+    [self.visibleCell applyMaskWithScrolledOffset:0];
 }
 - (void)keyboardWasPannedToFrame:(CGRect)frame {
     // resize the textview
