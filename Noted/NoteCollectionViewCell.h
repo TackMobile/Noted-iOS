@@ -10,7 +10,7 @@
 #import "NTDTheme.h"
 #import "NTDCrossDetectorView.h"
 
-@interface NoteCollectionViewCell : UICollectionViewCell <UIScrollViewDelegate>
+@interface NoteCollectionViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UITextView *textView;

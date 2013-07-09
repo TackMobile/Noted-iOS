@@ -40,17 +40,15 @@
 }
 
 -(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
-    float clearLocation = .5 + CLAMP(0, scrolledOffset, 12)/24;
+    CGFloat clearLocation = .5 + CLAMP(scrolledOffset, 0, 12)/24;
     
-    NSArray *maskLocationsArray = [NSArray arrayWithObjects:[NSNumber numberWithFloat:.5],
-                                   [NSNumber numberWithFloat:clearLocation], nil];
+    NSArray *maskLocationsArray = [NSArray arrayWithObjects:@0.5f, @(clearLocation), nil];
     
     if (!self.maskLayer) {
         // apply the fade for the textView
 
         CAGradientLayer *maskLayer = [CAGradientLayer layer];
-        maskLayer.colors = [NSArray arrayWithObjects:(id)[UIColor whiteColor].CGColor,
-                            (id)[UIColor clearColor].CGColor, nil];
+        maskLayer.colors = @[ (id)[UIColor whiteColor].CGColor, (id)[UIColor clearColor].CGColor];
         
         maskLayer.locations = maskLocationsArray;
         
