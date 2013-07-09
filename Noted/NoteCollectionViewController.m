@@ -35,7 +35,7 @@
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer, *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
-@property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 
 @property (nonatomic, assign) NSUInteger noteCount;
@@ -141,6 +141,12 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     panGestureRecognizer.enabled = NO;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
     self.panCardWhileViewingOptionsGestureRecognizer = panGestureRecognizer;
+    
+    // tap while viewing options
+    tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardTapWhileViewingOptions:)];
+    tapGestureRecognizer.enabled = NO;
+    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
+    self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // set up properties
     self.noteCount = 0;
@@ -547,7 +553,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 (velocity < 0 && fabs(velocity) > SwipeVelocityThreshold)) {
                 self.pagingLayout.pannedCardXTranslation = 0;
                 [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
-                    panGestureRecognizer.enabled = NO;
+                    self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+                    self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;
                     [self.optionsViewController.view removeFromSuperview];
@@ -564,6 +571,28 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     if (needsTranslation)
         [self.pagingLayout invalidateLayout];
+}
+
+- (void)handleCardTapWhileViewingOptions:(UITapGestureRecognizer *)tapGestureRecognizer {
+    switch (tapGestureRecognizer.state) {
+        case UIGestureRecognizerStateEnded:
+        {
+            [self.pagingLayout hideOptionsWithVelocity:.2 completion:^{
+                self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+                self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+
+                self.visibleCell.textView.editable = YES;
+                self.pinchToListLayoutGestureRecognizer.enabled = YES;
+                [self.optionsViewController.view removeFromSuperview];
+                [self.optionsViewController reset]; // what does this do?
+            }] ;
+        }
+
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
@@ -670,6 +699,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     /* Don't let user interact with anything but our options. */
     visibleCell.textView.editable = NO;
     self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
+    self.tapCardWhileViewingOptionsGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
     
     self.optionsViewController.view.frame = visibleCell.frame;
