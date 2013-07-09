@@ -837,6 +837,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UIScrollViewDelegate
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (scrollView == self.visibleCell.textView)
+        [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
+    
     if (scrollView != self.collectionView)
         return;
     
@@ -963,6 +966,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 - (void)keyboardWillBeHidden:(NSNotification*)notification {
     self.visibleCell.textView.frame = self.noteTextViewFrameWhileNotEditing;
+    [self.visibleCell applyMaskWithScrolledOffset:0];
 }
 - (void)keyboardWasPannedToFrame:(CGRect)frame {
     // resize the textview

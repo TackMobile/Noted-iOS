@@ -14,7 +14,8 @@
 #import "UIView+FrameAdditions.h"
 #import "DAKeyboardControl.h"
 
-@interface NoteCollectionViewCell () 
+@interface NoteCollectionViewCell ()
+@property (nonatomic, strong) CAGradientLayer *maskLayer;
 @end
 
 @implementation NoteCollectionViewCell
@@ -30,9 +31,38 @@
 
 - (void)awakeFromNib
 {    
-    [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.textView];
+    [self.contentView addSubview:self.fadeView];
+    [self.contentView addSubview:self.relativeTimeLabel];
     [self.contentView addSubview:self.settingsButton];
+    
+    [self applyMaskWithScrolledOffset:0];
+}
+
+-(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
+    CGFloat clearLocation = .5 + CLAMP(scrolledOffset/24, 0, .5);
+    
+    NSArray *maskLocationsArray = [NSArray arrayWithObjects:@0.5f, @(clearLocation), nil];
+    
+    if (!self.maskLayer) {
+        // apply the fade for the textView
+
+        CAGradientLayer *maskLayer = [CAGradientLayer layer];
+        maskLayer.colors = @[ (id)[UIColor whiteColor].CGColor, (id)[UIColor clearColor].CGColor];
+        
+        maskLayer.locations = maskLocationsArray;
+        
+        maskLayer.bounds = self.fadeView.bounds;
+        maskLayer.anchorPoint = CGPointZero;
+        
+        self.maskLayer = maskLayer;
+        
+        self.fadeView.layer.mask = self.maskLayer;
+    } else {
+        
+        // adjust locations
+        self.maskLayer.locations = maskLocationsArray;
+    }
 }
 
 -(void)removeFromSuperview
@@ -111,6 +141,7 @@
 - (void)applyTheme:(NTDTheme *)theme
 {
     self.contentView.backgroundColor = theme.backgroundColor;
+    self.fadeView.backgroundColor = theme.backgroundColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     //self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
