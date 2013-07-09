@@ -137,14 +137,14 @@
                     shiftMaskAfterAnimation = NO;
                 } else {
                     // shift the mask over
-                    CGRect maskFrame;
+                    CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
                     switch (self.deletionDirection) {
                         case NTDPageDeletionDirectionRight:
-                            maskFrame = (CGRect){{column.percentLeft * noteWidth, 0}, self.currentDeletionCell.layer.mask.frame.size};
+                            maskFrame.origin.x = column.percentLeft * noteWidth;
                             break;
                             
                         case NTDPageDeletionDirectionLeft:
-                            maskFrame = (CGRect){{-(1-column.percentLeft) * noteWidth - columnWidth, 0}, self.currentDeletionCell.layer.mask.frame.size};
+                            maskFrame.origin.x = -(1-column.percentLeft) * noteWidth - columnWidth;
                             break;
                             
                         default:
@@ -178,30 +178,29 @@
                     slice.alpha = 0;
                     
                     // Rotate some degrees
-                    CGAffineTransform rotate = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+                    CGAffineTransform randomRotation = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
                     
                     // Move to the left
-                    CGAffineTransform translate = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+                    CGAffineTransform randomTranslation = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
                     
                     // Apply them to a view
-                    slice.transform = CGAffineTransformConcat(translate, rotate);
+                    slice.transform = CGAffineTransformConcat(randomTranslation, randomRotation);
                 }
                 
                 column.isDeleted = YES;
             }
         }
         
-        if ((self.deletionDirection == NTDPageDeletionDirectionLeft && percent==0) ||
-            (self.deletionDirection == NTDPageDeletionDirectionRight && percent==1)) { // the last column was deleted
+        if ([self shouldCompleteShredForPercent:percent]) { // the last column was deleted
             // remove the mask
-            CGRect maskFrame;
+            CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             switch (self.deletionDirection) {
                 case NTDPageDeletionDirectionRight:
-                    maskFrame = (CGRect){{noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                    maskFrame.origin.x = noteWidth;
                     break;
                     
                 case NTDPageDeletionDirectionLeft:
-                    maskFrame = (CGRect){{-noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                    maskFrame.origin.x = -noteWidth;
                     break;
                     
                 default:
@@ -225,14 +224,14 @@
         
         // check if we should change the mask after the animation
         if (columnForUseAsMaskAfterAnimation != nil) {
-            CGRect maskFrame;
+            CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             switch (self.deletionDirection) {
                 case NTDPageDeletionDirectionRight:
-                    maskFrame = (CGRect){{columnForUseAsMaskAfterAnimation.percentLeft*noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                    maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
                     break;
                     
                 case NTDPageDeletionDirectionLeft:
-                    maskFrame = (CGRect){{-(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth, 0}, self.visibleCell.layer.mask.frame.size};
+                    maskFrame.origin.x = -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
                     break;
                     
                 default:
@@ -251,8 +250,7 @@
             
         }
         
-        if ((self.deletionDirection == NTDPageDeletionDirectionRight && percent >= 1)
-            || (self.deletionDirection == NTDPageDeletionDirectionLeft && percent <= 0)) {
+        if ([self shouldCompleteShredForPercent:percent]) {
             
             CGRect maskFrame;
             switch (self.deletionDirection) {
@@ -290,14 +288,11 @@
     
     float shredByPercent;
     switch (self.deletionDirection) {
-        case NTDPageDeletionDirectionRight:
-            shredByPercent = 0;
-            break;
-            
         case NTDPageDeletionDirectionLeft:
             shredByPercent = 1;
             break;
             
+        case NTDPageDeletionDirectionRight:
         default:
             shredByPercent = 0;
             break;
@@ -314,6 +309,11 @@
         [self.columnsForDeletion removeAllObjects];
     }];
     
+}
+
+- (BOOL)shouldCompleteShredForPercent:(float)percent {
+    return ((self.deletionDirection == NTDPageDeletionDirectionRight && percent == 1)
+            || (self.deletionDirection == NTDPageDeletionDirectionLeft && percent == 0));
 }
 
 #pragma mark - utilities
