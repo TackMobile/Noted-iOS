@@ -40,7 +40,7 @@
 }
 
 -(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
-    CGFloat clearLocation = .5 + CLAMP(scrolledOffset, 0, 12)/24;
+    CGFloat clearLocation = .5 + CLAMP(scrolledOffset/24, 0, .5);
     
     NSArray *maskLocationsArray = [NSArray arrayWithObjects:@0.5f, @(clearLocation), nil];
     
