@@ -20,7 +20,7 @@
 #import "NoteDocument.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
-#import "OptionsViewController.h"
+#import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
 #import "TestFlight.h"
@@ -41,7 +41,7 @@
 @property (nonatomic, assign) NSUInteger noteCount;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
-@property (nonatomic, strong) OptionsViewController *optionsViewController;
+@property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
@@ -243,10 +243,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 }
 
 #pragma mark - Properties
--(OptionsViewController *)optionsViewController
+-(NTDOptionsViewController *)optionsViewController
 {
     if (_optionsViewController == nil) {
-        _optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
+        _optionsViewController = [[NTDOptionsViewController alloc] initWithNibName:@"NTDOptionsViewController" bundle:nil];
         _optionsViewController.delegate = self;
     }
     return _optionsViewController;
@@ -558,7 +558,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;
                     [self.optionsViewController.view removeFromSuperview];
-                    [self.optionsViewController reset]; // what does this do?
+//                    [self.optionsViewController reset]; // what does this do?
                 }] ;
             } else {
                 self.pagingLayout.pannedCardXTranslation = 0;
@@ -584,7 +584,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.visibleCell.textView.editable = YES;
                 self.pinchToListLayoutGestureRecognizer.enabled = YES;
                 [self.optionsViewController.view removeFromSuperview];
-                [self.optionsViewController reset]; // what does this do?
+//                [self.optionsViewController reset]; // what does this do?
             }] ;
         }
 

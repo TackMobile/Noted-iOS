@@ -19,6 +19,4 @@
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NoteCollectionViewCell *currentDeletionCell;
 
-
-
 @end
