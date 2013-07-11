@@ -120,6 +120,8 @@
 		B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
 		B5EF4391165FE69100B59099 /* StackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B5EF4390165FE69100B59099 /* StackViewItem.m */; };
+		CF7426BD178F53B800BB2854 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF7426BC178F53B800BB2854 /* Reveal.framework */; };
+		CF7426BF178F53C000BB2854 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF7426BE178F53C000BB2854 /* CFNetwork.framework */; };
 		CF8ECF9D178213C20062705D /* NoteCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
@@ -297,6 +299,8 @@
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
 		B5EF438F165FE69100B59099 /* StackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackViewItem.h; sourceTree = "<group>"; };
 		B5EF4390165FE69100B59099 /* StackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StackViewItem.m; sourceTree = "<group>"; };
+		CF7426BC178F53B800BB2854 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		CF7426BE178F53C000BB2854 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		CF8ECF9B178213C10062705D /* NoteCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NoteCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
 		CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NoteCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
@@ -323,6 +327,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF7426BF178F53C000BB2854 /* CFNetwork.framework in Frameworks */,
 				B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */,
 				B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */,
 				29914F181575350C0029D170 /* MessageUI.framework in Frameworks */,
@@ -332,6 +337,7 @@
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				2908B5B81576E6AF00A1CFB9 /* libz.dylib in Frameworks */,
 				B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */,
+				CF7426BD178F53B800BB2854 /* Reveal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,6 +415,8 @@
 		29FC4904156EE0CD0007BBAD = {
 			isa = PBXGroup;
 			children = (
+				CF7426BE178F53C000BB2854 /* CFNetwork.framework */,
+				CF7426BC178F53B800BB2854 /* Reveal.framework */,
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29960C7E15740F050054347A /* Helpers */,
 				29960C661573F4C50054347A /* Assets */,
