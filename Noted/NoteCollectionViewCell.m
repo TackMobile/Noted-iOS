@@ -16,6 +16,7 @@
 
 @interface NoteCollectionViewCell ()
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
+@property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
 @end
 
 @implementation NoteCollectionViewCell
@@ -37,6 +38,10 @@
     [self.contentView addSubview:self.settingsButton];
     
     [self applyMaskWithScrolledOffset:0];
+    
+    self.settingsButton.hidden = NO;
+    self.settingsButton.alpha = 0;
+    self._doNotHideSettingsForNextLayoutChange = NO;
 }
 
 -(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
@@ -93,19 +98,23 @@
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
 {
     if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
-        self.settingsButton.hidden = YES;
+        if (self._doNotHideSettingsForNextLayoutChange) {
+            self._doNotHideSettingsForNextLayoutChange = NO;
+        } else {
+            self.settingsButton.alpha = 0;
+        }
+        
         self.crossDetectorView.hidden = YES;
         self.textView.editable = NO;
         self.textView.scrollEnabled = NO;
         [self applyShadow:NO];
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
-        self.settingsButton.hidden = NO;
+        self.settingsButton.alpha = 1;
         self.crossDetectorView.hidden = NO;
         self.textView.editable = YES;
         self.textView.scrollEnabled = YES;
         [self applyShadow:YES];
     }
-    
 }
 
 - (void)prepareForReuse
@@ -113,8 +122,11 @@
     self.textView.contentOffset = CGPointZero;
 }
 
-#pragma mark - Helpers
+- (void)doNotHideSettingsForNextLayoutChange {
+    self._doNotHideSettingsForNextLayoutChange = YES;
+}
 
+#pragma mark - Helpers
 
 // apply a full shadow if we are paging. in list, we only need a small shadow. (performance+)
 - (void)applyShadow:(bool)useFullShadow 
