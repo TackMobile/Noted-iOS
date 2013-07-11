@@ -558,7 +558,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;
                     [self.optionsViewController.view removeFromSuperview];
-//                    [self.optionsViewController reset]; // what does this do?
+                    [self.optionsViewController reset];
                 }] ;
             } else {
                 self.pagingLayout.pannedCardXTranslation = 0;
@@ -584,7 +584,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.visibleCell.textView.editable = YES;
                 self.pinchToListLayoutGestureRecognizer.enabled = YES;
                 [self.optionsViewController.view removeFromSuperview];
-//                [self.optionsViewController reset]; // what does this do?
+                [self.optionsViewController reset];
             }] ;
         }
 
@@ -1010,6 +1010,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 #pragma mark - OptionsViewController Delegate
+
+-(CGFloat)initialOptionsViewWidth {
+    return InitialNoteOffsetWhenViewingOptions;
+}
 
 -(void)changeOptionsViewWidth:(CGFloat)width {
     [self.pagingLayout revealOptionsViewWithOffset:width];

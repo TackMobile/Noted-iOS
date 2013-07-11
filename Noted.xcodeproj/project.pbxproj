@@ -14,8 +14,6 @@
 		298EBFFA15702B5C00B72F5C /* KeyboardKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EBFF915702B5C00B72F5C /* KeyboardKey.m */; };
 		298EC00215702C6F00B72F5C /* KeyboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EC00015702C6F00B72F5C /* KeyboardViewController.m */; };
 		298EC00315702C6F00B72F5C /* KeyboardViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EC00115702C6F00B72F5C /* KeyboardViewController.xib */; };
-		298EC0071570415800B72F5C /* OptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 298EC0051570415700B72F5C /* OptionsViewController.m */; };
-		298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 298EC0061570415700B72F5C /* OptionsViewController.xib */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C5B1573E2860054347A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 29960C5A1573E2860054347A /* Settings.bundle */; };
@@ -123,6 +121,8 @@
 		CF8ECF9D178213C20062705D /* NoteCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
+		CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CBE178E04E700187C79 /* Reveal.framework */; };
+		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
 		EAC1F06315B99EB700262749 /* NoteFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC1F06215B99EB700262749 /* NoteFileManager.m */; };
 		EAD695E815B7AC9D004A2494 /* ApplicationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD695E715B7AC9D004A2494 /* ApplicationModel.m */; };
 		EAD6960315B7B8FB004A2494 /* NoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EAD6960115B7B8FB004A2494 /* NoteListViewController.m */; };
@@ -148,9 +148,6 @@
 		298EBFFF15702C6F00B72F5C /* KeyboardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardViewController.h; sourceTree = "<group>"; };
 		298EC00015702C6F00B72F5C /* KeyboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardViewController.m; sourceTree = "<group>"; };
 		298EC00115702C6F00B72F5C /* KeyboardViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = KeyboardViewController.xib; sourceTree = "<group>"; };
-		298EC0041570415700B72F5C /* OptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionsViewController.h; sourceTree = "<group>"; };
-		298EC0051570415700B72F5C /* OptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OptionsViewController.m; sourceTree = "<group>"; };
-		298EC0061570415700B72F5C /* OptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsViewController.xib; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F15157535060029D170 /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
@@ -304,6 +301,8 @@
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
+		CFAF5CBE178E04E700187C79 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		EAC1F06115B99EB700262749 /* NoteFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteFileManager.h; sourceTree = "<group>"; };
 		EAC1F06215B99EB700262749 /* NoteFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteFileManager.m; sourceTree = "<group>"; };
 		EAD695E615B7AC9D004A2494 /* ApplicationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationModel.h; path = Noted/ApplicationModel.h; sourceTree = "<group>"; };
@@ -328,6 +327,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */,
 				B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */,
 				B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */,
 				29914F181575350C0029D170 /* MessageUI.framework in Frameworks */,
@@ -337,6 +337,7 @@
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				2908B5B81576E6AF00A1CFB9 /* libz.dylib in Frameworks */,
 				B50C98BE160CCD45002A3909 /* libTestFlight.a in Frameworks */,
+				CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +415,8 @@
 		29FC4904156EE0CD0007BBAD = {
 			isa = PBXGroup;
 			children = (
+				CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */,
+				CFAF5CBE178E04E700187C79 /* Reveal.framework */,
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29960C7E15740F050054347A /* Helpers */,
 				29960C661573F4C50054347A /* Assets */,
@@ -649,9 +652,6 @@
 		CFAF5CB8178DBD9100187C79 /* in-use */ = {
 			isa = PBXGroup;
 			children = (
-				298EC0041570415700B72F5C /* OptionsViewController.h */,
-				298EC0051570415700B72F5C /* OptionsViewController.m */,
-				298EC0061570415700B72F5C /* OptionsViewController.xib */,
 				CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */,
 				CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */,
 				CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */,
@@ -747,7 +747,6 @@
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
 				298EBFF2157021CC00B72F5C /* NoteEntryCell.xib in Resources */,
 				298EC00315702C6F00B72F5C /* KeyboardViewController.xib in Resources */,
-				298EC0081570415800B72F5C /* OptionsViewController.xib in Resources */,
 				29960C5B1573E2860054347A /* Settings.bundle in Resources */,
 				29960C651573F4BF0054347A /* warning.png in Resources */,
 				29E326BF157554820013399B /* EnglishKeyboard.plist in Resources */,
@@ -827,7 +826,6 @@
 				298EBFEF157020DA00B72F5C /* NoteEntryCell.m in Sources */,
 				298EBFFA15702B5C00B72F5C /* KeyboardKey.m in Sources */,
 				298EC00215702C6F00B72F5C /* KeyboardViewController.m in Sources */,
-				298EC0071570415800B72F5C /* OptionsViewController.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				29960C881574103F0054347A /* TransformableNoteCell.m in Sources */,
 				29960C8D157418850054347A /* NoteTableGestureRecognizer.m in Sources */,

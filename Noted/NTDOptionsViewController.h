@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+@interface NTDColorPicker : UIView
+
+@end
+
 @protocol OptionsViewDelegate <NSObject>
 
 @required
@@ -18,15 +22,16 @@
 -(void)sendSMS;
 -(void)changeOptionsViewWidth:(CGFloat)width;
 
-@end
+-(CGFloat)initialOptionsViewWidth;
 
+@end
 
 @interface NTDOptionsViewController : UIViewController
 
 @property (strong, nonatomic) id<OptionsViewDelegate> delegate;
 
 // colors
-@property (weak, nonatomic) IBOutlet UIView *colorsSubview;
+@property (weak, nonatomic) IBOutlet NTDColorPicker *colorsSubview;
 
 // options
 @property (weak, nonatomic) IBOutlet UIView *optionsSubview;
@@ -36,5 +41,7 @@
 @property (weak, nonatomic) IBOutlet UIView *shareOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
+
+- (void) reset;
 
 @end
