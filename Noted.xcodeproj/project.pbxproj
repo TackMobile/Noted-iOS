@@ -56,9 +56,9 @@
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
 		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
 		3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */; };
-		3F9D3F1A1790BCD900EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F191790BCD900EA183D /* NTDNoteMetadata.m */; };
 		3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */; };
 		3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9D3F1F179494B600EA183D /* CoreData.framework */; };
+		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		577A9B2816DEBFC100AF8D74 /* DCCrossHairView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */; };
 		577A9B2916DEBFC100AF8D74 /* DCFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2216DEBFC100AF8D74 /* DCFrameView.m */; };
 		577A9B2A16DEBFC100AF8D74 /* DCIntrospect.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2416DEBFC100AF8D74 /* DCIntrospect.m */; };
@@ -210,11 +210,11 @@
 		3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteDocument.h; sourceTree = "<group>"; };
 		3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteDocument.m; sourceTree = "<group>"; };
 		3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NTDNoteMetadata.xcdatamodel; sourceTree = "<group>"; };
-		3F9D3F181790BCD900EA183D /* NTDNoteMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteMetadata.h; sourceTree = "<group>"; };
-		3F9D3F191790BCD900EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
 		3F9D3F1C179491A800EA183D /* NTDCoreDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDCoreDataStore.h; sourceTree = "<group>"; };
 		3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDCoreDataStore.m; sourceTree = "<group>"; };
 		3F9D3F1F179494B600EA183D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteMetadata.h; sourceTree = "<group>"; };
+		3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
 		577A9B1F16DEBFC100AF8D74 /* DCCrossHairView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCCrossHairView.h; sourceTree = "<group>"; };
 		577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCCrossHairView.m; sourceTree = "<group>"; };
 		577A9B2116DEBFC100AF8D74 /* DCFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCFrameView.h; sourceTree = "<group>"; };
@@ -532,9 +532,9 @@
 				3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */,
 				3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */,
 				3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */,
+				3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */,
+				3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */,
 				3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */,
-				3F9D3F181790BCD900EA183D /* NTDNoteMetadata.h */,
-				3F9D3F191790BCD900EA183D /* NTDNoteMetadata.m */,
 			);
 			name = Private;
 			sourceTree = "<group>";
@@ -908,8 +908,8 @@
 				3F9D3F101790925100EA183D /* NTDNote.m in Sources */,
 				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
 				3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */,
-				3F9D3F1A1790BCD900EA183D /* NTDNoteMetadata.m in Sources */,
 				3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */,
+				3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

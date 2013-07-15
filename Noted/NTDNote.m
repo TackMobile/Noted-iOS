@@ -36,4 +36,13 @@ static Class PrivateSubclass;
     [PrivateSubclass newNoteWithCompletionHandler:handler];
 }
 
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
+{
+    [self newNoteWithCompletionHandler:^(NTDNote *note) {
+        note.text = text;
+        note.theme = theme;
+        handler(note);
+    }];
+}
+
 @end

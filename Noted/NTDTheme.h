@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, NTDColorScheme) {
+typedef NS_ENUM(int16_t, NTDColorScheme) {
     NTDColorSchemeWhite = 0,
     NTDColorSchemeSky,
     NTDColorSchemeLime,

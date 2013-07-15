@@ -2,7 +2,7 @@
 //  NTDNoteMetadata.h
 //  Noted
 //
-//  Created by Vladimir Fleurima on 7/12/13.
+//  Created by Vladimir Fleurima on 7/15/13.
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 

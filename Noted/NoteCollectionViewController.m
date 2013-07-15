@@ -12,19 +12,16 @@
 #import "NoteCollectionViewController.h"
 #import "NoteListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
-#import "ApplicationModel.h"
-#import "NoteEntry.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import "NTDCrossDetectorView.h"
-#import "NoteData.h"
-#import "NoteDocument.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
 #import "TestFlight.h"
-
+#import "NTDNote.h"
+#import "Utilities.h"
 
 @interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NTDOptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
@@ -39,7 +36,7 @@
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 
-@property (nonatomic, assign) NSUInteger noteCount;
+@property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
 @property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
@@ -149,11 +146,18 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // set up properties
-    self.noteCount = 0;
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(noteListChanged:)
-                                                 name:kNoteListChangedNotification
-                                               object:nil];
+    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        self.notes = [notes mutableCopy];
+        if (self.notes.count == 0) {
+            [self noteListChanged:nil];
+        } else {
+            [self.collectionView reloadData];
+        }
+    }];
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(noteListChanged:)
+//                                                 name:kNoteListChangedNotification
+//                                               object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
@@ -196,7 +200,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return self.noteCount;
+    return self.notes.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -209,9 +213,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                             action:@selector(showSettings:)
                   forControlEvents:UIControlEventTouchUpInside];
     
-    NSInteger index = [self noteEntryIndexForIndexPath:indexPath];
-    NoteEntry *entry = [[ApplicationModel sharedInstance] noteAtIndex:index];
-    cell.relativeTimeLabel.text = entry.relativeDateString;
+    NTDNote *note = [self noteAtIndexPath:indexPath];
+    cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
     
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;
@@ -219,9 +222,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #if DEBUG
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
-    cell.textView.text = entry.text;
-    NTDTheme *theme = [NTDTheme themeForBackgroundColor:entry.noteColor] ?: [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
-    [cell applyTheme:theme];
+    cell.textView.text = note.text;
+    [cell applyTheme:note.theme];
 
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
@@ -240,6 +242,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     } else {
         return nil;
     }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    [[self noteAtIndexPath:indexPath] closeWithCompletionHandler:nil];
 }
 
 #pragma mark - Properties
@@ -273,7 +280,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     //hack. we should be more discerning about when we trigger anyway. aka, we should cancel
     //if indexPath==nil when in the 'began' state.
-    if (self.noteCount == 0)
+    if (self.notes.count == 0)
         return;
     
     static NSIndexPath *swipedCardIndexPath = nil;
@@ -420,7 +427,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.hasTwoFingerNoteDeletionBegun = NO;
             }
             
-            if (self.noteCount > 1 && shouldDelete) {
+            if (self.notes.count > 1 && shouldDelete) {
                 doNotRefresh = YES;
                 newIndex--;
             } else {
@@ -790,8 +797,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              }
                          }
                      } completion:^(BOOL finished) {
-                         [[ApplicationModel sharedInstance] createNoteWithCompletionBlock:^(NoteEntry *entry) {
-                             self.noteCount++;
+                         [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+                             [self.notes insertObject:note atIndex:0];
                              self.pagingLayout.activeCardIndex = 0;
                              [self updateLayout:self.pagingLayout
                                        animated:NO];
@@ -804,34 +811,29 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
-    self.noteCount--;
+    NTDNote *note = [self noteAtIndexPath:indexPath];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-    ApplicationModel *model = [ApplicationModel sharedInstance];
-    [model deleteNoteEntryAtIndex:[self noteEntryIndexForIndexPath:indexPath]
-              withCompletionBlock:^{
-                  NSLog(@"Note %d deleted", indexPath.item);
-              }];
+    [self.notes removeObject:note];
+    [note deleteWithCompletionHandler:nil];
 }
 
-- (NSInteger)noteEntryIndexForIndexPath:(NSIndexPath *)indexPath
+- (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
 {
-    return indexPath.item;
+    return self.notes[indexPath.item];
 }
 
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {
-    self.noteCount = [[[ApplicationModel sharedInstance] currentNoteEntries] count];
-    
-    if (self.noteCount == 0) {
+    if (self.notes.count == 0) {
         NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
         NSString *secondNoteText = @"Here's another note.";
         NTDTheme *firstNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeTack], *secondNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
         // add 2 notes
-        [[ApplicationModel sharedInstance] createNoteWithText:firstNoteText theme:firstNoteTheme completionBlock:^(NoteEntry *entry) {
-            self.noteCount++;
-            [[ApplicationModel sharedInstance] createNoteWithText:secondNoteText theme:secondNoteTheme completionBlock:^(NoteEntry *entry) {
-                self.noteCount++;
+        [NTDNote newNoteWithText:firstNoteText theme:firstNoteTheme completionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:0];
+            [NTDNote newNoteWithText:secondNoteText theme:secondNoteTheme completionHandler:^(NTDNote *note) {
+                [self.notes insertObject:note atIndex:0];
                 [self.collectionView reloadData];
             }];
         }];
@@ -927,7 +929,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
 //    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
     BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-    if (self.noteCount == 0) //hack alert
+    if (self.notes.count == 0) //hack alert
         shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
     if (shouldCreateNewCard && self.collectionView.collectionViewLayout == self.listLayout) {
         CGPoint panVelocity = [scrollView.panGestureRecognizer velocityInView:scrollView];
@@ -966,35 +968,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return YES;
 }
 
+- (void)textViewDidChange:(UITextView *)textView
+{
+    [[self noteAtIndexPath:self.visibleCardIndexPath] setText:textView.text];
+}
+
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
 //    [textView removeKeyboardControl];
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-    
-    NoteCollectionViewCell *cell = self.visibleCell;
-    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
-    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
-        if (noteDocument.documentState!=UIDocumentStateNormal ) {
-            NSLog(@"couldn't save!");
-            return;
-        }
-        
-        NSString *text = textView.text;
-        NSString *currentText = noteDocument.data.noteText;
-        if (![currentText isEqualToString:text]) {
-            [noteDocument setText:text];
-            [noteEntry setNoteData:noteDocument.data];
-            [noteDocument updateChangeCount:UIDocumentChangeDone];
-            
-            cell.relativeTimeLabel.text = noteEntry.relativeDateString;
-        }
-        
-    };
-    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
-                                                completion:completion];
 }
 
 #pragma mark - Keyboard Handling
@@ -1051,8 +1035,4 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 //    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
 //                                                completion:completion];
 //}
-
-
-#pragma mark Send Actions
-
 @end
