@@ -10,14 +10,13 @@
 #import "UIColor+Utils.h"
 
 @interface NTDTheme ()
-@property (nonatomic, assign) NTDColorScheme colorScheme;
 @end
 
 @implementation NTDTheme
 
-static NSArray *backgroundColors;
+static NSArray *backgroundColors, *themes;
 
-+(void)initialize
++ (void)initialize
 {
     backgroundColors = [[NSArray alloc] initWithObjects:
             [UIColor colorWithHexString:@"FFFFFF"],
@@ -32,9 +31,15 @@ static NSArray *backgroundColors;
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme
 {
     NSParameterAssert(scheme >= 0 && scheme < NTDNumberOfColorSchemes);
-    NTDTheme *theme = [[NTDTheme alloc] init];
-    theme.colorScheme = scheme;
-    return theme;
+    if (!themes) {
+        NSMutableArray *tempThemes = [NSMutableArray arrayWithCapacity:NTDNumberOfColorSchemes];
+        for (NSInteger i = 0; i < NTDNumberOfColorSchemes; i++) {
+            tempThemes[i] = [[NTDTheme alloc] init];
+            [tempThemes[i] setColorScheme:i];
+        }
+        themes = [tempThemes copy];
+    }
+    return themes[scheme];
 }
 
 + (NTDTheme *)themeForBackgroundColor:(UIColor *)backgroundColor

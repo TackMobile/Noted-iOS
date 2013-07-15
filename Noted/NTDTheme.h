@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, NTDColorScheme) {
 
 @property (nonatomic, readonly) UIColor *backgroundColor, *subheaderColor, *textColor, *borderColor;
 @property (nonatomic, readonly) UIImage *optionsButtonImage;
+@property (nonatomic, assign) NTDColorScheme colorScheme;
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
 + (NTDTheme *)themeForBackgroundColor:(UIColor *)backgroundColor; /* Backwards compatibility */
