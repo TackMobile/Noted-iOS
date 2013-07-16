@@ -39,7 +39,6 @@
     
     [self applyMaskWithScrolledOffset:0];
     
-    self.settingsButton.hidden = NO;
     self.settingsButton.alpha = 0;
     self._doNotHideSettingsForNextLayoutChange = NO;
 }
