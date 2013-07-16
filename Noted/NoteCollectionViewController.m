@@ -265,7 +265,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (NoteCollectionViewCell *)pinchedCell
 {
-    NSLog(@"%i", self.listLayout.pinchedCardIndexPath.row);
     return (NoteCollectionViewCell *)[[self collectionView] cellForItemAtIndexPath:self.listLayout.pinchedCardIndexPath];
 }
 
