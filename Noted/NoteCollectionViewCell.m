@@ -134,11 +134,15 @@
     if (!useFullShadow)
         shadowBounds.size.height = 70; // list item is 44, but we want shadow for deleting too
     
-    self.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.layer.shadowOffset = CGSizeMake(-1.0,0);
-    self.layer.shadowOpacity = .70;
-    self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    [self.layer setShadowPath:[[UIBezierPath bezierPathWithRect:shadowBounds] CGPath]];
+    shadowBounds = CGRectInset(shadowBounds, -2, -2);
+    
+    [self.contentView.layer setShadowPath:[[UIBezierPath bezierPathWithRect:shadowBounds] CGPath]];
+    self.contentView.layer.shadowRadius = 1.5f;
+    self.contentView.layer.shadowOpacity = 0.35;
+    self.contentView.layer.shadowOffset = CGSizeZero;
+    
+    self.contentView.layer.rasterizationScale = self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+
     [self setNeedsDisplay];
 }
 
