@@ -224,15 +224,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #endif
     cell.textView.text = note.headline;
     if (collectionView.collectionViewLayout == self.pagingLayout) {
-//        [self openNoteAtIndexPathIfNecessary:indexPath];
-        NoteCollectionViewCell __weak *weakCell = cell;
-        if (note.fileState != NTDNoteFileStateOpened) {
-            [note openWithCompletionHandler:^(BOOL success) {
-                weakCell.textView.text = note.text;
-            }];
-        } else {
-            weakCell.textView.text = note.text;
-        }
+        [self setBodyForCell:cell atIndexPath:indexPath];
     }
     [cell applyTheme:note.theme];
 
@@ -694,7 +686,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {    
     NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-    [self openNoteAtIndexPathIfNecessary:indexPath];
+    [self setBodyForCell:selectedCell atIndexPath:indexPath];
     
     CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
     CGFloat bottomOffset = self.collectionView.frame.size.height - (topOffset + self.listLayout.cardOffset);
@@ -830,10 +822,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return self.notes[indexPath.item];
 }
 
-- (void)openNoteAtIndexPathIfNecessary:(NSIndexPath *)indexPath
+- (void)setBodyForCell:(NoteCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
+    /* We take `cell` as a parameter because `-[UICollectionView cellForItemAtIndexPath:]`
+     * returns `nil` inside of `collectionView:cellForItemAtIndexPath:`. */
     NTDNote *note = [self noteAtIndexPath:indexPath];
-    NoteCollectionViewCell __weak *weakCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    NoteCollectionViewCell __weak *weakCell = cell;
     if (note.fileState != NTDNoteFileStateOpened) {
         [note openWithCompletionHandler:^(BOOL success) {
             weakCell.textView.text = note.text;
@@ -842,6 +836,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         weakCell.textView.text = note.text;
     }
 }
+
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {

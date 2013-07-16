@@ -129,7 +129,7 @@ static const NSUInteger HeadlineLength = 80;
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
-          (success) ? handler((NTDNote *)document) : handler(nil);
+          (success) ? handler((NTDNote *)document /* Shhh... */) : handler(nil);
       }];
 }
 

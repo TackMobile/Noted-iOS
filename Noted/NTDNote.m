@@ -9,7 +9,7 @@
 #import "NTDNote.h"
 #import "NTDNoteDocument.h"
 
-static Class PrivateSubclass;
+static Class PrivateImplentingClass;
 
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation NTDNote
@@ -18,22 +18,22 @@ static Class PrivateSubclass;
 {
     /* In the future, we'll probably look up some configuration variable
      and set this appropriately. */
-    PrivateSubclass = [NTDNoteDocument class];
+    PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
 {
-    return [PrivateSubclass allocWithZone:zone];
+    return [PrivateImplentingClass allocWithZone:zone];
 }
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *))handler
 {
-    [PrivateSubclass listNotesWithCompletionHandler:handler];
+    [PrivateImplentingClass listNotesWithCompletionHandler:handler];
 }
 
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
 {
-    [PrivateSubclass newNoteWithCompletionHandler:handler];
+    [PrivateImplentingClass newNoteWithCompletionHandler:handler];
 }
 
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
