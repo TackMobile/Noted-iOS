@@ -127,7 +127,7 @@
     [self.contentView.layer setShadowPath:[[UIBezierPath bezierPathWithRect:shadowBounds] CGPath]];
     self.contentView.layer.shadowRadius = 1.5f;
     self.contentView.layer.shadowOpacity = 0.35;
-    self.contentView.layer.shadowOffset = CGSizeMake(0.0f,0.0f);
+    self.contentView.layer.shadowOffset = CGSizeZero;
     
     self.contentView.layer.rasterizationScale = self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
 
