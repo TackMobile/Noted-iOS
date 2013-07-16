@@ -194,18 +194,8 @@
         if ([self shouldCompleteShredForPercent:percent]) { // the last column was deleted
             // remove the mask
             CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
-            switch (self.deletionDirection) {
-                case NTDPageDeletionDirectionRight:
-                    maskFrame.origin.x = noteWidth;
-                    break;
-                    
-                case NTDPageDeletionDirectionLeft:
-                    maskFrame.origin.x = -noteWidth;
-                    break;
-                    
-                default:
-                    break;
-            }
+            
+            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
             
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -225,18 +215,21 @@
         // check if we should change the mask after the animation
         if (columnForUseAsMaskAfterAnimation != nil) {
             CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
-            switch (self.deletionDirection) {
-                case NTDPageDeletionDirectionRight:
-                    maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
-                    break;
-                    
-                case NTDPageDeletionDirectionLeft:
-                    maskFrame.origin.x = -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
-                    break;
-                    
-                default:
-                    break;
-            }
+            
+            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? columnForUseAsMaskAfterAnimation.percentLeft*noteWidth : -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
+            
+//            switch (self.deletionDirection) {
+//                case NTDPageDeletionDirectionRight:
+//                    maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
+//                    break;
+//                    
+//                case NTDPageDeletionDirectionLeft:
+//                    maskFrame.origin.x = -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
+//                    break;
+//                    
+//                default:
+//                    break;
+//            }
             
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -252,19 +245,9 @@
         
         if ([self shouldCompleteShredForPercent:percent]) {
             
-            CGRect maskFrame;
-            switch (self.deletionDirection) {
-                case NTDPageDeletionDirectionRight:
-                    maskFrame = (CGRect){{noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
-                    break;
-                    
-                case NTDPageDeletionDirectionLeft:
-                    maskFrame = (CGRect){{-noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
-                    break;
-                    
-                default:
-                    break;
-            }
+            CGRect maskFrame = { .origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
+            
+            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
             
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
