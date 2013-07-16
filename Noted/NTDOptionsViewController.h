@@ -12,7 +12,7 @@
 
 @end
 
-@protocol OptionsViewDelegate <NSObject>
+@protocol NTDOptionsViewDelegate <NSObject>
 
 @required
 
@@ -28,7 +28,7 @@
 
 @interface NTDOptionsViewController : UIViewController
 
-@property (strong, nonatomic) id<OptionsViewDelegate> delegate;
+@property (strong, nonatomic) id<NTDOptionsViewDelegate> delegate;
 
 // colors
 @property (weak, nonatomic) IBOutlet NTDColorPicker *colorsSubview;

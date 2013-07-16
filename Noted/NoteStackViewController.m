@@ -170,7 +170,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
     self.nextNoteViewController = [[NoteViewController alloc] init];
     [self.view insertSubview:self.nextNoteViewController.view belowSubview:self.currentNoteViewController.view]; //stacking view controllers
     
-    self.optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil]; //settings screen
+    self.optionsViewController = [[NTDOptionsViewController alloc] initWithNibName:@"NTDOptionsViewController" bundle:nil]; //settings screen
     self.optionsViewController.delegate = self;
     self.optionsViewController.view.frame = frame;
     NSLog(@"%@",NSStringFromCGRect(self.optionsViewController.view.frame));

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NoteViewController.h"
-#import "OptionsViewController.h"
+#import "NTDOptionsViewController.h"
 #import "KeyboardViewController.h"
 #import "NoteEntry.h"
 #import <Accounts/Accounts.h>
@@ -23,7 +23,7 @@ typedef void(^TMDismissalBlock)(float);
 
 @protocol NoteStackDelegate;
 
-@interface NoteStackViewController : UIViewController <NoteViewControllerDelegate,OptionsViewDelegate, KeyboardDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate>
+@interface NoteStackViewController : UIViewController <NoteViewControllerDelegate, NTDOptionsViewDelegate, KeyboardDelegate,MFMailComposeViewControllerDelegate,MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic, copy) TMDismissalBlock dismissBlock;
 @property (nonatomic, weak) id <NoteStackDelegate> delegate;
@@ -36,7 +36,7 @@ typedef void(^TMDismissalBlock)(float);
 @property(nonatomic,strong) NoteDocument *previousNoteDocument;
 
 @property(nonatomic,strong) KeyboardViewController *keyboardViewController;
-@property(nonatomic,strong) OptionsViewController *optionsViewController;
+@property(nonatomic,strong) NTDOptionsViewController *optionsViewController;
 @property(nonatomic,strong) UIView *overView;
 
 @property(nonatomic,strong) UIPanGestureRecognizer *panGestureRecognizer;
