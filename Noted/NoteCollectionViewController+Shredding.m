@@ -69,6 +69,9 @@
             sliceImageView.layer.shadowOffset = CGSizeZero;
             sliceImageView.layer.shouldRasterize = YES;
             
+            sliceImageView.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(sliceImageView.bounds, 0, 0), nil);
+            sliceImageView.layer.shadowOpacity = .5;
+            
             [currentColumn.slices addObject:sliceImageView];
             [self.collectionView insertSubview:sliceImageView belowSubview:self.currentDeletionCell];
         }
@@ -88,20 +91,21 @@
     // percent should range between 0.0 and 1.0
     
     float noteWidth = self.currentDeletionCell.frame.size.width;
+    float columnWidth = noteWidth/self.deletedNoteVertSliceCount;
     
     NSMutableArray *colsToRemove = [NSMutableArray array];
     __block BOOL useNextPercentForMask = NO;
-    __block BOOL removeNextPercentForMask = NO;
     __block BOOL shiftMaskAfterAnimation = NO;
     __block ColumnForShredding *columnForUseAsMaskAfterAnimation = nil;
     
     // animate slices
-    [UIView animateWithDuration:.5 animations:^{
+    [UIView animateWithDuration:.4 animations:^{
         // fade out
         // decide which rows will be deleted
         for (ColumnForShredding *column in self.columnsForDeletion) {
             if (column.isDeleted) {
-                if (column.percentLeft >= percent) {
+                if ((self.deletionDirection == NTDPageDeletionDirectionRight && column.percentLeft >= percent)
+                    || (self.deletionDirection == NTDPageDeletionDirectionLeft && column.percentLeft <= percent)) {
                     // begin to animate slices back in
                     // animate un-shredding of the column
                     for (UIImageView *slice in column.slices) {
@@ -109,9 +113,7 @@
                         
                         // set the transform to normal
                         slice.transform = CGAffineTransformIdentity;
-                        // give it a lil shadow
-                        slice.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
-                        slice.layer.shadowOpacity = .5;
+                        slice.layer.shadowRadius = 3;
                         
                         // causes performance issues
                         /*mask the shadow so it doesn't overlap other slices
@@ -128,66 +130,76 @@
                     shiftMaskAfterAnimation = YES;  // after the cells animate back to position
                 }
             }
-            
-            /*if (removeNextPercentForMask) { // need to do this for the animating back in
-             [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
-             slice.layer.shadowOpacity = 0;
-             }];
-             removeNextPercentForMask = NO;
-             }*/
-            
+                        
             if (useNextPercentForMask) {
                 if (shiftMaskAfterAnimation) {
                     columnForUseAsMaskAfterAnimation = column;
                     shiftMaskAfterAnimation = NO;
-                    removeNextPercentForMask = YES;
                 } else {
                     // shift the mask over
+                    CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
+                    switch (self.deletionDirection) {
+                        case NTDPageDeletionDirectionRight:
+                            maskFrame.origin.x = column.percentLeft * noteWidth;
+                            break;
+                            
+                        case NTDPageDeletionDirectionLeft:
+                            maskFrame.origin.x = -(1-column.percentLeft) * noteWidth - columnWidth;
+                            break;
+                            
+                        default:
+                            break;
+                    }
+
                     [CATransaction begin];
                     [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-                    self.currentDeletionCell.layer.mask.frame = (CGRect){{column.percentLeft * noteWidth, 0}, self.currentDeletionCell.layer.mask.frame.size};
+                    self.currentDeletionCell.layer.mask.frame = maskFrame;
                     [CATransaction commit];
-                    
-                    // give it a lil shadow
-                    [column.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
-                        slice.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
-                        slice.layer.shadowOpacity = .5;
-                    }];
                 }
                 useNextPercentForMask = NO;
             }
             
-            if (!column.isDeleted && column.percentLeft < percent) {
+            if (!column.isDeleted
+                && (( self.deletionDirection == NTDPageDeletionDirectionRight && column.percentLeft < percent)
+                    || (self.deletionDirection == NTDPageDeletionDirectionLeft && column.percentLeft >= percent))) {
                 //[colsToRemove addObject:column];
                 
                 useNextPercentForMask = YES;
+                    
+                int direction = 1;
+                if (self.deletionDirection == NTDPageDeletionDirectionLeft)
+                    direction = -1;
                 
                 // animate shredding of the column
                 for (UIImageView *slice in column.slices) {
                     // remove any mask and set up properties
                     slice.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
-                    slice.layer.shadowOpacity = (float)rand()/RAND_MAX * .8;
+                    slice.layer.shadowRadius = (float)rand()/RAND_MAX * 3 + 3;
                     slice.alpha = 0;
                     
                     // Rotate some degrees
-                    CGAffineTransform rotate = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+                    CGAffineTransform randomRotation = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
                     
                     // Move to the left
-                    CGAffineTransform translate = CGAffineTransformMakeTranslation((float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+                    CGAffineTransform randomTranslation = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
                     
                     // Apply them to a view
-                    slice.transform = CGAffineTransformConcat(translate, rotate);
+                    slice.transform = CGAffineTransformConcat(randomTranslation, randomRotation);
                 }
                 
                 column.isDeleted = YES;
             }
         }
         
-        if (useNextPercentForMask && !shiftMaskAfterAnimation) { // the last column was deleted
+        if ([self shouldCompleteShredForPercent:percent]) { // the last column was deleted
             // remove the mask
+            CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
+            
+            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
+            
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-            self.currentDeletionCell.layer.mask.frame = (CGRect){{noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+            self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
             useNextPercentForMask = NO;
@@ -202,9 +214,17 @@
         
         // check if we should change the mask after the animation
         if (columnForUseAsMaskAfterAnimation != nil) {
+            CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
+            
+            if (self.deletionDirection == NTDPageDeletionDirectionRight) {
+                maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
+            } else {
+                maskFrame.origin.x = (columnForUseAsMaskAfterAnimation.percentLeft-1)*noteWidth + columnWidth;
+            }
+            
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-            self.currentDeletionCell.layer.mask.frame = (CGRect){{columnForUseAsMaskAfterAnimation.percentLeft*noteWidth, 0}, self.visibleCell.layer.mask.frame.size};
+            self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
             // give it a lil shadow
@@ -214,11 +234,17 @@
             
         }
         
-        if (percent >= 1) {
+        if ([self shouldCompleteShredForPercent:percent]) {
+            
+            CGRect maskFrame = { .origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
+            
+            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
+            
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-            self.currentDeletionCell.layer.mask.frame = (CGRect){{noteWidth, 0}, self.currentDeletionCell.layer.mask.frame.size};
+            self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
+            
             [self.columnsForDeletion removeAllObjects];
             
         }
@@ -234,7 +260,19 @@
     if (self.columnsForDeletion.count == 0)
         return;
     
-    [self shredVisibleNoteByPercent:0.0 completion:^{
+    float shredByPercent;
+    switch (self.deletionDirection) {
+        case NTDPageDeletionDirectionLeft:
+            shredByPercent = 1;
+            break;
+            
+        case NTDPageDeletionDirectionRight:
+        default:
+            shredByPercent = 0;
+            break;
+    }
+    
+    [self shredVisibleNoteByPercent:shredByPercent completion:^{
         // remove slices from view
         [self.columnsForDeletion enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(ColumnForShredding *col, NSUInteger idx, BOOL *stop) {
             [col.slices enumerateObjectsUsingBlock:^(UIView *slice, NSUInteger idx, BOOL *stop) {
@@ -245,6 +283,11 @@
         [self.columnsForDeletion removeAllObjects];
     }];
     
+}
+
+- (BOOL)shouldCompleteShredForPercent:(float)percent {
+    return ((self.deletionDirection == NTDPageDeletionDirectionRight && percent == 1)
+            || (self.deletionDirection == NTDPageDeletionDirectionLeft && percent == 0));
 }
 
 #pragma mark - utilities

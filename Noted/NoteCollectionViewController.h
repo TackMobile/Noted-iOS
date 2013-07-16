@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "NoteCollectionViewCell.h"
 
+typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
+    NTDPageDeletionDirectionLeft = 0,
+    NTDPageDeletionDirectionRight
+};
 
 @interface NoteCollectionViewController : UICollectionViewController
 
@@ -18,7 +22,6 @@
 @property (nonatomic) int deletedNoteHorizSliceCount;
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NoteCollectionViewCell *currentDeletionCell;
-
-
+@property (nonatomic) NTDPageDeletionDirection deletionDirection;
 
 @end
