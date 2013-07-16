@@ -222,7 +222,18 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #if DEBUG
     cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
 #endif
-    cell.textView.text = note.text;
+    cell.textView.text = note.headline;
+    if (collectionView.collectionViewLayout == self.pagingLayout) {
+//        [self openNoteAtIndexPathIfNecessary:indexPath];
+        NoteCollectionViewCell __weak *weakCell = cell;
+        if (note.fileState != NTDNoteFileStateOpened) {
+            [note openWithCompletionHandler:^(BOOL success) {
+                weakCell.textView.text = note.text;
+            }];
+        } else {
+            weakCell.textView.text = note.text;
+        }
+    }
     [cell applyTheme:note.theme];
 
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
@@ -246,7 +257,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [[self noteAtIndexPath:indexPath] closeWithCompletionHandler:nil];
+//    [[self noteAtIndexPath:indexPath] closeWithCompletionHandler:nil];
 }
 
 #pragma mark - Properties
@@ -681,9 +692,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - Actions
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    
+{    
     NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    [self openNoteAtIndexPathIfNecessary:indexPath];
     
     CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
     CGFloat bottomOffset = self.collectionView.frame.size.height - (topOffset + self.listLayout.cardOffset);
@@ -711,9 +722,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
 }
 
-
-
--(IBAction)showSettings:(id)sender
+- (IBAction)showSettings:(id)sender
 {
     NoteCollectionViewCell *visibleCell = self.visibleCell;
     
@@ -730,6 +739,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
 }
 
+#pragma mark - Helpers
 CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
 {
     UIView *view = pinchGestureRecognizer.view;
@@ -744,8 +754,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return sqrtf(d);
 }
 
-
-#pragma mark - Helpers
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated
 {
     [self.collectionView setCollectionViewLayout:layout animated:animated];
@@ -822,6 +830,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return self.notes[indexPath.item];
 }
 
+- (void)openNoteAtIndexPathIfNecessary:(NSIndexPath *)indexPath
+{
+    NTDNote *note = [self noteAtIndexPath:indexPath];
+    NoteCollectionViewCell __weak *weakCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    if (note.fileState != NTDNoteFileStateOpened) {
+        [note openWithCompletionHandler:^(BOOL success) {
+            weakCell.textView.text = note.text;
+        }];
+    } else {
+        weakCell.textView.text = note.text;
+    }
+}
 #pragma mark - Notifications
 - (void)noteListChanged:(NSNotification *)notification
 {
@@ -955,7 +975,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - UITextViewDelegate
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
-{    
+{
+    if (NTDNoteFileStateOpened != [[self noteAtIndexPath:self.visibleCardIndexPath] fileState])
+        return NO;
+        
+    self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
