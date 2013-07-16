@@ -14,5 +14,6 @@
 @dynamic filename;
 @dynamic colorScheme;
 @dynamic headline;
+@dynamic lastModifiedDate;
 
 @end

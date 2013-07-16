@@ -6,12 +6,16 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-//NOW: implement NTDNoteDocument using local file operations
-//NOW: set up core data stack
-//NOW: add file deletion
-//LATER: add delegates/notifications for create, update, delete, list operations
+//TODO: add file deletion
+//TODO: add delegates/notifications for create, update, delete, list operations
 
 #import <Foundation/Foundation.h>
+
+typedef NS_ENUM(NSInteger, NTDNoteFileState) {
+    NTDNoteFileStateOpened = 0,
+    NTDNoteFileStateClosed = 1 <<  0,
+    NTDNoteFileStateError = 1 << 1
+};
 
 @class NTDTheme;
 
@@ -31,6 +35,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)();
 - (NSString *)filename;
 - (NSString *)headline;
 - (NSDate *)lastModifiedDate;
+- (NTDNoteFileState)fileState;
 
 - (NTDTheme *)theme;
 - (NSString *)text;

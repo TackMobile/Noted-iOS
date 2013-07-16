@@ -15,5 +15,6 @@
 @property (nonatomic, retain) NSString * filename;
 @property (nonatomic) NTDColorScheme colorScheme;
 @property (nonatomic, retain) NSString * headline;
+@property (nonatomic, retain) NSDate *lastModifiedDate;
 
 @end

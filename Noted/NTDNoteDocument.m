@@ -52,7 +52,9 @@ static const NSUInteger HeadlineLength = 80;
 + (instancetype)documentFromMetadata:(NTDNoteMetadata *)metadata
 {
     NSURL *fileURL = [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:metadata.filename];
-    return [[NTDNoteDocument alloc] initWithFileURL:fileURL];
+    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:fileURL];
+    document.metadata = metadata;
+    return document;
 }
 
 + (NSManagedObjectContext *)managedObjectContext
@@ -89,9 +91,10 @@ static const NSUInteger HeadlineLength = 80;
     if (!didSaveFile) return NO;
     
     NSManagedObjectContext *context = [[self class] managedObjectContext];
-    if (![context hasChanges]) return didSaveFile;
+//    if (![context hasChanges]) return didSaveFile;
     __block BOOL didSaveMetadata = YES;
     [context performBlockAndWait:^{
+        self.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
             [self revertToContentsOfURL:originalContentsURL completionHandler:NULL];
@@ -122,6 +125,7 @@ static const NSUInteger HeadlineLength = 80;
     document.metadata = [NSEntityDescription insertNewObjectForEntityForName:@"NTDNoteMetadata"
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
+    document.metadata.lastModifiedDate = [NSDate date];
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
@@ -141,7 +145,19 @@ static const NSUInteger HeadlineLength = 80;
 
 - (NSDate *)lastModifiedDate
 {
-    return self.fileModificationDate;
+    return self.metadata.lastModifiedDate;
+}
+
+- (NTDNoteFileState)fileState
+{
+    switch (self.documentState) {
+        case UIDocumentStateNormal:
+            return NTDNoteFileStateOpened;
+        case UIDocumentStateClosed:
+            return NTDNoteFileStateClosed;
+        default:
+            return NTDNoteFileStateError;
+    }
 }
 
 - (NTDTheme *)theme
