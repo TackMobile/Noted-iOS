@@ -18,10 +18,10 @@
 @property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 
-
 - (void)applyTheme:(NTDTheme *)theme;
 - (void)applyShadow:(bool)useFullShadow;
 
--(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset;
+- (void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset;
+- (void)doNotHideSettingsForNextLayoutChange;
 
 @end

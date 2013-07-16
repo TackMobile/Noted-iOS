@@ -33,6 +33,7 @@
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
+@property (nonatomic, strong, readonly) NoteCollectionViewCell *pinchedCell;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer, *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
@@ -261,6 +262,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
    return [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0];
 }
+
+- (NoteCollectionViewCell *)pinchedCell
+{
+    return (NoteCollectionViewCell *)[[self collectionView] cellForItemAtIndexPath:self.listLayout.pinchedCardIndexPath];
+}
+
 
 #pragma mark - Gesture Handling
 - (void)handleRemoveCardGesture:(UIPanGestureRecognizer *)gestureRecognizer
@@ -603,9 +610,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateBegan:
         {
             NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
+            
             initialDistance = PinchDistance(pinchGestureRecognizer);
             self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
             self.listLayout.pinchRatio = 1.0;
+            
+            [self.pinchedCell doNotHideSettingsForNextLayoutChange];
             
             initialContentOffset = self.collectionView.contentOffset;
             [self updateLayout:self.listLayout
@@ -624,8 +634,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         {
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-            //                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
-            //                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
+            
+            self.pinchedCell.settingsButton.alpha = CLAMP(pinchRatio, 0, 1) ;
+//                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
+//                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
             self.listLayout.pinchRatio = pinchRatio;
             break;
         }
@@ -644,6 +656,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             } else {
                 pinchGestureRecognizer.enabled = NO;
                 self.collectionView.scrollEnabled = YES;
+                self.pinchedCell.settingsButton.alpha = 0;
             }
             self.listLayout.pinchedCardIndexPath = nil;
             break;
@@ -672,6 +685,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
+                         selectedCell.settingsButton.alpha = 1;
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleCardIndexPath in indexPaths) {
                              NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
@@ -939,7 +953,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UITextViewDelegate
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {    
-    self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
@@ -955,7 +968,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
 //    [textView removeKeyboardControl];
-    self.visibleCell.settingsButton.hidden = NO;
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
