@@ -202,7 +202,7 @@ static const float kPinchDistanceCompleteThreshold = 130.0;
 
 - (void)handleNotifications
 {
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"didToggleStatusBar" object:nil queue:nil usingBlock:^(NSNotification *note){
+    [[NSNotificationCenter defaultCenter] addObserverForName:ToggleStatusBarNotification object:nil queue:nil usingBlock:^(NSNotification *note){
         
         CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
         newFrame.origin.x = self.currentNoteViewController.view.frame.origin.x;

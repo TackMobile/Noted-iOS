@@ -39,7 +39,6 @@
 				<string key="NSFrameSize">{320, 568}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
 				<object class="NSColor" key="IBUIBackgroundColor" id="129256279">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MC4xNTk3NTcwNzEyAA</bytes>
@@ -196,7 +195,6 @@
 								<string key="NSFrame">{{14, 24}, {149, 22}}</string>
 								<reference key="NSSuperview" ref="843368286"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -269,7 +267,6 @@
 								<string key="NSFrame">{{138, 23}, {52, 24}}</string>
 								<reference key="NSSuperview" ref="648939836"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -403,7 +400,6 @@
 								<string key="NSFrame">{{14, 24}, {149, 22}}</string>
 								<reference key="NSSuperview" ref="702671731"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -445,7 +441,6 @@
 				<string key="NSFrameSize">{68, 45}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<bool key="IBUIOpaque">NO</bool>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -588,7 +583,6 @@
 								<string key="NSFrame">{{14, 24}, {149, 22}}</string>
 								<reference key="NSSuperview" ref="155583498"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -723,7 +717,6 @@
 						<string key="NSFrame">{{0, 255}, {308, 50}}</string>
 						<reference key="NSSuperview" ref="359631815"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<string key="NSHuggingPriority">{250, 1}</string>
 						<string key="NSAntiCompressionPriority">{750, 1}</string>
@@ -799,19 +792,19 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">optionsSubview</string>
+						<string key="label">options</string>
 						<reference key="source" ref="372490531"/>
 						<reference key="destination" ref="969887847"/>
 					</object>
-					<int key="connectionID">677</int>
+					<int key="connectionID">1090</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">colorsSubview</string>
+						<string key="label">colors</string>
 						<reference key="source" ref="372490531"/>
 						<reference key="destination" ref="359631815"/>
 					</object>
-					<int key="connectionID">673</int>
+					<int key="connectionID">1091</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1172,7 +1165,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">1089</int>
+			<int key="maxID">1091</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1189,9 +1182,9 @@
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="aboutOptionsView">UIView</string>
-						<string key="colorsSubview">NTDColorPicker</string>
+						<string key="colors">NTDColorPicker</string>
 						<string key="doneButton">UIButton</string>
-						<string key="optionsSubview">UIView</string>
+						<string key="options">UIView</string>
 						<string key="settingsOptionsView">UIView</string>
 						<string key="shareOptionsView">UIView</string>
 						<string key="toggleStatusBarButton">UIButton</string>
@@ -1201,16 +1194,16 @@
 							<string key="name">aboutOptionsView</string>
 							<string key="candidateClassName">UIView</string>
 						</object>
-						<object class="IBToOneOutletInfo" key="colorsSubview">
-							<string key="name">colorsSubview</string>
+						<object class="IBToOneOutletInfo" key="colors">
+							<string key="name">colors</string>
 							<string key="candidateClassName">NTDColorPicker</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="doneButton">
 							<string key="name">doneButton</string>
 							<string key="candidateClassName">UIButton</string>
 						</object>
-						<object class="IBToOneOutletInfo" key="optionsSubview">
-							<string key="name">optionsSubview</string>
+						<object class="IBToOneOutletInfo" key="options">
+							<string key="name">options</string>
 							<string key="candidateClassName">UIView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="settingsOptionsView">

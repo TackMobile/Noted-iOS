@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+FOUNDATION_EXPORT NSString *const ToggleStatusBarNotification;
+
 @interface NTDColorPicker : UIView
 
 @end
@@ -31,10 +33,10 @@
 @property (strong, nonatomic) id<NTDOptionsViewDelegate> delegate;
 
 // colors
-@property (weak, nonatomic) IBOutlet NTDColorPicker *colorsSubview;
+@property (weak, nonatomic) IBOutlet NTDColorPicker *colors;
 
 // options
-@property (weak, nonatomic) IBOutlet UIView *optionsSubview;
+@property (weak, nonatomic) IBOutlet UIView *options;
 @property (weak, nonatomic) IBOutlet UIButton *doneButton;
 @property (weak, nonatomic) IBOutlet UIButton *toggleStatusBarButton;
 
