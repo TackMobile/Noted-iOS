@@ -215,15 +215,16 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
+#if DEBUG
+    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
+#endif
     
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;
 
-#if DEBUG
-    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
-#endif
     cell.textView.text = note.headline;
-    if (collectionView.collectionViewLayout == self.pagingLayout) {
+    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
+    if (collectionView.collectionViewLayout1 == self.pagingLayout || isFinalCell) {
         [self setBodyForCell:cell atIndexPath:indexPath];
     }
     [cell applyTheme:note.theme];
