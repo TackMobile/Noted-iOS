@@ -216,20 +216,11 @@
         if (columnForUseAsMaskAfterAnimation != nil) {
             CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             
-            maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? columnForUseAsMaskAfterAnimation.percentLeft*noteWidth : -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
-            
-//            switch (self.deletionDirection) {
-//                case NTDPageDeletionDirectionRight:
-//                    maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
-//                    break;
-//                    
-//                case NTDPageDeletionDirectionLeft:
-//                    maskFrame.origin.x = -(1-columnForUseAsMaskAfterAnimation.percentLeft)*noteWidth + columnWidth;
-//                    break;
-//                    
-//                default:
-//                    break;
-//            }
+            if (self.deletionDirection == NTDPageDeletionDirectionRight) {
+                maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
+            } else {
+                maskFrame.origin.x = (columnForUseAsMaskAfterAnimation.percentLeft-1)*noteWidth + columnWidth;
+            }
             
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
