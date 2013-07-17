@@ -20,13 +20,13 @@
 #import "NoteDocument.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
-#import "OptionsViewController.h"
+#import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
 #import "TestFlight.h"
 
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, OptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NTDOptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -42,7 +42,7 @@
 @property (nonatomic, assign) NSUInteger noteCount;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
-@property (nonatomic, strong) OptionsViewController *optionsViewController;
+@property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
@@ -52,7 +52,6 @@
 
 NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
 NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
-NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
@@ -244,10 +243,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 }
 
 #pragma mark - Properties
--(OptionsViewController *)optionsViewController
+-(NTDOptionsViewController *)optionsViewController
 {
     if (_optionsViewController == nil) {
-        _optionsViewController = [[OptionsViewController alloc] initWithNibName:@"OptionsViewController" bundle:nil];
+        _optionsViewController = [[NTDOptionsViewController alloc] initWithNibName:@"NTDOptionsViewController" bundle:nil];
         _optionsViewController.delegate = self;
     }
     return _optionsViewController;
@@ -566,7 +565,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;
                     [self.optionsViewController.view removeFromSuperview];
-                    [self.optionsViewController reset]; // what does this do?
+                    [self.optionsViewController reset];
                 }] ;
             } else {
                 self.pagingLayout.pannedCardXTranslation = 0;
@@ -592,7 +591,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.visibleCell.textView.editable = YES;
                 self.pinchToListLayoutGestureRecognizer.enabled = YES;
                 [self.optionsViewController.view removeFromSuperview];
-                [self.optionsViewController reset]; // what does this do?
+                [self.optionsViewController reset];
             }] ;
         }
 
@@ -718,6 +717,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
     
     self.optionsViewController.view.frame = visibleCell.frame;
+    self.optionsViewController.visibleCell = self.visibleCell;
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     
     [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
@@ -1024,117 +1024,35 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - OptionsViewController Delegate
 
+-(CGFloat)initialOptionsViewWidth {
+    return InitialNoteOffsetWhenViewingOptions;
+}
+
 -(void)changeOptionsViewWidth:(CGFloat)width {
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
-- (void)setNoteColor:(UIColor *)color textColor:(UIColor *)__unused textColor
-{
-    NTDTheme *newTheme = [NTDTheme themeForBackgroundColor:color];
-    [self.visibleCell applyTheme:newTheme];
-    NSIndexPath *indexPath = [self.collectionView indexPathForCell:self.visibleCell];
-    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
-    
-    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
-        
-        UIColor *newColor = [newTheme backgroundColor];
-        if (![noteDocument.color isEqual:newColor]) {
-            noteDocument.color = newColor;
-            [noteEntry setNoteData:noteDocument.data];
-            [noteDocument updateChangeCount:UIDocumentChangeDone];
-        }
-        
-    };
-    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
-                                                completion:completion];
-}
+//- (void)didChangeNoteTheme:(NTDTheme *)theme {
+//    [self.visibleCell applyTheme:theme];
+//    
+//    NSIndexPath *indexPath = [self.collectionView indexPathForCell:self.visibleCell];
+//    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
+//    
+//    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
+//        
+//        UIColor *newColor = [theme backgroundColor];
+//        if (![noteDocument.color isEqual:newColor]) {
+//            noteDocument.color = newColor;
+//            [noteEntry setNoteData:noteDocument.data];
+//            [noteDocument updateChangeCount:UIDocumentChangeDone];
+//        }
+//        
+//    };
+//    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
+//                                                completion:completion];
+//}
 
-- (void)sendEmail
-{
-    self.mailViewController = [[MFMailComposeViewController alloc] init];        
-    self.mailViewController.mailComposeDelegate = self;
-    
-    NSArray* lines = [[ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text componentsSeparatedByString: @"\n"];
-    NSString* noteTitle = [lines objectAtIndex:0];
-    NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",[self getNoteTextAsMessage],@"Sent from Noted"];
-	[self.mailViewController setSubject:noteTitle];
-	[self.mailViewController setMessageBody:body isHTML:NO];
-    [self presentViewController:self.mailViewController animated:YES completion:nil];
-}
-
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (NSString *)getNoteTextAsMessage
-{
-    NSString *noteText = [ApplicationModel sharedInstance].noteAtSelectedNoteIndex.text;
-    noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    if ([noteText length] > 140) {
-        noteText = [noteText substringToIndex:140];
-    }
-    return noteText;
-}
 
 #pragma mark Send Actions
-- (void)sendTweet
-{
-    NSString *noteText = [self getNoteTextAsMessage];
-    
-    if (SYSTEM_VERSION_LESS_THAN(@"6")){
-        if([TWTweetComposeViewController canSendTweet])
-        {
-            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
-            [tweetViewController setInitialText:noteText];
-            
-            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
-            {
-                // Dismiss the controller
-                [self dismissViewControllerAnimated:YES completion:nil];
-            };
-            [self presentViewController:tweetViewController animated:YES completion:nil];
-            
-        }else {
-            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
-            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-            [alertView show];
-        }
-    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
-        // 3
-        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-        {
-            // 4
-            //[self.tweetText setAlpha:0.5f];
-        } else {
-            // 5
-            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-            [composeViewController setInitialText:noteText];
-            [self presentViewController:composeViewController animated:YES completion:nil];
-        }
-    }
-}
-
-- (void)sendSMS
-{
-    if([MFMessageComposeViewController canSendText])
-    {
-        MFMessageComposeViewController *messageViewController = [[MFMessageComposeViewController alloc] init];
-        messageViewController.body = [self getNoteTextAsMessage];
-        messageViewController.messageComposeDelegate = self;
-        messageViewController.wantsFullScreenLayout = NO;
-        [self presentViewController:messageViewController animated:YES completion:nil];
-        [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    }
-    else {
-        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send text messages."];
-        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-        [alertView show];
-    }
-}
-
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
 
 @end
