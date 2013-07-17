@@ -8,14 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "NTDTheme.h"
-#import "NTDCrossDetectorView.h"
 
 @interface NoteCollectionViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 @property (weak, nonatomic) IBOutlet UIView *fadeView;
-@property (weak, nonatomic) NTDCrossDetectorView *crossDetectorView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 
 - (void)applyTheme:(NTDTheme *)theme;

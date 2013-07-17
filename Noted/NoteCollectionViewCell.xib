@@ -168,7 +168,7 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 						</object>
 						<object class="NSCustomResource" key="IBUINormalImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">menu-icon.png</string>
+							<string key="NSResourceName">menu-icon-grey.png</string>
 						</object>
 						<object class="IBUIFontDescription" key="IBUIFontDescription">
 							<int key="type">2</int>
@@ -356,6 +356,35 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NoteCollectionViewController</string>
 					<string key="superclassName">UICollectionViewController</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="panCard:">UIPanGestureRecognizer</string>
+						<string key="panCardWhileViewingOptions:">UIPanGestureRecognizer</string>
+						<string key="panCardWithTwoFingers:">UIPanGestureRecognizer</string>
+						<string key="pinchToListLayout:">UIPinchGestureRecognizer</string>
+						<string key="showSettings:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="panCard:">
+							<string key="name">panCard:</string>
+							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="panCardWhileViewingOptions:">
+							<string key="name">panCardWhileViewingOptions:</string>
+							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="panCardWithTwoFingers:">
+							<string key="name">panCardWithTwoFingers:</string>
+							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="pinchToListLayout:">
+							<string key="name">pinchToListLayout:</string>
+							<string key="candidateClassName">UIPinchGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="showSettings:">
+							<string key="name">showSettings:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/NoteCollectionViewController.h</string>
@@ -392,7 +421,7 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
-			<string key="NS.key.0">menu-icon.png</string>
+			<string key="NS.key.0">menu-icon-grey.png</string>
 			<string key="NS.object.0">{14, 12}</string>
 		</object>
 		<string key="IBCocoaTouchPluginVersion">2083</string>

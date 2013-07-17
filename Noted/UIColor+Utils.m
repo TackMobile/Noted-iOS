@@ -10,56 +10,6 @@
 
 @implementation UIColor (Utils)
 
-+(NSArray*)getNoteColorSchemes {
-    //colorSchemes: white,lime,sky,kernal,shadow,tack
-   return [[NSArray alloc] initWithObjects:
-           [UIColor colorWithHexString:@"FFFFFF"],
-           [UIColor colorWithHexString:@"B5D2E0"],
-           [UIColor colorWithHexString:@"D0F071"],
-           [UIColor colorWithHexString:@"FFF090"],
-           [UIColor colorWithHexString:@"333333"],
-           [UIColor colorWithHexString:@"1A9FEB"],
-           nil];
-}
-
-+(NSArray*)getOptionsColorSchemes {
-    return [[NSArray alloc] initWithObjects:
-            [UIColor colorWithHexString:@"FFFFFF"],
-            [UIColor colorWithHexString:@"B5D2E0"],
-            [UIColor colorWithHexString:@"D0F071"],
-            [UIColor colorWithHexString:@"FFF090"],
-            [UIColor colorWithHexString:@"333333"],
-            [UIColor colorWithHexString:@"1A9FEB"],
-            nil];
-}
-
-+(NSArray*)getHeaderColorSchemes {
-    return [[NSArray alloc] initWithObjects:
-            [UIColor colorWithHexString:@"AAAAAA"],
-            [UIColor colorWithHexString:@"88ACBB"],
-            [UIColor colorWithHexString:@"C1D184"],
-            [UIColor colorWithHexString:@"DAC361"],
-            [UIColor colorWithHexString:@"CCCCCC"],
-            [UIColor colorWithHexString:@"FFFFFF"],
-            nil];
-}
-
-+(BOOL)isWhiteColor:(UIColor *)color {
-    UIColor* white = [[self getNoteColorSchemes] objectAtIndex:0];
-    if (CGColorEqualToColor(white.CGColor, color.CGColor)) {
-        return YES;
-    }
-    return NO;
-}
-
-+(BOOL)isShadowColor:(UIColor *)color {
-    UIColor* shadow = [[self getNoteColorSchemes] objectAtIndex:4];
-    if (CGColorEqualToColor(shadow.CGColor, color.CGColor)) {
-        return YES;
-    }
-    return NO;
-}
-
 +(UIColor*) colorWithHexString:(NSString *) hex  
 {  
     NSString *cString = [[hex stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];  
@@ -95,64 +45,6 @@
                             blue:((float) b / 255.0f)  
                            alpha:1.0f];  
 } 
-
-- (UIColor *)colorWithBrightness:(CGFloat)brightnessComponent {
-    
-    UIColor *newColor = nil;
-    if ( ! newColor) {
-        CGFloat hue, saturation, brightness, alpha;
-        if ([self getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha]) {
-            newColor = [UIColor colorWithHue:hue
-                                  saturation:saturation
-                                  brightness:brightness * brightnessComponent
-                                       alpha:alpha];
-        }
-    }
-    
-    if ( ! newColor) {
-        CGFloat red, green, blue, alpha;
-        if ([self getRed:&red green:&green blue:&blue alpha:&alpha]) {
-            newColor = [UIColor colorWithRed:red*brightnessComponent
-                                       green:green*brightnessComponent
-                                        blue:blue*brightnessComponent
-                                       alpha:alpha];
-        }
-    }
-    
-    if ( ! newColor) {
-        CGFloat white, alpha;
-        if ([self getWhite:&white alpha:&alpha]) {
-            newColor = [UIColor colorWithWhite:white * brightnessComponent alpha:alpha];
-        }
-    }
-    
-    return newColor;
-}
-
-- (UIColor *)colorWithHueOffset:(CGFloat)hueOffset {
-    UIColor *newColor = nil;
-    if ( ! newColor) {
-        CGFloat hue, saturation, brightness, alpha;
-        if ([self getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha]) {
-            // We wants the hue value to be between 0 - 1 after appending the offset
-            CGFloat newHue = fmodf((hue + hueOffset), 1);
-            newColor = [UIColor colorWithHue:newHue
-                                  saturation:saturation
-                                  brightness:brightness
-                                       alpha:alpha];
-        }
-    }
-    return newColor;
-}
-
-+ (UIColor *)randomColor
-{
-    CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
-    CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
-    CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
-    UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-    return color;
-}
 
 - (BOOL)isEqualToColor:(UIColor *)otherColor {
     CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();

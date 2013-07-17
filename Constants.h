@@ -13,6 +13,7 @@ static inline BOOL IsEmpty(id thing) {
 
 #define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"
 #define HIDE_STATUS_BAR                         @"hideStatusBar"
+#define kFirstUse                               @"firstUse"
 
 // notifications
 #define SHOULD_CREATE_NOTE                      @"shouldCreateNote"

@@ -13,17 +13,15 @@
 #import "NoteListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
 #import "NTDPagingCollectionViewLayout.h"
-#import "NTDCrossDetectorView.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
 #import "NoteCollectionViewController+Shredding.h"
-#import "TestFlight.h"
 #import "NTDNote.h"
 #import "Utilities.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDCrossDetectorViewDelegate, NTDOptionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
@@ -32,7 +30,8 @@
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NoteCollectionViewCell *pinchedCell;
 
-@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer, *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
+@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
+*twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 
@@ -207,7 +206,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
     cell.textView.delegate = self;
-    cell.crossDetectorView.delegate = self;
     
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
@@ -241,7 +239,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         cell.textView.text = @"Release to create a note";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
         cell.textView.delegate = nil;
-        cell.crossDetectorView.delegate = nil;
         return cell;
     } else {
         return nil;
@@ -1018,12 +1015,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)keyboardWasPannedToFrame:(CGRect)frame {
     // resize the textview
     self.visibleCell.textView.$bottom = frame.origin.y - self.visibleCell.textView.contentOffset.y + self.visibleCell.textView.frame.origin.y;
-}
-
-#pragma mark - Cross Detection
--(void)crossDetectorViewDidDetectCross:(NTDCrossDetectorView *)view
-{
-    NSLog(@"cross detected");
 }
 
 #pragma mark - NTDOptionsViewControllerDelegate
