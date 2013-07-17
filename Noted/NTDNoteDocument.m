@@ -14,7 +14,7 @@
 #import "NTDCoreDataStore.h"
 
 static NSString *const FileExtension = @"txt";
-static const NSUInteger HeadlineLength = 80;
+static const NSUInteger HeadlineLength = 35;
 
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
@@ -39,7 +39,7 @@ static const NSUInteger HeadlineLength = 80;
 {
     static NSDateFormatter *filenameDateFormatter = nil;
     if (!filenameDateFormatter) {
-        NSString *format = @"yyyy-MM-dd HH_mm_ss";
+        NSString *format = @"yyyy-MM-dd HH_mm_ss.SSS";
         filenameDateFormatter = [[NSDateFormatter alloc] init];
         [filenameDateFormatter setDateFormat:format];
     }
@@ -67,6 +67,7 @@ static const NSUInteger HeadlineLength = 80;
     if ([contents length] > 0) {
         self.bodyText = [[NSString alloc] initWithData:(NSData *)contents encoding:NSUTF8StringEncoding];
     } else {
+        NSLog(@"INFO: Opening empty file.");
         self.bodyText = @"";
     }
     return YES;
@@ -88,7 +89,10 @@ static const NSUInteger HeadlineLength = 80;
                            forSaveOperation:saveOperation
                         originalContentsURL:originalContentsURL
                                       error:outError];
-    if (!didSaveFile) return NO;
+    if (!didSaveFile) {
+        NSLog(@"WARNING: Couldn't save file: %@", *outError);
+        return NO;
+    }
     
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didSaveMetadata = YES;
@@ -96,6 +100,7 @@ static const NSUInteger HeadlineLength = 80;
         self.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
+            NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
             [self revertToContentsOfURL:originalContentsURL completionHandler:NULL];
             didSaveMetadata = NO;
         }
@@ -111,6 +116,7 @@ static const NSUInteger HeadlineLength = 80;
     NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
     fetchRequest.sortDescriptors = @[filenameSortDescriptor];
     NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    if (results == nil) NSLog(@"WARNING: Couldn't fetch list of notes!");
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
     for (NTDNoteMetadata *metadata in results) {
         [notes addObject:[self documentFromMetadata:metadata]];
@@ -128,7 +134,12 @@ static const NSUInteger HeadlineLength = 80;
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
-          (success) ? handler((NTDNote *)document /* Shhh... */) : handler(nil);
+          if (success) {
+              handler((NTDNote *)document /* Shhh... */);
+          } else {
+              NSLog(@"WARNING: Couldn't create new note!");
+              handler(nil);
+          };
       }];
 }
 
@@ -143,6 +154,7 @@ static const NSUInteger HeadlineLength = 80;
     if (didDeleteMetadata) {
         self.metadata = nil;
     } else {
+        NSLog(@"WARNING: Couldn't delete metadata!");
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completionHandler) completionHandler(NO);
         });

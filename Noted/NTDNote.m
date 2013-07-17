@@ -39,6 +39,7 @@ static Class PrivateImplentingClass;
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
 {
     [self newNoteWithCompletionHandler:^(NTDNote *note) {
+        NSParameterAssert(note);
         note.text = text;
         note.theme = theme;
         handler(note);
