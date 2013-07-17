@@ -91,7 +91,6 @@ static const NSUInteger HeadlineLength = 80;
     if (!didSaveFile) return NO;
     
     NSManagedObjectContext *context = [[self class] managedObjectContext];
-//    if (![context hasChanges]) return didSaveFile;
     __block BOOL didSaveMetadata = YES;
     [context performBlockAndWait:^{
         self.metadata.lastModifiedDate = [NSDate date];
@@ -131,6 +130,41 @@ static const NSUInteger HeadlineLength = 80;
       completionHandler:^(BOOL success) {
           (success) ? handler((NTDNote *)document /* Shhh... */) : handler(nil);
       }];
+}
+
+- (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
+{
+    NSManagedObjectContext *context = [[self class] managedObjectContext];
+    __block BOOL didDeleteMetadata;
+    [context performBlockAndWait:^{
+        [context deleteObject:self.metadata];
+        didDeleteMetadata = [context save:nil];
+    }];
+    if (didDeleteMetadata) {
+        self.metadata = nil;
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionHandler) completionHandler(NO);
+        });
+        return;
+    }
+    
+    NSURL *fileURL = self.fileURL;
+    [self performAsynchronousFileAccessUsingBlock:^{
+        NSError __autoreleasing *error;
+        NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [fileCoordinator coordinateWritingItemAtURL:fileURL
+                                            options:NSFileCoordinatorWritingForDeleting
+                                              error:&error
+                                         byAccessor:^(NSURL* writingURL) {
+                                             NSFileManager* fileManager = [[NSFileManager alloc] init];
+                                             [fileManager removeItemAtURL:writingURL error:nil];
+                                         }];
+        BOOL success = !error;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionHandler) completionHandler(success);
+        });
+    }];
 }
 
 - (NSString *)filename

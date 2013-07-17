@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-//TODO: add file deletion
 //TODO: add delegates/notifications for create, update, delete, list operations
 
 #import <Foundation/Foundation.h>

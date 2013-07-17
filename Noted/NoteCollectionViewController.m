@@ -224,7 +224,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     cell.textView.text = note.headline;
     BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
-    if (collectionView.collectionViewLayout1 == self.pagingLayout || isFinalCell) {
+    if (collectionView.collectionViewLayout == self.pagingLayout || isFinalCell) {
         [self setBodyForCell:cell atIndexPath:indexPath];
     }
     [cell applyTheme:note.theme];
@@ -813,8 +813,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
-    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [self.notes removeObject:note];
+    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
 }
 
