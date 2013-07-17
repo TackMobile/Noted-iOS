@@ -7,8 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NTDTheme.h"
+#import "NoteCollectionViewCell.h"
+#import <MessageUI/MessageUI.h>
 
-FOUNDATION_EXPORT NSString *const ToggleStatusBarNotification;
+FOUNDATION_EXPORT NSString *const NTDDidToggleStatusBarNotification;
 
 @interface NTDColorPicker : UIView
 
@@ -18,19 +21,15 @@ FOUNDATION_EXPORT NSString *const ToggleStatusBarNotification;
 
 @required
 
--(void)setNoteColor:(UIColor*)color textColor:(UIColor*)textColor;
--(void)sendEmail;
--(void)sendTweet;
--(void)sendSMS;
 -(void)changeOptionsViewWidth:(CGFloat)width;
-
 -(CGFloat)initialOptionsViewWidth;
 
 @end
 
-@interface NTDOptionsViewController : UIViewController
+@interface NTDOptionsViewController : UIViewController <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 
 @property (strong, nonatomic) id<NTDOptionsViewDelegate> delegate;
+@property (strong, nonatomic) NoteCollectionViewCell *visibleCell;
 
 // colors
 @property (weak, nonatomic) IBOutlet NTDColorPicker *colors;

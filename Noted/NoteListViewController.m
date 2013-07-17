@@ -140,7 +140,7 @@ typedef enum {
         [self.tableView reloadData];
     }];
 
-    [[NSNotificationCenter defaultCenter] addObserverForName:ToggleStatusBarNotification object:nil queue:nil usingBlock:^(NSNotification *note){
+    [[NSNotificationCenter defaultCenter] addObserverForName:NTDDidToggleStatusBarNotification object:nil queue:nil usingBlock:^(NSNotification *note){
         
         CGRect newFrame =  [[UIScreen mainScreen] applicationFrame];
         [self.view setFrame:newFrame];

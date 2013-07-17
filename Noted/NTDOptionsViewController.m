@@ -7,10 +7,11 @@
 //
 
 #import "NTDOptionsViewController.h"
-#import "NTDTheme.h"
 #import "UIView+FrameAdditions.h"
+#import <Twitter/Twitter.h>
+#import "ApplicationModel.h"
 
-NSString *const ToggleStatusBarNotification = @"didToggleStatusBar";
+NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
 @implementation NTDColorPicker
 
@@ -39,22 +40,22 @@ NSString *const ToggleStatusBarNotification = @"didToggleStatusBar";
 
 // view tags
 
-typedef NS_ENUM(NSInteger, NTDoptionsTags) {
-    NTDoptionsShareTag = 0,
-    NTDoptionsSettingsTag,
-    NTDoptionsAboutTag
+typedef NS_ENUM(NSInteger, NTDOptionsTags) {
+    NTDOptionsShareTag = 0,
+    NTDOptionsSettingsTag,
+    NTDOptionsAboutTag
 };
 
-typedef NS_ENUM(NSInteger, NTDShareoptionsTags) {
-    NTDShareoptionsEmailTag = 0,
-    NTDShareoptionsMessageTag,
-    NTDShareoptionsTweetTag,
-    NTDShareoptionsFacebookTag
+typedef NS_ENUM(NSInteger, NTDShareOptionsTags) {
+    NTDShareOptionsEmailTag = 0,
+    NTDShareOptionsMessageTag,
+    NTDShareOptionsTweetTag,
+    NTDShareOptionsFacebookTag
 };
 
-typedef NS_ENUM(NSInteger, NTDAboutoptionsTags) {
-    NTDAboutoptionsVisitTag = 0,
-    NTDAboutoptionsFollowTag
+typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
+    NTDAboutOptionsVisitTag = 0,
+    NTDAboutOptionsFollowTag
 };
 
 @interface NTDOptionsViewController ()
@@ -65,11 +66,15 @@ typedef NS_ENUM(NSInteger, NTDAboutoptionsTags) {
 
 @property (nonatomic) BOOL optionIsExpanded;
 
+@property (nonatomic, strong) MFMailComposeViewController *mailViewController;
+@property (nonatomic, strong) MFMessageComposeViewController *messageViewController;
+
+
 @end
 
 static CGFloat CompressedColorHeight = 12.0f;
 static CGFloat OptionTopInsetWhenExpanded = 15.0f;
-static NSTimeInterval ExpandMenuAnimation = 0.3;
+static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 @implementation NTDOptionsViewController
 @synthesize colors;
@@ -104,19 +109,19 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
         UIView *choicesView;
         
         switch (optionView.tag) {
-            case NTDoptionsShareTag:
+            case NTDOptionsShareTag:
             {
                 choicesView = self.shareOptionsView;                
                 break;
             }
                 
-            case NTDoptionsSettingsTag:
+            case NTDOptionsSettingsTag:
             {
                 choicesView = self.settingsOptionsView;                
                 break;
             }
                 
-            case NTDoptionsAboutTag:
+            case NTDOptionsAboutTag:
             {
                 choicesView = self.aboutOptionsView;                
                 break;
@@ -179,9 +184,9 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
 #pragma mark -  Gesture Recognition
 
 - (void) colorTapped:(UITapGestureRecognizer *)sender
-{
-    UIColor *noteColor = [[NTDTheme themeForColorScheme:sender.view.tag] backgroundColor];
-    [self.delegate setNoteColor:noteColor textColor:nil];
+{    
+    NTDTheme *noteTheme = [NTDTheme themeForColorScheme:sender.view.tag];
+    [self.visibleCell applyTheme:noteTheme];
 }
 
 - (void) optionTapped:(UITapGestureRecognizer *)sender
@@ -189,12 +194,12 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
     if (self.optionIsExpanded)
         return;
     
-    // epand the option
+    // expand the option
     switch (sender.view.tag) {
-        case NTDoptionsShareTag:
-        case NTDoptionsSettingsTag:
-        case NTDoptionsAboutTag:
-            [UIView animateWithDuration:ExpandMenuAnimation
+        case NTDOptionsShareTag:
+        case NTDOptionsSettingsTag:
+        case NTDOptionsAboutTag:
+            [UIView animateWithDuration:ExpandMenuAnimationDuration
                              animations:^{
                                  [self expandOptionWithTag:sender.view.tag];
                              } completion:^(BOOL finished) {
@@ -209,7 +214,7 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
     if (self.optionIsExpanded) {
         [self.delegate changeOptionsViewWidth:[self.delegate initialOptionsViewWidth]];
         
-        [UIView animateWithDuration:ExpandMenuAnimation
+        [UIView animateWithDuration:ExpandMenuAnimationDuration
                          animations:^{
                              [self reset];
                              
@@ -227,26 +232,26 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
     [[NSUserDefaults standardUserDefaults] setBool:show forKey:HIDE_STATUS_BAR];
     [[NSUserDefaults standardUserDefaults] synchronize];
         
-    [[NSNotificationCenter defaultCenter] postNotificationName:ToggleStatusBarNotification object:nil userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NTDDidToggleStatusBarNotification object:nil userInfo:nil];
     
-    [self expandOptionWithTag:NTDoptionsSettingsTag];
+    [self expandOptionWithTag:NTDOptionsSettingsTag];
 }
 
 - (void) shareTapped:(UITapGestureRecognizer *)sender {
     switch (sender.view.tag) {
-        case NTDShareoptionsEmailTag:
-            [self.delegate sendEmail];
+        case NTDShareOptionsEmailTag:
+            [self sendEmail];
             break;
             
-        case NTDShareoptionsMessageTag:
-            [self.delegate sendSMS];
+        case NTDShareOptionsMessageTag:
+            [self sendSMS];
             break;
             
-        case NTDShareoptionsTweetTag:
-            [self.delegate sendTweet];
+        case NTDShareOptionsTweetTag:
+            [self sendTweet];
             break;
             
-        case NTDShareoptionsFacebookTag:
+        case NTDShareOptionsFacebookTag:
             // [self.delegate shareFacebook];
             break;
             
@@ -257,14 +262,14 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
 
 - (void) aboutTapped:(UITapGestureRecognizer *)sender {
     switch (sender.view.tag) {
-        case NTDAboutoptionsVisitTag:
+        case NTDAboutOptionsVisitTag:
         {
             NSURL *url = [NSURL URLWithString:@"http://tackmobile.com"];
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
             
-        case NTDAboutoptionsFollowTag:
+        case NTDAboutOptionsFollowTag:
         {
             NSURL *url = [NSURL URLWithString:@"http://twitter.com/tackmobile"];
             [[UIApplication sharedApplication] openURL:url];
@@ -273,6 +278,100 @@ static NSTimeInterval ExpandMenuAnimation = 0.3;
         default:
             break;
     }
+}
+
+#pragma mark - actions
+- (void)sendTweet
+{
+    NSString *noteText = [self getNoteTextAsMessage];
+    
+    if (SYSTEM_VERSION_LESS_THAN(@"6")){
+        if([TWTweetComposeViewController canSendTweet])
+        {
+            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
+            [tweetViewController setInitialText:noteText];
+            
+            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
+            {
+                // Dismiss the controller
+                [self dismissViewControllerAnimated:YES completion:nil];
+            };
+            [(UIViewController *)self.delegate presentViewController:tweetViewController animated:YES completion:nil];
+            
+        }else {
+            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
+            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+            [alertView show];
+        }
+    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
+        // 3
+        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+        {
+            // 4
+            //[self.tweetText setAlpha:0.5f];
+        } else {
+            // 5
+            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+            [composeViewController setInitialText:noteText];
+            [(UIViewController *)self.delegate presentViewController:composeViewController animated:YES completion:nil];
+        }
+    }
+}
+
+- (void)sendSMS
+{
+    if([MFMessageComposeViewController canSendText])
+    {
+        self.messageViewController = [[MFMessageComposeViewController alloc] init];
+        self.messageViewController.body = [self getNoteTextAsMessage];
+        self.messageViewController.messageComposeDelegate = self;
+        self.messageViewController.wantsFullScreenLayout = NO;
+        [(UIViewController *)self.delegate presentViewController:self.messageViewController animated:YES completion:nil];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }
+    else {
+        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send text messages."];
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        [alertView show];
+    }
+}
+
+- (void)sendEmail
+{
+    self.mailViewController = [[MFMailComposeViewController alloc] init];
+    self.mailViewController.mailComposeDelegate = self;
+    
+    NSString *noteText = self.visibleCell.textView.text;
+    NSString* noteTitle;
+    if (noteText.length > 24)
+        noteTitle = [NSString stringWithFormat:@"%@...", [noteText substringToIndex:24]];
+    else
+        noteTitle = noteText;
+    
+    NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",
+                      [self getNoteTextAsMessage],
+                      @"Sent from Noted"];
+    
+	[self.mailViewController setSubject:noteTitle];
+	[self.mailViewController setMessageBody:body isHTML:NO];
+    [(UIViewController *)self.delegate presentViewController:self.mailViewController animated:YES completion:nil];
+}
+
+- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
+    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:nil];
+}
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
+    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSString *)getNoteTextAsMessage
+{
+    NSString *noteText = self.visibleCell.textView.text;
+    //noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    if ([noteText length] > 140) {
+        noteText = [noteText substringToIndex:140];
+    }
+    return noteText;
 }
 
 #pragma mark - Positioning
