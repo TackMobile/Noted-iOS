@@ -257,7 +257,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 -(NTDOptionsViewController *)optionsViewController
 {
     if (_optionsViewController == nil) {
-        _optionsViewController = [[NTDOptionsViewController alloc] initWithNibName:@"NTDOptionsViewController" bundle:nil];
+        _optionsViewController = [[NTDOptionsViewController alloc] init];
         _optionsViewController.delegate = self;
     }
     return _optionsViewController;
@@ -726,7 +726,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
     
     self.optionsViewController.view.frame = visibleCell.frame;
-    self.optionsViewController.visibleCell = self.visibleCell;
+    self.optionsViewController.note = [self noteAtIndexPath:self.visibleCardIndexPath];
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     
     [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
@@ -1026,7 +1026,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NSLog(@"cross detected");
 }
 
-#pragma mark - OptionsViewController Delegate
+#pragma mark - NTDOptionsViewControllerDelegate
 
 -(CGFloat)initialOptionsViewWidth {
     return InitialNoteOffsetWhenViewingOptions;
@@ -1036,23 +1036,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.pagingLayout revealOptionsViewWithOffset:width];
 }
 
-//- (void)didChangeNoteTheme:(NTDTheme *)theme {
-//    [self.visibleCell applyTheme:theme];
-//    
-//    NSIndexPath *indexPath = [self.collectionView indexPathForCell:self.visibleCell];
-//    NoteEntry *noteEntry = [[ApplicationModel sharedInstance] noteAtIndex:indexPath.item];
-//    
-//    void (^completion)(NoteDocument *noteDocument) = ^(NoteDocument *noteDocument) {
-//        
-//        UIColor *newColor = [theme backgroundColor];
-//        if (![noteDocument.color isEqual:newColor]) {
-//            noteDocument.color = newColor;
-//            [noteEntry setNoteData:noteDocument.data];
-//            [noteDocument updateChangeCount:UIDocumentChangeDone];
-//        }
-//        
-//    };
-//    [[ApplicationModel sharedInstance] noteDocumentAtIndex:indexPath.item
-//                                                completion:completion];
-//}
+- (void)didChangeNoteTheme
+{
+    [self.visibleCell applyTheme:self.optionsViewController.note.theme];
+}
 @end
