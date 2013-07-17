@@ -53,6 +53,12 @@
 		379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97D71678EE650051218D /* menu-icon-grey@2x.png */; };
 		379E97DD1678EE710051218D /* menu-icon-white.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DB1678EE710051218D /* menu-icon-white.png */; };
 		379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DC1678EE710051218D /* menu-icon-white@2x.png */; };
+		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
+		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
+		3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */; };
+		3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */; };
+		3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9D3F1F179494B600EA183D /* CoreData.framework */; };
+		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		577A9B2816DEBFC100AF8D74 /* DCCrossHairView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */; };
 		577A9B2916DEBFC100AF8D74 /* DCFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2216DEBFC100AF8D74 /* DCFrameView.m */; };
 		577A9B2A16DEBFC100AF8D74 /* DCIntrospect.m in Sources */ = {isa = PBXBuildFile; fileRef = 577A9B2416DEBFC100AF8D74 /* DCIntrospect.m */; };
@@ -199,6 +205,16 @@
 		379E97D71678EE650051218D /* menu-icon-grey@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-grey@2x.png"; sourceTree = "<group>"; };
 		379E97DB1678EE710051218D /* menu-icon-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white.png"; sourceTree = "<group>"; };
 		379E97DC1678EE710051218D /* menu-icon-white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white@2x.png"; sourceTree = "<group>"; };
+		3F9D3F0E1790925100EA183D /* NTDNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNote.h; sourceTree = "<group>"; };
+		3F9D3F0F1790925100EA183D /* NTDNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNote.m; sourceTree = "<group>"; };
+		3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteDocument.h; sourceTree = "<group>"; };
+		3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteDocument.m; sourceTree = "<group>"; };
+		3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NTDNoteMetadata.xcdatamodel; sourceTree = "<group>"; };
+		3F9D3F1C179491A800EA183D /* NTDCoreDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDCoreDataStore.h; sourceTree = "<group>"; };
+		3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDCoreDataStore.m; sourceTree = "<group>"; };
+		3F9D3F1F179494B600EA183D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteMetadata.h; sourceTree = "<group>"; };
+		3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
 		577A9B1F16DEBFC100AF8D74 /* DCCrossHairView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCCrossHairView.h; sourceTree = "<group>"; };
 		577A9B2016DEBFC100AF8D74 /* DCCrossHairView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCCrossHairView.m; sourceTree = "<group>"; };
 		577A9B2116DEBFC100AF8D74 /* DCFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCFrameView.h; sourceTree = "<group>"; };
@@ -328,6 +344,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */,
+				3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */,
 				B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */,
 				B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */,
 				29914F181575350C0029D170 /* MessageUI.framework in Frameworks */,
@@ -439,6 +456,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3F9D3F1F179494B600EA183D /* CoreData.framework */,
 				B5961BC2161E3581001F02F0 /* Social.framework */,
 				B50C98B9160CCD45002A3909 /* TestFlightSDK1.1 */,
 				2908B5B71576E6AF00A1CFB9 /* libz.dylib */,
@@ -507,6 +525,20 @@
 			name = Model;
 			sourceTree = "<group>";
 		};
+		3F9D3F141790B3C300EA183D /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				3F9D3F1C179491A800EA183D /* NTDCoreDataStore.h */,
+				3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */,
+				3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */,
+				3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */,
+				3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */,
+				3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */,
+				3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */,
+			);
+			name = Private;
+			sourceTree = "<group>";
+		};
 		577A9B1116DEBE4B00AF8D74 /* DCIntrospect-ARC */ = {
 			isa = PBXGroup;
 			children = (
@@ -537,6 +569,9 @@
 		B52114D8171CA79E007670F3 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				3F9D3F141790B3C300EA183D /* Private */,
+				3F9D3F0E1790925100EA183D /* NTDNote.h */,
+				3F9D3F0F1790925100EA183D /* NTDNote.m */,
 				B52114D9171CA800007670F3 /* NTDTheme.h */,
 				B52114DA171CA800007670F3 /* NTDTheme.m */,
 			);
@@ -870,6 +905,11 @@
 				F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */,
 				CF8ECF9D178213C20062705D /* NoteCollectionViewController+Shredding.m in Sources */,
 				CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */,
+				3F9D3F101790925100EA183D /* NTDNote.m in Sources */,
+				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
+				3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */,
+				3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */,
+				3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1082,6 +1122,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */,
+			);
+			currentVersion = 3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */;
+			path = NTDNoteMetadata.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 29FC4906156EE0CD0007BBAD /* Project object */;
 }

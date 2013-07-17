@@ -9,9 +9,25 @@
 #import "NTDOptionsViewController.h"
 #import "UIView+FrameAdditions.h"
 #import <Twitter/Twitter.h>
-#import "ApplicationModel.h"
+#import <MessageUI/MessageUI.h>
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
+
+@interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+
+// colors
+@property (weak, nonatomic) IBOutlet NTDColorPicker *colors;
+
+// options
+@property (weak, nonatomic) IBOutlet UIView *options;
+@property (weak, nonatomic) IBOutlet UIButton *doneButton;
+@property (weak, nonatomic) IBOutlet UIButton *toggleStatusBarButton;
+
+@property (weak, nonatomic) IBOutlet UIView *shareOptionsView;
+@property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
+@property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
+
+@end
 
 @implementation NTDColorPicker
 
@@ -80,6 +96,13 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 @synthesize colors;
 @synthesize options, doneButton, toggleStatusBarButton;
 @synthesize shareOptionsView, settingsOptionsView, aboutOptionsView;
+
+- (id)init
+{
+    if (self = [super initWithNibName:nil bundle:nil]) {
+    }
+    return self;
+}
 
 - (void)viewDidLoad
 {
@@ -186,7 +209,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void) colorTapped:(UITapGestureRecognizer *)sender
 {    
     NTDTheme *noteTheme = [NTDTheme themeForColorScheme:sender.view.tag];
-    [self.visibleCell applyTheme:noteTheme];
+    self.note.theme = noteTheme;
+    [self.delegate didChangeNoteTheme];
 }
 
 - (void) optionTapped:(UITapGestureRecognizer *)sender
@@ -344,7 +368,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.mailViewController = [[MFMailComposeViewController alloc] init];
     self.mailViewController.mailComposeDelegate = self;
     
-    NSString *noteText = self.visibleCell.textView.text;
+    NSString *noteText = self.note.text;
     NSString* noteTitle;
     if (noteText.length > 24)
         noteTitle = [NSString stringWithFormat:@"%@...", [noteText substringToIndex:24]];
@@ -369,7 +393,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (NSString *)getNoteTextAsMessage
 {
-    NSString *noteText = self.visibleCell.textView.text;
+    NSString *noteText = self.note.text;
     //noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     if ([noteText length] > 140) {
         noteText = [noteText substringToIndex:140];
