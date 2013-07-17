@@ -280,7 +280,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
 }
 
-#pragma mark - actions
+#pragma mark - Sharing Actions
+//TODO: Clean this up.
 - (void)sendTweet
 {
     NSString *noteText = [self getNoteTextAsMessage];
@@ -338,6 +339,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void)sendEmail
 {
+    if (![MFMailComposeViewController canSendMail]) return; //TODO fix
+    
     self.mailViewController = [[MFMailComposeViewController alloc] init];
     self.mailViewController.mailComposeDelegate = self;
     
