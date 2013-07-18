@@ -26,6 +26,7 @@
 		379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97D71678EE650051218D /* menu-icon-grey@2x.png */; };
 		379E97DD1678EE710051218D /* menu-icon-white.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DB1678EE710051218D /* menu-icon-white.png */; };
 		379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DC1678EE710051218D /* menu-icon-white@2x.png */; };
+		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
 		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
 		3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */; };
@@ -83,6 +84,7 @@
 		379E97DB1678EE710051218D /* menu-icon-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white.png"; sourceTree = "<group>"; };
 		379E97DC1678EE710051218D /* menu-icon-white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white@2x.png"; sourceTree = "<group>"; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		3F9D3F0E1790925100EA183D /* NTDNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNote.h; sourceTree = "<group>"; };
 		3F9D3F0F1790925100EA183D /* NTDNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNote.m; sourceTree = "<group>"; };
 		3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteDocument.h; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */,
 				A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */,
+				3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +209,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3F73F7E917985D5200EEE802 /* Crashlytics.framework */,
 				CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */,
 				CFAF5CBE178E04E700187C79 /* Reveal.framework */,
 				3F9D3F1F179494B600EA183D /* CoreData.framework */,
@@ -343,6 +347,7 @@
 				29FC490C156EE0CD0007BBAD /* Frameworks */,
 				29FC490D156EE0CD0007BBAD /* Resources */,
 				0A02F07CA668442FBA33C199 /* Copy Pods Resources */,
+				3F73F7E817985D3500EEE802 /* Run Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -416,6 +421,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+		};
+		3F73F7E817985D3500EEE802 /* Run Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Crashlytics";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Crashlytics.framework/run 74274da5058ac773f4834d2aedc44eac0555edcd";
 		};
 		428B754B05E147E597ABE2C8 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
