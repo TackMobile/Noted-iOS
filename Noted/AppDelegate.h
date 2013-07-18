@@ -14,6 +14,4 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
-- (void)resumeWalkthroughWithView:(UIView *)view;
-
 @end
