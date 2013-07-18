@@ -6,20 +6,20 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NoteCollectionViewCell.h"
-#import "NoteCollectionViewLayoutAttributes.h"
-#import "NoteListCollectionViewLayout.h"
+#import "NTDCollectionViewCell.h"
+#import "NTDCollectionViewLayoutAttributes.h"
+#import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIView+FrameAdditions.h"
 #import "DAKeyboardControl.h"
 
-@interface NoteCollectionViewCell ()
+@interface NTDCollectionViewCell ()
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
 @property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
 @end
 
-@implementation NoteCollectionViewCell
+@implementation NTDCollectionViewCell
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -77,10 +77,10 @@
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
 {
-    if (![layoutAttributes isKindOfClass:[NoteCollectionViewLayoutAttributes class]])
+    if (![layoutAttributes isKindOfClass:[NTDCollectionViewLayoutAttributes class]])
           return;
           
-    NoteCollectionViewLayoutAttributes *noteLayoutAttributes = (NoteCollectionViewLayoutAttributes *)layoutAttributes;
+    NTDCollectionViewLayoutAttributes *noteLayoutAttributes = (NTDCollectionViewLayoutAttributes *)layoutAttributes;
     if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
         if (!CATransform3DIsIdentity(noteLayoutAttributes.transform3D)) {
             CATransform3D transform3D = CATransform3DMakeAffineTransform(noteLayoutAttributes.transform2D);
@@ -96,7 +96,7 @@
 
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
 {
-    if ([newLayout isKindOfClass:[NoteListCollectionViewLayout class]]) {
+    if ([newLayout isKindOfClass:[NTDListCollectionViewLayout class]]) {
         if (self._doNotHideSettingsForNextLayoutChange) {
             self._doNotHideSettingsForNextLayoutChange = NO;
         } else {

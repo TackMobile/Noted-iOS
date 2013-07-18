@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NoteCollectionViewController.h"
+#import "NTDCollectionViewController.h"
 
-@interface NoteCollectionViewController (Shredding)
+@interface NTDCollectionViewController (Shredding)
 
 - (void) prepareVisibleNoteForShredding;
 - (void) shredVisibleNoteByPercent:(float)percent completion:(void (^)(void))completionBlock;

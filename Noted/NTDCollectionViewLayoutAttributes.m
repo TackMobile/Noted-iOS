@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NoteCollectionViewLayoutAttributes.h"
+#import "NTDCollectionViewLayoutAttributes.h"
 
-@implementation NoteCollectionViewLayoutAttributes
+@implementation NTDCollectionViewLayoutAttributes
 
 -(id)init
 {
@@ -20,7 +20,7 @@
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    NoteCollectionViewLayoutAttributes *copy = [super copyWithZone:zone];
+    NTDCollectionViewLayoutAttributes *copy = [super copyWithZone:zone];
     copy.transform2D = self.transform2D;
     return copy;
 }

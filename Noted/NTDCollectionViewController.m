@@ -9,26 +9,26 @@
 #import <Accounts/Accounts.h>
 #import <MessageUI/MessageUI.h>
 #import <Twitter/Twitter.h>
-#import "NoteCollectionViewController.h"
-#import "NoteListCollectionViewLayout.h"
+#import "NTDCollectionViewController.h"
+#import "NTDListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
-#import "NoteCollectionViewController+Shredding.h"
+#import "NTDCollectionViewController+Shredding.h"
 #import "NTDNote.h"
 #import "Utilities.h"
 
-@interface NoteCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
-@property (nonatomic, strong) NoteListCollectionViewLayout *listLayout;
+@interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
+@property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
-@property (nonatomic, strong, readonly) NoteCollectionViewCell *pinchedCell;
+@property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
 *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
@@ -46,19 +46,19 @@
 
 @end
 
-NSString *const NoteCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
-NSString *const NoteCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
+NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
+NSString *const NTDCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
 static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 
-@implementation NoteCollectionViewController
+@implementation NTDCollectionViewController
 
 - (id)init
 {
-    NoteListCollectionViewLayout *initialLayout = [[NoteListCollectionViewLayout alloc] init];
+    NTDListCollectionViewLayout *initialLayout = [[NTDListCollectionViewLayout alloc] init];
     self = [super initWithCollectionViewLayout:initialLayout];
     if (self) {
         self.listLayout = initialLayout;
@@ -79,7 +79,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         self.collectionView.alwaysBounceVertical = YES;
-        [self.collectionView registerNib:[UINib nibWithNibName:@"NoteCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier];
+        [self.collectionView registerNib:[UINib nibWithNibName:NSStringFromClass([NTDCollectionViewCell class]) bundle:nil]
+              forCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier];
         
         // register for keyboard notification so we can resize the textview
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -204,7 +205,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    NoteCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NoteCollectionViewCellReuseIdentifier forIndexPath:indexPath];
+    NTDCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier
+                                                                            forIndexPath:indexPath];
     cell.textView.delegate = self;
     
     [cell.settingsButton addTarget:self
@@ -234,7 +236,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - UICollectionViewDelegate
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard]) {
-        NoteCollectionViewCell *cell = (NoteCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
+        NTDCollectionViewCell *cell = (NTDCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
         cell.relativeTimeLabel.text = @"Today";
         cell.textView.text = @"Release to create a note";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
@@ -260,9 +262,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     return _optionsViewController;
 }
 
-- (NoteCollectionViewCell *)visibleCell
+- (NTDCollectionViewCell *)visibleCell
 {
-    return (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:self.visibleCardIndexPath];
+    return (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:self.visibleCardIndexPath];
 }
 
 - (NSIndexPath *)visibleCardIndexPath
@@ -270,9 +272,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
    return [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0];
 }
 
-- (NoteCollectionViewCell *)pinchedCell
+- (NTDCollectionViewCell *)pinchedCell
 {
-    return (NoteCollectionViewCell *)[[self collectionView] cellForItemAtIndexPath:self.listLayout.pinchedCardIndexPath];
+    return (NTDCollectionViewCell *)[[self collectionView] cellForItemAtIndexPath:self.listLayout.pinchedCardIndexPath];
 }
 
 
@@ -299,7 +301,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.listLayout.swipedCardOffset = 0.0;
             }
             // make the shadow larger and sticky to the cell's alpha
-            NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+            NTDCollectionViewCell *theCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
             theCell.layer.shouldRasterize = YES;
             [theCell applyShadow:YES];
             break;
@@ -341,7 +343,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 // animate the cell back to its orig position
                 [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
                     // if it didnt delete, make the shadow smaller and un rasterized
-                    NoteCollectionViewCell *theCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
+                    NTDCollectionViewCell *theCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
                     theCell.layer.shouldRasterize = NO;
                     [theCell applyShadow:NO];
                 }];
@@ -683,7 +685,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {    
-    NoteCollectionViewCell *selectedCell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    NTDCollectionViewCell *selectedCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [self setBodyForCell:selectedCell atIndexPath:indexPath];
     
     CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
@@ -696,7 +698,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                          selectedCell.settingsButton.alpha = 1;
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleCardIndexPath in indexPaths) {
-                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
+                             NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
                              if (visibleCardIndexPath.row <= indexPath.row) {
                                  cell.$y -= topOffset;
                              } else {
@@ -714,7 +716,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (IBAction)showSettings:(id)sender
 {
-    NoteCollectionViewCell *visibleCell = self.visibleCell;
+    NTDCollectionViewCell *visibleCell = self.visibleCell;
     
     /* Don't let user interact with anything but our options. */
     visibleCell.textView.editable = NO;
@@ -776,16 +778,16 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                          NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleIndexPath in indexPaths) {
-                             NoteCollectionViewCell *cell = (NoteCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+                             NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
                              cell.$y += self.collectionView.frame.size.height;
                              [subviews removeObject:cell];
                          }
                          for (UIView *view in subviews) {
                              /* Search for & edit the 'pull to create card' cell. */
-                             if ([view isKindOfClass:[NoteCollectionViewCell class]] &&
+                             if ([view isKindOfClass:[NTDCollectionViewCell class]] &&
                                  (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
                                  !view.hidden) {
-                                 NoteCollectionViewCell *cell = (NoteCollectionViewCell *)view;
+                                 NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
 #if DEBUG
                                  cell.relativeTimeLabel.text = @"[0] Today";
 #else
@@ -820,12 +822,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return self.notes[indexPath.item];
 }
 
-- (void)setBodyForCell:(NoteCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+- (void)setBodyForCell:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     /* We take `cell` as a parameter because `-[UICollectionView cellForItemAtIndexPath:]`
      * returns `nil` inside of `collectionView:cellForItemAtIndexPath:`. */
     NTDNote *note = [self noteAtIndexPath:indexPath];
-    NoteCollectionViewCell __weak *weakCell = cell;
+    NTDCollectionViewCell __weak *weakCell = cell;
     if (note.fileState != NTDNoteFileStateOpened) {
         [note openWithCompletionHandler:^(BOOL success) {
             weakCell.textView.text = note.text;

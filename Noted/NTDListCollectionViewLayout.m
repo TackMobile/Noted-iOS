@@ -6,21 +6,21 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NoteListCollectionViewLayout.h"
+#import "NTDListCollectionViewLayout.h"
 #import "UIView+FrameAdditions.h"
-#import "NoteCollectionViewLayoutAttributes.h"
+#import "NTDCollectionViewLayoutAttributes.h"
 #import <QuartzCore/QuartzCore.h>
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
 static const CGFloat NTDMaxNoteTiltAngle = M_PI/4;
 static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
 
-@interface NoteListCollectionViewLayout ()
+@interface NTDListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
 @end
 
-@implementation NoteListCollectionViewLayout
+@implementation NTDListCollectionViewLayout
 
 - (id)init
 {
@@ -39,7 +39,7 @@ static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
 
 + (Class)layoutAttributesClass
 {
-    return [NoteCollectionViewLayoutAttributes class];
+    return [NTDCollectionViewLayoutAttributes class];
 }
 
 - (void)prepareLayout
@@ -54,7 +54,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForItemAtIndexPath:indexPath];
     
-    NoteCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
+    NTDCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
     layoutAttributes.zIndex = layoutAttributes.indexPath.item;
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     CGRect frame = layoutAttributes.frame;
@@ -95,8 +95,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 -(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
     if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard] && [indexPath isEqual:self.pullToCreateCardIndexPath]) {
-        NoteCollectionViewLayoutAttributes *layoutAttributes;        
-        layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
+        NTDCollectionViewLayoutAttributes *layoutAttributes;        
+        layoutAttributes = [NTDCollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
         
         CGRect frame = CGRectMake(self.contentInset.left,
                                   0.0,
@@ -190,10 +190,10 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 #pragma mark - Caching
-- (NoteCollectionViewLayoutAttributes *)generateCellLayoutAttributesForItem:(NSInteger)i
+- (NTDCollectionViewLayoutAttributes *)generateCellLayoutAttributesForItem:(NSInteger)i
 {
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-    NoteCollectionViewLayoutAttributes *layoutAttributes = [NoteCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    NTDCollectionViewLayoutAttributes *layoutAttributes = [NTDCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
     
     CGFloat height = i * self.cardOffset + self.contentInset.top;
     CGRect frame = CGRectMake(self.contentInset.left,
@@ -214,12 +214,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     self.layoutAttributesArray = [NSMutableArray arrayWithCapacity:cardCount];
     
     for (NSUInteger i = 0; i < cardCount; i++) {
-        NoteCollectionViewLayoutAttributes *layoutAttributes = [self generateCellLayoutAttributesForItem:i];
+        NTDCollectionViewLayoutAttributes *layoutAttributes = [self generateCellLayoutAttributesForItem:i];
         [self.layoutAttributesArray addObject:layoutAttributes];
     }
 }
 
-- (NoteCollectionViewLayoutAttributes *)cellLayoutAttributesForItem:(NSInteger)i
+- (NTDCollectionViewLayoutAttributes *)cellLayoutAttributesForItem:(NSInteger)i
 {
     if (i >= 0 && i < [self.layoutAttributesArray count]) {
         return self.layoutAttributesArray[i];
@@ -267,7 +267,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (void) completeDeletion:(NSIndexPath *)cardIndexPath completion:(void (^)(void))completionBlock {
     
-    NoteCollectionViewLayoutAttributes *attr = (NoteCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:cardIndexPath];
+    NTDCollectionViewLayoutAttributes *attr = (NTDCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:cardIndexPath];
     UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:cardIndexPath];
     
     if (self.swipedCardOffset < 0) {
@@ -307,8 +307,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (UICollectionViewLayoutAttributes *)pinchingLayoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    NoteCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
-    NoteCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = [self cellLayoutAttributesForItem:self.pinchedCardIndexPath.item];
+    NTDCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
+    NTDCollectionViewLayoutAttributes *pinchedCardLayoutAttributes = [self cellLayoutAttributesForItem:self.pinchedCardIndexPath.item];
     
     CGFloat pinchGap = self.pinchRatio * self.cardSize.height;
     CGFloat pinchOffset = self.pinchRatio * (-pinchedCardLayoutAttributes.frame.origin.y + self.collectionView.contentOffset.y);

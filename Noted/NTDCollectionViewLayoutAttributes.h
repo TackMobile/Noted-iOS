@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface NoteCollectionViewLayoutAttributes : UICollectionViewLayoutAttributes
+@interface NTDCollectionViewLayoutAttributes : UICollectionViewLayoutAttributes
 
 @property (nonatomic, assign) CGAffineTransform transform2D;
 

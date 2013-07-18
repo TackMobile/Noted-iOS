@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NoteCollectionViewController+Shredding.h"
-#import "NoteCollectionViewCell.h"
+#import "NTDCollectionViewController+Shredding.h"
+#import "NTDCollectionViewCell.h"
 #import "UIImage+Crop.h"
 #import <QuartzCore/QuartzCore.h>
 
@@ -38,7 +38,7 @@
 
 @end*/
 
-@implementation NoteCollectionViewController (Shredding)
+@implementation NTDCollectionViewController (Shredding)
 
 - (void) prepareVisibleNoteForShredding {
     self.columnsForDeletion = [NSMutableArray array];

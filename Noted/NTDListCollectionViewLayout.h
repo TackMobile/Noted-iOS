@@ -10,7 +10,7 @@
 
 UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
 
-@interface NoteListCollectionViewLayout : UICollectionViewLayout
+@interface NTDListCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGSize cardSize;
 @property (nonatomic, assign) CGFloat cardOffset;

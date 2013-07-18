@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "Constants.h"
-#import "NoteCollectionViewController.h"
+#import "NTDCollectionViewController.h"
 
 @interface AppDelegate()
 @end
@@ -20,7 +20,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = [[NoteCollectionViewController alloc] init];
+    self.window.rootViewController = [[NTDCollectionViewController alloc] init];
     self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
     [self.window makeKeyAndVisible];
 

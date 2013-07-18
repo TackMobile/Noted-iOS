@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NTDTheme.h"
 
-@interface NoteCollectionViewCell : UICollectionViewCell
+@interface NTDCollectionViewCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *relativeTimeLabel;
 @property (weak, nonatomic) IBOutlet UITextView *textView;

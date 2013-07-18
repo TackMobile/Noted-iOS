@@ -39,14 +39,14 @@
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
 		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
-		B5A2B0D0171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */; };
-		B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */; };
-		B5D5F244171888B0008C60EE /* NoteCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24017188840008C60EE /* NoteCollectionViewController.m */; };
-		B5D5F245171888B3008C60EE /* NoteListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */; };
-		B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */; };
+		B5A2B0D0171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */; };
+		B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */; };
+		B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24017188840008C60EE /* NTDCollectionViewController.m */; };
+		B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */; };
+		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
 		B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
-		CF8ECF9D178213C20062705D /* NoteCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */; };
+		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
 		CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CBE178E04E700187C79 /* Reveal.framework */; };
@@ -103,21 +103,21 @@
 		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
 		B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
-		B5A2B0CE171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewLayoutAttributes.h; sourceTree = "<group>"; };
-		B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewLayoutAttributes.m; sourceTree = "<group>"; };
-		B5D5F23C17188840008C60EE /* NoteCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewCell.h; sourceTree = "<group>"; };
-		B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewCell.m; sourceTree = "<group>"; };
-		B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NoteCollectionViewCell.xib; sourceTree = "<group>"; };
-		B5D5F23F17188840008C60EE /* NoteCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteCollectionViewController.h; sourceTree = "<group>"; };
-		B5D5F24017188840008C60EE /* NoteCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteCollectionViewController.m; sourceTree = "<group>"; };
-		B5D5F24117188840008C60EE /* NoteListCollectionViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteListCollectionViewLayout.h; sourceTree = "<group>"; };
-		B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoteListCollectionViewLayout.m; sourceTree = "<group>"; };
+		B5A2B0CE171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewLayoutAttributes.h; sourceTree = "<group>"; };
+		B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewLayoutAttributes.m; sourceTree = "<group>"; };
+		B5D5F23C17188840008C60EE /* NTDCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewCell.h; sourceTree = "<group>"; };
+		B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewCell.m; sourceTree = "<group>"; };
+		B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NTDCollectionViewCell.xib; sourceTree = "<group>"; };
+		B5D5F23F17188840008C60EE /* NTDCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewController.h; sourceTree = "<group>"; };
+		B5D5F24017188840008C60EE /* NTDCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewController.m; sourceTree = "<group>"; };
+		B5D5F24117188840008C60EE /* NTDListCollectionViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDListCollectionViewLayout.h; sourceTree = "<group>"; };
+		B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+FrameAdditions.h"; sourceTree = "<group>"; };
 		B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+FrameAdditions.m"; sourceTree = "<group>"; };
 		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
-		CF8ECF9B178213C10062705D /* NoteCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NoteCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
-		CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NoteCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
+		CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
+		CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
@@ -258,12 +258,12 @@
 		3F73F7E717975FB500EEE802 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
-				B5A2B0CE171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.h */,
-				B5A2B0CF171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m */,
+				B5A2B0CE171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.h */,
+				B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */,
 				B52114DC171DCF9E007670F3 /* NTDPagingCollectionViewLayout.h */,
 				B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */,
-				B5D5F24117188840008C60EE /* NoteListCollectionViewLayout.h */,
-				B5D5F24217188840008C60EE /* NoteListCollectionViewLayout.m */,
+				B5D5F24117188840008C60EE /* NTDListCollectionViewLayout.h */,
+				B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */,
 			);
 			name = Layout;
 			sourceTree = "<group>";
@@ -298,9 +298,9 @@
 			isa = PBXGroup;
 			children = (
 				3F73F7E717975FB500EEE802 /* Layout */,
-				B5D5F23C17188840008C60EE /* NoteCollectionViewCell.h */,
-				B5D5F23D17188840008C60EE /* NoteCollectionViewCell.m */,
-				B5D5F23E17188840008C60EE /* NoteCollectionViewCell.xib */,
+				B5D5F23C17188840008C60EE /* NTDCollectionViewCell.h */,
+				B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */,
+				B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -311,8 +311,8 @@
 				CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */,
 				CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */,
 				CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */,
-				B5D5F23F17188840008C60EE /* NoteCollectionViewController.h */,
-				B5D5F24017188840008C60EE /* NoteCollectionViewController.m */,
+				B5D5F23F17188840008C60EE /* NTDCollectionViewController.h */,
+				B5D5F24017188840008C60EE /* NTDCollectionViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -324,8 +324,8 @@
 				B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */,
 				B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */,
 				B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */,
-				CF8ECF9B178213C10062705D /* NoteCollectionViewController+Shredding.h */,
-				CF8ECF9C178213C20062705D /* NoteCollectionViewController+Shredding.m */,
+				CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */,
+				CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -392,7 +392,7 @@
 				379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
-				B5D5F246171888C7008C60EE /* NoteCollectionViewCell.xib in Resources */,
+				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,15 +411,15 @@
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
 				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
 				B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */,
-				B5D5F245171888B3008C60EE /* NoteListCollectionViewLayout.m in Sources */,
-				B5D5F244171888B0008C60EE /* NoteCollectionViewController.m in Sources */,
-				B5D5F243171888AC008C60EE /* NoteCollectionViewCell.m in Sources */,
-				B5A2B0D0171A30EB00AF2BB8 /* NoteCollectionViewLayoutAttributes.m in Sources */,
+				B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */,
+				B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */,
+				B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */,
+				B5A2B0D0171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m in Sources */,
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
 				F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */,
-				CF8ECF9D178213C20062705D /* NoteCollectionViewController+Shredding.m in Sources */,
+				CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */,
 				CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */,
 				3F9D3F101790925100EA183D /* NTDNote.m in Sources */,
 				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
