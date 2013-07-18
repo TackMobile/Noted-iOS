@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <QuartzCore/QuartzCore.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDCollectionViewCell.h"
 #import "NTDCollectionViewLayoutAttributes.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
-#import <QuartzCore/QuartzCore.h>
-#import "UIView+FrameAdditions.h"
 #import "DAKeyboardControl.h"
 
 @interface NTDCollectionViewCell ()

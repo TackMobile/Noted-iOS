@@ -6,10 +6,10 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NTDListCollectionViewLayout.h"
-#import "UIView+FrameAdditions.h"
-#import "NTDCollectionViewLayoutAttributes.h"
 #import <QuartzCore/QuartzCore.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
+#import "NTDListCollectionViewLayout.h"
+#import "NTDCollectionViewLayoutAttributes.h"
 
 NSString * const NTDCollectionElementKindPullToCreateCard = @"NTDCollectionElementKindPullToCreateCard";
 static const CGFloat NTDMaxNoteTiltAngle = M_PI/4;

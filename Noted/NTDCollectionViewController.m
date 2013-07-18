@@ -9,9 +9,9 @@
 #import <Accounts/Accounts.h>
 #import <MessageUI/MessageUI.h>
 #import <Twitter/Twitter.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDCollectionViewController.h"
 #import "NTDListCollectionViewLayout.h"
-#import "UIView+FrameAdditions.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"

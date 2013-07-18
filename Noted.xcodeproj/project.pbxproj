@@ -34,6 +34,7 @@
 		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
+		A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB62BC5EED29406FBB1BE6A4 /* libPods.a */; };
 		B52114DB171CA800007670F3 /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
 		B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
@@ -44,7 +45,6 @@
 		B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24017188840008C60EE /* NTDCollectionViewController.m */; };
 		B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */; };
 		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
-		B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
@@ -93,6 +93,7 @@
 		3F9D3F1F179494B600EA183D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteMetadata.h; sourceTree = "<group>"; };
 		3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
+		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
 		964640C2164B289F0006A7CB /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -112,10 +113,9 @@
 		B5D5F24017188840008C60EE /* NTDCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewController.m; sourceTree = "<group>"; };
 		B5D5F24117188840008C60EE /* NTDListCollectionViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDListCollectionViewLayout.h; sourceTree = "<group>"; };
 		B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDListCollectionViewLayout.m; sourceTree = "<group>"; };
-		B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+FrameAdditions.h"; sourceTree = "<group>"; };
-		B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+FrameAdditions.m"; sourceTree = "<group>"; };
 		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
+		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
 		CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
@@ -142,6 +142,7 @@
 				29FC4918156EE0CD0007BBAD /* CoreGraphics.framework in Frameworks */,
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */,
+				A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +191,7 @@
 				29FC4919156EE0CD0007BBAD /* Noted */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
+				56511FDB4151478DBAF18458 /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -214,6 +216,7 @@
 				29960C89157413010054347A /* QuartzCore.framework */,
 				29914F15157535060029D170 /* Twitter.framework */,
 				29FC4913156EE0CD0007BBAD /* UIKit.framework */,
+				BB62BC5EED29406FBB1BE6A4 /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -320,8 +323,6 @@
 		B5D5F2481718BD3C008C60EE /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				B5D5F2491718BD70008C60EE /* UIView+FrameAdditions.h */,
-				B5D5F24A1718BD70008C60EE /* UIView+FrameAdditions.m */,
 				B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */,
 				B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */,
 				CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */,
@@ -337,9 +338,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 29FC4933156EE0CD0007BBAD /* Build configuration list for PBXNativeTarget "Noted" */;
 			buildPhases = (
+				428B754B05E147E597ABE2C8 /* Check Pods Manifest.lock */,
 				29FC490B156EE0CD0007BBAD /* Sources */,
 				29FC490C156EE0CD0007BBAD /* Frameworks */,
 				29FC490D156EE0CD0007BBAD /* Resources */,
+				0A02F07CA668442FBA33C199 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -399,6 +402,37 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		0A02F07CA668442FBA33C199 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+		};
+		428B754B05E147E597ABE2C8 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		29FC490B156EE0CD0007BBAD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -410,7 +444,6 @@
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */,
 				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
-				B5D5F24C1718BF60008C60EE /* UIView+FrameAdditions.m in Sources */,
 				B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */,
 				B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */,
 				B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */,
@@ -499,6 +532,7 @@
 		};
 		29FC4934156EE0CD0007BBAD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -516,7 +550,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -526,6 +559,7 @@
 		};
 		29FC4935156EE0CD0007BBAD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -543,7 +577,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -579,6 +612,7 @@
 		};
 		B512B1281611191500E0E8B5 /* Ad Hoc */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Noted/Noted.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -596,7 +630,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
