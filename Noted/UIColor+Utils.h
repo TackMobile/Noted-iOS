@@ -11,14 +11,6 @@
 @interface UIColor (Utils)
 
 +(UIColor*)colorWithHexString:(NSString*)hex;
-+(NSArray*)getNoteColorSchemes;
-+(NSArray*)getOptionsColorSchemes;
-+(NSArray*)getHeaderColorSchemes;
-+(BOOL)isWhiteColor:(UIColor*)color;
-+(BOOL)isShadowColor:(UIColor*)color;
-- (UIColor *)colorWithBrightness:(CGFloat)brightness;
-- (UIColor *)colorWithHueOffset:(CGFloat)hueOffset;
-+ (UIColor *)randomColor;
 - (BOOL)isEqualToColor:(UIColor *)otherColor;
 
 @end

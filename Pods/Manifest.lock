@@ -1,0 +1,10 @@
+PODS:
+  - UIView+FrameAdditions (0.0.1)
+
+DEPENDENCIES:
+  - UIView+FrameAdditions (= 0.0.1)
+
+SPEC CHECKSUMS:
+  UIView+FrameAdditions: 74f908c61c7a87cf732c07b67add2a4ad8022f8d
+
+COCOAPODS: 0.20.2

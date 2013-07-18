@@ -6,10 +6,10 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import "NTDOptionsViewController.h"
-#import "UIView+FrameAdditions.h"
 #import <Twitter/Twitter.h>
 #import <MessageUI/MessageUI.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
+#import "NTDOptionsViewController.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
