@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class WalkThroughViewController;
-
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
