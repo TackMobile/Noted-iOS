@@ -8,6 +8,8 @@
 
 //TODO: better error handling in callbacks
 
+#include <mach/mach.h>
+#include <mach/clock.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
@@ -44,9 +46,21 @@ static const NSUInteger HeadlineLength = 35;
         [filenameDateFormatter setDateFormat:format];
     }
     NSString *now = [filenameDateFormatter stringFromDate:[NSDate date]];
-    NSString *basename = [NSString stringWithFormat:@"Note %@", now];
+    mach_timespec_t mts = ntd_get_time();
+    NSString *basename = [NSString stringWithFormat:@"Note %@.%d.%d", now, mts.tv_sec, mts.tv_nsec];
     NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
     return [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:filename];
+}
+
+mach_timespec_t ntd_get_time()
+{
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    
+    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    return mts;
 }
 
 + (instancetype)documentFromMetadata:(NTDNoteMetadata *)metadata
@@ -60,6 +74,14 @@ static const NSUInteger HeadlineLength = 35;
 + (NSManagedObjectContext *)managedObjectContext
 {
     return [[NTDCoreDataStore sharedStore] persistingManagedObjectContext];
+}
+
+- (void)setBodyText:(NSString *)bodyText
+{
+    if (0 == [bodyText length])
+        NSLog(@"Changing bodyText from \"%@\" to \"%@\".", _bodyText, bodyText);
+    _bodyText = bodyText;
+    return;
 }
 
 #pragma mark - UIDocument
