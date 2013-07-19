@@ -49,7 +49,6 @@
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
-		CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CBE178E04E700187C79 /* Reveal.framework */; };
 		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
 		F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */ = {isa = PBXBuildFile; fileRef = F3F5579A177E05650003E152 /* UIDeviceHardware.m */; };
 /* End PBXBuildFile section */
@@ -120,7 +119,6 @@
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
-		CFAF5CBE178E04E700187C79 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		F3F55799177E05650003E152 /* UIDeviceHardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceHardware.h; sourceTree = "<group>"; };
 		F3F5579A177E05650003E152 /* UIDeviceHardware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceHardware.m; sourceTree = "<group>"; };
@@ -140,7 +138,6 @@
 				29FC4916156EE0CD0007BBAD /* Foundation.framework in Frameworks */,
 				29FC4918156EE0CD0007BBAD /* CoreGraphics.framework in Frameworks */,
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
-				CFAF5CBF178E04E700187C79 /* Reveal.framework in Frameworks */,
 				A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */,
 				3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */,
 			);
@@ -208,7 +205,6 @@
 			children = (
 				3F73F7E917985D5200EEE802 /* Crashlytics.framework */,
 				CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */,
-				CFAF5CBE178E04E700187C79 /* Reveal.framework */,
 				3F9D3F1F179494B600EA183D /* CoreData.framework */,
 				B5961BC2161E3581001F02F0 /* Social.framework */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,
