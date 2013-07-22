@@ -974,7 +974,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (NTDNoteFileStateOpened != [[self noteAtIndexPath:self.visibleCardIndexPath] fileState])
         return NO;
         
-    self.visibleCell.settingsButton.hidden = YES;
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
