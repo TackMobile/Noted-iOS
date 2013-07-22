@@ -359,9 +359,13 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.mailViewController = controller;
     
     NSString *noteText = self.note.text;
-    NSString *noteTitle = noteText;
-    if (noteText.length > 24)
-        noteTitle = [NSString stringWithFormat:@"%@...", [noteText substringToIndex:24]];
+    __block NSString *noteTitle;
+    [noteText enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+        noteTitle = line;
+        *stop = TRUE;
+    }];
+    if (noteTitle.length > 24)
+        noteTitle = [NSString stringWithFormat:@"%@...", [noteTitle substringToIndex:24]];
     
 	[controller setSubject:noteTitle];
 	[controller setMessageBody:noteText isHTML:NO];
