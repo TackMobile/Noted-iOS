@@ -115,6 +115,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCard:)];
     panGestureRecognizer.enabled = NO;
     panGestureRecognizer.delegate = self;
+    [panGestureRecognizer setMaximumNumberOfTouches:1];
     self.panCardGestureRecognizer = panGestureRecognizer;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
     
@@ -123,6 +124,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     twoFingerPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWithTwoFingers:)];
     twoFingerPanGestureRecognizer.enabled = NO;
     twoFingerPanGestureRecognizer.delegate = self;
+    [twoFingerPanGestureRecognizer setMaximumNumberOfTouches:2];
+    [twoFingerPanGestureRecognizer setMinimumNumberOfTouches:2];
     self.twoFingerPanGestureRecognizer = twoFingerPanGestureRecognizer;
     [self.collectionView addGestureRecognizer:twoFingerPanGestureRecognizer];
     
@@ -136,6 +139,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // pan while viewing options
     panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWhileViewingOptions:)];
     panGestureRecognizer.enabled = NO;
+    [panGestureRecognizer setMaximumNumberOfTouches:1];
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
     self.panCardWhileViewingOptionsGestureRecognizer = panGestureRecognizer;
     
@@ -394,9 +398,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-            if (panGestureRecognizer.numberOfTouches != 2)
-                panGestureRecognizer.enabled = NO;
-            else
+//            if (panGestureRecognizer.numberOfTouches != 2)
+//                panGestureRecognizer.enabled = NO;
+//            else
                 [self prepareVisibleNoteForShredding];
             
             break;
@@ -488,14 +492,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
-            if (panGestureRecognizer.numberOfTouches != 1)
-                panGestureRecognizer.enabled = NO;
-            
+//            if (panGestureRecognizer.numberOfTouches != 1)
+//                panGestureRecognizer.enabled = NO;
+            NSLog(@"paging pan began with index %i", self.pagingLayout.activeCardIndex);
             break;
             
         case UIGestureRecognizerStateChanged :
             
             self.pagingLayout.pannedCardXTranslation = translation.x;
+            [self.pagingLayout invalidateLayout];
             
             break;
             
