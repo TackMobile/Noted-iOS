@@ -38,6 +38,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [attributesArray addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
+//            NSLog(@"active: %i, this:%i",self.activeCardIndex, indexPath.row );
         }
     }
     return attributesArray;

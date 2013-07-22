@@ -398,9 +398,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-//            if (panGestureRecognizer.numberOfTouches != 2)
-//                panGestureRecognizer.enabled = NO;
-//            else
+            if (panGestureRecognizer.numberOfTouches != 2)
+                panGestureRecognizer.enabled = NO;
+            else
                 [self prepareVisibleNoteForShredding];
             
             break;
@@ -492,15 +492,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
-//            if (panGestureRecognizer.numberOfTouches != 1)
-//                panGestureRecognizer.enabled = NO;
-            NSLog(@"paging pan began with index %i", self.pagingLayout.activeCardIndex);
+            if (panGestureRecognizer.numberOfTouches != 1)
+                panGestureRecognizer.enabled = NO;
+//            NSLog(@"paging pan began with index %i", self.pagingLayout.activeCardIndex);
             break;
             
         case UIGestureRecognizerStateChanged :
             
             self.pagingLayout.pannedCardXTranslation = translation.x;
-            [self.pagingLayout invalidateLayout];
             
             break;
             
@@ -517,15 +516,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             // check for a swipe
             } else if (fabs(velocity) > SwipeVelocityThreshold ) {
                 // left
-                if (velocity < 0)
+                if (velocity < 0 && translation.x < 0)
                     newIndex ++ ;
-                else
+                else if (velocity > 0 && translation.x > 0)
                     newIndex -- ;
             }
                                     
             // make sure we stay within bounds
             newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
             self.pagingLayout.activeCardIndex = newIndex ;
+            
+//            NSLog(@"new Index is: %i", self.pagingLayout.activeCardIndex);
             
             // update this so we know to animate to resting position
             self.pagingLayout.pannedCardXTranslation = 0;
@@ -551,8 +552,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
         else if (!self.hasTwoFingerNoteDeletionBegun)
             [self.pagingLayout invalidateLayout];
-    }
-    
+    }    
 }
 
 - (IBAction)panCardWhileViewingOptions:(UIPanGestureRecognizer *)panGestureRecognizer
