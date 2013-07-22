@@ -25,6 +25,7 @@
 		379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97D71678EE650051218D /* menu-icon-grey@2x.png */; };
 		379E97DD1678EE710051218D /* menu-icon-white.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DB1678EE710051218D /* menu-icon-white.png */; };
 		379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DC1678EE710051218D /* menu-icon-white@2x.png */; };
+		3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */; };
 		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
 		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
@@ -38,7 +39,6 @@
 		B52114DB171CA800007670F3 /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
 		B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
-		B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F15157535060029D170 /* Twitter.framework */; };
 		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
 		B5A2B0D0171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */; };
 		B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */; };
@@ -56,7 +56,6 @@
 /* Begin PBXFileReference section */
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
-		29914F15157535060029D170 /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		29960C7F15740F2D0054347A /* UIColor+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+Utils.h"; path = "Noted/UIColor+Utils.h"; sourceTree = "<group>"; };
 		29960C8015740F2D0054347A /* UIColor+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+Utils.m"; path = "Noted/UIColor+Utils.m"; sourceTree = "<group>"; };
@@ -79,6 +78,7 @@
 		379E97D71678EE650051218D /* menu-icon-grey@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-grey@2x.png"; sourceTree = "<group>"; };
 		379E97DB1678EE710051218D /* menu-icon-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white.png"; sourceTree = "<group>"; };
 		379E97DC1678EE710051218D /* menu-icon-white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white@2x.png"; sourceTree = "<group>"; };
+		3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		3F9D3F0E1790925100EA183D /* NTDNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNote.h; sourceTree = "<group>"; };
@@ -129,9 +129,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
 				CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */,
 				3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */,
-				B5961BC4161E375E001F02F0 /* Twitter.framework in Frameworks */,
 				B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */,
 				29914F181575350C0029D170 /* MessageUI.framework in Frameworks */,
 				29FC4914156EE0CD0007BBAD /* UIKit.framework in Frameworks */,
@@ -203,17 +203,17 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3F73F7E917985D5200EEE802 /* Crashlytics.framework */,
 				CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */,
 				3F9D3F1F179494B600EA183D /* CoreData.framework */,
-				B5961BC2161E3581001F02F0 /* Social.framework */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,
+				3F73F7E917985D5200EEE802 /* Crashlytics.framework */,
 				29FC4915156EE0CD0007BBAD /* Foundation.framework */,
-				29914F171575350C0029D170 /* MessageUI.framework */,
-				29960C89157413010054347A /* QuartzCore.framework */,
-				29914F15157535060029D170 /* Twitter.framework */,
-				29FC4913156EE0CD0007BBAD /* UIKit.framework */,
 				BB62BC5EED29406FBB1BE6A4 /* libPods.a */,
+				29914F171575350C0029D170 /* MessageUI.framework */,
+				3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */,
+				29960C89157413010054347A /* QuartzCore.framework */,
+				B5961BC2161E3581001F02F0 /* Social.framework */,
+				29FC4913156EE0CD0007BBAD /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

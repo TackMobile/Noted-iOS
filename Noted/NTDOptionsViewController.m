@@ -6,8 +6,9 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <Twitter/Twitter.h>
+#import <Social/Social.h>
 #import <MessageUI/MessageUI.h>
+#import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDOptionsViewController.h"
 
@@ -62,13 +63,6 @@ typedef NS_ENUM(NSInteger, NTDOptionsTags) {
     NTDOptionsAboutTag
 };
 
-typedef NS_ENUM(NSInteger, NTDShareOptionsTags) {
-    NTDShareOptionsEmailTag = 0,
-    NTDShareOptionsMessageTag,
-    NTDShareOptionsTweetTag,
-    NTDShareOptionsFacebookTag
-};
-
 typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
     NTDAboutOptionsVisitTag = 0,
     NTDAboutOptionsFollowTag
@@ -84,7 +78,7 @@ typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
 
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 @property (nonatomic, strong) MFMessageComposeViewController *messageViewController;
-
+@property (nonatomic, strong) SLComposeViewController *composeViewController;
 
 @end
 
@@ -179,6 +173,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
     
     // share
+    [self createShareOptions];
     for (UIView *choice in self.shareOptionsView.subviews) {
         
         UITapGestureRecognizer *shareTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -201,6 +196,46 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void)viewWillAppear:(BOOL)animated   {
     [super viewWillAppear:animated];
     [self reset];
+}
+
+- (void)createShareOptions
+{
+    for (UIView *subview in self.shareOptionsView.subviews)
+        [subview removeFromSuperview];
+    
+    NSMutableArray *optionsTitles = [@[@"Email", @"Message", @"Copy", @"Twitter", @"Facebook", @"Sina Weibo"]
+                                     mutableCopy];
+    if (![MFMailComposeViewController canSendMail])
+        [optionsTitles removeObject:@"Email"];
+    if (![MFMessageComposeViewController canSendText])
+        [optionsTitles removeObject:@"Message"];
+    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook])
+        [optionsTitles removeObject:@"Facebook"];
+    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+        [optionsTitles removeObject:@"Twitter"];
+    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo])
+        [optionsTitles removeObject:@"Sina Weibo"];
+    
+    CGRect InitialOptionFrame = CGRectMake(0, 1, 221, 53);
+    CGRect InitialShareLabelFrame = CGRectMake(14, 24, 149, 22);
+    UIFont *labelFont = [UIFont fontWithName:@"Avenir-Light" size:16];
+    
+    int i = 0; CGFloat shareOptionsHeight = 0;
+    for (NSString *title in optionsTitles) {
+        CGRect optionFrame = CGRectOffset(InitialOptionFrame, 0, i*(1+CGRectGetHeight(InitialOptionFrame)));
+        UIView *optionView = [[UIView alloc] initWithFrame:optionFrame];
+        UILabel *shareLabel = [[UILabel alloc] initWithFrame:InitialShareLabelFrame];
+        shareLabel.text = title;
+        shareLabel.font = labelFont;
+        shareLabel.textColor = [UIColor whiteColor];
+        shareLabel.backgroundColor = [UIColor blackColor];
+        optionView.backgroundColor = [UIColor blackColor];
+        [optionView addSubview:shareLabel];
+        [self.shareOptionsView addSubview:optionView];
+        i++;
+        shareOptionsHeight = CGRectGetMaxY(optionFrame);
+    }
+    self.shareOptionsView.$height = shareOptionsHeight+1;
 }
 
 #pragma mark -  Gesture Recognition
@@ -260,27 +295,23 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self expandOptionWithTag:NTDOptionsSettingsTag];
 }
 
-- (void) shareTapped:(UITapGestureRecognizer *)sender {
-    switch (sender.view.tag) {
-        case NTDShareOptionsEmailTag:
-            [self sendEmail];
-            break;
-            
-        case NTDShareOptionsMessageTag:
-            [self sendSMS];
-            break;
-            
-        case NTDShareOptionsTweetTag:
-            [self sendTweet];
-            break;
-            
-        case NTDShareOptionsFacebookTag:
-            // [self.delegate shareFacebook];
-            break;
-            
-        default:
-            break;
-    }
+- (void) shareTapped:(UITapGestureRecognizer *)sender
+{
+    NSString *title = [(UILabel *)sender.view.subviews[0] text];
+    if ([title isEqualToString:@"Email"])
+        [self sendEmail];
+    else if ([title isEqualToString:@"Message"])
+        [self sendSMS];
+    else if ([title isEqualToString:@"Copy"])
+        [self copyToPasteboard];
+    else if ([title isEqualToString:@"Facebook"])
+        [self createSocialPostForServiceType:SLServiceTypeFacebook];
+    else if ([title isEqualToString:@"Twitter"])
+        [self createSocialPostForServiceType:SLServiceTypeTwitter];
+    else if ([title isEqualToString:@"Sina Weibo"])
+        [self createSocialPostForServiceType:SLServiceTypeSinaWeibo];
+    else
+        NSLog(@"ERROR: Unknown option tapped: %@", title);
 }
 
 - (void) aboutTapped:(UITapGestureRecognizer *)sender {
@@ -304,100 +335,72 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 #pragma mark - Sharing Actions
-//TODO: Clean this up.
-- (void)sendTweet
-{
-    NSString *noteText = [self getNoteTextAsMessage];
-    
-    if (SYSTEM_VERSION_LESS_THAN(@"6")){
-        if([TWTweetComposeViewController canSendTweet])
-        {
-            TWTweetComposeViewController *tweetViewController = [[TWTweetComposeViewController alloc] init];
-            [tweetViewController setInitialText:noteText];
-            
-            tweetViewController.completionHandler = ^(TWTweetComposeViewControllerResult result)
-            {
-                // Dismiss the controller
-                [self dismissViewControllerAnimated:YES completion:nil];
-            };
-            [(UIViewController *)self.delegate presentViewController:tweetViewController animated:YES completion:nil];
-            
-        }else {
-            NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send tweets."];
-            UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-            [alertView show];
-        }
-    } else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"6")) {
-        // 3
-        if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-        {
-            // 4
-            //[self.tweetText setAlpha:0.5f];
-        } else {
-            // 5
-            SLComposeViewController *composeViewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-            [composeViewController setInitialText:noteText];
-            [(UIViewController *)self.delegate presentViewController:composeViewController animated:YES completion:nil];
-        }
-    }
-}
-
 - (void)sendSMS
 {
-    if([MFMessageComposeViewController canSendText])
-    {
-        self.messageViewController = [[MFMessageComposeViewController alloc] init];
-        self.messageViewController.body = [self getNoteTextAsMessage];
-        self.messageViewController.messageComposeDelegate = self;
-        self.messageViewController.wantsFullScreenLayout = NO;
-        [(UIViewController *)self.delegate presentViewController:self.messageViewController animated:YES completion:nil];
-        [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    }
-    else {
-        NSString * message = [NSString stringWithFormat:@"This device is currently not configured to send text messages."];
-        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-        [alertView show];
-    }
+    if (![MFMessageComposeViewController canSendText])
+        return;
+
+    MFMessageComposeViewController *controller = [[MFMessageComposeViewController alloc] init];
+    self.messageViewController = controller;
+    controller.body = self.note.text;
+    controller.messageComposeDelegate = self;
+    [(UIViewController *)self.delegate presentViewController:controller
+                                                    animated:YES
+                                                  completion:nil];
 }
 
 - (void)sendEmail
 {
-    if (![MFMailComposeViewController canSendMail]) return; //TODO fix
+    if (![MFMailComposeViewController canSendMail])
+        return;
     
-    self.mailViewController = [[MFMailComposeViewController alloc] init];
-    self.mailViewController.mailComposeDelegate = self;
+    MFMailComposeViewController *controller = [[MFMailComposeViewController alloc] init];
+    controller.mailComposeDelegate = self;
+    self.mailViewController = controller;
     
     NSString *noteText = self.note.text;
-    NSString* noteTitle;
+    NSString *noteTitle = noteText;
     if (noteText.length > 24)
         noteTitle = [NSString stringWithFormat:@"%@...", [noteText substringToIndex:24]];
-    else
-        noteTitle = noteText;
     
-    NSString *body = [[NSString alloc] initWithFormat:@"%@\n\n%@",
-                      [self getNoteTextAsMessage],
-                      @"Sent from Noted"];
-    
-	[self.mailViewController setSubject:noteTitle];
-	[self.mailViewController setMessageBody:body isHTML:NO];
-    [(UIViewController *)self.delegate presentViewController:self.mailViewController animated:YES completion:nil];
+	[controller setSubject:noteTitle];
+	[controller setMessageBody:noteText isHTML:NO];
+    [(UIViewController *)self.delegate presentViewController:controller
+                                                    animated:YES
+                                                  completion:nil];
 }
 
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:nil];
-}
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (NSString *)getNoteTextAsMessage
+- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
 {
-    NSString *noteText = self.note.text;
-    //noteText = [noteText stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    if ([noteText length] > 140) {
-        noteText = [noteText substringToIndex:140];
-    }
-    return noteText;
+    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+        self.mailViewController = nil;
+    }];
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
+{
+    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+        self.messageViewController = nil;
+    }];
+}
+
+- (void)createSocialPostForServiceType:(NSString *)serviceType
+{
+    SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:serviceType];
+    self.composeViewController = controller;
+    [controller setInitialText:self.note.text];
+    [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
+        self.composeViewController = nil;
+    }];
+    [(UIViewController *)self.delegate presentViewController:controller
+                                                    animated:YES
+                                                  completion:nil];
+}
+
+- (void)copyToPasteboard
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
 }
 
 #pragma mark - Positioning
