@@ -117,9 +117,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // options stay a static height, colors are variable
     self.compressedOptionSubviewHeight = self.options.frame.size.height;
     self.compressedOptionHeight = ((UIView *)self.options.subviews[0]).$height;
-    
-    [self reset];
-    
+        
     self.options.clipsToBounds = YES;
     
     // set up inner options
@@ -202,6 +200,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void)viewWillAppear:(BOOL)animated   {
     [super viewWillAppear:animated];
+    [self reset];
 }
 
 #pragma mark -  Gesture Recognition
