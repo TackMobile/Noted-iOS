@@ -11,6 +11,8 @@
 #import <Twitter/Twitter.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDCollectionViewController.h"
+#import "NTDListCollectionViewLayout.h"
+#import "NTDPagingCollectionViewLayout.h"
 #import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDOptionsViewController.h"
@@ -23,7 +25,11 @@
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
+@property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
+
+@property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
+@property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
 *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
