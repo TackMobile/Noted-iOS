@@ -8,6 +8,8 @@
 
 #import "NTDCollectionViewController.h"
 
+@class NTDCollectionViewLayoutAttributes;
+
 @interface NTDCollectionViewController (Shredding)
 
 - (void) prepareVisibleNoteForShredding;

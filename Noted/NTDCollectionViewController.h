@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "NTDCollectionViewCell.h"
+#import "NTDListCollectionViewLayout.h"
+#import "NTDPagingCollectionViewLayout.h"
 
 typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
     NTDPageDeletionDirectionLeft = 0,
@@ -16,7 +18,11 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 
 @interface NTDCollectionViewController : UICollectionViewController
 
+@property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
+
+@property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
+@property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 
 @property (nonatomic) int deletedNoteVertSliceCount;
 @property (nonatomic) int deletedNoteHorizSliceCount;
