@@ -402,7 +402,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 panGestureRecognizer.enabled = NO;
             } else {
                 [self prepareVisibleNoteForShredding];
-                self.panCardGestureRecognizer.enabled = NO;
             }
             
             break;
@@ -478,9 +477,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [self cancelShredForVisibleNote];
             
             self.hasTwoFingerNoteDeletionBegun = NO;
-            
             panGestureRecognizer.enabled = YES;
-            self.panCardGestureRecognizer.enabled = YES;
             
             break;
     }
@@ -499,9 +496,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateBegan :
             if (panGestureRecognizer.numberOfTouches != 1)
                 panGestureRecognizer.enabled = NO;
-            else
-                self.twoFingerPanGestureRecognizer.enabled = NO;
-//            NSLog(@"paging pan began with index %i", self.pagingLayout.activeCardIndex);
             break;
             
         case UIGestureRecognizerStateChanged :
@@ -546,10 +540,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
             panGestureRecognizer.enabled = YES;
-            self.twoFingerPanGestureRecognizer.enabled = YES;
             
         default:
-            
             break;
     }
     
@@ -903,7 +895,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
+{    
     if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
         return YES;
     
