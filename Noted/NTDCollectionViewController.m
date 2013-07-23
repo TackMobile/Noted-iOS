@@ -398,10 +398,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-            if (panGestureRecognizer.numberOfTouches != 2)
+            if (panGestureRecognizer.numberOfTouches != 2) {
                 panGestureRecognizer.enabled = NO;
-            else
+            } else {
                 [self prepareVisibleNoteForShredding];
+                self.panCardGestureRecognizer.enabled = NO;
+            }
             
             break;
             
@@ -427,7 +429,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (self.hasTwoFingerNoteDeletionBegun) {
                 if ( fabsf(translation.x) >= self.collectionView.frame.size.width/2)
                     shouldDelete = YES;
-                else if (fabsf(velocity) > SwipeVelocityThreshold ) {
+                else if ((velocity > SwipeVelocityThreshold && translation.x > 0)
+                         || (velocity < -SwipeVelocityThreshold && translation.x < 0)) {
+                         
                     shouldDelete = YES;
                 }
                 
@@ -476,6 +480,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             self.hasTwoFingerNoteDeletionBegun = NO;
             
             panGestureRecognizer.enabled = YES;
+            self.panCardGestureRecognizer.enabled = YES;
             
             break;
     }
@@ -494,6 +499,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateBegan :
             if (panGestureRecognizer.numberOfTouches != 1)
                 panGestureRecognizer.enabled = NO;
+            else
+                self.twoFingerPanGestureRecognizer.enabled = NO;
 //            NSLog(@"paging pan began with index %i", self.pagingLayout.activeCardIndex);
             break;
             
@@ -538,8 +545,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
-            NSLog(@"CANCEL");
             panGestureRecognizer.enabled = YES;
+            self.twoFingerPanGestureRecognizer.enabled = YES;
             
         default:
             
@@ -577,6 +584,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
                     self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
                     self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+                    self.twoFingerPanGestureRecognizer.enabled = YES;
                     self.visibleCell.textView.editable = YES;
                     self.pinchToListLayoutGestureRecognizer.enabled = YES;
                     [self.optionsViewController.view removeFromSuperview];
@@ -602,6 +610,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [self.pagingLayout hideOptionsWithVelocity:.2 completion:^{
                 self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
                 self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+                self.twoFingerPanGestureRecognizer.enabled = YES;
 
                 self.visibleCell.textView.editable = YES;
                 self.pinchToListLayoutGestureRecognizer.enabled = YES;
@@ -727,6 +736,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     visibleCell.textView.editable = NO;
     self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
     self.tapCardWhileViewingOptionsGestureRecognizer.enabled = YES;
+    
+    self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
     
     self.optionsViewController.view.frame = visibleCell.frame;
