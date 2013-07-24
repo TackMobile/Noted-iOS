@@ -7,6 +7,7 @@
 //
 
 #import "NTDWalkthroughViewController.h"
+#import "NTDWalkthroughGestureIndicatorView.h"
 
 @interface NTDWalkthroughViewController ()
 
@@ -26,6 +27,8 @@
 
 - (void)beginDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
+    NTDWalkthroughGestureIndicatorView *indicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
+    [self.view addSubview:indicatorView];
 }
 
 - (void)endDisplayingViewsForStep:(NTDWalkthroughStep)step
