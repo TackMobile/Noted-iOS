@@ -20,6 +20,7 @@
 #import "NTDCollectionViewController+Shredding.h"
 #import "NTDNote.h"
 #import "Utilities.h"
+#import "NTDWalkthrough.h"
 
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
@@ -89,6 +90,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillBeHidden:)
                                                      name:UIKeyboardWillHideNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardDidHide:)
+                                                     name:UIKeyboardDidHideNotification object:nil];
+
 
     }
     return self;
@@ -334,10 +339,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 gestureRecognizer.enabled = YES;
             }
             if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
+                [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughOneFingerDeleteStep];
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
                                            shouldDelete = NO;
+                                           [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
                                        }];
             } else {
                 // animate the cell back to its orig position
@@ -447,12 +454,14 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             self.pagingLayout.pannedCardXTranslation = 0;
                         
             if (shouldDelete) {
+                [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
                     [self.collectionView performBatchUpdates:^{
                         [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
                     } completion:^(BOOL finished) {
                         [self.collectionView reloadData];
+                        [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
                     }];
                 }];
                     
@@ -494,9 +503,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             break;
             
         case UIGestureRecognizerStateChanged :
-            
-            self.pagingLayout.pannedCardXTranslation = translation.x;
-            
+            self.pagingLayout.pannedCardXTranslation = translation.x;            
             break;
             
         case UIGestureRecognizerStateEnded :
@@ -523,20 +530,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             self.pagingLayout.activeCardIndex = newIndex ;
             
             // update this so we know to animate to resting position
-            self.pagingLayout.pannedCardXTranslation = 0;
-            
+            self.pagingLayout.pannedCardXTranslation = 0;            
             panEnded = YES;
-                
-        }
             break;
+        }
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
             NSLog(@"CANCEL");
             panGestureRecognizer.enabled = YES;
             
-        default:
-            
+        default:            
             break;
     }
     
@@ -569,14 +573,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if ((translation.x < 0 && fabs(translation.x) >= self.pagingLayout.currentOptionsOffset/2) ||
                 (velocity < 0 && fabs(velocity) > SwipeVelocityThreshold)) {
                 self.pagingLayout.pannedCardXTranslation = 0;
-                [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
-                    self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-                    self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-                    self.visibleCell.textView.editable = YES;
-                    self.pinchToListLayoutGestureRecognizer.enabled = YES;
-                    [self.optionsViewController.view removeFromSuperview];
-                    [self.optionsViewController reset];
-                }] ;
+                [self closeOptionsWithVelocity:velocity];
             } else {
                 self.pagingLayout.pannedCardXTranslation = 0;
                 [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
@@ -590,26 +587,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         [self.pagingLayout invalidateLayout];
 }
 
-- (void)handleCardTapWhileViewingOptions:(UITapGestureRecognizer *)tapGestureRecognizer {
-    switch (tapGestureRecognizer.state) {
-        case UIGestureRecognizerStateEnded:
-        {
-            [self.pagingLayout hideOptionsWithVelocity:.2 completion:^{
-                self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-                self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-
-                self.visibleCell.textView.editable = YES;
-                self.pinchToListLayoutGestureRecognizer.enabled = YES;
-                [self.optionsViewController.view removeFromSuperview];
-                [self.optionsViewController reset];
-            }] ;
-        }
-
-            break;
-            
-        default:
-            break;
-    }
+- (void)handleCardTapWhileViewingOptions:(UITapGestureRecognizer *)tapGestureRecognizer
+{
+    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded)
+        [self closeOptionsWithVelocity:.2];
 }
 
 - (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
@@ -663,6 +644,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
+                [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughPinchToListStep];
+                [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
             } else {
                 pinchGestureRecognizer.enabled = NO;
                 self.collectionView.scrollEnabled = YES;
@@ -716,6 +699,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (IBAction)showSettings:(id)sender
 {
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTapOptionsStep];
+    
     NTDCollectionViewCell *visibleCell = self.visibleCell;
     
     /* Don't let user interact with anything but our options. */
@@ -728,7 +713,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     self.optionsViewController.note = [self noteAtIndexPath:self.visibleCardIndexPath];
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     
-    [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
+    [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions
+                                        completion:^{
+                                            [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                                        }];
 }
 
 #pragma mark - Helpers
@@ -771,6 +759,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughMakeANoteStep];
     [UIView animateWithDuration:duration
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseIn
@@ -803,7 +792,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              [self updateLayout:self.pagingLayout
                                        animated:NO];
                              dispatch_async(dispatch_get_main_queue(), ^{
-                                [self.visibleCell.textView becomeFirstResponder];
+                                 [self.visibleCell.textView becomeFirstResponder];
+                                 [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
                              });
                          }];
                      }];
@@ -835,6 +825,21 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         weakCell.textView.text = note.text;
     }
+}
+
+- (void)closeOptionsWithVelocity:(CGFloat)velocity
+{
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughCloseOptionsStep];
+    [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
+        self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+        self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+        
+        self.visibleCell.textView.editable = YES;
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;
+        [self.optionsViewController.view removeFromSuperview];
+        [self.optionsViewController reset];
+        [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+    }];
 }
 
 #pragma mark - Notifications
@@ -1000,7 +1005,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 #pragma mark - Keyboard Handling
-- (void)keyboardWasShown:(NSNotification*)notification {
+- (void)keyboardWasShown:(NSNotification*)notification
+{
     // save the frame
     self.noteTextViewFrameWhileNotEditing = self.visibleCell.textView.frame;
     
@@ -1009,11 +1015,21 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     self.visibleCell.textView.$bottom = self.collectionView.frame.size.height - keyboardSize.height;
 }
-- (void)keyboardWillBeHidden:(NSNotification*)notification {
+
+- (void)keyboardWillBeHidden:(NSNotification*)notification
+{
     self.visibleCell.textView.frame = self.noteTextViewFrameWhileNotEditing;
     [self.visibleCell applyMaskWithScrolledOffset:0];
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToCloseKeyboardStep];
 }
-- (void)keyboardWasPannedToFrame:(CGRect)frame {
+
+- (void)keyboardDidHide:(NSNotification *)notification
+{
+    [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+}
+
+- (void)keyboardWasPannedToFrame:(CGRect)frame
+{
     // resize the textview
     self.visibleCell.textView.$bottom = frame.origin.y - self.visibleCell.textView.contentOffset.y + self.visibleCell.textView.frame.origin.y;
 }
@@ -1031,5 +1047,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)didChangeNoteTheme
 {
     [self.visibleCell applyTheme:self.optionsViewController.note.theme];
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
+    [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
 }
 @end

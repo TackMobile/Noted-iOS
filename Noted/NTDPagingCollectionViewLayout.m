@@ -8,6 +8,7 @@
 
 #import "NTDPagingCollectionViewLayout.h"
 #import "NSIndexPath+NTDManipulation.h"
+#import "NTDWalkthrough.h"
 
 static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
@@ -114,6 +115,9 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 //    float position = dur * fabsf(velocity);
     dur = CLAMP(dur, .05, .2);
     
+    BOOL shouldAdvanceToNextWalkthroughStep = (self.activeCardIndex+1 == [self.collectionView numberOfItemsInSection:0]);
+    if (shouldAdvanceToNextWalkthroughStep) [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToLastNoteStep];
+    
     //  animate
     [UIView animateWithDuration:dur
                           delay:0.0
@@ -133,17 +137,25 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
                         }
                     }
                      completion:^(BOOL finished) {
-                        [self invalidateLayout];
-                        if (completionBlock)
-                            completionBlock();
+                         [self invalidateLayout];
+                         if (completionBlock)
+                             completionBlock();
+                         if (shouldAdvanceToNextWalkthroughStep)
+                             [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
     }];
 }
 
-- (void) revealOptionsViewWithOffset:(CGFloat)offset {
+- (void)revealOptionsViewWithOffset:(CGFloat)offset
+{
+    [self revealOptionsViewWithOffset:offset completion:nil];
+}
+
+- (void)revealOptionsViewWithOffset:(CGFloat)offset completion:(void (^)(void))completionBlock
+{
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
-    [self finishAnimationWithVelocity:RevealOptionsAnimationDuration completion:nil];
+    [self finishAnimationWithVelocity:RevealOptionsAnimationDuration completion:completionBlock];
 
 }
 
