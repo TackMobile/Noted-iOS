@@ -172,6 +172,12 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     self.collectionView.alwaysBounceVertical = YES;
 }
 
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [NTDWalkthrough.sharedWalkthrough stepShouldBegin:NTDWalkthroughShouldBeginWalkthroughStep];
+}
+
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];

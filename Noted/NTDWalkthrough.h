@@ -10,7 +10,7 @@
 
 typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
 {
-    NTDWalkthroughShouldBeginWalkthrough = 0,
+    NTDWalkthroughShouldBeginWalkthroughStep = 0,
     NTDWalkthroughMakeANoteStep,
     NTDWalkthroughSwipeToCloseKeyboardStep,
     NTDWalkthroughTapOptionsStep,
@@ -25,8 +25,8 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
 
 @interface NTDWalkthrough : NSObject
 
-+ (NTDWalkthrough *)sharedWalkthrough;
-//- (void)signalCompletion:(NTDWalkthroughStep)step;
++ (instancetype)sharedWalkthrough;
++ (void)initializeWalkthroughIfNecessary;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)stepShouldBegin:(NTDWalkthroughStep)step;
 - (void)shouldBeginNextStep;
