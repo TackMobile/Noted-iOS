@@ -141,7 +141,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
                          if (completionBlock)
                              completionBlock();
                          if (shouldAdvanceToNextWalkthroughStep)
-                             [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                             [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToLastNoteStep];
     }];
 }
 

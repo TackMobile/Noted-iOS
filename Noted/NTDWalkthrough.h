@@ -28,6 +28,6 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
 + (instancetype)sharedWalkthrough;
 + (void)initializeWalkthroughIfNecessary;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
-- (void)stepShouldBegin:(NTDWalkthroughStep)step;
-- (void)shouldBeginNextStep;
+- (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;
+- (void)beginWalkthrough;
 @end

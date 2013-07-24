@@ -37,23 +37,24 @@ static NTDWalkthrough *sharedInstance;
     return sharedInstance;
 }
 
-- (void)stepShouldBegin:(NTDWalkthroughStep)step
+- (void)beginWalkthrough
 {
-    if (step == NTDWalkthroughShouldBeginWalkthroughStep) {
-        self.viewController = [[NTDWalkthroughViewController alloc] init];
-        UIWindow *window = [[UIApplication sharedApplication] keyWindow];
-        [window.rootViewController.view addSubview:self.viewController.view];
-    }
-    self.currentStep = step;
-    [self.viewController beginDisplayingViewsForStep:step];
-    NSLog(@"stepShouldBegin: %d", step);
+    self.currentStep = NTDWalkthroughShouldBeginWalkthroughStep;
+    
+    self.viewController = [[NTDWalkthroughViewController alloc] init];
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    [window.rootViewController.view addSubview:self.viewController.view];
+    [self.viewController beginDisplayingViewsForStep:NTDWalkthroughShouldBeginWalkthroughStep];
+    NSLog(@"beginWalkthrough");
 }
 
-- (void)shouldBeginNextStep
+- (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step
 {
+    if (self.currentStep != step);
+        return;
     self.currentStep++;
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
-    NSLog(@"shouldBeginNextStep: %d", self.currentStep);
+    NSLog(@"advancing to step: %d", self.currentStep);
 }
 
 - (void)stepShouldEnd:(NTDWalkthroughStep)step

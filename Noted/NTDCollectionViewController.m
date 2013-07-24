@@ -175,7 +175,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [NTDWalkthrough.sharedWalkthrough stepShouldBegin:NTDWalkthroughShouldBeginWalkthroughStep];
+    [NTDWalkthrough.sharedWalkthrough beginWalkthrough];
 }
 
 -(void)dealloc
@@ -350,7 +350,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                        completion:^{
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
                                            shouldDelete = NO;
-                                           [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                                           [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
                                        }];
             } else {
                 // animate the cell back to its orig position
@@ -467,7 +467,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
                     } completion:^(BOOL finished) {
                         [self.collectionView reloadData];
-                        [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
                     }];
                 }];
                     
@@ -651,7 +651,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughPinchToListStep];
-                [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughPinchToListStep];
             } else {
                 pinchGestureRecognizer.enabled = NO;
                 self.collectionView.scrollEnabled = YES;
@@ -721,7 +721,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions
                                         completion:^{
-                                            [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTapOptionsStep];
                                         }];
 }
 
@@ -799,7 +799,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                        animated:NO];
                              dispatch_async(dispatch_get_main_queue(), ^{
                                  [self.visibleCell.textView becomeFirstResponder];
-                                 [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+                                 [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
                              });
                          }];
                      }];
@@ -844,7 +844,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.pinchToListLayoutGestureRecognizer.enabled = YES;
         [self.optionsViewController.view removeFromSuperview];
         [self.optionsViewController reset];
-        [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
     }];
 }
 
@@ -1031,7 +1031,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)keyboardDidHide:(NSNotification *)notification
 {
-    [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+    [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToCloseKeyboardStep];
 }
 
 - (void)keyboardWasPannedToFrame:(CGRect)frame
@@ -1054,6 +1054,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     [self.visibleCell applyTheme:self.optionsViewController.note.theme];
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
-    [NTDWalkthrough.sharedWalkthrough shouldBeginNextStep];
+    [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughChangeColorsStep];
 }
 @end
