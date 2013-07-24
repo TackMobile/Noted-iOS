@@ -18,6 +18,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.view.userInteractionEnabled = NO;
 }
 
 - (void)didReceiveMemoryWarning
@@ -27,8 +28,8 @@
 
 - (void)beginDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
-    NTDWalkthroughGestureIndicatorView *indicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
-    [self.view addSubview:indicatorView];
+//    NTDWalkthroughGestureIndicatorView *indicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
+//    [self.view addSubview:indicatorView];
 }
 
 - (void)endDisplayingViewsForStep:(NTDWalkthroughStep)step

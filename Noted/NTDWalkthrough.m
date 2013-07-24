@@ -46,18 +46,22 @@ static NTDWalkthrough *sharedInstance;
     }
     self.currentStep = step;
     [self.viewController beginDisplayingViewsForStep:step];
+    NSLog(@"stepShouldBegin: %d", step);
 }
 
 - (void)shouldBeginNextStep
 {
     self.currentStep++;
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
+    NSLog(@"shouldBeginNextStep: %d", self.currentStep);
 }
 
 - (void)stepShouldEnd:(NTDWalkthroughStep)step
 {
-    NSParameterAssert(self.currentStep == step);
+    if (self.currentStep != step)
+        return;
     [self.viewController endDisplayingViewsForStep:step];
+    NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
 @end
