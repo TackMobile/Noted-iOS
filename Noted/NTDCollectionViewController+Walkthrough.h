@@ -12,6 +12,8 @@
 
 - (void)willBeginWalkthrough:(NSNotification *)notification;
 - (void)didDeclineWalkthrough:(NSNotification *)notification;
+- (void)didAdvanceWalkthroughToStep:(NSNotification *)notification;
+- (void)didCompleteWalkthrough:(NSNotification *)notification;
 - (void)bindGestureRecognizers;
 
 @end

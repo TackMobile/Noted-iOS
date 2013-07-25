@@ -81,21 +81,32 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         // register for keyboard notification so we can resize the textview
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWasShown:)
-                                                     name:UIKeyboardDidShowNotification object:nil];
+                                                     name:UIKeyboardDidShowNotification
+                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWillBeHidden:)
-                                                     name:UIKeyboardWillHideNotification object:nil];
+                                                     name:UIKeyboardWillHideNotification
+                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardDidHide:)
-                                                     name:UIKeyboardDidHideNotification object:nil];
+                                                     name:UIKeyboardDidHideNotification
+                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willBeginWalkthrough:)
-                                                     name:NTDUserWillBeginWalkthroughNotification object:nil];
+                                                     name:NTDWillBeginWalkthroughNotification
+                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didDeclineWalkthrough:)
-                                                     name:NTDUserDidDeclineWalkthroughNotification object:nil];
-
-        
+                                                     name:NTDDidDeclineWalkthroughNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didAdvanceWalkthroughToStep:)
+                                                     name:NTDDidAdvanceWalkthroughToStepNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didCompleteWalkthrough:)
+                                                     name:NTDDidCompleteWalkthroughNotification
+                                                   object:nil];
 
     }
     return self;

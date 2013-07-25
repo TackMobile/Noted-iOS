@@ -9,15 +9,15 @@
 #import "NTDWalkthrough.h"
 #import "NTDWalkthroughViewController.h"
 
-NSString *const NTDUserWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
-NSString *const NTDUserDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
-NSString *const NTDUserDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
+NSString *const NTDDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
+NSString *const NTDDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
 
 static NSString *const DidCompleteWalkthroughKey = @"DidCompleteWalkthroughKey";
 static NTDWalkthrough *sharedInstance;
 
 @interface NTDWalkthrough ()
-@property (nonatomic, assign) NSInteger numberOfSteps, currentStep;
 @property (nonatomic, strong) NTDWalkthroughViewController *viewController;
 @end
 
@@ -58,7 +58,7 @@ static NTDWalkthrough *sharedInstance;
 /* HACK */
 - (void)makeANote
 {
-    [NSNotificationCenter.defaultCenter postNotificationName:NTDUserWillBeginWalkthroughNotification object:self];
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDWillBeginWalkthroughNotification object:self];
     [self stepShouldEnd:NTDWalkthroughShouldBeginWalkthroughStep];
     [self shouldAdvanceFromStep:NTDWalkthroughShouldBeginWalkthroughStep];
 }
@@ -69,10 +69,11 @@ static NTDWalkthrough *sharedInstance;
         return;
     self.currentStep++;
     if (self.currentStep == self.numberOfSteps) {
-        [NSNotificationCenter.defaultCenter postNotificationName:NTDUserDidCompleteWalkthroughNotification object:self];
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDDidAdvanceWalkthroughToStepNotification object:self];
     NSLog(@"advancing to step: %d", self.currentStep);
 }
 

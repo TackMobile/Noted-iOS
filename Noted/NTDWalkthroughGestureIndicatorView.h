@@ -12,11 +12,11 @@
 
 @interface NTDWalkthroughGestureIndicatorView : UIView
 
-+ (void)bindToGestureRecognizer:(UIGestureRecognizer *)recognizer
-                        forStep:(NTDWalkthroughStep)step;
-+ (void)bindToControl:(UIControl *)control
-               events:(UIControlEvents)controlEvents
-              forStep:(NTDWalkthroughStep)step;
++ (void)bindGestureRecognizer:(UIGestureRecognizer *)recognizer
+                      forStep:(NTDWalkthroughStep)step;
++ (void)bindControl:(UIControl *)control
+             events:(UIControlEvents)controlEvents
+            forStep:(NTDWalkthroughStep)step;
 + (instancetype)gestureIndicatorViewForStep:(NTDWalkthroughStep)step;
 
 @property (nonatomic, assign) CAAnimation *mainAnimation;

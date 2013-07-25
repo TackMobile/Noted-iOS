@@ -26,6 +26,8 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic) NTDPageDeletionDirection deletionDirection;
 
 /* Walkthrough */
+//TODO rename removeCard & twoFingerPan
+//TODO organize GRs according to layout
 @property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
 *twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;

@@ -22,13 +22,13 @@ static void *ControlEventsArrayKey;
     if (!controlMap) controlMap = [NSMutableDictionary dictionaryWithCapacity:NTDWalkthroughNumberOfSteps];
 }
 
-+ (void)bindToGestureRecognizer:(UIGestureRecognizer *)recognizer forStep:(NTDWalkthroughStep)step
++ (void)bindGestureRecognizer:(UIGestureRecognizer *)recognizer forStep:(NTDWalkthroughStep)step
 {
     [self initializeStaticVariablesIfNecessary];
     gestureRecognizerMap[@(step)] = recognizer;
 }
 
-+ (void)bindToControl:(UIControl *)control events:(UIControlEvents)controlEvents forStep:(NTDWalkthroughStep)step
++ (void)bindControl:(UIControl *)control events:(UIControlEvents)controlEvents forStep:(NTDWalkthroughStep)step
 {
     [self initializeStaticVariablesIfNecessary];
     controlMap[@(step)] = control;
