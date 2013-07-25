@@ -11,6 +11,7 @@
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDNote.h"
 #import "NTDTheme.h"
+#import "NTDListCollectionViewLayout.h"
 
 @implementation NTDCollectionViewController (Walkthrough)
 
@@ -124,6 +125,8 @@
             
         case NTDWalkthroughOneFingerDeleteStep:
             [self setEnabled:NO forRecognizer:self.selectCardGestureRecognizer];
+            self.listLayout.pullToCreateEnabled = NO;
+            self.pullToCreateLabel.hidden = YES;
             break;
             
         default:
@@ -166,6 +169,8 @@
             
         case NTDWalkthroughOneFingerDeleteStep:
             [self setEnabled:YES forRecognizer:self.selectCardGestureRecognizer];
+            self.listLayout.pullToCreateEnabled = YES;
+            self.pullToCreateLabel.hidden = NO;
             break;
             
         default:

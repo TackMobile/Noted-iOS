@@ -25,7 +25,7 @@ UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
 @property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateCreateCardOffset;
 @property (nonatomic, assign, readonly) BOOL shouldShowCreateableCard;
-
+@property (nonatomic, assign) BOOL pullToCreateEnabled;
 @property (nonatomic, strong) NSIndexPath *pinchedCardIndexPath;
 @property (nonatomic, assign) CGFloat pinchRatio;
 

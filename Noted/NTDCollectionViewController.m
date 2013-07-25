@@ -24,9 +24,6 @@
 #import "NTDCollectionViewController+Walkthrough.h"
 
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
-@property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
-@property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
-@property (nonatomic, strong) UILabel *pullToCreateLabel;
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;

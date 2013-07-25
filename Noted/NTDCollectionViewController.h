@@ -14,6 +14,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
     NTDPageDeletionDirectionRight
 };
 
+@class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
 @interface NTDCollectionViewController : UICollectionViewController
 
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
@@ -34,4 +35,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) NSMapTable *tokenRecognizerTable;
+@property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
+@property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
+@property (nonatomic, strong) UILabel *pullToCreateLabel;
 @end
