@@ -71,6 +71,8 @@ static NTDWalkthrough *sharedInstance;
     self.currentStep++;
     if (self.currentStep == self.numberOfSteps) {
         [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
+//        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
+//        [NSUserDefaults.standardUserDefaults synchronize];
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
