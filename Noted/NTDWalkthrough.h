@@ -27,6 +27,7 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
 FOUNDATION_EXTERN NSString *const NTDWillBeginWalkthroughNotification;
 FOUNDATION_EXTERN NSString *const NTDDidDeclineWalkthroughNotification;
 FOUNDATION_EXTERN NSString *const NTDDidCompleteWalkthroughNotification;
+FOUNDATION_EXTERN NSString *const NTDWillEndWalkthroughStepNotification;
 FOUNDATION_EXTERN NSString *const NTDDidAdvanceWalkthroughToStepNotification;
 
 @interface NTDWalkthrough : NSObject

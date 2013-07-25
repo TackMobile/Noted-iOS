@@ -33,5 +33,5 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
 @property (nonatomic, strong) NSMutableArray *notes;
-
+@property (nonatomic, strong) NSMapTable *tokenRecognizerTable;
 @end

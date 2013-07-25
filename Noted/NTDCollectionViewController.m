@@ -104,6 +104,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDDidAdvanceWalkthroughToStepNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willEndWalkthroughStep:)
+                                                     name:NTDWillEndWalkthroughStepNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didCompleteWalkthrough:)
                                                      name:NTDDidCompleteWalkthroughNotification
                                                    object:nil];
@@ -663,12 +667,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
-                [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughPinchToListStep];
-                [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughPinchToListStep];
             } else {
                 pinchGestureRecognizer.enabled = NO;
                 self.collectionView.scrollEnabled = YES;
                 self.pinchedCell.settingsButton.alpha = 0;
+                [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughPinchToListStep];
+                [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughPinchToListStep];
             }
             self.listLayout.pinchedCardIndexPath = nil;
             break;
@@ -744,7 +748,7 @@ CGFloat PinchDistance(UIPinchGestureRecognizer *pinchGestureRecognizer)
     UIView *view = pinchGestureRecognizer.view;
     CGPoint p1 = [pinchGestureRecognizer locationOfTouch:0 inView:view];
     CGPoint p2 = [pinchGestureRecognizer locationOfTouch:1 inView:view];
-    return  DistanceBetweenTwoPoints(p1, p2);
+    return DistanceBetweenTwoPoints(p1, p2);
 }
 
 CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)

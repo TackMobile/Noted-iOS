@@ -6,10 +6,11 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <BlocksKit/NSObject+BlockObservation.h>
 #import "NTDCollectionViewController+Walkthrough.h"
+#import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDNote.h"
 #import "NTDTheme.h"
-#import "NTDWalkthroughGestureIndicatorView.h"
 
 @implementation NTDCollectionViewController (Walkthrough)
 
@@ -26,22 +27,25 @@
        [NTDTheme themeForColorScheme:NTDColorSchemeLime],
        [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
     ];
-        for (NTDNote *note in self.notes.copy) {
-            [self.notes removeObject:note];
-            [note deleteWithCompletionHandler:nil];
-        }
-        
-        [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+    
+    for (NTDNote *note in self.notes.copy) {
+        [self.notes removeObject:note];
+        [note deleteWithCompletionHandler:nil];
+    }
+    
+    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+        [self.notes insertObject:note atIndex:0];
+        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
             [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
+            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
                 [self.notes insertObject:note atIndex:0];
-                [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-                    [self.notes insertObject:note atIndex:0];
-                    [self bindGestureRecognizers];
-                    [self.collectionView reloadData];
-                }];
+                [self bindGestureRecognizers];
+                [self.collectionView reloadData];
             }];
         }];
+    }];
+    
+    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];
         
 }
 
@@ -50,60 +54,118 @@
     
 }
 
+- (void)setEnabled:(BOOL)enabled forRecognizer:(UIGestureRecognizer *)recognizer
+{
+    [self setEnabled:enabled aggressively:!enabled forRecognizer:recognizer];
+}
+
+- (void)setEnabled:(BOOL)enabled aggressively:(BOOL)shouldBeADick forRecognizer:(UIGestureRecognizer *)recognizer
+{
+    NSString *previousToken = [self.tokenRecognizerTable objectForKey:recognizer];
+    if (previousToken)
+        [recognizer removeObserversWithIdentifier:previousToken];
+    
+    __block BOOL isSetting = NO;
+    recognizer.enabled = enabled;
+    if (shouldBeADick) {
+        NSString *token = [recognizer addObserverForKeyPath:@"enabled" task:^(id sender) {
+            if (!isSetting) {
+                isSetting = YES;
+                /* This call will trigger our block again, which is why we use the isSetting variable.
+                 * Since the 2nd call to our block happens sequentially, we don't need to worry
+                 * about concurrency issues. */
+                [sender setEnabled:enabled];
+                isSetting = NO;
+            }
+        }];
+        [self.tokenRecognizerTable setObject:token forKey:recognizer];
+    }
+}
+
 - (void)didAdvanceWalkthroughToStep:(NSNotification *)notification
 {
     NTDWalkthroughStep step = [NTDWalkthrough.sharedWalkthrough currentStep];
     switch (step) {
         case NTDWalkthroughMakeANoteStep:
-            self.selectCardGestureRecognizer.enabled = NO;
-            self.removeCardGestureRecognizer.enabled = NO;
+            [self setEnabled:NO forRecognizer:self.selectCardGestureRecognizer];
+            [self setEnabled:NO forRecognizer:self.removeCardGestureRecognizer];
             break;
             
         case NTDWalkthroughSwipeToCloseKeyboardStep:
-            self.selectCardGestureRecognizer.enabled = YES;
-            self.removeCardGestureRecognizer.enabled = YES;
-
-            self.pinchToListLayoutGestureRecognizer.enabled = NO;
-            self.panCardGestureRecognizer.enabled = NO;
-            self.twoFingerPanGestureRecognizer.enabled = NO;
-            self.collectionView.scrollEnabled = NO;
-//            [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:[self.visibleCell.textView valueForKey:@"keyboardPanRecognizer"]
-//                                                              forStep:NTDWalkthroughSwipeToCloseKeyboardStep];
+            [self setEnabled:NO forRecognizer:self.pinchToListLayoutGestureRecognizer];
+            [self setEnabled:NO forRecognizer:self.panCardGestureRecognizer];
+            [self setEnabled:NO forRecognizer:self.twoFingerPanGestureRecognizer];
+            [self setEnabled:NO forRecognizer:(UIGestureRecognizer *)self.visibleCell.settingsButton];
             break;
             
         case NTDWalkthroughTapOptionsStep:
             break;
             
         case NTDWalkthroughChangeColorsStep:
-            self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-            self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO; /*no need to re-enable*/
+            [self setEnabled:NO forRecognizer:self.panCardWhileViewingOptionsGestureRecognizer];
+            [self setEnabled:NO forRecognizer:self.tapCardWhileViewingOptionsGestureRecognizer];
             break;
             
         case NTDWalkthroughCloseOptionsStep:
-            self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
-            
             break;
 
         case NTDWalkthroughSwipeToLastNoteStep:
-            self.collectionView.scrollEnabled = YES;
-            self.panCardGestureRecognizer.enabled = YES;
-            
+            [self setEnabled:YES forRecognizer:self.panCardGestureRecognizer];
             break;
         
         case NTDWalkthroughTwoFingerDeleteStep:
-            self.twoFingerPanGestureRecognizer.enabled = YES;
-            
+            [self setEnabled:YES forRecognizer:self.twoFingerPanGestureRecognizer];
             break;
             
         case NTDWalkthroughPinchToListStep:
-            self.pinchToListLayoutGestureRecognizer.enabled = YES;
-            
+            [self setEnabled:NO forRecognizer:self.twoFingerPanGestureRecognizer]; /* note: never re-enabled */
+            [self setEnabled:YES forRecognizer:self.pinchToListLayoutGestureRecognizer];            
             break;
             
         case NTDWalkthroughOneFingerDeleteStep:
-            self.removeCardGestureRecognizer.enabled = YES;
+            [self setEnabled:NO forRecognizer:self.selectCardGestureRecognizer];
+            break;
             
-            self.selectCardGestureRecognizer.enabled = NO;            
+        default:
+            break;
+    }
+}
+
+- (void)willEndWalkthroughStep:(NSNotification *)notification
+{
+    NTDWalkthroughStep step = [NTDWalkthrough.sharedWalkthrough currentStep];
+    switch (step) {
+        case NTDWalkthroughMakeANoteStep:
+            [self setEnabled:YES forRecognizer:self.selectCardGestureRecognizer];
+            [self setEnabled:YES forRecognizer:self.removeCardGestureRecognizer];
+            break;
+            
+        case NTDWalkthroughSwipeToCloseKeyboardStep:
+            [self setEnabled:YES forRecognizer:(UIGestureRecognizer *)self.visibleCell.settingsButton];
+            break;
+            
+        case NTDWalkthroughTapOptionsStep:
+            break;
+            
+        case NTDWalkthroughChangeColorsStep:
+            [self setEnabled:YES forRecognizer:self.panCardWhileViewingOptionsGestureRecognizer];
+            break;
+            
+        case NTDWalkthroughCloseOptionsStep:
+            [self setEnabled:YES forRecognizer:self.tapCardWhileViewingOptionsGestureRecognizer];
+            break;
+            
+        case NTDWalkthroughSwipeToLastNoteStep:
+            break;
+            
+        case NTDWalkthroughTwoFingerDeleteStep:
+            break;
+            
+        case NTDWalkthroughPinchToListStep:
+            break;
+            
+        case NTDWalkthroughOneFingerDeleteStep:
+            [self setEnabled:YES forRecognizer:self.selectCardGestureRecognizer];
             break;
             
         default:
@@ -114,6 +176,10 @@
 - (void)didCompleteWalkthrough:(NSNotification *)notification
 {
     self.selectCardGestureRecognizer.enabled = YES;
+    for (UIGestureRecognizer *recognizer in self.tokenRecognizerTable.keyEnumerator) {
+        [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
+    }
+    self.tokenRecognizerTable = nil;
 }
 
 - (void)bindGestureRecognizers

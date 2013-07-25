@@ -13,6 +13,7 @@ NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthro
 NSString *const NTDDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
 NSString *const NTDDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
 NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
+NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";
 
 static NSString *const DidCompleteWalkthroughKey = @"DidCompleteWalkthroughKey";
 static NTDWalkthrough *sharedInstance;
@@ -82,6 +83,7 @@ static NTDWalkthrough *sharedInstance;
     if (self.currentStep != step)
         return;
     [self.viewController endDisplayingViewsForStep:step];
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDWillEndWalkthroughStepNotification object:self];
     NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
