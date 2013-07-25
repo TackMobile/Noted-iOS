@@ -18,10 +18,18 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
 
+/* Shredding */
 @property (nonatomic) int deletedNoteVertSliceCount;
 @property (nonatomic) int deletedNoteHorizSliceCount;
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NTDCollectionViewCell *currentDeletionCell;
 @property (nonatomic) NTDPageDeletionDirection deletionDirection;
+
+/* Walkthrough */
+@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
+*twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
+@property (nonatomic, strong) NSMutableArray *notes;
 
 @end

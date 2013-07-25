@@ -23,11 +23,16 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
     NTDWalkthroughNumberOfSteps
 };
 
+//FOUNDATION_EXTERN NSString *const NTDNotification;
+FOUNDATION_EXTERN NSString *const NTDUserWillBeginWalkthroughNotification;
+FOUNDATION_EXTERN NSString *const NTDUserDidDeclineWalkthroughNotification;
+FOUNDATION_EXTERN NSString *const NTDUserDidCompleteWalkthroughNotification;
+
 @interface NTDWalkthrough : NSObject
 
 + (instancetype)sharedWalkthrough;
 + (void)initializeWalkthroughIfNecessary;
+- (void)promptUserToStartWalkthrough;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;
-- (void)beginWalkthrough;
 @end

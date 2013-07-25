@@ -21,6 +21,7 @@
 #import "NTDNote.h"
 #import "Utilities.h"
 #import "NTDWalkthrough.h"
+#import "NTDCollectionViewController+Walkthrough.h"
 
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
@@ -31,12 +32,6 @@
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
-@property (nonatomic, strong) UIPanGestureRecognizer *removeCardGestureRecognizer, *panCardGestureRecognizer,
-*twoFingerPanGestureRecognizer, *panCardWhileViewingOptionsGestureRecognizer;
-@property (nonatomic, strong) UITapGestureRecognizer *selectCardGestureRecognizer, *tapCardWhileViewingOptionsGestureRecognizer;
-@property (nonatomic, strong) UIPinchGestureRecognizer *pinchToListLayoutGestureRecognizer;
-
-@property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
 @property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
@@ -93,7 +88,14 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardDidHide:)
                                                      name:UIKeyboardDidHideNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willBeginWalkthrough:)
+                                                     name:NTDUserWillBeginWalkthroughNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didDeclineWalkthrough:)
+                                                     name:NTDUserDidDeclineWalkthroughNotification object:nil];
 
+        
 
     }
     return self;
@@ -175,7 +177,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [NTDWalkthrough.sharedWalkthrough beginWalkthrough];
+    [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
 }
 
 -(void)dealloc

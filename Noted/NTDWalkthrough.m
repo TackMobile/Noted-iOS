@@ -9,6 +9,10 @@
 #import "NTDWalkthrough.h"
 #import "NTDWalkthroughViewController.h"
 
+NSString *const NTDUserWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
+NSString *const NTDUserDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
+NSString *const NTDUserDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+
 static NSString *const DidCompleteWalkthroughKey = @"DidCompleteWalkthroughKey";
 static NTDWalkthrough *sharedInstance;
 
@@ -37,23 +41,38 @@ static NTDWalkthrough *sharedInstance;
     return sharedInstance;
 }
 
-- (void)beginWalkthrough
+- (void)promptUserToStartWalkthrough
 {
     self.currentStep = NTDWalkthroughShouldBeginWalkthroughStep;
     
     self.viewController = [[NTDWalkthroughViewController alloc] init];
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     [window.rootViewController.view addSubview:self.viewController.view];
-    [self.viewController beginDisplayingViewsForStep:NTDWalkthroughShouldBeginWalkthroughStep];
+    [self.viewController beginDisplayingViewsForStep:self.currentStep];
     NSLog(@"beginWalkthrough");
+    [self performSelector:@selector(makeANote)
+               withObject:nil
+               afterDelay:1.0];
+}
+
+/* HACK */
+- (void)makeANote
+{
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDUserWillBeginWalkthroughNotification object:self];
+    [self stepShouldEnd:NTDWalkthroughShouldBeginWalkthroughStep];
+    [self shouldAdvanceFromStep:NTDWalkthroughShouldBeginWalkthroughStep];
 }
 
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step
 {
-    if (self.currentStep != step);
+    if (self.currentStep != step)
         return;
     self.currentStep++;
-    [self.viewController beginDisplayingViewsForStep:self.currentStep];
+    if (self.currentStep == self.numberOfSteps) {
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDUserDidCompleteWalkthroughNotification object:self];
+    } else {
+        [self.viewController beginDisplayingViewsForStep:self.currentStep];
+    }
     NSLog(@"advancing to step: %d", self.currentStep);
 }
 
