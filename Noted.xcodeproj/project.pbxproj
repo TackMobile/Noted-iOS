@@ -29,6 +29,7 @@
 		3F1FF28D17A06A6500213F2F /* NTDWalkthroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF28C17A06A6500213F2F /* NTDWalkthroughViewController.m */; };
 		3F1FF29617A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF29517A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m */; };
 		3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF29817A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m */; };
+		3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
 		3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */; };
 		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
@@ -51,7 +52,6 @@
 		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
-		CFA2411F17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.m in Sources */ = {isa = PBXBuildFile; fileRef = CFA2411E17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
 		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
@@ -91,6 +91,8 @@
 		3F1FF29517A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDWalkthroughGestureIndicatorView.m; sourceTree = "<group>"; };
 		3F1FF29717A0968B00213F2F /* NTDCollectionViewController+Walkthrough.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Walkthrough.h"; sourceTree = "<group>"; };
 		3F1FF29817A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Walkthrough.m"; sourceTree = "<group>"; };
+		3F47D96F17A2F6F000DBFB0E /* NTDWalkthroughModalView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDWalkthroughModalView.h; sourceTree = "<group>"; };
+		3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDWalkthroughModalView.m; sourceTree = "<group>"; };
 		3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -129,8 +131,6 @@
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
 		CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
-		CFA2411D17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDAnimatedTouchIndicatorViews.h; sourceTree = "<group>"; };
-		CFA2411E17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDAnimatedTouchIndicatorViews.m; sourceTree = "<group>"; };
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
@@ -282,6 +282,8 @@
 		3F1FF29117A071C500213F2F /* View */ = {
 			isa = PBXGroup;
 			children = (
+				3F47D96F17A2F6F000DBFB0E /* NTDWalkthroughModalView.h */,
+				3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */,
 				3F1FF29417A0727100213F2F /* NTDWalkthroughGestureIndicatorView.h */,
 				3F1FF29517A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m */,
 			);
@@ -293,8 +295,6 @@
 			children = (
 				3F1FF28B17A06A6500213F2F /* NTDWalkthroughViewController.h */,
 				3F1FF28C17A06A6500213F2F /* NTDWalkthroughViewController.m */,
-				CFA2411D17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.h */,
-				CFA2411E17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -530,7 +530,7 @@
 				3F1FF28D17A06A6500213F2F /* NTDWalkthroughViewController.m in Sources */,
 				3F1FF29617A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m in Sources */,
 				3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */,
-				CFA2411F17A1E11D0080E98C /* NTDAnimatedTouchIndicatorViews.m in Sources */,
+				3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

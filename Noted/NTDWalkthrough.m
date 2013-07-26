@@ -73,6 +73,8 @@ static NTDWalkthrough *sharedInstance;
         [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
 //        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
 //        [NSUserDefaults.standardUserDefaults synchronize];
+        [self.viewController.view removeFromSuperview];
+        self.viewController = nil;
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
