@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <objc/objc-runtime.h>
+#import <objc/runtime.h>
 #import "NTDWalkthroughGestureIndicatorView.h"
 
 //TODO when walkthrough advances to a new step, clear the dictionary of old step (including associations)
