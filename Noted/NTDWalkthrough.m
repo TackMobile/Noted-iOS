@@ -8,6 +8,7 @@
 
 #import "NTDWalkthrough.h"
 #import "NTDWalkthroughViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
 NSString *const NTDDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
@@ -48,7 +49,9 @@ static NTDWalkthrough *sharedInstance;
     
     self.viewController = [[NTDWalkthroughViewController alloc] init];
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
-    [window.rootViewController.view addSubview:self.viewController.view];
+    UICollectionViewController *rootController = (UICollectionViewController *)window.rootViewController;
+    [rootController.collectionView addSubview:self.viewController.view];
+    self.viewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, CGFLOAT_MAX);
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
     NSLog(@"beginWalkthrough");
     [self performSelector:@selector(makeANote)

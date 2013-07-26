@@ -7,6 +7,7 @@
 //
 
 #import <objc/runtime.h>
+#import <QuartzCore/QuartzCore.h>
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
@@ -60,9 +61,9 @@ static void *ControlEventsArrayKey;
     switch (step) {
         case NTDWalkthroughMakeANoteStep:
         {
-            CGPoint start = {.x = 200, .y = 30};
-            CGPoint end = {.x = 200, .y = 300};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1.5];
+            CGPoint start = {.x = 160, .y = 30};
+            CGPoint end = {.x = 160, .y = 270};
+            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
             break;
         }
             
@@ -75,29 +76,50 @@ static void *ControlEventsArrayKey;
 + (instancetype)animatedTouchIndicatorViewWithStart:(CGPoint)start end:(CGPoint)end duration:(NSTimeInterval)duration
 {
     CGSize indicatorSize = {.width = 50, .height = 50};
-    UIGraphicsBeginImageContextWithOptions(indicatorSize, NO, 0.0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGColorRef fillColor = [NTDTheme themeForColorScheme:NTDColorSchemeTack].backgroundColor.CGColor;
-    fillColor = [UIColor colorWithHexString:@"1181c1"].CGColor;
-    CGContextSetFillColorWithColor(context, fillColor);
     CGRect bounds = {.size = indicatorSize};
-    CGContextFillEllipseInRect(context, bounds);
-    UIImage *indicatorImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
     NTDWalkthroughGestureIndicatorView *view = [[NTDWalkthroughGestureIndicatorView alloc] initWithFrame:bounds];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:indicatorImage];
-    [view addSubview:imageView];
+    view.backgroundColor = [NTDTheme themeForColorScheme:NTDColorSchemeTack].backgroundColor;
+    view.layer.shadowOpacity = 0.35;
+    view.layer.shadowOffset = CGSizeZero;
+    view.clipsToBounds = NO;
+
     view.center = start;
-    [UIView animateWithDuration:duration
-                          delay:duration
-                        options:UIViewAnimationOptionRepeat
-                     animations:^{
-                         view.center = end;
-                     }
-                     completion:^(BOOL finished) {
-                         
-                     }];
+    view.alpha = 0.0;
+    
+    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
+    fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
+    fadeInAnimation.duration = .2;
+    fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    fadeInAnimation.fillMode = kCAFillModeForwards;
+
+    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    positionAnimation.fromValue = [NSValue valueWithCGPoint:start];
+    positionAnimation.toValue = [NSValue valueWithCGPoint:end];
+    positionAnimation.duration = duration;
+    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    positionAnimation.fillMode = kCAFillModeForwards;
+    positionAnimation.beginTime = fadeInAnimation.duration;
+    
+    CABasicAnimation *fadeOutAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeOutAnimation.fromValue = [NSNumber numberWithFloat:1.0];
+    fadeOutAnimation.toValue = [NSNumber numberWithFloat:0.0];
+    fadeOutAnimation.duration = .2;
+    fadeOutAnimation.beginTime = positionAnimation.beginTime + positionAnimation.duration + .1;
+    fadeOutAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    fadeOutAnimation.fillMode = kCAFillModeForwards;
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.animations = @[fadeInAnimation, positionAnimation, fadeOutAnimation];
+    animationGroup.repeatCount = HUGE_VALF;
+    animationGroup.duration = fadeOutAnimation.beginTime + fadeOutAnimation.duration + .1;
+    [view.layer addAnimation:animationGroup forKey:@"dragAnimation"];
+    
     return view;
+}
+
+- (void)handleGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+{
+    
 }
 @end

@@ -39,7 +39,13 @@ const CGFloat ModalPadding = 15;
     
     switch (step) {
         case NTDWalkthroughShouldBeginWalkthroughStep:
+            modalPosition = NTDWalkthroughModalPositionCenter;
+            break;
+            
         case NTDWalkthroughMakeANoteStep:
+            modalPosition = NTDWalkthroughModalPositionBottom;
+            break;
+            
         case NTDWalkthroughTapOptionsStep:
         case NTDWalkthroughPinchToListStep:
             modalPosition = NTDWalkthroughModalPositionCenter;
