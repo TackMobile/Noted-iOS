@@ -184,6 +184,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                object:nil];
     
     self.collectionView.alwaysBounceVertical = YES;
+    [self bindGestureRecognizers];
 }
 
 -(void)viewDidAppear:(BOOL)animated

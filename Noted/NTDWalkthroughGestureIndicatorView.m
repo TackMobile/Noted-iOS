@@ -120,6 +120,58 @@ static void *ControlEventsArrayKey;
 
 - (void)handleGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 {
-    
+    if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+        UIPanGestureRecognizer *panGestureRecognizer = (UIPanGestureRecognizer *)gestureRecognizer;
+        static CGPoint touchPosition, originalPosition;
+        static CAAnimation *dragAnimation;
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateBegan:
+            {
+                touchPosition = [panGestureRecognizer locationInView:self.superview];
+                originalPosition = self.layer.position;
+                dragAnimation = [self.layer animationForKey:@"dragAnimation"];
+                [self.layer removeAnimationForKey:@"dragAnimation"];
+                self.layer.position = [[self.layer presentationLayer] position];
+                [UIView animateWithDuration:0.2
+                                 animations:^{
+                                     self.center = touchPosition;
+                                 }];
+                [UIView animateWithDuration:0.25
+                                      delay:0.0
+                                    options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat
+                                 animations:^{
+                                     CGAffineTransform t = CGAffineTransformMakeScale(1.5, 1.5);
+                                     self.transform = t;
+                                     self.layer.opacity = .8;
+                                 }
+                                 completion:^(BOOL finished) {
+                                 }];
+                break;
+            }
+            case UIGestureRecognizerStateChanged:
+            {
+                CGPoint translation = [panGestureRecognizer translationInView:self.superview];
+                self.layer.position = CGPointMake(touchPosition.x + translation.x, touchPosition.y + translation.y);
+                break;
+            }
+            case UIGestureRecognizerStateEnded:
+            {
+                [UIView animateWithDuration:0.25
+                                      delay:0.25
+                                    options:UIViewAnimationOptionBeginFromCurrentState
+                                 animations:^{
+                                     self.center = originalPosition;
+                                     self.transform = CGAffineTransformIdentity;
+                                     self.layer.opacity = 1.0;
+                                 }
+                                 completion:^(BOOL finished) {
+                                     [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
+                }];
+                break;
+            }
+            default:
+                break;        
+        }
+    }
 }
 @end

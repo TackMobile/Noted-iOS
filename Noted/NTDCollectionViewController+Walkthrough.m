@@ -191,9 +191,9 @@
 {
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.collectionView.panGestureRecognizer
                                                       forStep:NTDWalkthroughMakeANoteStep];
-    [NTDWalkthroughGestureIndicatorView bindControl:self.visibleCell.settingsButton
-                                             events:UIControlEventTouchUpInside
-                                            forStep:NTDWalkthroughTapOptionsStep];
+//    [NTDWalkthroughGestureIndicatorView bindControl:self.visibleCell.settingsButton
+//                                             events:UIControlEventTouchUpInside
+//                                            forStep:NTDWalkthroughTapOptionsStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardWhileViewingOptionsGestureRecognizer
                                                       forStep:NTDWalkthroughCloseOptionsStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardGestureRecognizer
