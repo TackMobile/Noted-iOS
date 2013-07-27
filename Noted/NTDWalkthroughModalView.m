@@ -17,6 +17,7 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalPosition)
 
 const CGFloat ModalEdgeMargin = 30;
 const CGFloat ModalPadding = 15;
+static NSDictionary *messages;
 
 @interface NTDWalkthroughModalView ()
 @property (nonatomic, strong) NSString *message;
@@ -25,7 +26,21 @@ const CGFloat ModalPadding = 15;
 
 @implementation NTDWalkthroughModalView
 
--(id)initWithStep:(NTDWalkthroughStep)step
++ (void)initialize
+{
+    messages = @{@(NTDWalkthroughShouldBeginWalkthroughStep) : @"Would you like to begin the walkthrough?",
+                 @(NTDWalkthroughMakeANoteStep) : @"Pull to create a new note.",
+                 @(NTDWalkthroughSwipeToCloseKeyboardStep) : @"Type something, then swipe the keyboard to finish.",
+                 @(NTDWalkthroughTapOptionsStep) : @"Tap the menu button.",
+                 @(NTDWalkthroughChangeColorsStep) : @"Pick a new color for your note.",
+                 @(NTDWalkthroughCloseOptionsStep) : @"Swipe left to close the menu.",
+                 @(NTDWalkthroughSwipeToLastNoteStep) : @"Swipe to the last note.",
+                 @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag with two fingers to delete a note.",
+                 @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
+                 @(NTDWalkthroughOneFingerDeleteStep) : @"When viewing all of your notes, swipe with one finger to delete.",
+    };
+}
+- (id)initWithStep:(NTDWalkthroughStep)step
 {
     if (self = [super initWithFrame:CGRectZero]) {
         [self configureForStep:step];
@@ -35,8 +50,7 @@ const CGFloat ModalPadding = 15;
 
 - (void)configureForStep:(NTDWalkthroughStep)step {
     NTDWalkthroughModalPosition modalPosition;    
-    NSString *modalMessage = [NSString stringWithFormat:@"NTDWalkthroughStep%iModal", step];
-    
+
     switch (step) {
         case NTDWalkthroughShouldBeginWalkthroughStep:
             modalPosition = NTDWalkthroughModalPositionCenter;
@@ -65,7 +79,7 @@ const CGFloat ModalPadding = 15;
             break;
     }
     
-    self.message = [NSString stringWithFormat:@"[%i] %@", step, modalMessage];
+    self.message = messages[@(step)];
     self.position = modalPosition;
 }
 
