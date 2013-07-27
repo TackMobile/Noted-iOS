@@ -19,21 +19,19 @@ static void *ControlEventsArrayKey;
 
 @implementation NTDWalkthroughGestureIndicatorView
 
-+ (void)initializeStaticVariablesIfNecessary
++ (void)initialize
 {
-    if (!gestureRecognizerMap) gestureRecognizerMap = [NSMutableDictionary dictionaryWithCapacity:NTDWalkthroughNumberOfSteps];
-    if (!controlMap) controlMap = [NSMutableDictionary dictionaryWithCapacity:NTDWalkthroughNumberOfSteps];
+    gestureRecognizerMap = [NSMutableDictionary dictionaryWithCapacity:NTDWalkthroughNumberOfSteps];
+    controlMap = [NSMutableDictionary dictionaryWithCapacity:NTDWalkthroughNumberOfSteps];
 }
 
 + (void)bindGestureRecognizer:(UIGestureRecognizer *)recognizer forStep:(NTDWalkthroughStep)step
 {
-    [self initializeStaticVariablesIfNecessary];
     gestureRecognizerMap[@(step)] = recognizer;
 }
 
 + (void)bindControl:(UIControl *)control events:(UIControlEvents)controlEvents forStep:(NTDWalkthroughStep)step
 {
-    [self initializeStaticVariablesIfNecessary];
     controlMap[@(step)] = control;
     objc_setAssociatedObject(control, &ControlEventsArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(control, &ControlEventsArrayKey, @(controlEvents), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
