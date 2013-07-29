@@ -12,6 +12,10 @@
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
 
+@interface NTDWalkthroughGestureIndicatorView ()
+@property (nonatomic, assign) CGPoint positionBeforeDragging;
+@end
+
 //TODO when walkthrough advances to a new step, clear the dictionary of old step (including associations)
 
 static NSMutableDictionary *gestureRecognizerMap, *controlMap;
@@ -80,6 +84,7 @@ static void *ControlEventsArrayKey;
     view.layer.shadowOpacity = 0.35;
     view.layer.shadowOffset = CGSizeZero;
     view.clipsToBounds = NO;
+    view.layer.shouldRasterize = YES;
 
     view.center = start;
     view.alpha = 0.0;
@@ -154,6 +159,15 @@ static void *ControlEventsArrayKey;
             }
             case UIGestureRecognizerStateEnded:
             {
+//                [CATransaction begin];
+//                self.positionBeforeDragging = originalPosition;
+//                [self addDragEndedAnimations];
+//                [CATransaction setCompletionBlock:^{
+//                    [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
+//                }];
+//                [CATransaction commit];
+                if (self.shouldCancelAnimations) return;
+                
                 [UIView animateWithDuration:0.25
                                       delay:0.25
                                     options:UIViewAnimationOptionBeginFromCurrentState
@@ -163,6 +177,7 @@ static void *ControlEventsArrayKey;
                                      self.layer.opacity = 1.0;
                                  }
                                  completion:^(BOOL finished) {
+                                     NSLog(@"drag animation ended - finished: %d, center: %@", finished, NSStringFromCGPoint(self.center));
                                      [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
                 }];
                 break;
@@ -171,5 +186,46 @@ static void *ControlEventsArrayKey;
                 break;        
         }
     }
+}
+
+- (void)addDragEndedAnimations
+{
+    const NSTimeInterval Duration = 0.25, Delay = 0.25;
+    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    positionAnimation.duration = Duration;
+    positionAnimation.beginTime = Delay;
+    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    
+    CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeAnimation.duration = Duration;
+    fadeAnimation.beginTime = Delay;
+    fadeAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+
+    CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    transformAnimation.duration = Duration;
+    transformAnimation.beginTime = Delay;
+    transformAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.animations = @[positionAnimation, fadeAnimation];
+    animationGroup.duration = Duration;
+    animationGroup.beginTime = Delay;
+
+    self.layer.position = self.positionBeforeDragging;
+    self.layer.transform = CATransform3DIdentity;
+    self.layer.opacity = 1.0;
+    
+    [self.layer addAnimation:animationGroup forKey:@"dragEndedAnimation"];
+}
+
+-(void)handleAction:(UIControl *)control
+{
+    
+}
+
+-(void)setShouldCancelAnimations:(BOOL)shouldCancelAnimations
+{
+    _shouldCancelAnimations = shouldCancelAnimations;
+    if (shouldCancelAnimations) [self.layer removeAllAnimations];
 }
 @end

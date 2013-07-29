@@ -46,12 +46,12 @@ static NTDWalkthrough *sharedInstance;
 - (void)promptUserToStartWalkthrough
 {
     self.currentStep = NTDWalkthroughShouldBeginWalkthroughStep;
-    
     self.viewController = [[NTDWalkthroughViewController alloc] init];
+
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     UICollectionViewController *rootController = (UICollectionViewController *)window.rootViewController;
-    [rootController.collectionView addSubview:self.viewController.view];
-    self.viewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, CGFLOAT_MAX);
+    [rootController.view addSubview:self.viewController.view];
+//    self.viewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, CGFLOAT_MAX);
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
     NSLog(@"beginWalkthrough");
     [self performSelector:@selector(makeANote)

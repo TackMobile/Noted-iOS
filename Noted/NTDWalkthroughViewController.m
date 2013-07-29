@@ -9,6 +9,7 @@
 #import "NTDWalkthroughViewController.h"
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDWalkthroughModalView.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface NTDWalkthroughViewController ()
 @property (nonatomic, strong) NTDWalkthroughGestureIndicatorView *currentIndicatorView;
@@ -30,6 +31,9 @@
 
 - (void)beginDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
+    if (self.currentIndicatorView) [self.currentIndicatorView removeFromSuperview];
+    if (self.currentModalView) [self.currentModalView removeFromSuperview];
+    
     self.currentIndicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
     [self.view addSubview:self.currentIndicatorView];
     self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step];
@@ -39,10 +43,15 @@
 - (void)endDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
     NSLog(@"hiding step %i", step);
-    [UIView animateWithDuration:.1 animations:^{
-        self.currentModalView.alpha = 0;
-        self.currentModalView.transform = CGAffineTransformMakeScale(1.3, 1.3);
-        self.currentIndicatorView.alpha = 0;
+    self.currentIndicatorView.layer.position = [[self.currentIndicatorView.layer presentationLayer] position];
+    self.currentIndicatorView.shouldCancelAnimations = YES;
+    [UIView animateWithDuration:0.1
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{
+                         self.currentModalView.alpha = 0;
+                         self.currentModalView.transform = CGAffineTransformMakeScale(1.3, 1.3);
+                         self.currentIndicatorView.alpha = 0;
     } completion:^(BOOL finished) {
 //        [self.currentModalView removeFromSuperview];
 //        [self.currentIndicatorView removeFromSuperview];

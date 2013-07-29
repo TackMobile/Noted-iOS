@@ -20,6 +20,7 @@
 + (instancetype)gestureIndicatorViewForStep:(NTDWalkthroughStep)step;
 
 @property (nonatomic, assign) CAAnimation *mainAnimation;
+@property (nonatomic, assign) BOOL shouldCancelAnimations;
 - (void)handleGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;
 - (void)handleAction:(UIControl *)control;
 @end
