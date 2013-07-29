@@ -12,14 +12,16 @@
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
 
-@interface NTDWalkthroughGestureIndicatorView ()
-@property (nonatomic, assign) CGPoint positionBeforeDragging;
-@end
-
 //TODO when walkthrough advances to a new step, clear the dictionary of old step (including associations)
+//TODO add KVO for self.visibleCell.textView.keyboardPanRecognizer
 
 static NSMutableDictionary *gestureRecognizerMap, *controlMap;
 static void *ControlEventsArrayKey;
+
+@interface NTDWalkthroughGestureIndicatorView ()
+@property (nonatomic, assign) CGPoint startPoint, endPoint;
+@property (nonatomic, assign) NSTimeInterval duration;
+@end
 
 @implementation NTDWalkthroughGestureIndicatorView
 
@@ -68,6 +70,13 @@ static void *ControlEventsArrayKey;
             view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
             break;
         }
+        case NTDWalkthroughSwipeToCloseKeyboardStep:
+        {
+            CGPoint start = {.x = 160, .y = 180};
+            CGPoint end = {.x = 160, .y = 260};
+            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }
             
         default:
             break;
@@ -88,6 +97,13 @@ static void *ControlEventsArrayKey;
 
     view.center = start;
     view.alpha = 0.0;
+    
+    view.startPoint = start;
+    view.endPoint = end;
+    view.duration = duration;
+    
+    [view addDragAnimation];
+    return view;
     
     CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
     fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
@@ -159,14 +175,7 @@ static void *ControlEventsArrayKey;
             }
             case UIGestureRecognizerStateEnded:
             {
-//                [CATransaction begin];
-//                self.positionBeforeDragging = originalPosition;
-//                [self addDragEndedAnimations];
-//                [CATransaction setCompletionBlock:^{
-//                    [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
-//                }];
-//                [CATransaction commit];
-                if (self.shouldCancelAnimations) return;
+                if (self.shouldCancelAnimations) break;
                 
                 [UIView animateWithDuration:0.25
                                       delay:0.25
@@ -177,8 +186,8 @@ static void *ControlEventsArrayKey;
                                      self.layer.opacity = 1.0;
                                  }
                                  completion:^(BOOL finished) {
-                                     NSLog(@"drag animation ended - finished: %d, center: %@", finished, NSStringFromCGPoint(self.center));
-                                     [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
+//                                     [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
+                                     [self addDragAnimation];
                 }];
                 break;
             }
@@ -188,39 +197,41 @@ static void *ControlEventsArrayKey;
     }
 }
 
-- (void)addDragEndedAnimations
-{
-    const NSTimeInterval Duration = 0.25, Delay = 0.25;
-    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-    positionAnimation.duration = Duration;
-    positionAnimation.beginTime = Delay;
-    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    
-    CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    fadeAnimation.duration = Duration;
-    fadeAnimation.beginTime = Delay;
-    fadeAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-
-    CABasicAnimation *transformAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    transformAnimation.duration = Duration;
-    transformAnimation.beginTime = Delay;
-    transformAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    
-    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-    animationGroup.animations = @[positionAnimation, fadeAnimation];
-    animationGroup.duration = Duration;
-    animationGroup.beginTime = Delay;
-
-    self.layer.position = self.positionBeforeDragging;
-    self.layer.transform = CATransform3DIdentity;
-    self.layer.opacity = 1.0;
-    
-    [self.layer addAnimation:animationGroup forKey:@"dragEndedAnimation"];
-}
-
 -(void)handleAction:(UIControl *)control
 {
     
+}
+
+- (void)addDragAnimation
+{
+    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
+    fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
+    fadeInAnimation.duration = .2;
+    fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    fadeInAnimation.fillMode = kCAFillModeForwards;
+    
+    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    positionAnimation.fromValue = [NSValue valueWithCGPoint:self.startPoint];
+    positionAnimation.toValue = [NSValue valueWithCGPoint:self.endPoint];
+    positionAnimation.duration = self.duration;
+    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    positionAnimation.fillMode = kCAFillModeForwards;
+    positionAnimation.beginTime = fadeInAnimation.duration;
+    
+    CABasicAnimation *fadeOutAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeOutAnimation.fromValue = [NSNumber numberWithFloat:1.0];
+    fadeOutAnimation.toValue = [NSNumber numberWithFloat:0.0];
+    fadeOutAnimation.duration = .2;
+    fadeOutAnimation.beginTime = positionAnimation.beginTime + positionAnimation.duration + .1;
+    fadeOutAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    fadeOutAnimation.fillMode = kCAFillModeForwards;
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.animations = @[fadeInAnimation, positionAnimation, fadeOutAnimation];
+    animationGroup.repeatCount = HUGE_VALF;
+    animationGroup.duration = fadeOutAnimation.beginTime + fadeOutAnimation.duration + .1;
+    [self.layer addAnimation:animationGroup forKey:@"dragAnimation"];
 }
 
 -(void)setShouldCancelAnimations:(BOOL)shouldCancelAnimations

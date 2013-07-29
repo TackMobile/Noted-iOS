@@ -15,6 +15,7 @@
 
 @implementation NTDCollectionViewController (Walkthrough)
 
+//TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
     NSArray *initialNotes = @[
