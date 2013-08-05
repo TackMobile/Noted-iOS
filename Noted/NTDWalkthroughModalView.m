@@ -30,14 +30,14 @@ static NSDictionary *messages;
 {
     messages = @{@(NTDWalkthroughShouldBeginWalkthroughStep) : @"Would you like to begin the walkthrough?",
                  @(NTDWalkthroughMakeANoteStep) : @"Pull to create a new note.",
-                 @(NTDWalkthroughSwipeToCloseKeyboardStep) : @"Type something, then swipe the keyboard to finish.",
+                 @(NTDWalkthroughSwipeToCloseKeyboardStep) : @"Type something, then swipe the keyboard down to finish.",
                  @(NTDWalkthroughTapOptionsStep) : @"Tap the menu button.",
                  @(NTDWalkthroughChangeColorsStep) : @"Pick a new color for your note.",
                  @(NTDWalkthroughCloseOptionsStep) : @"Swipe left to close the menu.",
-                 @(NTDWalkthroughSwipeToLastNoteStep) : @"Swipe to the last note.",
-                 @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag with two fingers to delete a note.",
+                 @(NTDWalkthroughSwipeToLastNoteStep) : @"Swipe left to the last note.",
+                 @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag slowly with two fingers to delete a note.",
                  @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
-                 @(NTDWalkthroughOneFingerDeleteStep) : @"When viewing all of your notes, swipe with one finger to delete.",
+                 @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
     };
 }
 - (id)initWithStep:(NTDWalkthroughStep)step
