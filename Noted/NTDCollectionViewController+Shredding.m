@@ -160,8 +160,10 @@
             }
             
             if (!column.isDeleted
-                && (( self.deletionDirection == NTDPageDeletionDirectionRight && column.percentLeft < percent)
-                    || (self.deletionDirection == NTDPageDeletionDirectionLeft && column.percentLeft >= percent))) {
+                && (( self.deletionDirection == NTDPageDeletionDirectionRight
+                     && (column.percentLeft + (columnWidth/noteWidth)) <= percent)
+                    || (self.deletionDirection == NTDPageDeletionDirectionLeft
+                        && column.percentLeft >= percent))) {
                 //[colsToRemove addObject:column];
                 
                 useNextPercentForMask = YES;
