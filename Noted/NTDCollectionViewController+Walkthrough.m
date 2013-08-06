@@ -197,8 +197,8 @@
 //                                            forStep:NTDWalkthroughTapOptionsStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardWhileViewingOptionsGestureRecognizer
                                                       forStep:NTDWalkthroughCloseOptionsStep];
-    [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardGestureRecognizer
-                                                      forStep:NTDWalkthroughSwipeToLastNoteStep];
+//    [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardGestureRecognizer
+//                                                      forStep:NTDWalkthroughSwipeToLastNoteStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.twoFingerPanGestureRecognizer
                                                       forStep:NTDWalkthroughTwoFingerDeleteStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.pinchToListLayoutGestureRecognizer

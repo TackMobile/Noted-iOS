@@ -21,6 +21,8 @@ static void *ControlEventsArrayKey;
 @interface NTDWalkthroughGestureIndicatorView ()
 @property (nonatomic, assign) CGPoint startPoint, endPoint;
 @property (nonatomic, assign) NSTimeInterval duration;
+@property (nonatomic, strong) UIGestureRecognizer *recognizer;
+@property (nonatomic, strong) UIControl *control;
 @end
 
 @implementation NTDWalkthroughGestureIndicatorView
@@ -48,12 +50,15 @@ static void *ControlEventsArrayKey;
     NTDWalkthroughGestureIndicatorView *view = [self instanceForStep:step];
     
     UIGestureRecognizer *recognizer = gestureRecognizerMap[@(step)];
-    if (recognizer)
+    if (recognizer) {
         [recognizer addTarget:view action:@selector(handleGestureRecognizer:)];
+        view.recognizer = recognizer;
+    }
     UIControl *control = controlMap[@(step)];
     if (control) {
         UIControlEvents controlEvents = [objc_getAssociatedObject(control, &ControlEventsArrayKey) integerValue];
         [control addTarget:view action:@selector(handleAction:) forControlEvents:controlEvents];
+        view.control = control;
     }
     
     return view;
@@ -61,23 +66,49 @@ static void *ControlEventsArrayKey;
 
 + (instancetype)instanceForStep:(NTDWalkthroughStep)step
 {
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    CGFloat CenterX = CGRectGetMidX(screenBounds);
+    CGFloat CenterY = CGRectGetMidY(screenBounds);
+    CGFloat YOffset = CGRectGetMaxY(screenBounds) - 480.0;
+    
     NTDWalkthroughGestureIndicatorView *view = nil;
     switch (step) {
         case NTDWalkthroughMakeANoteStep:
         {
-            CGPoint start = {.x = 160, .y = 30};
-            CGPoint end = {.x = 160, .y = 270};
+            CGPoint start = {.x = CenterX, .y = 30};
+            CGPoint end = {.x = CenterX, .y = 270 + YOffset};
             view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToCloseKeyboardStep:
         {
-            CGPoint start = {.x = 160, .y = 180};
-            CGPoint end = {.x = 160, .y = 260};
+            CGPoint start = {.x = CenterX, .y = 180};
+            CGPoint end = {.x = CenterX, .y = 260 + YOffset};
             view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
             break;
         }
-            
+        case NTDWalkthroughCloseOptionsStep:
+        {
+            CGPoint start = {.x = CenterX + 50, .y = CenterY - 55};
+            CGPoint end = {.x = 50, .y = CenterY - 55};
+            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }
+        case NTDWalkthroughSwipeToLastNoteStep:
+        {
+            CGPoint start = {.x = 320-70, .y = CenterY - 55};
+            CGPoint end = {.x = 70, .y = CenterY - 55};
+            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }
+        case NTDWalkthroughOneFingerDeleteStep:
+        {
+            CGPoint start = {.x = 70, .y = 76};
+            CGPoint end = {.x = 320-70, .y = 76};
+            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }            
+
         default:
             break;
     }
@@ -234,9 +265,15 @@ static void *ControlEventsArrayKey;
     [self.layer addAnimation:animationGroup forKey:@"dragAnimation"];
 }
 
--(void)setShouldCancelAnimations:(BOOL)shouldCancelAnimations
+- (void)setShouldCancelAnimations:(BOOL)shouldCancelAnimations
 {
     _shouldCancelAnimations = shouldCancelAnimations;
     if (shouldCancelAnimations) [self.layer removeAllAnimations];
+}
+
+-(void)dealloc
+{
+    if (self.recognizer) [self.recognizer removeTarget:self action:NULL];
+    if (self.control) [self.control removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];    
 }
 @end
