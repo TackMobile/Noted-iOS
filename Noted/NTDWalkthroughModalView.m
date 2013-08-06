@@ -35,7 +35,7 @@ static NSDictionary *messages;
                  @(NTDWalkthroughChangeColorsStep) : @"Pick a new color for your note.",
                  @(NTDWalkthroughCloseOptionsStep) : @"Swipe left to close the menu.",
                  @(NTDWalkthroughSwipeToLastNoteStep) : @"Swipe left to the last note.",
-                 @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag slowly with two fingers to delete a note.",
+                 @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag left slowly with two fingers to delete a note.",
                  @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
     };

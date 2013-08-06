@@ -192,7 +192,8 @@ static void *ControlEventsArrayKey;
     NTDWalkthroughGestureIndicatorView *view = [self newIndicatorView];
     view.$size = CGSizeMake(40, 40);
     view.center = center;
-
+    view.alpha = 0.7;
+    
 //    [UIView animateWithDuration:0.4
 //                          delay:0
 //                        options:UIViewAnimationOptionRepeat
