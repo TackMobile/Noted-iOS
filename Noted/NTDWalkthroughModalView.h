@@ -12,5 +12,6 @@
 @interface NTDWalkthroughModalView : UIView
 
 -(id)initWithStep:(NTDWalkthroughStep)step;
+-(id)initWithStep:(NTDWalkthroughStep)step handler:(void(^)(BOOL userClickedYes))handler;
 
 @end
