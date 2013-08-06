@@ -8,6 +8,7 @@
 
 #import <objc/runtime.h>
 #import <QuartzCore/QuartzCore.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
@@ -77,35 +78,47 @@ static void *ControlEventsArrayKey;
         {
             CGPoint start = {.x = CenterX, .y = 30};
             CGPoint end = {.x = CenterX, .y = 270 + YOffset};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToCloseKeyboardStep:
         {
             CGPoint start = {.x = CenterX, .y = 180};
             CGPoint end = {.x = CenterX, .y = 260 + YOffset};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }
+        case NTDWalkthroughTapOptionsStep:
+        {
+            CGPoint center = {.x = 300, .y = 0};
+            view = [self animatedTapIndicatorViewAtCenter:center];
+            break;
+        }
+        case NTDWalkthroughChangeColorsStep:
+        {
+            CGPoint center = {.x = 48, .y = 118};
+            view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
         case NTDWalkthroughCloseOptionsStep:
         {
             CGPoint start = {.x = CenterX + 50, .y = CenterY - 55};
             CGPoint end = {.x = 50, .y = CenterY - 55};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToLastNoteStep:
         {
             CGPoint start = {.x = 320-70, .y = CenterY - 55};
             CGPoint end = {.x = 70, .y = CenterY - 55};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughOneFingerDeleteStep:
         {
             CGPoint start = {.x = 70, .y = 76};
             CGPoint end = {.x = 320-70, .y = 76};
-            view = [self animatedTouchIndicatorViewWithStart:start end:end duration:1];
+            view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }            
 
@@ -115,7 +128,7 @@ static void *ControlEventsArrayKey;
     return view;
 }
 
-+ (instancetype)animatedTouchIndicatorViewWithStart:(CGPoint)start end:(CGPoint)end duration:(NSTimeInterval)duration
++ (instancetype)newIndicatorView
 {
     CGSize indicatorSize = {.width = 50, .height = 50};
     CGRect bounds = {.size = indicatorSize};
@@ -126,6 +139,12 @@ static void *ControlEventsArrayKey;
     view.clipsToBounds = NO;
     view.layer.shouldRasterize = YES;
 
+    return view;
+}
+
++ (instancetype)animatedSwipeIndicatorViewWithStart:(CGPoint)start end:(CGPoint)end duration:(NSTimeInterval)duration
+{
+    NTDWalkthroughGestureIndicatorView *view = [self newIndicatorView];
     view.center = start;
     view.alpha = 0.0;
     
@@ -136,34 +155,73 @@ static void *ControlEventsArrayKey;
     [view addDragAnimation];
     return view;
     
-    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
-    fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
-    fadeInAnimation.duration = .2;
-    fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    fadeInAnimation.fillMode = kCAFillModeForwards;
+//    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
+//    fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
+//    fadeInAnimation.duration = .2;
+//    fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+//    fadeInAnimation.fillMode = kCAFillModeForwards;
+//
+//    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+//    positionAnimation.fromValue = [NSValue valueWithCGPoint:start];
+//    positionAnimation.toValue = [NSValue valueWithCGPoint:end];
+//    positionAnimation.duration = duration;
+//    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//    positionAnimation.fillMode = kCAFillModeForwards;
+//    positionAnimation.beginTime = fadeInAnimation.duration;
+//    
+//    CABasicAnimation *fadeOutAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    fadeOutAnimation.fromValue = [NSNumber numberWithFloat:1.0];
+//    fadeOutAnimation.toValue = [NSNumber numberWithFloat:0.0];
+//    fadeOutAnimation.duration = .2;
+//    fadeOutAnimation.beginTime = positionAnimation.beginTime + positionAnimation.duration + .1;
+//    fadeOutAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+//    fadeOutAnimation.fillMode = kCAFillModeForwards;
+//    
+//    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+//    animationGroup.animations = @[fadeInAnimation, positionAnimation, fadeOutAnimation];
+//    animationGroup.repeatCount = HUGE_VALF;
+//    animationGroup.duration = fadeOutAnimation.beginTime + fadeOutAnimation.duration + .1;
+//    [view.layer addAnimation:animationGroup forKey:@"dragAnimation"];
+//    
+//    return view;
+}
 
-    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-    positionAnimation.fromValue = [NSValue valueWithCGPoint:start];
-    positionAnimation.toValue = [NSValue valueWithCGPoint:end];
-    positionAnimation.duration = duration;
-    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    positionAnimation.fillMode = kCAFillModeForwards;
-    positionAnimation.beginTime = fadeInAnimation.duration;
++ (instancetype)animatedTapIndicatorViewAtCenter:(CGPoint)center
+{
+    NTDWalkthroughGestureIndicatorView *view = [self newIndicatorView];
+    view.$size = CGSizeMake(40, 40);
+    view.center = center;
+
+//    [UIView animateWithDuration:0.4
+//                          delay:0
+//                        options:UIViewAnimationOptionRepeat
+//                     animations:^{
+//                         CGAffineTransform t = CGAffineTransformMakeScale(1.7, 1.7);
+//                         view.transform = t;
+//                         view.layer.opacity = .2;
+//                     }
+//                     completion:^(BOOL finished) {
+//                     }];
     
-    CABasicAnimation *fadeOutAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    fadeOutAnimation.fromValue = [NSNumber numberWithFloat:1.0];
-    fadeOutAnimation.toValue = [NSNumber numberWithFloat:0.0];
-    fadeOutAnimation.duration = .2;
-    fadeOutAnimation.beginTime = positionAnimation.beginTime + positionAnimation.duration + .1;
-    fadeOutAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    fadeOutAnimation.fillMode = kCAFillModeForwards;
+    NSTimeInterval TotalDuration = 1.6;
+    CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeAnimation.toValue = @0;
+    fadeAnimation.duration = (2/3) * TotalDuration;
+    fadeAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+    fadeAnimation.fillMode = kCAFillModeForwards;
+    
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    scaleAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(1.7, 1.7, 1.7)];
+    scaleAnimation.duration = (1/3) * TotalDuration;
+    scaleAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+    scaleAnimation.fillMode = kCAFillModeForwards;
     
     CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-    animationGroup.animations = @[fadeInAnimation, positionAnimation, fadeOutAnimation];
+    animationGroup.animations = @[fadeAnimation, scaleAnimation];
     animationGroup.repeatCount = HUGE_VALF;
-    animationGroup.duration = fadeOutAnimation.beginTime + fadeOutAnimation.duration + .1;
-    [view.layer addAnimation:animationGroup forKey:@"dragAnimation"];
+    animationGroup.duration = TotalDuration;
+    [view.layer addAnimation:animationGroup forKey:@"pulseAnimation"];
     
     return view;
 }
