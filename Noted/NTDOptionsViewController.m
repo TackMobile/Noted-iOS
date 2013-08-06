@@ -11,6 +11,7 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDOptionsViewController.h"
+#import "UIViewController+NTDToast.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -407,7 +408,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
     
-    [self.delegate showToastWithMessage:@"Text copied to clipboard"];
+    [(UIViewController *)self.delegate showToastWithMessage:@"Text copied to clipboard"];
 }
 
 #pragma mark - Positioning
