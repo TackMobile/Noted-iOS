@@ -738,6 +738,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
     self.optionsViewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, self.pagingLayout.activeCardIndex);
     
+    [self.optionsViewController reset];
+    
     [self.pagingLayout revealOptionsViewWithOffset:InitialNoteOffsetWhenViewingOptions];
 }
 

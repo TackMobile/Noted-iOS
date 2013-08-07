@@ -11,6 +11,7 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDOptionsViewController.h"
+#import "UIViewController+NTDToast.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -191,11 +192,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     BOOL show = ![[UIApplication sharedApplication] isStatusBarHidden];
     [self.toggleStatusBarButton setTitle:!show?@"OFF":@"ON" forState:UIControlStateNormal];
     
+    [self reset];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated   {
     [super viewWillAppear:animated];
-    [self reset];
 }
 
 - (void)createShareOptions
@@ -405,6 +407,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
+    
+    [(UIViewController *)self.delegate showToastWithMessage:@"Text copied to clipboard"];
 }
 
 #pragma mark - Positioning
