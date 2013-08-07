@@ -34,9 +34,46 @@
     if (self.currentIndicatorView) [self.currentIndicatorView removeFromSuperview];
     if (self.currentModalView) [self.currentModalView removeFromSuperview];
     
+    switch (step) {
+        case NTDWalkthroughShouldBeginWalkthroughStep:
+        case NTDWalkthroughCompletedStep:
+            self.view.userInteractionEnabled = YES;
+            break;
+            
+        default:
+            self.view.userInteractionEnabled = NO;
+            break;
+    }
+
     self.currentIndicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
     [self.view addSubview:self.currentIndicatorView];
-    self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step];
+    
+    
+    if (step == NTDWalkthroughShouldBeginWalkthroughStep) {
+        void(^promptHandler)(BOOL) = ^(BOOL userClickedYes) {
+            if (userClickedYes) {
+                [[NTDWalkthrough sharedWalkthrough] stepShouldEnd:NTDWalkthroughShouldBeginWalkthroughStep];
+                [[NTDWalkthrough sharedWalkthrough] shouldAdvanceFromStep:NTDWalkthroughShouldBeginWalkthroughStep];
+            } else {
+                [[NTDWalkthrough sharedWalkthrough] completeWalkthrough];
+            }
+        };
+        
+        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step handler:promptHandler];
+        
+    } else if (step == NTDWalkthroughCompletedStep) {
+        void(^promptHandler)(BOOL) = ^(BOOL userClickedYes) {
+            if (userClickedYes) {
+                [[NTDWalkthrough sharedWalkthrough] stepShouldEnd:NTDWalkthroughCompletedStep];
+                [[NTDWalkthrough sharedWalkthrough] shouldAdvanceFromStep:NTDWalkthroughCompletedStep];
+            }
+        };
+        
+        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step handler:promptHandler];
+    } else {
+        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step];
+    }
+    
     [self.view addSubview:self.currentModalView];
 }
 

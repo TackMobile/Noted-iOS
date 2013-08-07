@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
     NTDWalkthroughTwoFingerDeleteStep,
     NTDWalkthroughPinchToListStep,
     NTDWalkthroughOneFingerDeleteStep,
+    NTDWalkthroughCompletedStep,
     NTDWalkthroughNumberOfSteps
 };
 
@@ -39,4 +40,5 @@ FOUNDATION_EXTERN NSString *const NTDDidAdvanceWalkthroughToStepNotification;
 - (void)promptUserToStartWalkthrough;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;
+- (void)completeWalkthrough;
 @end

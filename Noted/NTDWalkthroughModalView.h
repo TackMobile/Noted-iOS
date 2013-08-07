@@ -9,8 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "NTDWalkthrough.h"
 
+typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
+
 @interface NTDWalkthroughModalView : UIView
 
 -(id)initWithStep:(NTDWalkthroughStep)step;
+-(id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler;
 
 @end

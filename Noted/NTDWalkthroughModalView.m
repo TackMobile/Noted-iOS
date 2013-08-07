@@ -15,13 +15,28 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalPosition)
     NTDWalkthroughModalPositionBottom
 };
 
-const CGFloat ModalEdgeMargin = 30;
-const CGFloat ModalPadding = 15;
+typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
+{
+    NTDWalkthroughModalTypeMessage = 0,
+    NTDWalkthroughModalTypeBoolean,
+    NTDWalkthroughModalTypeDismiss
+};
+
+const CGFloat NTDWalkthroughModalEdgeMargin = 30;
+const CGFloat NTDWalkthroughModalPadding = 15;
+const CGFloat NTDWalkthroughModalButtonsHeight = 40;
+
 static NSDictionary *messages;
 
-@interface NTDWalkthroughModalView ()
+@interface NTDWalkthroughModalView () 
 @property (nonatomic, strong) NSString *message;
 @property (nonatomic, assign) NTDWalkthroughModalPosition position;
+@property (nonatomic, assign) NTDWalkthroughModalType type;
+@property (nonatomic, copy) NTDWalkthroughPromptHandler promptHandler;
+
+@property (nonatomic, strong) UIView *modalBackground;
+@property (nonatomic, readonly) UIFont *modalFont;
+@property CGRect superviewFrame;
 @end
 
 @implementation NTDWalkthroughModalView
@@ -38,19 +53,32 @@ static NSDictionary *messages;
                  @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag left slowly with two fingers to delete a note.",
                  @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
+                 @(NTDWalkthroughCompletedStep) : @"You're finished with the walkthrough. Have fun!",
     };
 }
 - (id)initWithStep:(NTDWalkthroughStep)step
 {
     if (self = [super initWithFrame:CGRectZero]) {
         [self configureForStep:step];
+        [self setPromptHandler:^(BOOL userClickedYes){}];
+    }
+    return self;
+}
+
+- (id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler
+{
+    if (self = [super initWithFrame:CGRectZero]) {
+        [self configureForStep:step];
+        if (handler) self.promptHandler = handler;
     }
     return self;
 }
 
 - (void)configureForStep:(NTDWalkthroughStep)step {
-    NTDWalkthroughModalPosition modalPosition;    
+    NTDWalkthroughModalPosition modalPosition;
+    NTDWalkthroughModalType modalType;
 
+    // decide on the modal's position
     switch (step) {
         case NTDWalkthroughShouldBeginWalkthroughStep:
             modalPosition = NTDWalkthroughModalPositionCenter;
@@ -79,62 +107,40 @@ static NSDictionary *messages;
             break;
     }
     
+    // decide on the modal's type
+    switch (step) {
+        case NTDWalkthroughShouldBeginWalkthroughStep:
+            modalType = NTDWalkthroughModalTypeBoolean;
+            break;
+        case NTDWalkthroughCompletedStep:
+            modalType = NTDWalkthroughModalTypeDismiss;
+            break;
+            
+        default:
+            modalType = NTDWalkthroughModalTypeMessage;
+            break;
+    }
+    
     self.message = messages[@(step)];
     self.position = modalPosition;
+    self.type = modalType;
 }
 
 - (void)willMoveToSuperview:(UIView *)newSuperview
 {
-    CGRect screenFrame = newSuperview.frame;
-    UIFont *modalFont = [UIFont fontWithName:@"Avenir-Light"
-                                        size:20];
-    CGRect modalBounds = CGRectInset(screenFrame, ModalEdgeMargin, ModalEdgeMargin);
-    CGSize modalSize = [self.message sizeWithFont:modalFont
-                                constrainedToSize:CGRectInset(modalBounds, ModalPadding, ModalPadding).size];
+    self.superviewFrame = newSuperview.frame;
     
-    CGRect modalFrame = {
-        .origin.x = modalBounds.origin.x,
-        .size.width = modalBounds.size.width,
-        .size.height = modalSize.height + (2*ModalPadding)
-    };
-    
-    switch (self.position) {
-        case NTDWalkthroughModalPositionTop:
-            modalFrame.origin.y = modalBounds.origin.y - screenFrame.origin.y;
+    switch (self.type) {
+        case NTDWalkthroughModalTypeBoolean:
+            [self drawBooleanModalWithHandlersForYes:@selector(yesButtonTapped:) no:@selector(noButtonTapped:)];
             break;
-            
-        case NTDWalkthroughModalPositionCenter:
-            modalFrame.origin.y = (screenFrame.size.height - screenFrame.origin.y - modalFrame.size.height)/2;
+        case NTDWalkthroughModalTypeDismiss:
+            [self drawDismissModalWithHandlerForDismiss:@selector(dismissButtonTapped:)];
             break;
-            
-        case NTDWalkthroughModalPositionBottom:
-            modalFrame.origin.y = screenFrame.size.height - screenFrame.origin.y - ModalEdgeMargin - modalFrame.size.height;
-            break;
-            
         default:
+            [self drawModalMessage];
             break;
     }
-    
-    CGRect modalLabelFrame = {
-        .origin.x = ModalPadding,
-        .origin.y = ModalPadding,
-        .size.width = modalBounds.size.width - (2*ModalPadding),
-        .size.height = modalSize.height
-    };
-    
-    // style the modal
-    self.frame = modalFrame;
-    self.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
-    
-    UILabel *modalLabel = [[UILabel alloc] initWithFrame:modalLabelFrame];
-    modalLabel.text = self.message;
-    modalLabel.font = modalFont;
-    modalLabel.backgroundColor = [UIColor clearColor];
-    modalLabel.textColor = [UIColor whiteColor];
-    modalLabel.textAlignment = NSTextAlignmentCenter;
-    modalLabel.numberOfLines = 0;
-    
-    [self addSubview:modalLabel];
     
     // animate the Modal in
     self.alpha = 0;
@@ -149,6 +155,158 @@ static NSDictionary *messages;
     } completion:^(BOOL finished) {
         
     }];
+}
+
+#pragma mark - Drawing Methods
+-(void)drawBooleanModalWithHandlersForYes:(SEL)yes no:(SEL)no {
+    [self drawModalMessage];
+    [self drawPromptOptionWithAction:yes ofWidth:.5 index:0 title:@"Yes"];
+    [self drawPromptOptionWithAction:no ofWidth:.5 index:1 title:@"No"];
+}
+
+-(void)drawDismissModalWithHandlerForDismiss:(SEL)dismiss {
+    [self drawModalMessage];
+    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Dismiss"];
+}
+
+-(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
+    // ensure the background is off-white for the dividers
+    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
+    CGFloat buttonMargin = 1/[UIScreen mainScreen].scale;
+    
+    // add the yes/no buttons
+    CGRect buttonFrame = {
+        .origin.x = (self.modalBackground.frame.size.width + buttonMargin) * percent * index,
+        .origin.y = self.modalBackground.frame.size.height + buttonMargin,
+        .size.height = NTDWalkthroughModalButtonsHeight,
+        .size.width =self.modalBackground.frame.size.width * percent - buttonMargin * percent
+    };
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setTitle:title forState:UIControlStateNormal];
+    button.titleLabel.font = self.modalFont;
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
+    
+    [button addTarget:self
+               action:@selector(buttonTouchedDown:)
+        forControlEvents:UIControlEventTouchDown];
+    [button addTarget:self
+               action:@selector(buttonTouchEnded:)
+        forControlEvents:UIControlEventTouchUpOutside];
+    
+    [button addTarget:self
+               action:action
+     forControlEvents:UIControlEventTouchUpInside];
+    
+    button.backgroundColor = self.modalBackground.backgroundColor;
+    button.frame = buttonFrame;
+    
+    [self addSubview:button];
+}
+
+-(void)drawModalMessage {
+    CGRect screenFrame = self.superviewFrame;
+    CGFloat buttonMargin = 1/[UIScreen mainScreen].scale; // one pixel
+    
+    CGRect modalBounds = CGRectInset(screenFrame,
+                                     NTDWalkthroughModalEdgeMargin,
+                                     NTDWalkthroughModalEdgeMargin);
+    CGSize modalSize = [self.message sizeWithFont:self.modalFont
+                                constrainedToSize:CGRectInset(modalBounds,
+                                                              NTDWalkthroughModalPadding,
+                                                              NTDWalkthroughModalPadding).size];
+    
+    CGRect modalFrame = {
+        .origin.x = modalBounds.origin.x,
+        .size.width = modalBounds.size.width,
+        .size.height = modalSize.height + (2 * NTDWalkthroughModalPadding)
+    };
+    
+    CGRect modalBackgroundFrame = modalFrame;
+    modalBackgroundFrame.origin = CGPointZero;
+    
+    // account for the height of option buttons
+    switch (self.type) {
+        case NTDWalkthroughModalTypeBoolean:
+        case NTDWalkthroughModalTypeDismiss:
+            modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonsHeight;
+            break;
+            
+        default:
+            break;
+    }
+    
+    // calculate the modal's position within its allowable bounds
+    switch (self.position) {
+        case NTDWalkthroughModalPositionTop:
+            modalFrame.origin.y = modalBounds.origin.y - screenFrame.origin.y;
+            break;
+            
+        case NTDWalkthroughModalPositionCenter:
+            modalFrame.origin.y = (screenFrame.size.height - screenFrame.origin.y - modalFrame.size.height)/2;
+            break;
+            
+        case NTDWalkthroughModalPositionBottom:
+            modalFrame.origin.y = screenFrame.size.height - screenFrame.origin.y - NTDWalkthroughModalEdgeMargin - modalFrame.size.height;
+            break;
+            
+        default:
+            break;
+    }
+    
+    CGRect modalLabelFrame = {
+        .origin.x = NTDWalkthroughModalPadding,
+        .origin.y = NTDWalkthroughModalPadding,
+        .size.width = modalBounds.size.width - (2*NTDWalkthroughModalPadding),
+        .size.height = modalSize.height
+    };
+    
+    self.frame = modalFrame;
+    
+    // add the background for the label
+    [self.modalBackground removeFromSuperview];
+    self.modalBackground = [UIView new];
+    self.modalBackground.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+    self.modalBackground.frame = modalBackgroundFrame;
+    
+    // add the text
+    UILabel *modalLabel = [[UILabel alloc] initWithFrame:modalLabelFrame];
+    modalLabel.text = self.message;
+    modalLabel.font = self.modalFont;
+    modalLabel.backgroundColor = [UIColor clearColor];
+    modalLabel.textColor = [UIColor whiteColor];
+    modalLabel.textAlignment = NSTextAlignmentCenter;
+    modalLabel.numberOfLines = 0;
+    
+    // arrange the subviews
+    [self.modalBackground addSubview:modalLabel];
+    [self addSubview:self.modalBackground];
+
+}
+
+-(UIFont *)modalFont {
+    return [UIFont fontWithName:@"Avenir-Light" size:20];
+}
+
+#pragma mark - Button Action Handling
+- (void)buttonTouchedDown:(UIButton *)button {
+    button.backgroundColor = [UIColor colorWithWhite:.27 alpha:1];
+}
+- (void)buttonTouchEnded:(UIButton *)button {
+    button.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+}
+
+- (void)yesButtonTapped:(UIButton *)button {
+    self.promptHandler(YES);
+    [self buttonTouchEnded:button];
+}
+- (void)noButtonTapped:(UIButton *)button {
+    self.promptHandler(NO);
+    [self buttonTouchEnded:button];
+}
+- (void)dismissButtonTapped:(UIButton *)button {
+    self.promptHandler(YES);
+    [self buttonTouchEnded:button];
 }
 
 @end
