@@ -40,12 +40,15 @@
 
 @implementation NTDCollectionViewController (Shredding)
 
+static CGFloat zTranslation;
+
 - (void) prepareVisibleNoteForShredding {
     self.columnsForDeletion = [NSMutableArray array];
     
-
     self.currentDeletionCell = self.visibleCell;
     [self.columnsForDeletion removeAllObjects];
+        
+    zTranslation = [[self.visibleCell.layer valueForKeyPath:@"transform.translation.z"] floatValue] -1;
     
     CGSize sliceSize = CGSizeMake(self.collectionView.frame.size.width / self.deletedNoteVertSliceCount, self.collectionView.frame.size.height / self.deletedNoteHorizSliceCount);
     CGRect sliceRect = (CGRect){CGPointZero,sliceSize};
@@ -71,6 +74,8 @@
             
             sliceImageView.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(sliceImageView.bounds, 0, 0), nil);
             sliceImageView.layer.shadowOpacity = .5;
+            
+            sliceImageView.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
             
             [currentColumn.slices addObject:sliceImageView];
             [self.collectionView insertSubview:sliceImageView belowSubview:self.currentDeletionCell];
@@ -112,7 +117,8 @@
                         slice.alpha = 1;
                         
                         // set the transform to normal
-                        slice.transform = CGAffineTransformIdentity;
+//                        slice.layer.transform = CATransform3DIdentity;
+                        slice.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
                         slice.layer.shadowRadius = 3;
                         
                         // causes performance issues
@@ -177,14 +183,20 @@
                     slice.layer.shadowRadius = (float)rand()/RAND_MAX * 3 + 3;
                     slice.alpha = 0;
                     
-                    // Rotate some degrees
-                    CGAffineTransform randomRotation = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+//                    // Rotate some degrees
+//                    CGAffineTransform randomRotation = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
+//                    
+//                    // Move to the left
+//                    CGAffineTransform randomTranslation = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+//                    
+//                    // Apply them to a view
+//                    CGAffineTransform randomTransformation = CGAffineTransformConcat(randomTranslation, randomRotation);
+                    CATransform3D randomRotation = CATransform3DRotate(slice.layer.transform, (float)rand()/RAND_MAX*M_PI_2 - M_PI_4, 0, 0, 1);
+                    CATransform3D randomTranslation = CATransform3DTranslate(randomRotation, direction * (float)rand()/RAND_MAX * -100, (float)rand()/RAND_MAX * 100 - 50, 0);
                     
-                    // Move to the left
-                    CGAffineTransform randomTranslation = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
+                    slice.layer.transform = randomTranslation;
                     
-                    // Apply them to a view
-                    slice.transform = CGAffineTransformConcat(randomTranslation, randomRotation);
+
                 }
                 
                 column.isDeleted = YES;
@@ -226,12 +238,6 @@
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
             self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
-            
-            // give it a lil shadow
-            [columnForUseAsMaskAfterAnimation.slices enumerateObjectsUsingBlock:^(UIImageView *slice, NSUInteger idx, BOOL *stop) {
-                slice.layer.mask = nil;
-            }];
-            
         }
         
         if ([self shouldCompleteShredForPercent:percent]) {
@@ -245,7 +251,7 @@
             self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
-            [self.columnsForDeletion removeAllObjects];
+            [self clearAllShreddedPieces];
             
         }
         
@@ -274,15 +280,18 @@
     
     [self shredVisibleNoteByPercent:shredByPercent completion:^{
         // remove slices from view
-        [self.columnsForDeletion enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(ColumnForShredding *col, NSUInteger idx, BOOL *stop) {
-            [col.slices enumerateObjectsUsingBlock:^(UIView *slice, NSUInteger idx, BOOL *stop) {
-                [slice removeFromSuperview];
-            }];
-        }];
         self.currentDeletionCell.layer.mask = nil;
-        [self.columnsForDeletion removeAllObjects];
+        [self clearAllShreddedPieces];
     }];
     
+}
+
+- (void) clearAllShreddedPieces {
+    for (ColumnForShredding *col in self.columnsForDeletion) {
+        for (UIView *slice in col.slices)
+            [slice removeFromSuperview];
+    }
+    [self.columnsForDeletion removeAllObjects];
 }
 
 - (BOOL)shouldCompleteShredForPercent:(float)percent {

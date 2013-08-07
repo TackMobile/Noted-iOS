@@ -8,6 +8,7 @@
 
 #import "NTDPagingCollectionViewLayout.h"
 #import "NSIndexPath+NTDManipulation.h"
+#import "NTDCollectionViewLayoutAttributes.h"
 
 static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 
@@ -28,6 +29,11 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     return self;
 }
 
++(Class)layoutAttributesClass
+{
+    return [NTDCollectionViewLayoutAttributes class];
+}
+
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
@@ -38,6 +44,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [attributesArray addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
+//            NSLog(@"active: %i, this:%i",self.activeCardIndex, indexPath.row );
         }
     }
     return attributesArray;
@@ -57,8 +64,9 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     return self.collectionView.frame.size;
 }
 
-- (void)customizeLayoutAttributes:(UICollectionViewLayoutAttributes *)attr {
+- (void)customizeLayoutAttributes:(NTDCollectionViewLayoutAttributes *)attr {
     attr.zIndex = attr.indexPath.row; // stack the cards
+    attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
