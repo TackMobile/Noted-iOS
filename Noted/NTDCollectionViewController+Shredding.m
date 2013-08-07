@@ -301,9 +301,8 @@
         return ((column.percentLeft + (columnWidth/noteWidth)) <= percent);
     else if (self.deletionDirection == NTDPageDeletionDirectionLeft)
         return (column.percentLeft >= percent);
-    
-    return NO;
-    
+    else 
+        return NO; /* Should never reach here. */    
 }
 
 - (UIImage *)imageForView:(UIView *)view
