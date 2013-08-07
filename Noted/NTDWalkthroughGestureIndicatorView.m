@@ -12,12 +12,14 @@
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
+#import "NTDReplicatorView.h"
 
 //TODO when walkthrough advances to a new step, clear the dictionary of old step (including associations)
 //TODO add KVO for self.visibleCell.textView.keyboardPanRecognizer
 
 static NSMutableDictionary *gestureRecognizerMap, *controlMap;
 static void *ControlEventsArrayKey;
+static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
 
 @interface NTDWalkthroughGestureIndicatorView ()
 @property (nonatomic, assign) CGPoint startPoint, endPoint;
@@ -67,10 +69,11 @@ static void *ControlEventsArrayKey;
 
 + (instancetype)instanceForStep:(NTDWalkthroughStep)step
 {
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    CGFloat CenterX = CGRectGetMidX(screenBounds);
-    CGFloat CenterY = CGRectGetMidY(screenBounds);
-    CGFloat YOffset = CGRectGetMaxY(screenBounds) - 480.0;
+    CGRect containerBounds = [[UIScreen mainScreen] applicationFrame];
+    CGFloat CenterX = CGRectGetMidX(containerBounds);
+    CGFloat CenterY = CGRectGetMidY(containerBounds);
+    CGFloat YOffset = CGRectGetMaxY(containerBounds) - 460.0;
+    CGFloat ScreenWidth = CGRectGetWidth(containerBounds);
     
     NTDWalkthroughGestureIndicatorView *view = nil;
     switch (step) {
@@ -102,16 +105,53 @@ static void *ControlEventsArrayKey;
         }
         case NTDWalkthroughCloseOptionsStep:
         {
-            CGPoint start = {.x = CenterX + 50, .y = CenterY - 55};
-            CGPoint end = {.x = 50, .y = CenterY - 55};
+            CGPoint start = {.x = CenterX + 50, .y = CenterY - StandardIndicatorWidth};
+            CGPoint end = {.x = 50, .y = CenterY - StandardIndicatorWidth};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToLastNoteStep:
         {
-            CGPoint start = {.x = 320-70, .y = CenterY - 55};
-            CGPoint end = {.x = 70, .y = CenterY - 55};
+            CGPoint start = {.x = ScreenWidth-70, .y = CenterY - StandardIndicatorWidth};
+            CGPoint end = {.x = 70, .y = CenterY - StandardIndicatorWidth};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
+            break;
+        }
+        case NTDWalkthroughTwoFingerDeleteStep:
+        {
+            CGPoint start = {.x = ScreenWidth-60, .y = CenterY - StandardIndicatorWidth};
+            CGPoint end = {.x = 60, .y = CenterY - StandardIndicatorWidth};
+            NTDWalkthroughGestureIndicatorView *subview = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
+            
+            view = [[NTDReplicatorView alloc] initWithFrame:subview.frame];
+            [view addSubview:subview];
+            
+            /* We do this translation so animations work the same as before. */
+            CGPoint subviewOrigin = subview.frame.origin;
+            subview.transform = CGAffineTransformMakeTranslation(-subviewOrigin.x, -subviewOrigin.y);
+            
+            CAReplicatorLayer *replicatorLayer = [(NTDReplicatorView *)view replicatorLayer];
+            replicatorLayer.instanceCount = 2;
+            replicatorLayer.instanceTransform = CATransform3DMakeTranslation(0, -75, 0);
+            break;
+        }
+        case NTDWalkthroughPinchToListStep:
+        {
+            CGPoint start = {.x = CenterX, .y = 30};
+            CGPoint end = {.x = CenterX, .y = CenterY - 30};
+            
+            NTDWalkthroughGestureIndicatorView *subview = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
+            view = [[NTDReplicatorView alloc] initWithFrame:subview.frame];
+            [view addSubview:subview];
+            
+            CGPoint subviewOrigin = subview.frame.origin;
+            subview.transform = CGAffineTransformMakeTranslation(-subviewOrigin.x, -subviewOrigin.y);
+            
+            CAReplicatorLayer *replicatorLayer = [(NTDReplicatorView *)view replicatorLayer];
+            replicatorLayer.instanceCount = 2;
+            CATransform3D transform = CATransform3DMakeScale(1, -1, 1);
+            transform = CATransform3DTranslate(transform, 0, -2*(CenterY-start.y), 0);
+            replicatorLayer.instanceTransform = transform;
             break;
         }
         case NTDWalkthroughOneFingerDeleteStep:
@@ -130,7 +170,7 @@ static void *ControlEventsArrayKey;
 
 + (instancetype)newIndicatorView
 {
-    CGSize indicatorSize = {.width = 50, .height = 50};
+    CGSize indicatorSize = {.width = StandardIndicatorWidth, .height = StandardIndicatorWidth};
     CGRect bounds = {.size = indicatorSize};
     NTDWalkthroughGestureIndicatorView *view = [[NTDWalkthroughGestureIndicatorView alloc] initWithFrame:bounds];
     view.backgroundColor = [NTDTheme themeForColorScheme:NTDColorSchemeTack].backgroundColor;
@@ -190,21 +230,10 @@ static void *ControlEventsArrayKey;
 + (instancetype)animatedTapIndicatorViewAtCenter:(CGPoint)center
 {
     NTDWalkthroughGestureIndicatorView *view = [self newIndicatorView];
-    view.$size = CGSizeMake(40, 40);
+    view.$size = CGSizeMake(TapIndicatorWidth, TapIndicatorWidth);
     view.center = center;
     view.alpha = 0.7;
-    
-//    [UIView animateWithDuration:0.4
-//                          delay:0
-//                        options:UIViewAnimationOptionRepeat
-//                     animations:^{
-//                         CGAffineTransform t = CGAffineTransformMakeScale(1.7, 1.7);
-//                         view.transform = t;
-//                         view.layer.opacity = .2;
-//                     }
-//                     completion:^(BOOL finished) {
-//                     }];
-    
+        
     NSTimeInterval TotalDuration = 1.6;
     CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
     fadeAnimation.toValue = @0;

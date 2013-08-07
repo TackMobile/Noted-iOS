@@ -38,6 +38,7 @@
 		3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F1D179491A800EA183D /* NTDCoreDataStore.m */; };
 		3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9D3F1F179494B600EA183D /* CoreData.framework */; };
 		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
+		3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
 		A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB62BC5EED29406FBB1BE6A4 /* libPods.a */; };
@@ -106,6 +107,8 @@
 		3F9D3F1F179494B600EA183D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3F9D3F211794A8E000EA183D /* NTDNoteMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteMetadata.h; sourceTree = "<group>"; };
 		3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
+		3FB8976517B1A5EA004D0DC3 /* NTDReplicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDReplicatorView.h; sourceTree = "<group>"; };
+		3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDReplicatorView.m; sourceTree = "<group>"; };
 		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
@@ -282,6 +285,8 @@
 		3F1FF29117A071C500213F2F /* View */ = {
 			isa = PBXGroup;
 			children = (
+				3FB8976517B1A5EA004D0DC3 /* NTDReplicatorView.h */,
+				3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */,
 				3F47D96F17A2F6F000DBFB0E /* NTDWalkthroughModalView.h */,
 				3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */,
 				3F1FF29417A0727100213F2F /* NTDWalkthroughGestureIndicatorView.h */,
@@ -531,6 +536,7 @@
 				3F1FF29617A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m in Sources */,
 				3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */,
 				3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */,
+				3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
