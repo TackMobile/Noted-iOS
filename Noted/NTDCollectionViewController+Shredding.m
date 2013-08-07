@@ -159,11 +159,7 @@
                 useNextPercentForMask = NO;
             }
             
-            if (!column.isDeleted
-                && (( self.deletionDirection == NTDPageDeletionDirectionRight
-                     && (column.percentLeft + (columnWidth/noteWidth)) <= percent)
-                    || (self.deletionDirection == NTDPageDeletionDirectionLeft
-                        && column.percentLeft >= percent))) {
+            if ([self column:column shouldBeDeletedAtPercent:percent]) {
                 //[colsToRemove addObject:column];
                 
                 useNextPercentForMask = YES;
@@ -293,6 +289,22 @@
 }
 
 #pragma mark - utilities
+
+- (BOOL) column:(ColumnForShredding *)column shouldBeDeletedAtPercent:(float)percent {
+    float noteWidth = self.currentDeletionCell.frame.size.width;
+    float columnWidth = noteWidth/self.deletedNoteVertSliceCount;
+    
+    if (!column.isDeleted   // if the column hasn't been marked for deletion,
+        && (( self.deletionDirection == NTDPageDeletionDirectionRight   // & the swipe goes R
+             && (column.percentLeft + (columnWidth/noteWidth)) <= percent) // & the column's right edge is <= than the swipe's x-position
+            || (self.deletionDirection == NTDPageDeletionDirectionLeft  // OR the swipe goes L
+                && column.percentLeft >= percent))) {   // & the column's left edge is >= the swipe's x-position
+                return YES;
+            }
+    else {
+        return NO;
+    }
+}
 
 - (UIImage *)imageForView:(UIView *)view
 {
