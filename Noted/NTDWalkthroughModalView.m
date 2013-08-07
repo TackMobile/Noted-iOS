@@ -69,7 +69,7 @@ static NSDictionary *messages;
 {
     if (self = [super initWithFrame:CGRectZero]) {
         [self configureForStep:step];
-        self.promptHandler = handler;
+        if (handler) self.promptHandler = handler;
     }
     return self;
 }
