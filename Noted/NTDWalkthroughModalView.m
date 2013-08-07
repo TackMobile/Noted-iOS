@@ -8,8 +8,6 @@
 
 #import "NTDWalkthroughModalView.h"
 
-typedef void(^PromptHandler)(BOOL userClickedYes);
-
 typedef NS_ENUM(NSInteger, NTDWalkthroughModalPosition)
 {
     NTDWalkthroughModalPositionTop = 0,
@@ -30,11 +28,15 @@ const CGFloat NTDWalkthroughModalButtonsHeight = 40;
 
 static NSDictionary *messages;
 
-@interface NTDWalkthroughModalView ()
+@interface NTDWalkthroughModalView () 
 @property (nonatomic, strong) NSString *message;
 @property (nonatomic, assign) NTDWalkthroughModalPosition position;
 @property (nonatomic, assign) NTDWalkthroughModalType type;
-@property (nonatomic, copy) PromptHandler promptHandler;
+@property (nonatomic, copy) NTDWalkthroughPromptHandler promptHandler;
+
+@property (nonatomic, strong) UIView *modalBackground;
+@property (nonatomic, readonly) UIFont *modalFont;
+@property CGRect superviewFrame;
 @end
 
 @implementation NTDWalkthroughModalView
@@ -58,15 +60,16 @@ static NSDictionary *messages;
 {
     if (self = [super initWithFrame:CGRectZero]) {
         [self configureForStep:step];
+        [self setPromptHandler:^(BOOL userClickedYes){}];
     }
     return self;
 }
 
-- (id)initWithStep:(NTDWalkthroughStep)step handler:(PromptHandler)handler
+- (id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler
 {
     if (self = [super initWithFrame:CGRectZero]) {
         [self configureForStep:step];
-        [self setPromptHandler:handler];
+        self.promptHandler = handler;
     }
     return self;
 }
@@ -125,14 +128,90 @@ static NSDictionary *messages;
 
 - (void)willMoveToSuperview:(UIView *)newSuperview
 {
-    CGRect screenFrame = newSuperview.frame;
+    self.superviewFrame = newSuperview.frame;
+    
+    switch (self.type) {
+        case NTDWalkthroughModalTypeBoolean:
+            [self drawBooleanModalWithHandlersForYes:@selector(yesButtonTapped:) no:@selector(noButtonTapped:)];
+            break;
+        case NTDWalkthroughModalTypeDismiss:
+            [self drawDismissModalWithHandlerForDismiss:@selector(dismissButtonTapped:)];
+            break;
+        default:
+            [self drawModalMessage];
+            break;
+    }
+    
+    // animate the Modal in
+    self.alpha = 0;
+    self.transform = CGAffineTransformMakeScale(1.3, 1.3);
+}
+
+- (void)didMoveToSuperview
+{
+    [UIView animateWithDuration:.1 animations:^{
+        self.alpha = 1;
+        self.transform = CGAffineTransformIdentity;
+    } completion:^(BOOL finished) {
+        
+    }];
+}
+
+#pragma mark - Drawing Methods
+-(void)drawBooleanModalWithHandlersForYes:(SEL)yes no:(SEL)no {
+    [self drawModalMessage];
+    [self drawPromptOptionWithAction:yes ofWidth:.5 index:0 title:@"Yes"];
+    [self drawPromptOptionWithAction:no ofWidth:.5 index:1 title:@"No"];
+}
+
+-(void)drawDismissModalWithHandlerForDismiss:(SEL)dismiss {
+    [self drawModalMessage];
+    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Dismiss"];
+}
+
+-(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
+    // ensure the background is off-white for the dividers
+    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
     CGFloat buttonMargin = 1/[UIScreen mainScreen].scale;
-    UIFont *modalFont = [UIFont fontWithName:@"Avenir-Light"
-                                        size:20];
+    
+    // add the yes/no buttons
+    CGRect buttonFrame = {
+        .origin.x = (self.modalBackground.frame.size.width + buttonMargin) * percent * index,
+        .origin.y = self.modalBackground.frame.size.height + buttonMargin,
+        .size.height = NTDWalkthroughModalButtonsHeight,
+        .size.width =self.modalBackground.frame.size.width * percent - buttonMargin * percent
+    };
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setTitle:title forState:UIControlStateNormal];
+    button.titleLabel.font = self.modalFont;
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
+    
+    [button addTarget:self
+               action:@selector(buttonTouchedDown:)
+        forControlEvents:UIControlEventTouchDown];
+    [button addTarget:self
+               action:@selector(buttonTouchEnded:)
+        forControlEvents:UIControlEventTouchUpOutside];
+    
+    [button addTarget:self
+               action:action
+     forControlEvents:UIControlEventTouchUpInside];
+    
+    button.backgroundColor = self.modalBackground.backgroundColor;
+    button.frame = buttonFrame;
+    
+    [self addSubview:button];
+}
+
+-(void)drawModalMessage {
+    CGRect screenFrame = self.superviewFrame;
+    CGFloat buttonMargin = 1/[UIScreen mainScreen].scale; // one pixel
+    
     CGRect modalBounds = CGRectInset(screenFrame,
                                      NTDWalkthroughModalEdgeMargin,
                                      NTDWalkthroughModalEdgeMargin);
-    CGSize modalSize = [self.message sizeWithFont:modalFont
+    CGSize modalSize = [self.message sizeWithFont:self.modalFont
                                 constrainedToSize:CGRectInset(modalBounds,
                                                               NTDWalkthroughModalPadding,
                                                               NTDWalkthroughModalPadding).size];
@@ -142,9 +221,11 @@ static NSDictionary *messages;
         .size.width = modalBounds.size.width,
         .size.height = modalSize.height + (2 * NTDWalkthroughModalPadding)
     };
+    
     CGRect modalBackgroundFrame = modalFrame;
     modalBackgroundFrame.origin = CGPointZero;
     
+    // account for the height of option buttons
     switch (self.type) {
         case NTDWalkthroughModalTypeBoolean:
         case NTDWalkthroughModalTypeDismiss:
@@ -155,6 +236,7 @@ static NSDictionary *messages;
             break;
     }
     
+    // calculate the modal's position within its allowable bounds
     switch (self.position) {
         case NTDWalkthroughModalPositionTop:
             modalFrame.origin.y = modalBounds.origin.y - screenFrame.origin.y;
@@ -179,125 +261,31 @@ static NSDictionary *messages;
         .size.height = modalSize.height
     };
     
-    // style the modal
     self.frame = modalFrame;
     
-    UIView *modalBackground = [UIView new];
-    modalBackground.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
-    modalBackground.frame = modalBackgroundFrame;
+    // add the background for the label
+    [self.modalBackground removeFromSuperview];
+    self.modalBackground = [UIView new];
+    self.modalBackground.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+    self.modalBackground.frame = modalBackgroundFrame;
     
+    // add the text
     UILabel *modalLabel = [[UILabel alloc] initWithFrame:modalLabelFrame];
     modalLabel.text = self.message;
-    modalLabel.font = modalFont;
+    modalLabel.font = self.modalFont;
     modalLabel.backgroundColor = [UIColor clearColor];
     modalLabel.textColor = [UIColor whiteColor];
     modalLabel.textAlignment = NSTextAlignmentCenter;
     modalLabel.numberOfLines = 0;
     
-    if (self.type == NTDWalkthroughModalTypeBoolean) {
-        self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
+    // arrange the subviews
+    [self.modalBackground addSubview:modalLabel];
+    [self addSubview:self.modalBackground];
 
-        // add the yes/no buttons
-        CGRect yesButtonFrame = {
-            .origin.x = 0,
-            .origin.y = modalBackgroundFrame.size.height + buttonMargin,
-            .size.height = NTDWalkthroughModalButtonsHeight,
-            .size.width = modalBackgroundFrame.size.width / 2 - buttonMargin / 2
-        };
-        CGRect noButtonFrame = {
-            .origin.x = yesButtonFrame.size.width + buttonMargin,
-            .origin.y = modalBackgroundFrame.size.height + buttonMargin,
-            .size.height = NTDWalkthroughModalButtonsHeight,
-            .size.width = modalBackgroundFrame.size.width / 2 - buttonMargin / 2
-        };
-            
-        UIButton *yesButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [yesButton setTitle:@"Yes" forState:UIControlStateNormal];
-        yesButton.titleLabel.font = modalLabel.font;
-        yesButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        
-        [yesButton addTarget:self
-                      action:@selector(buttonTouchedDown:)
-            forControlEvents:UIControlEventTouchDown];
-        [yesButton addTarget:self
-                      action:@selector(buttonTouchEnded:)
-            forControlEvents:UIControlEventTouchUpOutside];
-        [yesButton addTarget:self
-                      action:@selector(yesButtonTapped:)
-            forControlEvents:UIControlEventTouchUpInside];
-        yesButton.backgroundColor = modalBackground.backgroundColor;
-        yesButton.frame = yesButtonFrame;
-        
-        
-        UIButton *noButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [noButton setTitle:@"No" forState:UIControlStateNormal];
-        noButton.titleLabel.font = modalLabel.font;
-        noButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        
-        [noButton addTarget:self
-                      action:@selector(buttonTouchedDown:)
-            forControlEvents:UIControlEventTouchDown];
-        [noButton addTarget:self
-                      action:@selector(buttonTouchEnded:)
-            forControlEvents:UIControlEventTouchUpOutside];
-        [noButton addTarget:self
-                      action:@selector(noButtonTapped:)
-            forControlEvents:UIControlEventTouchUpInside];
-        noButton.backgroundColor = modalBackground.backgroundColor;
-        noButton.frame = noButtonFrame;
-        
-        [self addSubview:yesButton];
-        [self addSubview:noButton];
-        
-    } else if (self.type == NTDWalkthroughModalTypeDismiss) {
-        self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
-        
-        // add the yes/no buttons
-        CGRect dismissButtonFrame = {
-            .origin.x = 0,
-            .origin.y = modalBackgroundFrame.size.height + buttonMargin,
-            .size.height = NTDWalkthroughModalButtonsHeight,
-            .size.width = modalBackgroundFrame.size.width
-        };
-        
-        UIButton *dismissButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
-        dismissButton.titleLabel.font = modalLabel.font;
-        dismissButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        
-        [dismissButton addTarget:self
-                      action:@selector(buttonTouchedDown:)
-            forControlEvents:UIControlEventTouchDown];
-        [dismissButton addTarget:self
-                      action:@selector(buttonTouchEnded:)
-            forControlEvents:UIControlEventTouchUpOutside];
-        [dismissButton addTarget:self
-                      action:@selector(dismissButtonTapped:)
-            forControlEvents:UIControlEventTouchUpInside];
-        dismissButton.backgroundColor = modalBackground.backgroundColor;
-        dismissButton.frame = dismissButtonFrame;
-        
-                
-        [self addSubview:dismissButton];
-    }
-
-    
-    [modalBackground addSubview:modalLabel];
-    [self addSubview:modalBackground];
-    
-    // animate the Modal in
-    self.alpha = 0;
-    self.transform = CGAffineTransformMakeScale(1.3, 1.3);
 }
 
-- (void)didMoveToSuperview
-{
-    [UIView animateWithDuration:.1 animations:^{
-        self.alpha = 1;
-        self.transform = CGAffineTransformIdentity;
-    } completion:^(BOOL finished) {
-        
-    }];
+-(UIFont *)modalFont {
+    return [UIFont fontWithName:@"Avenir-Light" size:20];
 }
 
 #pragma mark - Button Action Handling
@@ -309,18 +297,15 @@ static NSDictionary *messages;
 }
 
 - (void)yesButtonTapped:(UIButton *)button {
-    if (self.promptHandler)
-        self.promptHandler(YES);
+    self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }
 - (void)noButtonTapped:(UIButton *)button {
-    if (self.promptHandler)
-        self.promptHandler(NO);
+    self.promptHandler(NO);
     [self buttonTouchEnded:button];
 }
 - (void)dismissButtonTapped:(UIButton *)button {
-    if (self.promptHandler)
-        self.promptHandler(YES);
+    self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }
 

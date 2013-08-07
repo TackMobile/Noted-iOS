@@ -72,10 +72,7 @@ static NTDWalkthrough *sharedInstance;
     self.currentStep++;
     if (self.currentStep == self.numberOfSteps) {
         [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
-//        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
-//        [NSUserDefaults.standardUserDefaults synchronize];
-        [self.viewController.view removeFromSuperview];
-        self.viewController = nil;
+        [self completeWalkthrough];
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
@@ -92,12 +89,12 @@ static NTDWalkthrough *sharedInstance;
     NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
-- (void)shouldSkipWalkthrough {
+- (void)completeWalkthrough {
     [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
     //        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
     //        [NSUserDefaults.standardUserDefaults synchronize];
     [self.viewController.view removeFromSuperview];
-    self.viewController = nil;    
+    self.viewController = nil;
 }
 
 @end

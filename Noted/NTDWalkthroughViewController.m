@@ -55,7 +55,7 @@
                 [[NTDWalkthrough sharedWalkthrough] stepShouldEnd:NTDWalkthroughShouldBeginWalkthroughStep];
                 [[NTDWalkthrough sharedWalkthrough] shouldAdvanceFromStep:NTDWalkthroughShouldBeginWalkthroughStep];
             } else {
-                [[NTDWalkthrough sharedWalkthrough] shouldSkipWalkthrough];
+                [[NTDWalkthrough sharedWalkthrough] completeWalkthrough];
             }
         };
         
