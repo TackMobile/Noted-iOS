@@ -294,16 +294,16 @@
     float noteWidth = self.currentDeletionCell.frame.size.width;
     float columnWidth = noteWidth/self.deletedNoteVertSliceCount;
     
-    if (!column.isDeleted   // if the column hasn't been marked for deletion,
-        && (( self.deletionDirection == NTDPageDeletionDirectionRight   // & the swipe goes R
-             && (column.percentLeft + (columnWidth/noteWidth)) <= percent) // & the column's right edge is <= than the swipe's x-position
-            || (self.deletionDirection == NTDPageDeletionDirectionLeft  // OR the swipe goes L
-                && column.percentLeft >= percent))) {   // & the column's left edge is >= the swipe's x-position
-                return YES;
-            }
-    else {
+    if (column.isDeleted)
         return NO;
-    }
+    
+    if (self.deletionDirection == NTDPageDeletionDirectionRight)
+        return ((column.percentLeft + (columnWidth/noteWidth)) <= percent);
+    else if (self.deletionDirection == NTDPageDeletionDirectionLeft)
+        return (column.percentLeft >= percent);
+    
+    return NO;
+    
 }
 
 - (UIImage *)imageForView:(UIView *)view
