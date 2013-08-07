@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
     NTDWalkthroughTwoFingerDeleteStep,
     NTDWalkthroughPinchToListStep,
     NTDWalkthroughOneFingerDeleteStep,
+    NTDWalkthroughCompletedStep,
     NTDWalkthroughNumberOfSteps
 };
 

@@ -20,7 +20,8 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalPosition)
 typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
 {
     NTDWalkthroughModalTypeMessage = 0,
-    NTDWalkthroughModalTypeBoolean
+    NTDWalkthroughModalTypeBoolean,
+    NTDWalkthroughModalTypeDismiss
 };
 
 const CGFloat NTDWalkthroughModalEdgeMargin = 30;
@@ -50,6 +51,7 @@ static NSDictionary *messages;
                  @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag slowly with two fingers to delete a note.",
                  @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
+                 @(NTDWalkthroughCompletedStep) : @"You're finished with the walkthrough. Have fun!",
     };
 }
 - (id)initWithStep:(NTDWalkthroughStep)step
@@ -107,6 +109,9 @@ static NSDictionary *messages;
         case NTDWalkthroughShouldBeginWalkthroughStep:
             modalType = NTDWalkthroughModalTypeBoolean;
             break;
+        case NTDWalkthroughCompletedStep:
+            modalType = NTDWalkthroughModalTypeDismiss;
+            break;
             
         default:
             modalType = NTDWalkthroughModalTypeMessage;
@@ -142,6 +147,7 @@ static NSDictionary *messages;
     
     switch (self.type) {
         case NTDWalkthroughModalTypeBoolean:
+        case NTDWalkthroughModalTypeDismiss:
             modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonsHeight;
             break;
             
@@ -242,7 +248,39 @@ static NSDictionary *messages;
         
         [self addSubview:yesButton];
         [self addSubview:noButton];
+        
+    } else if (self.type == NTDWalkthroughModalTypeDismiss) {
+        self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
+        
+        // add the yes/no buttons
+        CGRect dismissButtonFrame = {
+            .origin.x = 0,
+            .origin.y = modalBackgroundFrame.size.height + buttonMargin,
+            .size.height = NTDWalkthroughModalButtonsHeight,
+            .size.width = modalBackgroundFrame.size.width
+        };
+        
+        UIButton *dismissButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
+        dismissButton.titleLabel.font = modalLabel.font;
+        dismissButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+        
+        [dismissButton addTarget:self
+                      action:@selector(buttonTouchedDown:)
+            forControlEvents:UIControlEventTouchDown];
+        [dismissButton addTarget:self
+                      action:@selector(buttonTouchEnded:)
+            forControlEvents:UIControlEventTouchUpOutside];
+        [dismissButton addTarget:self
+                      action:@selector(dismissButtonTapped:)
+            forControlEvents:UIControlEventTouchUpInside];
+        dismissButton.backgroundColor = modalBackground.backgroundColor;
+        dismissButton.frame = dismissButtonFrame;
+        
+                
+        [self addSubview:dismissButton];
     }
+
     
     [modalBackground addSubview:modalLabel];
     [self addSubview:modalBackground];
@@ -278,6 +316,11 @@ static NSDictionary *messages;
 - (void)noButtonTapped:(UIButton *)button {
     if (self.promptHandler)
         self.promptHandler(NO);
+    [self buttonTouchEnded:button];
+}
+- (void)dismissButtonTapped:(UIButton *)button {
+    if (self.promptHandler)
+        self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }
 

@@ -34,8 +34,17 @@
     if (self.currentIndicatorView) [self.currentIndicatorView removeFromSuperview];
     if (self.currentModalView) [self.currentModalView removeFromSuperview];
     
-    self.view.userInteractionEnabled = (step == NTDWalkthroughShouldBeginWalkthroughStep);
-    
+    switch (step) {
+        case NTDWalkthroughShouldBeginWalkthroughStep:
+        case NTDWalkthroughCompletedStep:
+            self.view.userInteractionEnabled = YES;
+            break;
+            
+        default:
+            self.view.userInteractionEnabled = NO;
+            break;
+    }
+
     self.currentIndicatorView = [NTDWalkthroughGestureIndicatorView gestureIndicatorViewForStep:step];
     [self.view addSubview:self.currentIndicatorView];
     
@@ -47,6 +56,16 @@
                 [[NTDWalkthrough sharedWalkthrough] shouldAdvanceFromStep:NTDWalkthroughShouldBeginWalkthroughStep];
             } else {
                 [[NTDWalkthrough sharedWalkthrough] shouldSkipWalkthrough];
+            }
+        };
+        
+        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step handler:promptHandler];
+        
+    } else if (step == NTDWalkthroughCompletedStep) {
+        void(^promptHandler)(BOOL) = ^(BOOL userClickedYes) {
+            if (userClickedYes) {
+                [[NTDWalkthrough sharedWalkthrough] stepShouldEnd:NTDWalkthroughCompletedStep];
+                [[NTDWalkthrough sharedWalkthrough] shouldAdvanceFromStep:NTDWalkthroughCompletedStep];
             }
         };
         
