@@ -53,7 +53,7 @@ static NSDictionary *messages;
                  @(NTDWalkthroughTwoFingerDeleteStep) : @"Drag left slowly with two fingers to delete a note.",
                  @(NTDWalkthroughPinchToListStep) : @"Pinch to see all of your notes.",
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
-                 @(NTDWalkthroughCompletedStep) : @"You're finished with the walkthrough. Have fun!",
+                 @(NTDWalkthroughCompletedStep) : @"You've completed the walkthrough!",
     };
 }
 - (id)initWithStep:(NTDWalkthroughStep)step
@@ -90,6 +90,7 @@ static NSDictionary *messages;
             
         case NTDWalkthroughTapOptionsStep:
         case NTDWalkthroughPinchToListStep:
+        case NTDWalkthroughCompletedStep:
             modalPosition = NTDWalkthroughModalPositionCenter;
             break;
             
@@ -160,13 +161,13 @@ static NSDictionary *messages;
 #pragma mark - Drawing Methods
 -(void)drawBooleanModalWithHandlersForYes:(SEL)yes no:(SEL)no {
     [self drawModalMessage];
-    [self drawPromptOptionWithAction:yes ofWidth:.5 index:0 title:@"Yes"];
-    [self drawPromptOptionWithAction:no ofWidth:.5 index:1 title:@"No"];
+    [self drawPromptOptionWithAction:no ofWidth:.5 index:0 title:@"No"];
+    [self drawPromptOptionWithAction:yes ofWidth:.5 index:1 title:@"Yes"];
 }
 
 -(void)drawDismissModalWithHandlerForDismiss:(SEL)dismiss {
     [self drawModalMessage];
-    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Dismiss"];
+    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Cool."];
 }
 
 -(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {

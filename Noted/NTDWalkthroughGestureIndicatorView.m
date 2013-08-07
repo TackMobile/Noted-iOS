@@ -70,10 +70,10 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
 + (instancetype)instanceForStep:(NTDWalkthroughStep)step
 {
     CGRect containerBounds = [[UIScreen mainScreen] applicationFrame];
-    CGFloat CenterX = CGRectGetMidX(containerBounds);
-    CGFloat CenterY = CGRectGetMidY(containerBounds);
-    CGFloat YOffset = CGRectGetMaxY(containerBounds) - 460.0;
-    CGFloat ScreenWidth = CGRectGetWidth(containerBounds);
+    CGFloat CenterX = containerBounds.size.width/2;
+    CGFloat CenterY = containerBounds.size.height/2;
+    CGFloat YOffset = containerBounds.size.height - 460.0;
+    CGFloat ScreenWidth = containerBounds.size.width;
     
     NTDWalkthroughGestureIndicatorView *view = nil;
     switch (step) {
@@ -93,34 +93,34 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughTapOptionsStep:
         {
-            CGPoint center = {.x = 300, .y = 0};
+            CGPoint center = {.x = 300, .y = 20};
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
         case NTDWalkthroughChangeColorsStep:
         {
-            CGPoint center = {.x = 48, .y = 118};
+            CGPoint center = {.x = 48, .y = 138};
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
         case NTDWalkthroughCloseOptionsStep:
         {
-            CGPoint start = {.x = CenterX + 50, .y = CenterY - StandardIndicatorWidth};
-            CGPoint end = {.x = 50, .y = CenterY - StandardIndicatorWidth};
+            CGPoint start = {.x = CenterX + 50, .y = CenterY};
+            CGPoint end = {.x = 50, .y = CenterY};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToLastNoteStep:
         {
-            CGPoint start = {.x = ScreenWidth-70, .y = CenterY - StandardIndicatorWidth};
-            CGPoint end = {.x = 70, .y = CenterY - StandardIndicatorWidth};
+            CGPoint start = {.x = ScreenWidth-70, .y = CenterY};
+            CGPoint end = {.x = 70, .y = CenterY};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughTwoFingerDeleteStep:
         {
-            CGPoint start = {.x = ScreenWidth-60, .y = CenterY - StandardIndicatorWidth};
-            CGPoint end = {.x = 60, .y = CenterY - StandardIndicatorWidth};
+            CGPoint start = {.x = ScreenWidth-60, .y = CenterY + StandardIndicatorWidth/2};
+            CGPoint end = {.x = 60, .y = CenterY + StandardIndicatorWidth/2};
             NTDWalkthroughGestureIndicatorView *subview = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             
             view = [[NTDReplicatorView alloc] initWithFrame:subview.frame];
@@ -156,8 +156,8 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughOneFingerDeleteStep:
         {
-            CGPoint start = {.x = 70, .y = 76};
-            CGPoint end = {.x = 320-70, .y = 76};
+            CGPoint start = {.x = 70, .y = 96};
+            CGPoint end = {.x = 320-70, .y = 96};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }            

@@ -10,6 +10,7 @@
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDWalkthroughModalView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 
 @interface NTDWalkthroughViewController ()
 @property (nonatomic, strong) NTDWalkthroughGestureIndicatorView *currentIndicatorView;
@@ -22,6 +23,7 @@
 {
     [super viewDidLoad];
     self.view.userInteractionEnabled = NO;
+    self.view.$origin = CGPointZero;
 }
 
 - (void)didReceiveMemoryWarning
