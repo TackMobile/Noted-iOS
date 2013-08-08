@@ -187,36 +187,45 @@
 }
 
 - (void)hideOriginalNotes
-{
-//    for (NTDNote *note in self.notes.copy) {
-//        [self.notes removeObject:note];
-//        [note deleteWithCompletionHandler:nil];
-//    }
-    
+{    
     // flush pending file operations
-    for (NTDNote *note in self.notes.copy) {
-        //TODO wait until done (somehow)
-        [note closeWithCompletionHandler:nil];
-    }
-
-    // create subfolder
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError __autoreleasing *error;
-    [fileManager createDirectoryAtURL:[self walkthroughBackupDirectoryURL]
-          withIntermediateDirectories:YES
-                           attributes:nil
-                                error:&error];
-    // move files
-    if (error) {
-        //TODO bail walkthrough
-        NSLog(@"Couldn't hide original notes: %@", error);
-    } else {
-        //TODO wait until done
-        [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
-            [self createWalkthroughNotes];
-            [self reloadNotes];
+    dispatch_group_t close_group = dispatch_group_create();
+    int i = 0;
+    for (NTDNote *note in self.notes) {
+        i++;
+        if (note.fileState == NTDNoteFileStateClosed) {
+            NSLog(@"closed already (%d)", i);
+            continue;
+        }
+        dispatch_group_enter(close_group);
+        NSLog(@"entering group (%d), %d", i, [(UIDocument *)note documentState]);
+        [note closeWithCompletionHandler:^(BOOL success) {
+            NSLog(@"leaving group (%d), <%d>%@", i, success, note);
+            dispatch_group_leave(close_group);
         }];
     }
+    dispatch_group_notify(close_group, dispatch_get_main_queue(), ^{
+        // create subfolder
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError __autoreleasing *error;
+        [fileManager removeItemAtURL:[self walkthroughBackupDirectoryURL] error:nil];
+        [fileManager createDirectoryAtURL:[self walkthroughBackupDirectoryURL]
+              withIntermediateDirectories:YES
+                               attributes:nil
+                                    error:&error];
+        // move files
+        if (error) {
+            //TODO bail walkthrough
+            NSLog(@"Couldn't hide original notes: %@", error);
+        } else {
+            //TODO wait until done
+            [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+                self.notes = [NSMutableArray array];
+                [self createWalkthroughNotes];
+//                [self reloadNotes];
+            }];
+        }
+    });
 }
 
 - (void)restoreOriginalNotes

@@ -78,8 +78,8 @@ mach_timespec_t ntd_get_time()
 
 - (void)setBodyText:(NSString *)bodyText
 {
-    if (0 == [bodyText length])
-        NSLog(@"Changing bodyText from \"%@\" to \"%@\".", _bodyText, bodyText);
+//    if (0 == [bodyText length])
+//        NSLog(@"Changing bodyText from \"%@\" to \"%@\".", _bodyText, bodyText);
     _bodyText = bodyText;
     return;
 }
@@ -89,7 +89,7 @@ mach_timespec_t ntd_get_time()
     if ([contents length] > 0) {
         self.bodyText = [[NSString alloc] initWithData:(NSData *)contents encoding:NSUTF8StringEncoding];
     } else {
-        NSLog(@"INFO: Opening empty file.");
+//        NSLog(@"INFO: Opening empty file.");
         self.bodyText = @"";
     }
     return YES;
@@ -202,7 +202,7 @@ mach_timespec_t ntd_get_time()
     [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] unlock];
 
     // reset PSC
-    [[NTDCoreDataStore sharedStore] resetPersistentStoreCoordinator];
+    [[NTDCoreDataStore sharedStore] resetStore];
 
     handler(YES);
 }
@@ -212,12 +212,23 @@ mach_timespec_t ntd_get_time()
     if (!handler) handler = ^(BOOL _){};
     
     // delete store
-    // nil PSC
-    [[NTDCoreDataStore sharedStore] resetPersistentStoreCoordinator];
-
-    // move all files from subfolder into folder
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError __autoreleasing *error;
+
+    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
+    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
+    [fileManager removeItemAtURL:[mainStore URL] error:&error];
+    if (error) {
+        NSLog(@"Couldn't delete persistent store: %@", error);
+        handler(NO);
+        return;
+    }
+    
+    // nil PSC
+    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] unlock];
+    [[NTDCoreDataStore sharedStore] resetStore];
+
+    // move all files from subfolder into folder
     NSArray *existingItems = [fileManager contentsOfDirectoryAtURL:directory
                                         includingPropertiesForKeys:nil
                                                            options:0
