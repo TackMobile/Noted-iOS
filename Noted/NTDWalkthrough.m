@@ -51,25 +51,21 @@ static NTDWalkthrough *sharedInstance;
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     UICollectionViewController *rootController = (UICollectionViewController *)window.rootViewController;
     [rootController.view addSubview:self.viewController.view];
-//    self.viewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, CGFLOAT_MAX);
-    [self.viewController beginDisplayingViewsForStep:self.currentStep];
-    NSLog(@"beginWalkthrough");
-    [self performSelector:@selector(makeANote)
-               withObject:nil
-               afterDelay:1.0];
-}
 
-/* HACK */
-- (void)makeANote
-{
-    [NSNotificationCenter.defaultCenter postNotificationName:NTDWillBeginWalkthroughNotification object:self];
+    [self.viewController beginDisplayingViewsForStep:self.currentStep];
 }
 
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step
 {
     if (self.currentStep != step)
         return;
+    
+    if (step == NTDWalkthroughShouldBeginWalkthroughStep) {
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDWillBeginWalkthroughNotification object:self];
+    }
+    
     self.currentStep++;
+    
     if (self.currentStep == self.numberOfSteps) {
         [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
         [self completeWalkthrough];
