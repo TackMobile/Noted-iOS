@@ -18,5 +18,6 @@
 
 - (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock ;
 - (void) revealOptionsViewWithOffset:(CGFloat)offset;
+- (void)revealOptionsViewWithOffset:(CGFloat)offset completion:(void (^)(void))completionBlock;
 - (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock;
 @end

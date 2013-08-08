@@ -25,7 +25,6 @@ typedef NS_ENUM(int16_t, NTDColorScheme) {
 @property (nonatomic, assign) NTDColorScheme colorScheme;
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
-+ (NTDTheme *)themeForBackgroundColor:(UIColor *)backgroundColor; /* Backwards compatibility */
 + (NTDTheme *)randomTheme;
 - (BOOL)isDarkColorScheme;
 @end

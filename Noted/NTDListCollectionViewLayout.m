@@ -33,6 +33,7 @@ static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
         self.pullToCreateScrollCardOffset = -50.0;
         self.pullToCreateCreateCardOffset = self.pullToCreateScrollCardOffset + self.pullToCreateScrollCardOffset;
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+        self.pullToCreateEnabled = YES;
     }
     return self;
 }
@@ -248,7 +249,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (BOOL)shouldShowCreateableCard
 {
-    return (self.collectionView.contentOffset.y < self.pullToCreateShowCardOffset);
+    return (self.collectionView.contentOffset.y < self.pullToCreateShowCardOffset) &&
+            self.pullToCreateEnabled;
 }
 
 #pragma mark - Properties
