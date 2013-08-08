@@ -23,6 +23,13 @@
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 
+
+typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
+    NTDCardPanningNoDirection = -1,
+    NTDCardPanningHorizontalDirection,
+    NTDCardPanningVerticalDirection
+};
+
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
@@ -34,6 +41,7 @@
 @property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
+@property (nonatomic) NTDCardPanningDirection cardPanningDirection;
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
 @property (nonatomic) CGRect noteTextViewFrameWhileNotEditing;
 
@@ -56,6 +64,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     if (self) {
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
+        self.cardPanningDirection = NTDCardPanningNoDirection;
         
         // decide on the slice count
         if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
@@ -137,7 +146,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [panGestureRecognizer setMaximumNumberOfTouches:1];
     self.panCardGestureRecognizer = panGestureRecognizer;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
-    
+  
     // 2 finger pan to delete card
     UIPanGestureRecognizer *twoFingerPanGestureRecognizer;
     twoFingerPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWithTwoFingers:)];
@@ -518,8 +527,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
     CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
     
-    BOOL panEnded = NO;
-    BOOL doNotRefresh = NO;
     int newIndex = self.pagingLayout.activeCardIndex;
     
     switch (panGestureRecognizer.state) {
@@ -529,55 +536,95 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             break;
             
         case UIGestureRecognizerStateChanged :
-            self.pagingLayout.pannedCardXTranslation = translation.x;            
+            if (self.cardPanningDirection == NTDCardPanningNoDirection) {
+                
+            // decide whether it is a vertical of horizontal pan
+            if (translation.y > fabsf(translation.x)) {
+                    self.cardPanningDirection = NTDCardPanningVerticalDirection;
+                } else {
+                    self.cardPanningDirection = NTDCardPanningHorizontalDirection;
+                }
+            }
+            
+            switch (self.cardPanningDirection) {
+                case NTDCardPanningHorizontalDirection:
+                    self.pagingLayout.pannedCardXTranslation = translation.x;
+                    break;
+                case NTDCardPanningVerticalDirection:
+                {
+                    
+                    CGFloat y = translation.y *.3;
+                    if (y < self.pullToCreateContainerView.$height) {
+                        self.pullToCreateContainerView.$y = y-self.pullToCreateContainerView.$height;
+                    } else {
+                        self.pullToCreateContainerView.$y = 0;
+                    }
+                    self.pagingLayout.pannedCardYTranslation = y;
+
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+            
+            if (!self.hasTwoFingerNoteDeletionBegun)
+                [self.pagingLayout invalidateLayout];
+            
             break;
             
         case UIGestureRecognizerStateEnded :
         {
-            // check if translation is past threshold
-            if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
-                // left
-                if (translation.x < 0)
-                    newIndex ++ ;
-                else
-                    newIndex -- ;
+            switch (self.cardPanningDirection) {
+                case NTDCardPanningHorizontalDirection:
+                {
+                    // check if translation is past threshold
+                    if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
+                        // left
+                        if (translation.x < 0)
+                            newIndex ++ ;
+                        else
+                            newIndex -- ;
+                        
+                        // check for a swipe
+                    } else if (fabs(velocity) > SwipeVelocityThreshold ) {
+                        // left
+                        if (velocity < 0 && translation.x < 0)
+                            newIndex ++ ;
+                        else if (velocity > 0 && translation.x > 0)
+                            newIndex -- ;
+                    }
+                    
+                    // make sure we stay within bounds
+                    newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+                    self.pagingLayout.activeCardIndex = newIndex ;
+//                    self.pagingLayout.pannedCardXTranslation = 0;            
+                    break;
+                }
+                case NTDCardPanningVerticalDirection:
+                {
+                    
+                    break;
+                }
                 
-            // check for a swipe
-            } else if (fabs(velocity) > SwipeVelocityThreshold ) {
-                // left
-                if (velocity < 0 && translation.x < 0)
-                    newIndex ++ ;
-                else if (velocity > 0 && translation.x > 0)
-                    newIndex -- ;
+                default:
+                    break;
             }
-                                    
-            // make sure we stay within bounds
-            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
-            self.pagingLayout.activeCardIndex = newIndex ;
             
-//            NSLog(@"new Index is: %i", self.pagingLayout.activeCardIndex);
+            self.cardPanningDirection = NTDCardPanningNoDirection;
+            [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
             
-            // update this so we know to animate to resting position
-            self.pagingLayout.pannedCardXTranslation = 0;            
-            panEnded = YES;
             break;
         }
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
             panGestureRecognizer.enabled = YES;
+            self.cardPanningDirection = NTDCardPanningNoDirection;
             
         default:            
             break;
     }
-    
-    if (!doNotRefresh) {
-        if (panEnded)
-            // animate to rest with some added velocity
-            [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
-        else if (!self.hasTwoFingerNoteDeletionBegun)
-            [self.pagingLayout invalidateLayout];
-    }    
 }
 
 - (IBAction)panCardWhileViewingOptions:(UIPanGestureRecognizer *)panGestureRecognizer

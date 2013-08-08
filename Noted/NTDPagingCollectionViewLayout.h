@@ -11,6 +11,8 @@
 @interface NTDPagingCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
+@property (nonatomic, assign) CGFloat pannedCardYTranslation;
+
 @property (nonatomic) int activeCardIndex;
 @property (nonatomic, readonly) CGFloat currentOptionsOffset;
 

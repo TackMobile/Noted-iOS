@@ -20,7 +20,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 @end
 
 @implementation NTDPagingCollectionViewLayout
-@synthesize activeCardIndex, pannedCardXTranslation, currentOptionsOffset, isViewingOptions;
+@synthesize activeCardIndex, pannedCardXTranslation, pannedCardYTranslation, currentOptionsOffset, isViewingOptions;
 
 -(id)init
 {
@@ -70,7 +70,9 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
     
-    CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
+    self.pannedCardYTranslation = fmax(0, self.pannedCardYTranslation);
+    
+    CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + self.pannedCardYTranslation);
     CGPoint right = CGPointMake(center.x + self.collectionView.frame.size.width, center.y);
     
     // keep the panned translation smaller than screenwidth
@@ -111,6 +113,9 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     // xTranslation will not be zeroed out yet
     // activeCardIndex will be current
+    self.pannedCardYTranslation = 0;
+    if (self.pannedCardXTranslation != 0)
+        self.pannedCardXTranslation = 0;
     
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     NSTimeInterval dur;
