@@ -38,4 +38,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
+
+- (void)reloadNotes;
+
 @end

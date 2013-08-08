@@ -165,6 +165,80 @@ mach_timespec_t ntd_get_time()
       }];
 }
 
++ (void)moveNotesToDirectory:(NSURL *)newDirectory completionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    if (!handler) handler = ^(BOOL _){};
+    
+    // lock PSC
+    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
+
+    // for every file, move into subfolder
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError __autoreleasing *error;
+    NSArray *existingItems = [fileManager contentsOfDirectoryAtURL:[self localDocumentsDirectoryURL]
+                                        includingPropertiesForKeys:nil
+                                                           options:0
+                                                             error:&error];
+    if (error) {
+        NSLog(@"Couldn't list contents of %@: %@", [self localDocumentsDirectoryURL], error);
+        handler(NO);
+        return;
+    }
+    
+    for (NSURL *file in existingItems) {
+        NSURL *newFile = [newDirectory URLByAppendingPathComponent:[file lastPathComponent] isDirectory:NO];
+        BOOL isDir;
+        if ([fileManager fileExistsAtPath:[file path] isDirectory:&isDir] && isDir)
+            continue;
+        [fileManager moveItemAtURL:file toURL:newFile error:&error];
+        if (error) {
+            NSLog(@"Couldn't move file from %@ to %@: %@", file, newFile, error);
+            handler(NO);
+            return;
+        }
+    }
+    
+    // unlock PSC
+    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] unlock];
+
+    // reset PSC
+    [[NTDCoreDataStore sharedStore] resetPersistentStoreCoordinator];
+
+    handler(YES);
+}
+
++ (void)restoreNotesFromDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    if (!handler) handler = ^(BOOL _){};
+    
+    // delete store
+    // nil PSC
+    [[NTDCoreDataStore sharedStore] resetPersistentStoreCoordinator];
+
+    // move all files from subfolder into folder
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError __autoreleasing *error;
+    NSArray *existingItems = [fileManager contentsOfDirectoryAtURL:directory
+                                        includingPropertiesForKeys:nil
+                                                           options:0
+                                                             error:&error];
+    
+    for (NSURL *file in existingItems) {
+        NSURL *newFile = [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:[file lastPathComponent] isDirectory:NO];
+        BOOL isDir;
+        if ([fileManager fileExistsAtPath:[newFile path] isDirectory:&isDir] && isDir)
+            continue;
+        [fileManager moveItemAtURL:file toURL:newFile error:&error];
+        if (error) {
+            NSLog(@"Couldn't move file from %@ to %@: %@", file, newFile, error);
+            handler(NO);
+            return;
+        }
+    }
+
+    handler(YES);
+}
+
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
     NSManagedObjectContext *context = [[self class] managedObjectContext];

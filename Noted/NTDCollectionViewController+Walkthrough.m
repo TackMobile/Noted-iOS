@@ -18,42 +18,12 @@
 //TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
-    NSArray *initialNotes = @[
-        @"Note 3",
-        @"Note 2",
-        @"Note 1"
-    ];
-    
-    NSArray *initialThemes = @[
-       [NTDTheme themeForColorScheme:NTDColorSchemeTack],
-       [NTDTheme themeForColorScheme:NTDColorSchemeLime],
-       [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
-    ];
-    
-    for (NTDNote *note in self.notes.copy) {
-        [self.notes removeObject:note];
-        [note deleteWithCompletionHandler:nil];
-    }
-    
-    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
-        [self.notes insertObject:note atIndex:0];
-        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-                [self.notes insertObject:note atIndex:0];
-                [self bindGestureRecognizers];
-                [self.collectionView reloadData];
-            }];
-        }];
-    }];
-    
-    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];
-        
+    [self hideOriginalNotes];
+    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];        
 }
 
 - (void)didDeclineWalkthrough:(NSNotification *)notification
 {
-    
 }
 
 - (void)setEnabled:(BOOL)enabled forRecognizer:(UIGestureRecognizer *)recognizer
@@ -186,6 +156,7 @@
         [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
     }
     self.tokenRecognizerTable = nil;
+    [self restoreOriginalNotes];
 }
 
 - (void)bindGestureRecognizers
@@ -206,4 +177,86 @@
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.removeCardGestureRecognizer
                                                       forStep:NTDWalkthroughOneFingerDeleteStep];
 }
+
+- (NSURL *)walkthroughBackupDirectoryURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *documentsDirectoryURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    NSURL *walkthroughBackupDirectoryURL = [documentsDirectoryURL URLByAppendingPathComponent:@"WalkthroughBackup" isDirectory:YES];
+    return walkthroughBackupDirectoryURL;
+}
+
+- (void)hideOriginalNotes
+{
+//    for (NTDNote *note in self.notes.copy) {
+//        [self.notes removeObject:note];
+//        [note deleteWithCompletionHandler:nil];
+//    }
+    
+    // flush pending file operations
+    for (NTDNote *note in self.notes.copy) {
+        //TODO wait until done (somehow)
+        [note closeWithCompletionHandler:nil];
+    }
+
+    // create subfolder
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError __autoreleasing *error;
+    [fileManager createDirectoryAtURL:[self walkthroughBackupDirectoryURL]
+          withIntermediateDirectories:YES
+                           attributes:nil
+                                error:&error];
+    // move files
+    if (error) {
+        //TODO bail walkthrough
+        NSLog(@"Couldn't hide original notes: %@", error);
+    } else {
+        //TODO wait until done
+        [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+            [self createWalkthroughNotes];
+            [self reloadNotes];
+        }];
+    }
+}
+
+- (void)restoreOriginalNotes
+{
+    // for every file, delete
+    for (NTDNote *note in self.notes.copy) {
+        [self.notes removeObject:note];
+        [note deleteWithCompletionHandler:nil];
+    }
+
+    [NTDNote restoreNotesFromDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+        [self reloadNotes];
+    }];
+}
+
+- (void)createWalkthroughNotes
+{
+    NSArray *initialNotes = @[
+                              @"Note 3",
+                              @"Note 2",
+                              @"Note 1"
+                              ];
+    
+    NSArray *initialThemes = @[
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeLime],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
+                               ];
+    
+    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+        [self.notes insertObject:note atIndex:0];
+        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:0];
+            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
+                [self.notes insertObject:note atIndex:0];
+                [self bindGestureRecognizers];
+                [self.collectionView reloadData];
+            }];
+        }];
+    }];    
+}
+
 @end

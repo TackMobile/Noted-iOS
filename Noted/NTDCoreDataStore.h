@@ -17,5 +17,6 @@
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 + (NTDCoreDataStore *) sharedStore;
+- (void)resetPersistentStoreCoordinator;
 
 @end

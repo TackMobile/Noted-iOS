@@ -168,27 +168,13 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
-    // set up properties
-    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        self.notes = [notes mutableCopy];
-        if (self.notes.count == 0) {
-            [self noteListChanged:nil];
-        } else {
-            [self.collectionView reloadData];
-        }
-    }];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(noteListChanged:)
-//                                                 name:kNoteListChangedNotification
-//                                               object:nil];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
                                                  name:NTDDidToggleStatusBarNotification
                                                object:nil];
-    
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
+    [self reloadNotes];
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -870,6 +856,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [self.optionsViewController.view removeFromSuperview];
         [self.optionsViewController reset];
         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
+    }];
+}
+
+- (void)reloadNotes
+{
+    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        self.notes = [notes mutableCopy];
+        if (self.notes.count == 0) {
+            [self noteListChanged:nil];
+        } else {
+            [self.collectionView reloadData];
+        }
     }];
 }
 

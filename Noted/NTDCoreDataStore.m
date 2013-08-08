@@ -123,4 +123,8 @@ static NSString *const DatabaseFilename = @"metadata";
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
+- (void)resetPersistentStoreCoordinator
+{
+    _persistentStoreCoordinator = nil;
+}
 @end
