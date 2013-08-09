@@ -525,7 +525,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    CGPoint velocity = [panGestureRecognizer velocityInView:self.collectionView];
     
     int newIndex = self.pagingLayout.activeCardIndex;
     
@@ -553,7 +553,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 case NTDCardPanningVerticalDirection:
                 {
                     
-                    CGFloat y = translation.y *.3;
+                    CGFloat y = translation.y *.4;
                     if (y < self.pullToCreateContainerView.$height) {
                         self.pullToCreateContainerView.$y = y-self.pullToCreateContainerView.$height;
                     } else {
@@ -587,22 +587,48 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                             newIndex -- ;
                         
                         // check for a swipe
-                    } else if (fabs(velocity) > SwipeVelocityThreshold ) {
+                    } else if (fabs(velocity.x) > SwipeVelocityThreshold ) {
                         // left
-                        if (velocity < 0 && translation.x < 0)
+                        if (velocity.x < 0 && translation.x < 0)
                             newIndex ++ ;
-                        else if (velocity > 0 && translation.x > 0)
+                        else if (velocity.x > 0 && translation.x > 0)
                             newIndex -- ;
                     }
                     
                     // make sure we stay within bounds
                     newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
                     self.pagingLayout.activeCardIndex = newIndex ;
-//                    self.pagingLayout.pannedCardXTranslation = 0;            
+                    [self.pagingLayout finishAnimationWithVelocity:velocity.x+30 completion:nil];
+
                     break;
                 }
                 case NTDCardPanningVerticalDirection:
-                {
+                {                    
+                    BOOL shouldCreateNewCard = ((-self.pagingLayout.pannedCardYTranslation <= self.listLayout.pullToCreateCreateCardOffset)
+                                                );
+                    
+                    if (shouldCreateNewCard) {
+                        CGFloat panSpeed = fabsf(velocity.y) - 30;
+                        CGFloat panPosition = fabsf(translation.y);
+                        CGFloat panDuration = panPosition / panSpeed;
+                        
+                        NSTimeInterval duration = panDuration;
+                        duration = CLAMP(duration, 0.2, 0.6);
+                        
+                        // finish the pull and reveal the new card
+                        [self.pagingLayout completePullWithVelocity:velocity.y+30 completion:^{
+                            [self insertNewCardWithDuration:0];
+                            self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+                        }];
+
+                    } else {
+                        
+                        // return the card to the top
+                        [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+                            self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+                        }];
+                    }
+                    
                     
                     break;
                 }
@@ -612,7 +638,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             }
             
             self.cardPanningDirection = NTDCardPanningNoDirection;
-            [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
             
             break;
         }
@@ -837,44 +862,64 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
-    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughMakeANoteStep];
-    [UIView animateWithDuration:duration
-                          delay:0.0
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
-                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
-                         for (NSIndexPath *visibleIndexPath in indexPaths) {
-                             NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
-                             cell.$y += self.collectionView.frame.size.height;
-                             [subviews removeObject:cell];
-                         }
-                         for (UIView *view in subviews) {
-                             /* Search for & edit the 'pull to create card' cell. */
-                             if ([view isKindOfClass:[NTDCollectionViewCell class]] &&
-                                 (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
-                                 !view.hidden) {
-                                 NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
-#if DEBUG
-                                 cell.relativeTimeLabel.text = @"[0] Today";
-#else
-                                  cell.relativeTimeLabel.text = @"Today";
-#endif
-                                 break;
+    if ([self.collectionView.collectionViewLayout isKindOfClass:[NTDListCollectionViewLayout class]]) // if we're in list layout
+    {
+        [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughMakeANoteStep];
+        [self convertReleaseCardToNote];
+        
+        [UIView animateWithDuration:duration
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             // reveal new card
+                             NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+                             for (NSIndexPath *visibleIndexPath in indexPaths) {
+                                 NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
+                                 cell.$y += self.collectionView.frame.size.height;
                              }
-                         }
-                     } completion:^(BOOL finished) {
-                         [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
-                             [self.notes insertObject:note atIndex:0];
-                             self.pagingLayout.activeCardIndex = 0;
-                             [self updateLayout:self.pagingLayout
-                                       animated:NO];
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                                 [self.visibleCell.textView becomeFirstResponder];
-                                 [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
-                             });
+                         } completion:^(BOOL finished) {
+                             // repleace dummy card
+                             [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+                                 [self.notes insertObject:note atIndex:0];
+                                 self.pagingLayout.activeCardIndex = 0;
+                                 [self updateLayout:self.pagingLayout
+                                           animated:NO];
+                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                     [self.visibleCell.textView becomeFirstResponder];
+                                     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
+                                 });
+                             }];
                          }];
-                     }];
+        
+    } else if ([self.collectionView.collectionViewLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) // if we're in paging layout
+    {
+        [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:0];
+            self.pagingLayout.activeCardIndex = 0;
+            [self updateLayout:self.pagingLayout
+                      animated:NO];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.visibleCell.textView becomeFirstResponder];
+            });
+        }];
+    }
+}
+
+- (void)convertReleaseCardToNote {
+    NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
+    for (UIView *view in subviews) {
+        /* Search for & edit the 'pull to create card' cell. */
+        if ([view isKindOfClass:[NTDCollectionViewCell class]]) {
+            NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
+            if ([cell.textView.text isEqualToString:@"Release to create a note"]) {
+#if DEBUG
+                cell.relativeTimeLabel.text = @"[0] Today";
+#else
+                cell.relativeTimeLabel.text = @"Today";
+#endif
+            }
+        }
+    }
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath

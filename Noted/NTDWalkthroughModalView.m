@@ -298,14 +298,17 @@ static NSDictionary *messages;
 }
 
 - (void)yesButtonTapped:(UIButton *)button {
+    __strong id foo = self;
     self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }
 - (void)noButtonTapped:(UIButton *)button {
+    __strong id foo = self;
     self.promptHandler(NO);
     [self buttonTouchEnded:button];
 }
 - (void)dismissButtonTapped:(UIButton *)button {
+    __strong id foo = self;
     self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }

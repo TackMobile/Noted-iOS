@@ -10,12 +10,16 @@
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDCollectionViewLayoutAttributes.h"
 #import "NTDWalkthrough.h"
+#import "NTDListCollectionViewLayout.h"
 
 static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
+static const CGFloat PullToCreateShowCardOffset = 30;
+static const CGFloat PullToCreateScrollCardOffset = 40;
 
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
+@property (nonatomic) BOOL finishingPullAnimation;
 
 @end
 
@@ -26,6 +30,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 {
     if (self = [super init]) {
         isViewingOptions = NO;
+        self.finishingPullAnimation = NO;
     }
     return self;
 }
@@ -48,13 +53,65 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 //            NSLog(@"active: %i, this:%i",self.activeCardIndex, indexPath.row );
         }
     }
+    
+    // add the creatable card behind everything
+    if (self.pannedCardYTranslation != 0) {
+        UICollectionViewLayoutAttributes *creatableCardAttributes = [self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard atIndexPath: [NSIndexPath indexPathForItem:0 inSection:0] ];
+        
+        [attributesArray addObject:creatableCardAttributes];
+    }
+
     return attributesArray;
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+
     UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-    [self customizeLayoutAttributes:attr];
+    if (self.finishingPullAnimation)
+        [self customizeLayoutAttributesWhilePulling:attr];
+    else
+        [self customizeLayoutAttributes:attr];
     return attr;
+}
+
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPathWhilePulling:(NSIndexPath *)indexPath {
+    UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    [self customizeLayoutAttributesWhilePulling:attr];
+    return attr;
+}
+
+
+-(UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:kind withIndexPath:indexPath];
+    
+    if (kind == NTDCollectionElementKindPullToCreateCard) {
+        attr.transform3D = CATransform3DMakeTranslation(0, 0, -1);
+        attr.zIndex = -1;
+
+        if (self.pannedCardXTranslation == 0 && self.pannedCardYTranslation != 0) {
+            attr.zIndex = self.activeCardIndex-.5;
+            attr.transform3D = CATransform3DMakeTranslation(0, 0, self.activeCardIndex-.5);
+            attr.hidden = NO;
+        } else {
+            attr.hidden = YES;
+        }
+        attr.size = self.collectionView.frame.size;
+        
+        CGFloat pullToCreateCardOffset = 0;
+        if (self.pannedCardYTranslation > PullToCreateScrollCardOffset)
+            pullToCreateCardOffset = MAX(0,
+                                         MIN(PullToCreateShowCardOffset,
+                                             PullToCreateScrollCardOffset*2 - self.pannedCardYTranslation));
+        else
+            pullToCreateCardOffset = PullToCreateShowCardOffset;
+        
+        CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + pullToCreateCardOffset);
+        attr.center = center;
+    }
+    
+    return attr;
+    
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
@@ -69,7 +126,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     attr.zIndex = attr.indexPath.row; // stack the cards
     attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
-    
+        
     self.pannedCardYTranslation = fmax(0, self.pannedCardYTranslation);
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + self.pannedCardYTranslation);
@@ -109,11 +166,34 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     }
 }
 
+- (void)customizeLayoutAttributesWhilePulling:(NTDCollectionViewLayoutAttributes *)attr {
+    attr.zIndex = attr.indexPath.row; // stack the cards
+    attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
+    attr.size = self.collectionView.frame.size;
+    
+    self.pannedCardYTranslation = fmax(0, self.pannedCardYTranslation);
+    
+    CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
+    CGPoint bottom = CGPointMake(center.x, center.y +self.collectionView.frame.size.height);
+    
+    if (!self.finishingPullAnimation && attr.indexPath.row == activeCardIndex) {
+        attr.center = (CGPoint){center.x, center.y+pannedCardYTranslation};
+    } else {
+        attr.center = bottom;
+    }
+}
+
+
 #pragma mark - customAnimation
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     // xTranslation will not be zeroed out yet
     // activeCardIndex will be current
-    self.pannedCardYTranslation = 0;
+    BOOL wasPulling = NO;
+    if (self.pannedCardYTranslation != 0) {
+        wasPulling = YES;
+        self.pannedCardYTranslation = 0;
+    }
+    
     if (self.pannedCardXTranslation != 0)
         self.pannedCardXTranslation = 0;
     
@@ -144,18 +224,30 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
                                 UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
                                 NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
                                 
-                                UICollectionViewLayoutAttributes *theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                                UICollectionViewLayoutAttributes *theAttr;
+                                if (wasPulling)
+                                    theAttr = [self layoutAttributesForItemAtIndexPathWhilePulling:indexPath];
+                                else
+                                    theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                                
                                 [theCell setFrame:theAttr.frame];
                             }
                         }
                     }
                      completion:^(BOOL finished) {
-                         [self invalidateLayout];
+//                         [self invalidateLayout];
                          if (completionBlock)
                              completionBlock();
                          if (shouldAdvanceToNextWalkthroughStep)
                              [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToLastNoteStep];
+                         self.finishingPullAnimation = NO;
     }];
+}
+
+- (void) completePullWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
+    self.finishingPullAnimation = YES;
+    [self finishAnimationWithVelocity:velocity completion:completionBlock];
+
 }
 
 - (void)revealOptionsViewWithOffset:(CGFloat)offset
@@ -177,6 +269,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     currentOptionsOffset = 0.0;
     
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
+    
     
 }
 
