@@ -148,9 +148,9 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 						<string key="NSFrame">{{284, -1}, {40, 38}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
-						<float key="IBUIAlpha">0.60000002384185791</float>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
@@ -357,13 +357,28 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 					<string key="className">NTDCollectionViewController</string>
 					<string key="superclassName">UICollectionViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="panCard:">UIPanGestureRecognizer</string>
+						<string key="panCardWhileViewingOptions:">UIPanGestureRecognizer</string>
 						<string key="panCardWithTwoFingers:">UIPanGestureRecognizer</string>
+						<string key="pinchToListLayout:">UIPinchGestureRecognizer</string>
 						<string key="showSettings:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="panCard:">
+							<string key="name">panCard:</string>
+							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="panCardWhileViewingOptions:">
+							<string key="name">panCardWhileViewingOptions:</string>
+							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
 						<object class="IBActionInfo" key="panCardWithTwoFingers:">
 							<string key="name">panCardWithTwoFingers:</string>
 							<string key="candidateClassName">UIPanGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="pinchToListLayout:">
+							<string key="name">pinchToListLayout:</string>
+							<string key="candidateClassName">UIPinchGestureRecognizer</string>
 						</object>
 						<object class="IBActionInfo" key="showSettings:">
 							<string key="name">showSettings:</string>
