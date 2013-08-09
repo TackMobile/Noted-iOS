@@ -93,10 +93,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillBeginWalkthroughNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didDeclineWalkthrough:)
-                                                     name:NTDDidDeclineWalkthroughNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didAdvanceWalkthroughToStep:)
                                                      name:NTDDidAdvanceWalkthroughToStepNotification
                                                    object:nil];
@@ -105,8 +101,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillEndWalkthroughStepNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didCompleteWalkthrough:)
-                                                     name:NTDDidCompleteWalkthroughNotification
+                                                 selector:@selector(didEndWalkthrough:)
+                                                     name:NTDDidEndWalkthroughNotification
                                                    object:nil];
 
     }

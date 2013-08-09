@@ -11,8 +11,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
-NSString *const NTDDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
-NSString *const NTDDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDDidCompleteWalkthroughUserInfoKey = @"NTDDidCompleteWalkthroughKey";
 NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
 NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";
 
@@ -67,8 +67,7 @@ static NTDWalkthrough *sharedInstance;
     self.currentStep++;
     
     if (self.currentStep == self.numberOfSteps) {
-        [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
-        [self completeWalkthrough];
+        [self endWalkthrough:YES];
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
@@ -85,10 +84,13 @@ static NTDWalkthrough *sharedInstance;
     NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
-- (void)completeWalkthrough {
-    [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
-    //        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
-    //        [NSUserDefaults.standardUserDefaults synchronize];
+- (void)endWalkthrough:(BOOL)wasCompleted
+{
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDDidEndWalkthroughNotification
+                                                      object:self
+                                                    userInfo:@{NTDDidCompleteWalkthroughUserInfoKey : @(wasCompleted)}];
+//        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
+//        [NSUserDefaults.standardUserDefaults synchronize];
     [self.viewController.view removeFromSuperview];
     self.viewController = nil;
 }

@@ -165,6 +165,7 @@ mach_timespec_t ntd_get_time()
       }];
 }
 
+//TODO fix this so that it only moves files we know about (?)
 + (void)moveNotesToDirectory:(NSURL *)newDirectory completionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     if (!handler) handler = ^(BOOL _){};

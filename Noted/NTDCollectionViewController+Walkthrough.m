@@ -22,10 +22,6 @@
     self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];        
 }
 
-- (void)didDeclineWalkthrough:(NSNotification *)notification
-{
-}
-
 - (void)setEnabled:(BOOL)enabled forRecognizer:(UIGestureRecognizer *)recognizer
 {
     [self setEnabled:enabled aggressively:!enabled forRecognizer:recognizer];
@@ -149,14 +145,15 @@
     }
 }
 
-- (void)didCompleteWalkthrough:(NSNotification *)notification
+- (void)didEndWalkthrough:(NSNotification *)notification
 {
-    self.selectCardGestureRecognizer.enabled = YES;
     for (UIGestureRecognizer *recognizer in self.tokenRecognizerTable.keyEnumerator) {
         [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
     }
     self.tokenRecognizerTable = nil;
-    [self restoreOriginalNotes];
+    BOOL wasCompleted = [notification.userInfo[NTDDidCompleteWalkthroughUserInfoKey] boolValue];
+    if (wasCompleted)
+        [self restoreOriginalNotes];
 }
 
 - (void)bindGestureRecognizers
@@ -218,7 +215,6 @@
             //TODO bail walkthrough
             NSLog(@"Couldn't hide original notes: %@", error);
         } else {
-            //TODO wait until done
             [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
                 self.notes = [NSMutableArray array];
                 [self createWalkthroughNotes];
@@ -231,14 +227,20 @@
 - (void)restoreOriginalNotes
 {
     // for every file, delete
+    dispatch_group_t delete_group = dispatch_group_create();
     for (NTDNote *note in self.notes.copy) {
         [self.notes removeObject:note];
-        [note deleteWithCompletionHandler:nil];
+        dispatch_group_enter(delete_group);
+        [note deleteWithCompletionHandler:^(BOOL success) {
+            dispatch_group_leave(delete_group);
+        }];
     }
 
-    [NTDNote restoreNotesFromDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
-        [self reloadNotes];
-    }];
+    dispatch_group_notify(delete_group, dispatch_get_main_queue(), ^{
+        [NTDNote restoreNotesFromDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+            [self reloadNotes];
+        }];
+    });
 }
 
 - (void)createWalkthroughNotes
@@ -261,7 +263,6 @@
             [self.notes insertObject:note atIndex:0];
             [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
                 [self.notes insertObject:note atIndex:0];
-                [self bindGestureRecognizers];
                 [self.collectionView reloadData];
             }];
         }];
