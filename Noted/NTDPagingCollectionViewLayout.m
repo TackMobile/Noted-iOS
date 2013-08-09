@@ -67,16 +67,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
 
     UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-    if (self.finishingPullAnimation)
-        [self customizeLayoutAttributesWhilePulling:attr];
-    else
-        [self customizeLayoutAttributes:attr];
-    return attr;
-}
-
-- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPathWhilePulling:(NSIndexPath *)indexPath {
-    UICollectionViewLayoutAttributes *attr = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-    [self customizeLayoutAttributesWhilePulling:attr];
+    [self customizeLayoutAttributes:attr];
     return attr;
 }
 
@@ -165,34 +156,12 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
         attr.center = center;
     }
 }
-
-- (void)customizeLayoutAttributesWhilePulling:(NTDCollectionViewLayoutAttributes *)attr {
-    attr.zIndex = attr.indexPath.row; // stack the cards
-    attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
-    attr.size = self.collectionView.frame.size;
-    
-    self.pannedCardYTranslation = fmax(0, self.pannedCardYTranslation);
-    
-    CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2);
-    CGPoint bottom = CGPointMake(center.x, center.y +self.collectionView.frame.size.height);
-    
-    if (!self.finishingPullAnimation && attr.indexPath.row == activeCardIndex) {
-        attr.center = (CGPoint){center.x, center.y+pannedCardYTranslation};
-    } else {
-        attr.center = bottom;
-    }
-}
-
-
 #pragma mark - customAnimation
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
     // xTranslation will not be zeroed out yet
     // activeCardIndex will be current
-    BOOL wasPulling = NO;
-    if (self.pannedCardYTranslation != 0) {
-        wasPulling = YES;
+    if (self.pannedCardYTranslation != 0)
         self.pannedCardYTranslation = 0;
-    }
     
     if (self.pannedCardXTranslation != 0)
         self.pannedCardXTranslation = 0;
@@ -225,10 +194,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
                                 NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
                                 
                                 UICollectionViewLayoutAttributes *theAttr;
-                                if (wasPulling)
-                                    theAttr = [self layoutAttributesForItemAtIndexPathWhilePulling:indexPath];
-                                else
-                                    theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                                theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
                                 
                                 [theCell setFrame:theAttr.frame];
                             }
@@ -240,12 +206,10 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
                              completionBlock();
                          if (shouldAdvanceToNextWalkthroughStep)
                              [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToLastNoteStep];
-                         self.finishingPullAnimation = NO;
     }];
 }
 
 - (void) completePullWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
-    self.finishingPullAnimation = YES;
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
 
 }

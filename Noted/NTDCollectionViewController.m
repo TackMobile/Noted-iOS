@@ -616,11 +616,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         duration = CLAMP(duration, 0.2, 0.6);
                         
                         // finish the pull and reveal the new card
-                        [self.pagingLayout completePullWithVelocity:velocity.y+30 completion:^{
-                            [self insertNewCardWithDuration:0];
-                            self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
-                        }];
-
+                        [self insertNewCardWithDuration:duration];
+                        self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
                     } else {
                         
                         // return the card to the top
@@ -629,25 +626,34 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         }];
                     }
                     
+                    self.visibleCell.textView.scrollEnabled = YES;
                     
                     break;
                 }
                 
+                    
+                    
                 default:
                     break;
             }
             
             self.cardPanningDirection = NTDCardPanningNoDirection;
             
+            
             break;
         }
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
-            panGestureRecognizer.enabled = YES;
+        {
             self.cardPanningDirection = NTDCardPanningNoDirection;
-            
-        default:            
+            panGestureRecognizer.enabled = YES;
+            self.visibleCell.textView.scrollEnabled = YES;
+            [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+                self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+            }];
+        }
+        default:
             break;
     }
 }
@@ -893,15 +899,27 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
     } else if ([self.collectionView.collectionViewLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) // if we're in paging layout
     {
-        [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            self.pagingLayout.activeCardIndex = 0;
-            [self updateLayout:self.pagingLayout
-                      animated:NO];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.visibleCell.textView becomeFirstResponder];
-            });
-        }];
+
+
+        [UIView animateWithDuration:duration
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+
+                            self.visibleCell.$y = self.collectionView.frame.size.height;
+                         } completion:^(BOOL finished) {
+                             [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+                                 [self.notes insertObject:note atIndex:0];
+                                 self.pagingLayout.activeCardIndex = 0;
+                                 self.pagingLayout.pannedCardYTranslation = 0;
+                                 [self updateLayout:self.pagingLayout
+                                           animated:NO];
+                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                     [self.visibleCell.textView becomeFirstResponder];
+                                 });
+                             }];
+
+                         }];
     }
 }
 
@@ -1014,7 +1032,32 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{    
+{
+    // if the scrollview
+    if (otherGestureRecognizer.view == self.visibleCell.textView
+        && gestureRecognizer == self.panCardGestureRecognizer) {
+        CGFloat pullVelocity = [(UIPanGestureRecognizer *)gestureRecognizer velocityInView:self.visibleCell.textView].y;
+        BOOL pullRecognized = NO;
+        
+        if (self.visibleCell.textView.contentOffset.y < 0)
+            pullRecognized = (pullVelocity == 0);
+        else if (self.visibleCell.textView.contentOffset.y == 0)
+            pullRecognized = (pullVelocity > 0);
+        
+        if (pullRecognized) {
+            if (self.visibleCell.textView.contentOffset.y < 0)
+                [UIView animateWithDuration:.1 animations:^{
+                    self.visibleCell.textView.contentOffset = CGPointZero;
+                } completion:^(BOOL finished) {
+                    self.visibleCell.textView.scrollEnabled = NO;
+                }];
+            else
+                self.visibleCell.textView.scrollEnabled = NO;
+            
+            return YES;
+        }
+    }
+//    NSLog(@"%@ \n&&\n%@", gestureRecognizer, otherGestureRecognizer);
     if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
         return YES;
     
@@ -1025,6 +1068,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 #pragma mark - UIScrollViewDelegate
+
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (scrollView == self.visibleCell.textView)
@@ -1093,7 +1137,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         CGPoint newPoint = scrollView.contentOffset;
         *targetContentOffset = newPoint;
     }
-
 }
 
 #pragma mark - UITextViewDelegate
