@@ -183,6 +183,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         if (self.notes.count == 0) {
             [self noteListChanged:nil];
         } else {
+            if (self.notes.count == 1)
+                [self updateLayout:self.pagingLayout animated:NO];
             [self.collectionView reloadData];
         }
     }];
@@ -704,13 +706,18 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
+            if (self.notes.count == 1) {
+                pinchGestureRecognizer.enabled = NO;
+                break;
+            }
+
             NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
             
             initialDistance = PinchDistance(pinchGestureRecognizer);
             self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
             self.listLayout.pinchRatio = 1.0;
             
-            [self.pinchedCell doNotHideSettingsForNextLayoutChange];
+            [self.visibleCell doNotHideSettingsForNextLayoutChange];
             
             initialContentOffset = self.collectionView.contentOffset;
             [self updateLayout:self.listLayout
@@ -727,6 +734,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateChanged:
         {
+            // don't do anything when we have none left            
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             
@@ -744,7 +752,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0 && pinchGestureRecognizer.velocity > -PinchVelocityThreshold);
             
-            if (shouldReturnToPagingLayout) {
+            if (self.notes.count == 1 || shouldReturnToPagingLayout) {
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
@@ -946,6 +954,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
+    
+    if (self.notes.count == 1) {
+        self.pagingLayout.activeCardIndex = 0;
+        [self updateLayout:self.pagingLayout animated:NO];
+    }
 }
 
 - (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
