@@ -36,7 +36,7 @@ FOUNDATION_EXTERN NSString *const NTDDidAdvanceWalkthroughToStepNotification;
 @property (nonatomic, assign) NSInteger numberOfSteps, currentStep;
 
 + (instancetype)sharedWalkthrough;
-+ (void)initializeWalkthroughIfNecessary;
++ (BOOL)isCompleted;
 - (void)promptUserToStartWalkthrough;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;

@@ -25,22 +25,21 @@ static NTDWalkthrough *sharedInstance;
 
 @implementation NTDWalkthrough
 
-+ (void)initializeWalkthroughIfNecessary
-{
-    BOOL didCompleteWalkthrough = [NSUserDefaults.standardUserDefaults boolForKey:DidCompleteWalkthroughKey];
-    if (!didCompleteWalkthrough) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            sharedInstance = [[NTDWalkthrough alloc] init];
-            sharedInstance.numberOfSteps = NTDWalkthroughNumberOfSteps;
-            sharedInstance.currentStep = -1;
-        });
-    }
-}
-
 + (instancetype)sharedWalkthrough
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[NTDWalkthrough alloc] init];
+        sharedInstance.numberOfSteps = NTDWalkthroughNumberOfSteps;
+        sharedInstance.currentStep = -1;
+    });
     return sharedInstance;
+}
+
++ (BOOL)isCompleted
+{
+    BOOL didCompleteWalkthrough = [NSUserDefaults.standardUserDefaults boolForKey:DidCompleteWalkthroughKey];
+    return didCompleteWalkthrough;
 }
 
 - (void)promptUserToStartWalkthrough
@@ -61,6 +60,7 @@ static NTDWalkthrough *sharedInstance;
         return;
     
     if (step == NTDWalkthroughShouldBeginWalkthroughStep) {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:DidCompleteWalkthroughKey];
         [NSNotificationCenter.defaultCenter postNotificationName:NTDWillBeginWalkthroughNotification object:self];
     }
     

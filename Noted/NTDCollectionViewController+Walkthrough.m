@@ -18,6 +18,10 @@
 //TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
+    if (self.collectionView.collectionViewLayout != self.listLayout) {
+        [self updateLayout:self.listLayout animated:NO];
+        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
+    }
     [self hideOriginalNotes];
     self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];        
 }

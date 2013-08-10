@@ -176,7 +176,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+    if (!NTDWalkthrough.isCompleted)
+        [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
 }
 
 -(void)dealloc
@@ -755,8 +756,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
         self.twoFingerPanGestureRecognizer.enabled = YES;
-        self.pinchToListLayoutGestureRecognizer.enabled = YES;
-        
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;        
         self.collectionView.scrollEnabled = NO;
         
     } else if (layout == self.listLayout) {
@@ -764,7 +764,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = YES;
         self.panCardGestureRecognizer.enabled = NO;
         self.twoFingerPanGestureRecognizer.enabled = NO;
-        
+        self.collectionView.scrollEnabled = YES;
+
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
     [self.collectionView reloadData];
@@ -1075,4 +1076,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughChangeColorsStep];
 }
+
+- (void)dismissOptions
+{
+    [self closeOptionsWithVelocity:.2];
+}
+
 @end

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "NTDCollectionViewCell.h"
+#import "NTDOptionsViewController.h"
 
 typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
     NTDPageDeletionDirectionLeft = 0,
@@ -15,7 +16,8 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 };
 
 @class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
-@interface NTDCollectionViewController : UICollectionViewController
+
+@interface NTDCollectionViewController : UICollectionViewController <NTDOptionsViewDelegate>
 
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
 
@@ -40,5 +42,5 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
 
 - (void)reloadNotes;
-
+- (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated;
 @end

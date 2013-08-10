@@ -12,6 +12,7 @@
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
+#import "NTDWalkthrough.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -66,7 +67,8 @@ typedef NS_ENUM(NSInteger, NTDOptionsTags) {
 
 typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
     NTDAboutOptionsVisitTag = 0,
-    NTDAboutOptionsFollowTag
+    NTDAboutOptionsFollowTag,
+    NTDAboutOptionsWalkthroughTag
 };
 
 @interface NTDOptionsViewController ()
@@ -331,6 +333,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
+            
+        case NTDAboutOptionsWalkthroughTag:
+            [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+            [self.delegate dismissOptions];
         default:
             break;
     }
