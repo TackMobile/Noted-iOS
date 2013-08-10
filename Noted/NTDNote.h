@@ -20,15 +20,17 @@ typedef NS_ENUM(NSInteger, NTDNoteFileState) {
 
 @interface NTDNote : NSObject
 
-typedef void (^NTDNoteDefaultCompletionHandler)();
+typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler;
++ (void)moveNotesToDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler;
++ (void)restoreNotesFromDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
-- (void)openWithCompletionHandler:(void (^)(BOOL success))completionHandler;
-- (void)closeWithCompletionHandler:(void (^)(BOOL success))completionHandler;
-- (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler;
+- (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
+- (void)closeWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
+- (void)deleteWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
 - (NSURL *)fileURL;
 - (NSString *)filename;

@@ -18,42 +18,12 @@
 //TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
-    NSArray *initialNotes = @[
-        @"Note 3",
-        @"Note 2",
-        @"Note 1"
-    ];
-    
-    NSArray *initialThemes = @[
-       [NTDTheme themeForColorScheme:NTDColorSchemeTack],
-       [NTDTheme themeForColorScheme:NTDColorSchemeLime],
-       [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
-    ];
-    
-    for (NTDNote *note in self.notes.copy) {
-        [self.notes removeObject:note];
-        [note deleteWithCompletionHandler:nil];
+    if (self.collectionView.collectionViewLayout != self.listLayout) {
+        [self updateLayout:self.listLayout animated:NO];
+        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
     }
-    
-    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
-        [self.notes insertObject:note atIndex:0];
-        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-                [self.notes insertObject:note atIndex:0];
-                [self bindGestureRecognizers];
-                [self.collectionView reloadData];
-            }];
-        }];
-    }];
-    
-    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];
-        
-}
-
-- (void)didDeclineWalkthrough:(NSNotification *)notification
-{
-    
+    [self hideOriginalNotes];
+    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];        
 }
 
 - (void)setEnabled:(BOOL)enabled forRecognizer:(UIGestureRecognizer *)recognizer
@@ -179,13 +149,15 @@
     }
 }
 
-- (void)didCompleteWalkthrough:(NSNotification *)notification
+- (void)didEndWalkthrough:(NSNotification *)notification
 {
-    self.selectCardGestureRecognizer.enabled = YES;
     for (UIGestureRecognizer *recognizer in self.tokenRecognizerTable.keyEnumerator) {
         [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
     }
     self.tokenRecognizerTable = nil;
+    BOOL wasCompleted = [notification.userInfo[NTDDidCompleteWalkthroughUserInfoKey] boolValue];
+    if (wasCompleted)
+        [self restoreOriginalNotes];
 }
 
 - (void)bindGestureRecognizers
@@ -206,4 +178,99 @@
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.removeCardGestureRecognizer
                                                       forStep:NTDWalkthroughOneFingerDeleteStep];
 }
+
+- (NSURL *)walkthroughBackupDirectoryURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *documentsDirectoryURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    NSURL *walkthroughBackupDirectoryURL = [documentsDirectoryURL URLByAppendingPathComponent:@"WalkthroughBackup" isDirectory:YES];
+    return walkthroughBackupDirectoryURL;
+}
+
+- (void)hideOriginalNotes
+{    
+    // flush pending file operations
+    dispatch_group_t close_group = dispatch_group_create();
+    int i = 0;
+    for (NTDNote *note in self.notes) {
+        i++;
+        if (note.fileState == NTDNoteFileStateClosed) {
+            NSLog(@"closed already (%d)", i);
+            continue;
+        }
+        dispatch_group_enter(close_group);
+        NSLog(@"entering group (%d), %d", i, [(UIDocument *)note documentState]);
+        [note closeWithCompletionHandler:^(BOOL success) {
+            NSLog(@"leaving group (%d), <%d>%@", i, success, note);
+            dispatch_group_leave(close_group);
+        }];
+    }
+    dispatch_group_notify(close_group, dispatch_get_main_queue(), ^{
+        // create subfolder
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError __autoreleasing *error;
+        [fileManager removeItemAtURL:[self walkthroughBackupDirectoryURL] error:nil];
+        [fileManager createDirectoryAtURL:[self walkthroughBackupDirectoryURL]
+              withIntermediateDirectories:YES
+                               attributes:nil
+                                    error:&error];
+        // move files
+        if (error) {
+            //TODO bail walkthrough
+            NSLog(@"Couldn't hide original notes: %@", error);
+        } else {
+            [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+                self.notes = [NSMutableArray array];
+                [self createWalkthroughNotes];
+//                [self reloadNotes];
+            }];
+        }
+    });
+}
+
+- (void)restoreOriginalNotes
+{
+    // for every file, delete
+    dispatch_group_t delete_group = dispatch_group_create();
+    for (NTDNote *note in self.notes.copy) {
+        [self.notes removeObject:note];
+        dispatch_group_enter(delete_group);
+        [note deleteWithCompletionHandler:^(BOOL success) {
+            dispatch_group_leave(delete_group);
+        }];
+    }
+
+    dispatch_group_notify(delete_group, dispatch_get_main_queue(), ^{
+        [NTDNote restoreNotesFromDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+            [self reloadNotes];
+        }];
+    });
+}
+
+- (void)createWalkthroughNotes
+{
+    NSArray *initialNotes = @[
+                              @"Note 3",
+                              @"Note 2",
+                              @"Note 1"
+                              ];
+    
+    NSArray *initialThemes = @[
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeLime],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
+                               ];
+    
+    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+        [self.notes insertObject:note atIndex:0];
+        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:0];
+            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
+                [self.notes insertObject:note atIndex:0];
+                [self.collectionView reloadData];
+            }];
+        }];
+    }];    
+}
+
 @end

@@ -93,10 +93,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillBeginWalkthroughNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didDeclineWalkthrough:)
-                                                     name:NTDDidDeclineWalkthroughNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didAdvanceWalkthroughToStep:)
                                                      name:NTDDidAdvanceWalkthroughToStepNotification
                                                    object:nil];
@@ -105,8 +101,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillEndWalkthroughStepNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didCompleteWalkthrough:)
-                                                     name:NTDDidCompleteWalkthroughNotification
+                                                 selector:@selector(didEndWalkthrough:)
+                                                     name:NTDDidEndWalkthroughNotification
                                                    object:nil];
 
     }
@@ -168,33 +164,20 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
-    // set up properties
-    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        self.notes = [notes mutableCopy];
-        if (self.notes.count == 0) {
-            [self noteListChanged:nil];
-        } else {
-            [self.collectionView reloadData];
-        }
-    }];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(noteListChanged:)
-//                                                 name:kNoteListChangedNotification
-//                                               object:nil];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
                                                  name:NTDDidToggleStatusBarNotification
                                                object:nil];
-    
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
+    [self reloadNotes];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+    if (!NTDWalkthrough.isCompleted)
+        [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
 }
 
 -(void)dealloc
@@ -773,8 +756,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
         self.twoFingerPanGestureRecognizer.enabled = YES;
-        self.pinchToListLayoutGestureRecognizer.enabled = YES;
-        
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;        
         self.collectionView.scrollEnabled = NO;
         
     } else if (layout == self.listLayout) {
@@ -782,7 +764,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = YES;
         self.panCardGestureRecognizer.enabled = NO;
         self.twoFingerPanGestureRecognizer.enabled = NO;
-        
+        self.collectionView.scrollEnabled = YES;
+
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
     [self.collectionView reloadData];
@@ -870,6 +853,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [self.optionsViewController.view removeFromSuperview];
         [self.optionsViewController reset];
         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
+    }];
+}
+
+- (void)reloadNotes
+{
+    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        self.notes = [notes mutableCopy];
+        if (self.notes.count == 0) {
+            [self noteListChanged:nil];
+        } else {
+            [self.collectionView reloadData];
+        }
     }];
 }
 
@@ -1081,4 +1076,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughChangeColorsStep];
 }
+
+- (void)dismissOptions
+{
+    [self closeOptionsWithVelocity:.2];
+}
+
 @end
