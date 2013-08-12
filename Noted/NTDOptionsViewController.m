@@ -10,6 +10,7 @@
 #import <MessageUI/MessageUI.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
@@ -356,9 +357,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.messageViewController = controller;
     controller.body = self.note.text;
     controller.messageComposeDelegate = self;
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)sendEmail
@@ -381,23 +382,25 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     
 	[controller setSubject:noteTitle];
 	[controller setMessageBody:noteText isHTML:NO];
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
 {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+    [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.mailViewController = nil;
     }];
+    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"mail"}];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+    [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.messageViewController = nil;
     }];
+    if (result == MessageComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"sms"}];
 }
 
 - (void)createSocialPostForServiceType:(NSString *)serviceType
@@ -407,10 +410,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [controller setInitialText:self.note.text];
     [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
         self.composeViewController = nil;
+        if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : serviceType}];
     }];
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)copyToPasteboard
@@ -418,7 +422,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
     
-    [(UIViewController *)self.delegate showToastWithMessage:@"Text copied to clipboard"];
+    [self.delegate showToastWithMessage:@"Text copied to clipboard"];
+    [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"copied"}];
 }
 
 #pragma mark - Positioning

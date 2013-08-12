@@ -85,4 +85,24 @@ static NSArray *backgroundColors, *themes;
 {
     return (NTDColorSchemeTack == self.colorScheme || NTDColorSchemeShadow == self.colorScheme);
 }
+
+- (NSString *)themeName
+{
+    switch (self.colorScheme) {
+        case NTDColorSchemeKernal:
+            return @"Kernal";
+        case NTDColorSchemeLime:
+            return @"Lime";
+        case NTDColorSchemeShadow:
+            return @"Shadow";
+        case NTDColorSchemeSky:
+            return @"Sky";
+        case NTDColorSchemeTack:
+            return @"Tack";
+        case NTDColorSchemeWhite:
+            return @"White";
+        default:
+            return @"Unknown";
+    }
+}
 @end

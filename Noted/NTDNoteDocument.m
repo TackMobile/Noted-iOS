@@ -8,9 +8,8 @@
 
 //TODO: better error handling in callbacks
 
-#include <mach/mach.h>
-#include <mach/clock.h>
 #include <errno.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
@@ -266,6 +265,7 @@ BOOL safe_rename(const char *old, const char *new)
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
           if (success) {
+              [Flurry logEvent:@"Note Created"];
               handler((NTDNote *)document /* Shhh... */);
           } else {
               NSLog(@"WARNING: Couldn't create new note!");
@@ -343,6 +343,7 @@ BOOL safe_rename(const char *old, const char *new)
 
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
+    completionHandler = [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler];
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didDeleteMetadata;
     [context performBlockAndWait:^{
@@ -353,9 +354,7 @@ BOOL safe_rename(const char *old, const char *new)
         self.metadata = nil;
     } else {
         NSLog(@"WARNING: Couldn't delete metadata!");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionHandler) completionHandler(NO);
-        });
+        completionHandler(NO);
         return;
     }
     
@@ -371,9 +370,8 @@ BOOL safe_rename(const char *old, const char *new)
                                              [fileManager removeItemAtURL:writingURL error:nil];
                                          }];
         BOOL success = !error;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionHandler) completionHandler(success);
-        });
+        if (success) [Flurry logEvent:@"Note Deleted"];
+        completionHandler(success);
     }];
 }
 
@@ -420,6 +418,7 @@ BOOL safe_rename(const char *old, const char *new)
     if (theme.colorScheme != self.metadata.colorScheme) {
         self.metadata.colorScheme = theme.colorScheme;
         [self updateChangeCount:UIDocumentChangeDone];
+        [Flurry logEvent:@"Theme Changed" withParameters:@{@"theme": [theme themeName]}];
     }
 }
  
@@ -434,6 +433,7 @@ BOOL safe_rename(const char *old, const char *new)
             self.metadata.headline = [text substringToIndex:HeadlineLength];
         }
         [self updateChangeCount:UIDocumentChangeDone];
+        [Flurry logEvent:@"Note Edited"];
     }
 }
 @end

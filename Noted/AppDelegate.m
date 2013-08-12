@@ -7,6 +7,7 @@
 //
 
 #import <Crashlytics/Crashlytics.h>
+#import <FlurrySDK/Flurry.h>
 #import "AppDelegate.h"
 #import "Constants.h"
 #import "NTDCollectionViewController.h"
@@ -21,6 +22,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [Flurry startSession:@"F9R3ZM7J2KWNPCGR6XBF"];
+    [Flurry setSecureTransportEnabled:YES];
+    [Flurry setCrashReportingEnabled:NO];
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
