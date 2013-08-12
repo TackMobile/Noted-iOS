@@ -18,7 +18,7 @@
 
 static NSString *const FileExtension = @"txt";
 static NSString *const DatabaseFilename = @".noted.metadata";
-static const NSUInteger HeadlineLength = 35;
+static const NSUInteger HeadlineLength = 75;
 static const char *NotesDirectoryName = "Notes";
 static const char *BackupDirectoryName = "NotesBackup";
 static NTDCoreDataStore *sharedDatastore;
