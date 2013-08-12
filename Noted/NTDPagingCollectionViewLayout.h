@@ -18,8 +18,8 @@
 
 @property (nonatomic, strong) UIView *settingsView;
 
-- (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock;
-- (void) completePullWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock ;
+- (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock;
+- (void) completePullWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock ;
 
 - (void) revealOptionsViewWithOffset:(CGFloat)offset;
 - (void) revealOptionsViewWithOffset:(CGFloat)offset completion:(void (^)(void))completionBlock;

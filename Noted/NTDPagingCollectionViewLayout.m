@@ -19,7 +19,6 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
-@property (nonatomic) BOOL finishingPullAnimation;
 
 @end
 
@@ -30,7 +29,6 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
 {
     if (self = [super init]) {
         isViewingOptions = NO;
-        self.finishingPullAnimation = NO;
     }
     return self;
 }
@@ -91,9 +89,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
         
         CGFloat pullToCreateCardOffset = 0;
         if (self.pannedCardYTranslation > PullToCreateScrollCardOffset)
-            pullToCreateCardOffset = MAX(0,
-                                         MIN(PullToCreateShowCardOffset,
-                                             PullToCreateScrollCardOffset*2 - self.pannedCardYTranslation));
+            pullToCreateCardOffset = CLAMP(PullToCreateScrollCardOffset*2 - self.pannedCardYTranslation, 0, PullToCreateShowCardOffset);
         else
             pullToCreateCardOffset = PullToCreateShowCardOffset;
         
@@ -158,13 +154,10 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
 }
 #pragma mark - customAnimation
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
-    // xTranslation will not be zeroed out yet
+    // xTranslation, yTranslation will not be zeroed out yet
     // activeCardIndex will be current
-    if (self.pannedCardYTranslation != 0)
-        self.pannedCardYTranslation = 0;
-    
-    if (self.pannedCardXTranslation != 0)
-        self.pannedCardXTranslation = 0;
+    self.pannedCardYTranslation = 0;
+    self.pannedCardXTranslation = 0;
     
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     NSTimeInterval dur;
@@ -201,7 +194,6 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
                         }
                     }
                      completion:^(BOOL finished) {
-//                         [self invalidateLayout];
                          if (completionBlock)
                              completionBlock();
                          if (shouldAdvanceToNextWalkthroughStep)

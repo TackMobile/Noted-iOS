@@ -7,6 +7,8 @@ static inline BOOL IsEmpty(id thing) {
         && [(NSArray *)thing count] == 0);
 }
 
+typedef void(^NTDVoidBlock)();
+
 #define APP_DELEGATE            (AppDelegate*)[UIApplication sharedApplication].delegate
 
 // user defaults
