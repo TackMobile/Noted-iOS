@@ -62,7 +62,8 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 typedef NS_ENUM(NSInteger, NTDOptionsTags) {
     NTDOptionsShareTag = 0,
     NTDOptionsSettingsTag,
-    NTDOptionsAboutTag
+    NTDOptionsAboutTag,
+    NTDOptionsVersionTag
 };
 
 typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
@@ -188,12 +189,15 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.doneButton addTarget:self action:@selector(doneTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.toggleStatusBarButton addTarget:self action:@selector(toggleStatusBar:) forControlEvents:UIControlEventTouchUpInside];
     
-//    self.hasSetUpView = YES;
-    
     // check the status bar
     BOOL show = ![[UIApplication sharedApplication] isStatusBarHidden];
     [self.toggleStatusBarButton setTitle:!show?@"OFF":@"ON" forState:UIControlStateNormal];
     
+    // set version number
+    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0];
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    versionLabel.text = [NSString stringWithFormat:@"v%@", version];
+
     [self reset];
     
 }

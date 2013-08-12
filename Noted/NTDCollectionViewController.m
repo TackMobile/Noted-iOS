@@ -859,7 +859,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)reloadNotes
 {
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        NSLog(@"self.notes: %d, notes: %d", [self.notes count], notes.count);
         self.notes = [notes mutableCopy];
         if (self.notes.count == 0) {
             [self addDefaultNotesIfNecessary];

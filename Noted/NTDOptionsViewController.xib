@@ -436,7 +436,7 @@
 							<object class="IBUILabel" id="1011725082">
 								<reference key="NSNextResponder" ref="279526339"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{14, 24}, {146, 22}}</string>
+								<string key="NSFrame">{{14, 24}, {144, 22}}</string>
 								<reference key="NSSuperview" ref="279526339"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView"/>
@@ -446,7 +446,7 @@
 								<int key="IBUIContentMode">7</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								<string key="IBUIText">Restart Walkthrough</string>
+								<string key="IBUIText">Replay Walkthrough</string>
 								<reference key="IBUITextColor" ref="878458042"/>
 								<nil key="IBUIHighlightedColor"/>
 								<int key="IBUIBaselineAdjustment">0</int>
@@ -633,7 +633,13 @@
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<string key="IBUIText">v1.0</string>
-								<reference key="IBUITextColor" ref="878458042"/>
+								<object class="NSColor" key="IBUITextColor">
+									<int key="NSColorSpace">3</int>
+									<bytes key="NSWhite">MC41AA</bytes>
+									<object class="NSColorSpace" key="NSCustomColorSpace">
+										<int key="NSID">2</int>
+									</object>
+								</object>
 								<nil key="IBUIHighlightedColor"/>
 								<int key="IBUIBaselineAdjustment">0</int>
 								<reference key="IBUIFontDescription" ref="217809627"/>
