@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <FlurrySDK/Flurry.h>
 #import "NTDCoreDataStore.h"
 
 static NSString *const ModelFilename = @"NTDNoteMetadata";
@@ -98,6 +99,7 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
         
         if (error.code != NSPersistentStoreIncompatibleVersionHashError && error.code == NSMigrationMissingSourceModelError) {
             NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            [Flurry logError:@"Error loading DB" message:[error localizedDescription] error:error];
         }
         
         if (!didDeleteExistingStore) {

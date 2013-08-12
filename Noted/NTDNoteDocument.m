@@ -121,8 +121,11 @@ BOOL safe_rename(const char *old, const char *new)
     const char *oldpath = [[oldURL path] cStringUsingEncoding:NSUTF8StringEncoding];
     const char *newpath = [[newURL path] cStringUsingEncoding:NSUTF8StringEncoding];
     BOOL success = safe_rename(oldpath, newpath);
-    if (!success)
-        NSLog(@"safe_renamed failed. errno = %d", errno);
+    if (!success) {
+        NSString *errorMsg = [NSString stringWithFormat:@"safe_rename failed. errno = %d", errno];
+        NSLog(@"%@", errorMsg);
+        [Flurry logError:@"safe_rename() failure" message:errorMsg error:nil];
+    }
     return success;
 }
 
@@ -134,6 +137,7 @@ BOOL safe_rename(const char *old, const char *new)
         [NSFileManager.defaultManager removeItemAtURL:[self notesDirectoryURL] error:&error];
         if (error) {
             NSLog(@"Couldn't delete current notes directory: %@", error);
+            [Flurry logError:@"Couldn't delete current notes directory" message:[error localizedDescription] error:error];
             return NO;
         }
         
@@ -157,6 +161,7 @@ BOOL safe_rename(const char *old, const char *new)
                                                                 error:&error];
     if (!success) {
         NSLog(@"Couldn't create notes directory: %@", error);
+        [Flurry logError:@"Couldn't create notes directory" message:[error localizedDescription] error:error];
     }
     return success;
 }
@@ -212,6 +217,7 @@ BOOL safe_rename(const char *old, const char *new)
                                       error:outError];
     if (!didSaveFile) {
         NSLog(@"WARNING: Couldn't save file: %@", *outError);
+        [Flurry logError:@"Couldn't save file" message:[*outError localizedDescription] error:*outError];
         return NO;
     }
     
@@ -222,6 +228,7 @@ BOOL safe_rename(const char *old, const char *new)
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
+            [Flurry logError:@"Couldn't save metadata" message:[*outError localizedDescription] error:*outError];
             [self revertToContentsOfURL:originalContentsURL completionHandler:NULL];
             didSaveMetadata = NO;
         }
@@ -233,8 +240,10 @@ BOOL safe_rename(const char *old, const char *new)
 + (void)initialize
 {
     [self createNotesDirectory];
-    if ([self restoreFromBackup])
+    if ([self restoreFromBackup]) {
         NSLog(@"Successfully restored from backup.");
+        [Flurry logError:@"Restored from Backup" message:nil error:nil];
+    }
     NSURL *databaseURL = [[self notesDirectoryURL] URLByAppendingPathComponent:DatabaseFilename];
     sharedDatastore = [NTDCoreDataStore datastoreWithURL:databaseURL];
 }
@@ -244,8 +253,13 @@ BOOL safe_rename(const char *old, const char *new)
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
     NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
     fetchRequest.sortDescriptors = @[filenameSortDescriptor];
-    NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    if (results == nil) NSLog(@"WARNING: Couldn't fetch list of notes!");
+    NSError __autoreleasing *error;
+    NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if (results == nil) {
+        NSLog(@"WARNING: Couldn't fetch list of notes!");
+        [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
+    }
+
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
     for (NTDNoteMetadata *metadata in results) {
         [notes addObject:[self documentFromMetadata:metadata]];
@@ -265,10 +279,11 @@ BOOL safe_rename(const char *old, const char *new)
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
           if (success) {
-              [Flurry logEvent:@"Note Created"];
+              [Flurry logEvent:@"Note Created" withParameters:@{@"counter" : @(filenameCounter-1)}];
               handler((NTDNote *)document /* Shhh... */);
           } else {
               NSLog(@"WARNING: Couldn't create new note!");
+              [Flurry logError:@"Couldn't create new note" message:nil error:nil];
               handler(nil);
           };
       }];
@@ -354,6 +369,7 @@ BOOL safe_rename(const char *old, const char *new)
         self.metadata = nil;
     } else {
         NSLog(@"WARNING: Couldn't delete metadata!");
+        [Flurry logError:@"Couldn't delete metadata" message:nil error:nil];
         completionHandler(NO);
         return;
     }

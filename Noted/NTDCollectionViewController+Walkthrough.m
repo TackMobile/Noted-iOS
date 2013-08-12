@@ -7,6 +7,7 @@
 //
 
 #import <BlocksKit/NSObject+BlockObservation.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDNote.h"
@@ -215,6 +216,7 @@
             if (!success) {
                 //TODO log this using analytics. this is a bad situation.
                 NSLog(@"Couldn't restore notes backup....");
+                [Flurry logError:@"Couldn't restore notes backup" message:nil error:nil];
             }
             [self reloadNotes];
         }];
