@@ -153,7 +153,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
     }
 }
 #pragma mark - customAnimation
-- (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
+- (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     // xTranslation, yTranslation will not be zeroed out yet
     // activeCardIndex will be current
     self.pannedCardYTranslation = 0;
@@ -201,7 +201,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
     }];
 }
 
-- (void) completePullWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
+- (void) completePullWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
 
 }
@@ -211,7 +211,7 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
     [self revealOptionsViewWithOffset:offset completion:nil];
 }
 
-- (void)revealOptionsViewWithOffset:(CGFloat)offset completion:(void (^)(void))completionBlock
+- (void)revealOptionsViewWithOffset:(CGFloat)offset completion:(NTDVoidBlock)completionBlock
 {
     isViewingOptions = YES;
     currentOptionsOffset = offset;
@@ -220,13 +220,11 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
 
 }
 
-- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock {
+- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
     
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
-    
-    
 }
 
 @end
