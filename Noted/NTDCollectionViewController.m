@@ -233,8 +233,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         cell.layer.mask = nil;
 
     cell.textView.text = note.headline;
-    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
-    if (collectionView.collectionViewLayout == self.pagingLayout || isFinalCell) {
+    if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) {
         [self setBodyForCell:cell atIndexPath:indexPath];
     }
     [cell applyTheme:note.theme];
@@ -880,6 +879,22 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
         [self.collectionView reloadData];
     }
+}
+
+- (BOOL)shouldShowBodyForNoteAtIndexPath:(NSIndexPath *)indexPath
+{
+    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
+
+    if (self.collectionView.collectionViewLayout == self.pagingLayout)
+        return YES;
+    
+    if (isFinalCell)
+        return YES;
+    
+    if ([self.listLayout.pinchedCardIndexPath isEqual:indexPath])
+        return YES;
+    
+    return NO;
 }
 
 #pragma mark - Notifications
