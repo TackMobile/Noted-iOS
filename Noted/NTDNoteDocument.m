@@ -18,10 +18,11 @@
 
 static NSString *const FileExtension = @"txt";
 static NSString *const DatabaseFilename = @".noted.metadata";
-static const NSUInteger HeadlineLength = 75;
 static const char *NotesDirectoryName = "Notes";
 static const char *BackupDirectoryName = "NotesBackup";
 static NTDCoreDataStore *sharedDatastore;
+static const NSUInteger HeadlineLength = 75;
+static NSUInteger filenameCounter = 1;
 
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
@@ -56,28 +57,44 @@ static NTDCoreDataStore *sharedDatastore;
 
 + (NSURL *)newFileURL
 {
-    static NSDateFormatter *filenameDateFormatter = nil;
-    if (!filenameDateFormatter) {
-        NSString *format = @"yyyy-MM-dd HH_mm_ss.SSS";
-        filenameDateFormatter = [[NSDateFormatter alloc] init];
-        [filenameDateFormatter setDateFormat:format];
+    NSURL *url;
+    do
+    {
+        NSString *basename = [NSString stringWithFormat:@"Note %d", filenameCounter];
+        NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
+        url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
+        filenameCounter++;
     }
-    NSString *now = [filenameDateFormatter stringFromDate:[NSDate date]];
-    mach_timespec_t mts = ntd_get_time();
-    NSString *basename = [NSString stringWithFormat:@"Note %@.%d.%d", now, mts.tv_sec, mts.tv_nsec];
-    NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
-    return [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
+    while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
+    
+    return url;
 }
 
-mach_timespec_t ntd_get_time()
++ (NSUInteger)indexFromFilename:(NSString *)filename
 {
-    clock_serv_t cclock;
-    mach_timespec_t mts;
+    /* Depends on filename structure as defined by +newFileURL */
+    static NSUInteger NilIndex = 0;
+    static NSRegularExpression *matcher;
+    if (!matcher) {
+        NSError __autoreleasing *error;
+        matcher = [NSRegularExpression regularExpressionWithPattern:@"^Note ([0-9]+)$"
+                                                            options:0
+                                                              error:&error];
+        if (error) return NilIndex;
+    }
     
-    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    return mts;
+    filename = [filename stringByDeletingPathExtension];
+    if (!filename || 0==filename.length) return NilIndex;
+
+    NSTextCheckingResult *result = [matcher firstMatchInString:filename options:0 range:[filename rangeOfString:filename]];
+    if (!result) return NilIndex;
+
+    NSRange range = [result rangeAtIndex:1];
+    if (NSEqualRanges(range, NSMakeRange(NSNotFound, 0))) {
+        return NilIndex;
+    } else {
+        return [[filename substringWithRange:range] integerValue];
+    }    
 }
 
 BOOL safe_rename(const char *old, const char *new)
@@ -233,6 +250,7 @@ BOOL safe_rename(const char *old, const char *new)
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
     for (NTDNoteMetadata *metadata in results) {
         [notes addObject:[self documentFromMetadata:metadata]];
+        filenameCounter = MAX(filenameCounter, [self indexFromFilename:metadata.filename]);
     }
     handler(notes);
 }
