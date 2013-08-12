@@ -179,72 +179,46 @@
                                                       forStep:NTDWalkthroughOneFingerDeleteStep];
 }
 
-- (NSURL *)walkthroughBackupDirectoryURL
+- (void)closeNotesWithCompletionHandler:(void(^)())handler
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *documentsDirectoryURL = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-    NSURL *walkthroughBackupDirectoryURL = [documentsDirectoryURL URLByAppendingPathComponent:@"WalkthroughBackup" isDirectory:YES];
-    return walkthroughBackupDirectoryURL;
+    // flush pending file operations
+    dispatch_group_t close_group = dispatch_group_create();
+    for (NTDNote *note in self.notes) {
+        if (note.fileState != NTDNoteFileStateClosed) {
+            dispatch_group_enter(close_group);
+            [note closeWithCompletionHandler:^(BOOL success) {
+                dispatch_group_leave(close_group);
+            }];
+        }
+    }
+    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), handler);
 }
 
 - (void)hideOriginalNotes
 {    
-    // flush pending file operations
-    dispatch_group_t close_group = dispatch_group_create();
-    int i = 0;
-    for (NTDNote *note in self.notes) {
-        i++;
-        if (note.fileState == NTDNoteFileStateClosed) {
-            NSLog(@"closed already (%d)", i);
-            continue;
-        }
-        dispatch_group_enter(close_group);
-        NSLog(@"entering group (%d), %d", i, [(UIDocument *)note documentState]);
-        [note closeWithCompletionHandler:^(BOOL success) {
-            NSLog(@"leaving group (%d), <%d>%@", i, success, note);
-            dispatch_group_leave(close_group);
-        }];
-    }
-    dispatch_group_notify(close_group, dispatch_get_main_queue(), ^{
-        // create subfolder
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSError __autoreleasing *error;
-        [fileManager removeItemAtURL:[self walkthroughBackupDirectoryURL] error:nil];
-        [fileManager createDirectoryAtURL:[self walkthroughBackupDirectoryURL]
-              withIntermediateDirectories:YES
-                               attributes:nil
-                                    error:&error];
-        // move files
-        if (error) {
-            //TODO bail walkthrough
-            NSLog(@"Couldn't hide original notes: %@", error);
-        } else {
-            [NTDNote moveNotesToDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
-                self.notes = [NSMutableArray array];
+    [self closeNotesWithCompletionHandler:^{
+        [NTDNote backupNotesWithCompletionHandler:^(BOOL success) {
+            if (success) {
                 [self createWalkthroughNotes];
-//                [self reloadNotes];
-            }];
-        }
-    });
+            } else {
+                //TODO cancel walkthrough
+                NSLog(@"Canceling walkthrough");
+            }
+        }];
+    }];
 }
 
 - (void)restoreOriginalNotes
 {
-    // for every file, delete
-    dispatch_group_t delete_group = dispatch_group_create();
-    for (NTDNote *note in self.notes.copy) {
-        [self.notes removeObject:note];
-        dispatch_group_enter(delete_group);
-        [note deleteWithCompletionHandler:^(BOOL success) {
-            dispatch_group_leave(delete_group);
-        }];
-    }
-
-    dispatch_group_notify(delete_group, dispatch_get_main_queue(), ^{
-        [NTDNote restoreNotesFromDirectory:[self walkthroughBackupDirectoryURL] completionHandler:^(BOOL success) {
+    [self closeNotesWithCompletionHandler:^{
+        [NTDNote restoreNotesFromBackupWithCompletionHandler:^(BOOL success) {
+            if (!success) {
+                //TODO log this using analytics. this is a bad situation.
+                NSLog(@"Couldn't restore notes backup....");
+            }
             [self reloadNotes];
         }];
-    });
+    }];
 }
 
 - (void)createWalkthroughNotes
@@ -261,6 +235,7 @@
                                [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
                                ];
     
+    self.notes = [NSMutableArray array];
     [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
         [self.notes insertObject:note atIndex:0];
         [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {

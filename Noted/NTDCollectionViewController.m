@@ -859,17 +859,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)reloadNotes
 {
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        NSLog(@"self.notes: %d, notes: %d", [self.notes count], notes.count);
         self.notes = [notes mutableCopy];
         if (self.notes.count == 0) {
-            [self noteListChanged:nil];
+            [self addDefaultNotesIfNecessary];
         } else {
             [self.collectionView reloadData];
         }
     }];
 }
 
-#pragma mark - Notifications
-- (void)noteListChanged:(NSNotification *)notification
+- (void)addDefaultNotesIfNecessary
 {
     if (self.notes.count == 0) {
         NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
@@ -890,6 +890,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
 }
 
+#pragma mark - Notifications
 -(void)toggledStatusBar:(NSNotification *)notification
 {
     // Main app frame and status bar size

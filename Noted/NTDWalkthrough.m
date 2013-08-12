@@ -72,7 +72,7 @@ static NTDWalkthrough *sharedInstance;
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
     [NSNotificationCenter.defaultCenter postNotificationName:NTDDidAdvanceWalkthroughToStepNotification object:self];
-    NSLog(@"advancing to step: %d", self.currentStep);
+//    NSLog(@"advancing to step: %d", self.currentStep);
 }
 
 - (void)stepShouldEnd:(NTDWalkthroughStep)step
@@ -81,7 +81,7 @@ static NTDWalkthrough *sharedInstance;
         return;
     [self.viewController endDisplayingViewsForStep:step];
     [NSNotificationCenter.defaultCenter postNotificationName:NTDWillEndWalkthroughStepNotification object:self];
-    NSLog(@"stepShouldEnd: %d", self.currentStep);
+//    NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
 - (void)endWalkthrough:(BOOL)wasCompleted

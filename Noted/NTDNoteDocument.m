@@ -10,13 +10,18 @@
 
 #include <mach/mach.h>
 #include <mach/clock.h>
+#include <errno.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
 #import "NTDCoreDataStore.h"
 
 static NSString *const FileExtension = @"txt";
+static NSString *const DatabaseFilename = @".noted.metadata";
 static const NSUInteger HeadlineLength = 35;
+static const char *NotesDirectoryName = "Notes";
+static const char *BackupDirectoryName = "NotesBackup";
+static NTDCoreDataStore *sharedDatastore;
 
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
@@ -26,7 +31,7 @@ static const NSUInteger HeadlineLength = 35;
 @implementation NTDNoteDocument
 
 #pragma mark - Helpers
-+ (NSURL*)localDocumentsDirectoryURL
++ (NSURL *)localDocumentsDirectoryURL
 {
     static NSURL *localDocumentsDirectoryURL = nil;
     if (localDocumentsDirectoryURL == nil) {
@@ -35,6 +40,18 @@ static const NSUInteger HeadlineLength = 35;
         localDocumentsDirectoryURL = [NSURL fileURLWithPath:documentsDirectoryPath];
     }
     return localDocumentsDirectoryURL;
+}
+
++ (NSURL *)notesDirectoryURL
+{
+    NSURL *url = [self localDocumentsDirectoryURL];
+    return [url URLByAppendingPathComponent:[NSString stringWithCString:NotesDirectoryName encoding:NSUTF8StringEncoding] isDirectory:YES];
+}
+
++ (NSURL *)backupDirectoryURL
+{
+    NSURL *url = [self localDocumentsDirectoryURL];
+    return [url URLByAppendingPathComponent:[NSString stringWithCString:BackupDirectoryName encoding:NSUTF8StringEncoding] isDirectory:YES];
 }
 
 + (NSURL *)newFileURL
@@ -49,7 +66,7 @@ static const NSUInteger HeadlineLength = 35;
     mach_timespec_t mts = ntd_get_time();
     NSString *basename = [NSString stringWithFormat:@"Note %@.%d.%d", now, mts.tv_sec, mts.tv_nsec];
     NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
-    return [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:filename];
+    return [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
 }
 
 mach_timespec_t ntd_get_time()
@@ -63,9 +80,74 @@ mach_timespec_t ntd_get_time()
     return mts;
 }
 
+BOOL safe_rename(const char *old, const char *new)
+{
+    // http://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
+    int old_fd, new_fd, error;
+    
+    old_fd = open(old, O_RDONLY);
+    if (-1 == old_fd) return NO;
+    
+    error = rename(old, new);
+    if (-1 == error) return NO;
+    
+    new_fd = open(new, O_RDONLY);
+    if (-1 == new_fd) return NO;
+    
+    error = fsync(old_fd); /* Not sure what to do if we fail here so let's punt for now. */
+    error = fsync(new_fd);
+    
+    return YES;
+}
+
++ (BOOL)safelyMoveItemAtURL:(NSURL *)oldURL toURL:(NSURL *)newURL
+{
+    const char *oldpath = [[oldURL path] cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *newpath = [[newURL path] cStringUsingEncoding:NSUTF8StringEncoding];
+    BOOL success = safe_rename(oldpath, newpath);
+    if (!success)
+        NSLog(@"safe_renamed failed. errno = %d", errno);
+    return success;
+}
+
++ (BOOL)restoreFromBackup
+{
+    if ([NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]]) {
+        // delete current notes directory
+        NSError __autoreleasing *error;
+        [NSFileManager.defaultManager removeItemAtURL:[self notesDirectoryURL] error:&error];
+        if (error) {
+            NSLog(@"Couldn't delete current notes directory: %@", error);
+            return NO;
+        }
+        
+        // restore from backup
+        BOOL didRestore = [self safelyMoveItemAtURL:[self backupDirectoryURL] toURL:[self notesDirectoryURL]];
+        if (!didRestore) {
+            NSLog(@"Couldn't restore from backup?!");
+            return NO;
+        }
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)createNotesDirectory
+{
+    NSError __autoreleasing *error;
+    BOOL success = [NSFileManager.defaultManager createDirectoryAtURL:[self notesDirectoryURL]
+                                          withIntermediateDirectories:YES
+                                                           attributes:nil
+                                                                error:&error];
+    if (!success) {
+        NSLog(@"Couldn't create notes directory: %@", error);
+    }
+    return success;
+}
+
 + (instancetype)documentFromMetadata:(NTDNoteMetadata *)metadata
 {
-    NSURL *fileURL = [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:metadata.filename];
+    NSURL *fileURL = [[self notesDirectoryURL] URLByAppendingPathComponent:metadata.filename];
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:fileURL];
     document.metadata = metadata;
     return document;
@@ -73,15 +155,16 @@ mach_timespec_t ntd_get_time()
 
 + (NSManagedObjectContext *)managedObjectContext
 {
-    return [[NTDCoreDataStore sharedStore] persistingManagedObjectContext];
+    return [sharedDatastore persistingManagedObjectContext];
 }
 
-- (void)setBodyText:(NSString *)bodyText
++ (NTDNoteDefaultCompletionHandler)handlerDispatchedToMainQueue:(NTDNoteDefaultCompletionHandler)handler
 {
-//    if (0 == [bodyText length])
-//        NSLog(@"Changing bodyText from \"%@\" to \"%@\".", _bodyText, bodyText);
-    _bodyText = bodyText;
-    return;
+    return ^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (handler) handler(success);
+        });
+    };
 }
 
 #pragma mark - UIDocument
@@ -131,6 +214,14 @@ mach_timespec_t ntd_get_time()
 }
 
 #pragma mark - NTDNote
++ (void)initialize
+{
+    [self createNotesDirectory];
+    if ([self restoreFromBackup])
+        NSLog(@"Successfully restored from backup.");
+    NSURL *databaseURL = [[self notesDirectoryURL] URLByAppendingPathComponent:DatabaseFilename];
+    sharedDatastore = [NTDCoreDataStore datastoreWithURL:databaseURL];
+}
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *))handler
 {
@@ -165,88 +256,69 @@ mach_timespec_t ntd_get_time()
       }];
 }
 
-//TODO fix this so that it only moves files we know about (?)
-+ (void)moveNotesToDirectory:(NSURL *)newDirectory completionHandler:(NTDNoteDefaultCompletionHandler)handler
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    if (!handler) handler = ^(BOOL _){};
+    handler = [self handlerDispatchedToMainQueue:handler];
     
     // lock PSC
-    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
+    [[sharedDatastore persistentStoreCoordinator] lock];
 
-    // for every file, move into subfolder
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError __autoreleasing *error;
-    NSArray *existingItems = [fileManager contentsOfDirectoryAtURL:[self localDocumentsDirectoryURL]
-                                        includingPropertiesForKeys:nil
-                                                           options:0
-                                                             error:&error];
-    if (error) {
-        NSLog(@"Couldn't list contents of %@: %@", [self localDocumentsDirectoryURL], error);
+    // move current notes directory to backup
+    NSAssert(![NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]],
+             @"Backup should have been restored on app launch. Are you trying to do a backup while doing a backup?");
+    BOOL didBackup = [self safelyMoveItemAtURL:[self notesDirectoryURL] toURL:[self backupDirectoryURL]];
+    
+    // unlock PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    
+    // quit if file operations failed
+    if (!didBackup || ![self createNotesDirectory]) {
         handler(NO);
         return;
     }
     
-    for (NSURL *file in existingItems) {
-        NSURL *newFile = [newDirectory URLByAppendingPathComponent:[file lastPathComponent] isDirectory:NO];
-        BOOL isDir;
-        if ([fileManager fileExistsAtPath:[file path] isDirectory:&isDir] && isDir)
-            continue;
-        [fileManager moveItemAtURL:file toURL:newFile error:&error];
-        if (error) {
-            NSLog(@"Couldn't move file from %@ to %@: %@", file, newFile, error);
-            handler(NO);
-            return;
-        }
-    }
-    
-    // unlock PSC
-    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] unlock];
-
     // reset PSC
-    [[NTDCoreDataStore sharedStore] resetStore];
+    [sharedDatastore resetStore];
 
     handler(YES);
 }
 
-+ (void)restoreNotesFromDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    if (!handler) handler = ^(BOOL _){};
+    handler = [self handlerDispatchedToMainQueue:handler];
     
-    // delete store
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError __autoreleasing *error;
+//    // delete store
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    NSError __autoreleasing *error;
+//
+//    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
+//    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
+//    [fileManager removeItemAtURL:[mainStore URL] error:&error];
+//    if (error) {
+//        NSLog(@"Couldn't delete persistent store: %@", error);
+//        handler(NO);
+//        return;
+//    }
+    
+    // nil PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    [sharedDatastore resetStore];
 
-    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
-    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
-    [fileManager removeItemAtURL:[mainStore URL] error:&error];
-    if (error) {
-        NSLog(@"Couldn't delete persistent store: %@", error);
+    // lock PSC
+    [[sharedDatastore persistentStoreCoordinator] lock];
+    
+    BOOL didRestore = [self restoreFromBackup];
+    
+    // unlock PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+
+    if (!didRestore) {
         handler(NO);
         return;
     }
-    
-    // nil PSC
-    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] unlock];
-    [[NTDCoreDataStore sharedStore] resetStore];
 
-    // move all files from subfolder into folder
-    NSArray *existingItems = [fileManager contentsOfDirectoryAtURL:directory
-                                        includingPropertiesForKeys:nil
-                                                           options:0
-                                                             error:&error];
-    
-    for (NSURL *file in existingItems) {
-        NSURL *newFile = [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:[file lastPathComponent] isDirectory:NO];
-        BOOL isDir;
-        if ([fileManager fileExistsAtPath:[newFile path] isDirectory:&isDir] && isDir)
-            continue;
-        [fileManager moveItemAtURL:file toURL:newFile error:&error];
-        if (error) {
-            NSLog(@"Couldn't move file from %@ to %@: %@", file, newFile, error);
-            handler(NO);
-            return;
-        }
-    }
+    // reset PSC
+    [sharedDatastore resetStore];
 
     handler(YES);
 }

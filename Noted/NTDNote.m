@@ -46,14 +46,14 @@ static Class PrivateImplentingClass;
     }];
 }
 
-+ (void)moveNotesToDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    [PrivateImplentingClass moveNotesToDirectory:directory completionHandler:handler];
+    [PrivateImplentingClass backupNotesWithCompletionHandler:handler];
 }
 
-+ (void)restoreNotesFromDirectory:(NSURL *)directory completionHandler:(NTDNoteDefaultCompletionHandler)handler
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    [PrivateImplentingClass restoreNotesFromDirectory:directory completionHandler:handler];
+    [PrivateImplentingClass restoreNotesFromBackupWithCompletionHandler:handler];
 }
 
 @end

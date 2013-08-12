@@ -16,7 +16,7 @@
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
-+ (NTDCoreDataStore *) sharedStore;
++ (NTDCoreDataStore *) datastoreWithURL:(NSURL *)dbURL;
 - (void)resetStore;
 
 @end

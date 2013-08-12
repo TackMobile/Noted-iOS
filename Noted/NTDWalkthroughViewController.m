@@ -81,7 +81,6 @@
 
 - (void)endDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
-    NSLog(@"hiding step %i", step);
     self.currentIndicatorView.layer.position = [[self.currentIndicatorView.layer presentationLayer] position];
     self.currentIndicatorView.shouldCancelAnimations = YES;
     [UIView animateWithDuration:0.1
