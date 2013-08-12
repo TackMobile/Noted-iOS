@@ -228,10 +228,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
-#if DEBUG
-    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
-#endif
-    
+
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;
 
@@ -791,11 +788,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                  (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
                                  !view.hidden) {
                                  NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
-#if DEBUG
-                                 cell.relativeTimeLabel.text = @"[0] Today";
-#else
-                                  cell.relativeTimeLabel.text = @"Today";
-#endif
+                                 cell.relativeTimeLabel.text = @"Today";
                                  break;
                              }
                          }

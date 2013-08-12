@@ -89,8 +89,8 @@ static NTDWalkthrough *sharedInstance;
     [NSNotificationCenter.defaultCenter postNotificationName:NTDDidEndWalkthroughNotification
                                                       object:self
                                                     userInfo:@{NTDDidCompleteWalkthroughUserInfoKey : @(wasCompleted)}];
-//        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
-//        [NSUserDefaults.standardUserDefaults synchronize];
+    [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
     [self.viewController.view removeFromSuperview];
     self.viewController = nil;
 }
