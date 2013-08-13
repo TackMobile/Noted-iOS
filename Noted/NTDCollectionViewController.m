@@ -203,7 +203,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.pullToCreateLabel.text = @"Pull to create a new note.";
-    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    self.pullToCreateLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
     [self.pullToCreateLabel sizeToFit];
