@@ -11,6 +11,7 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
+#import <BlocksKit/NSArray+BlocksKit.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
@@ -68,8 +69,10 @@ typedef NS_ENUM(NSInteger, NTDOptionsTags) {
 };
 
 typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
-    NTDAboutOptionsVisitTag = 0,
+    NTDAboutOptionsTackTag = 0,
+    NTDAboutOptionsVisitTag,
     NTDAboutOptionsFollowTag,
+    NTDAboutOptionsFeedbackTag,
     NTDAboutOptionsWalkthroughTag
 };
 
@@ -195,12 +198,17 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.toggleStatusBarButton setTitle:!show?@"OFF":@"ON" forState:UIControlStateNormal];
     
     // set version number
-    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0];
+    /* I have to do this the weird way because the main view has multiple child views with the same tag
+     * and the simple way didn't work. */
+    UIView *versionContainerView = [self.options.subviews match:^BOOL(UIView *view) {
+        return view.tag == NTDOptionsVersionTag;
+    }];
+//    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0]; /* "simple" way */
+    UILabel *versionLabel = [versionContainerView subviews][0];
     NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     versionLabel.text = [NSString stringWithFormat:@"v%@", version];
 
-    [self reset];
-    
+    [self reset];    
 }
 
 - (void)viewWillAppear:(BOOL)animated   {
@@ -325,16 +333,38 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void) aboutTapped:(UITapGestureRecognizer *)sender {
     switch (sender.view.tag) {
-        case NTDAboutOptionsVisitTag:
+        case NTDAboutOptionsTackTag:
         {
             NSURL *url = [NSURL URLWithString:@"http://tackmobile.com"];
+            [[UIApplication sharedApplication] openURL:url];
+            break;
+        }
+
+        case NTDAboutOptionsVisitTag:
+        {
+            NSURL *url = [NSURL URLWithString:@"http://takenoted.com"];
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
             
         case NTDAboutOptionsFollowTag:
         {
-            NSURL *url = [NSURL URLWithString:@"http://twitter.com/tackmobile"];
+            NSURL *tweetbotAppURL = [NSURL URLWithString:@"tweetbot://TakeNoted/timeline"];
+            NSURL *twitterAppURL = [NSURL URLWithString:@"twitter://user?screen_name=TakeNoted"];
+            NSURL *webURL = [NSURL URLWithString:@"http://twitter.com/TakeNoted"];
+            NSArray *urls = @[tweetbotAppURL, twitterAppURL, webURL];
+            for (NSURL *url in urls) {
+                if ([[UIApplication sharedApplication] canOpenURL:url]) {
+                    [[UIApplication sharedApplication] openURL:url];
+                    break;
+                }
+            }
+            break;
+        }
+            
+        case NTDAboutOptionsFeedbackTag:
+        {
+            NSURL *url = [NSURL URLWithString:@"mailto:noted@tackmobile.com?subject=Noted%20Feedback"];
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
