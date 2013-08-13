@@ -13,8 +13,6 @@
 #import "NTDListCollectionViewLayout.h"
 
 static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
-static const CGFloat PullToCreateShowCardOffset = 30;
-static const CGFloat PullToCreateScrollCardOffset = 40;
 
 @interface NTDPagingCollectionViewLayout ()
 
@@ -87,10 +85,10 @@ static const CGFloat PullToCreateScrollCardOffset = 40;
         attr.size = self.collectionView.frame.size;
         
         CGFloat pullToCreateCardOffset = 0;
-        if (self.pannedCardYTranslation > PullToCreateScrollCardOffset)
-            pullToCreateCardOffset = CLAMP(PullToCreateScrollCardOffset*2 - self.pannedCardYTranslation, 0, PullToCreateShowCardOffset);
+        if (self.pannedCardYTranslation > NTDPullToCreateScrollCardOffset)
+            pullToCreateCardOffset = CLAMP(NTDPullToCreateScrollCardOffset*2 - self.pannedCardYTranslation, 0, NTDPullToCreateShowCardOffset);
         else
-            pullToCreateCardOffset = PullToCreateShowCardOffset;
+            pullToCreateCardOffset = NTDPullToCreateShowCardOffset;
         
         CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + pullToCreateCardOffset);
         attr.center = center;

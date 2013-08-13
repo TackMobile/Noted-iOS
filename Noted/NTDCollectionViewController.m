@@ -473,10 +473,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 shouldDelete = NO;
             }
             
-            NSIndexPath *prevvisibleCardIndexPath = self.visibleCardIndexPath;
+            NSIndexPath *prevVisibleCardIndexPath = self.visibleCardIndexPath;
             
             // make sure we stay within bounds
-            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+            newIndex =  CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
             self.pagingLayout.activeCardIndex = newIndex ;
             
             // update this so we know to animate to resting position
@@ -487,7 +487,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
                     [self.collectionView performBatchUpdates:^{
-                        [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
+                        [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
                     } completion:^(BOOL finished) {
                         [self.collectionView reloadData];
                         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
@@ -530,8 +530,23 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateChanged :
             
             // decide whether it is a vertical of horizontal pan
-            if (self.cardPanningDirection == NTDCardPanningNoDirection)
+            if (self.cardPanningDirection == NTDCardPanningNoDirection) {
                 self.cardPanningDirection = (translation.y > fabsf(translation.x))?NTDCardPanningVerticalDirection : NTDCardPanningHorizontalDirection;
+            
+                // if we are in the process of swiping down
+                if (self.cardPanningDirection == NTDCardPanningVerticalDirection
+                    && velocity.y > 0) {
+                    // and the textview is scrolled to the top or further
+                    if (self.visibleCell.textView.contentOffset.y <= 0)
+                        // animate it to a content offset of 0 and disable scrolling
+                        [UIView animateWithDuration:.2 animations:^{
+                            // animates the contentoffset to CGPointZero
+                            self.visibleCell.textView.scrollEnabled = NO;
+                        }];
+                    else
+                        panGestureRecognizer.enabled = NO;
+                }
+            }
             
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
@@ -562,9 +577,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateEnded :
         {
+            self.visibleCell.textView.scrollEnabled = YES;
+
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
                 {
+//                    if (self.visibleCell.textView)
                     // check if translation is past threshold
                     if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
                         // left
@@ -574,7 +592,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                             newIndex -- ;
                         
                         // check for a swipe
-                    } else if (fabs(velocity.x) > SwipeVelocityThreshold ) {
+                    } else if (fabs(velocity.x) > SwipeVelocityThreshold
+                               && fabs(velocity.x) > fabs(velocity.y)) {
                         // left
                         if (velocity.x < 0 && translation.x < 0)
                             newIndex ++ ;
@@ -591,8 +610,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 }
                 case NTDCardPanningVerticalDirection:
                 {                    
-                    BOOL shouldCreateNewCard = ((-self.pagingLayout.pannedCardYTranslation <= self.listLayout.pullToCreateCreateCardOffset)
-                                                );
+                    BOOL shouldCreateNewCard = (-self.pagingLayout.pannedCardYTranslation <= self.listLayout.pullToCreateCreateCardOffset);
                     
                     if (shouldCreateNewCard) {
                         CGFloat panSpeed = fabsf(velocity.y) - 30;
@@ -613,14 +631,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         }];
                     }
                     
-                    self.visibleCell.textView.scrollEnabled = YES;
-                    
                     break;
                 }
                 
                     
                     
                 default:
+                    self.visibleCell.textView.scrollEnabled = YES;
                     break;
             }
             
@@ -884,8 +901,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              self.pagingLayout.pannedCardYTranslation = 0;
                              
                              if (isListLayout)
-                                 [self updateLayout:self.pagingLayout
-                                           animated:NO];
+                                 [self updateLayout:self.pagingLayout animated:NO];
                              else
                                  [self.collectionView reloadData];
                                  
@@ -905,11 +921,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         if ([view isKindOfClass:[NTDCollectionViewCell class]]) {
             NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
             if ([cell.textView.text isEqualToString:@"Release to create a note"]) {
-#if DEBUG
-                cell.relativeTimeLabel.text = @"[0] Today";
-#else
                 cell.relativeTimeLabel.text = @"Today";
-#endif
             }
         }
     }
@@ -1044,26 +1056,29 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     // if the scrollview
     if (otherGestureRecognizer.view == self.visibleCell.textView
         && gestureRecognizer == self.panCardGestureRecognizer) {
-        CGFloat pullVelocity = [(UIPanGestureRecognizer *)gestureRecognizer velocityInView:self.visibleCell.textView].y;
-        BOOL pullRecognized = NO;
-        
-        if (self.visibleCell.textView.contentOffset.y < 0)
-            pullRecognized = (pullVelocity == 0);
-        else if (self.visibleCell.textView.contentOffset.y == 0)
-            pullRecognized = (pullVelocity > 0);
-        
-        if (pullRecognized) {
-            if (self.visibleCell.textView.contentOffset.y < 0)
-                [UIView animateWithDuration:.1 animations:^{
-                    self.visibleCell.textView.contentOffset = CGPointZero;
-                } completion:^(BOOL finished) {
-                    self.visibleCell.textView.scrollEnabled = NO;
-                }];
-            else
-                self.visibleCell.textView.scrollEnabled = NO;
-            
+        if (self.visibleCell.textView.contentOffset.y <= 0)
             return YES;
-        }
+        
+//        CGFloat pullVelocity = [self.panCardGestureRecognizer velocityInView:self.visibleCell.textView].y;
+//        BOOL pullRecognized = NO;
+//        
+//        if (self.visibleCell.textView.contentOffset.y < 0)
+//            pullRecognized = (pullVelocity == 0);
+//        else if (self.visibleCell.textView.contentOffset.y == 0)
+//            pullRecognized = (pullVelocity > 0);
+//        
+//        if (pullRecognized) {
+//            if (self.visibleCell.textView.contentOffset.y < 0)
+//                [UIView animateWithDuration:.1 animations:^{
+//                    self.visibleCell.textView.contentOffset = CGPointZero;
+//                } completion:^(BOOL finished) {
+//                    self.visibleCell.textView.scrollEnabled = NO;
+//                }];
+//            else
+//                self.visibleCell.textView.scrollEnabled = NO;
+//            
+//            return YES;
+//        }
     }
 //    NSLog(@"%@ \n&&\n%@", gestureRecognizer, otherGestureRecognizer);
     if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])

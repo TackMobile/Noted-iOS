@@ -29,9 +29,7 @@ static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
         self.contentInset = UIEdgeInsetsZero;
         self.cardOffset = 65.0;
         self.cardSize = applicationFrame.size;
-        self.pullToCreateShowCardOffset = -30.0;
-        self.pullToCreateScrollCardOffset = -50.0;
-        self.pullToCreateCreateCardOffset = self.pullToCreateScrollCardOffset + self.pullToCreateScrollCardOffset;
+        self.pullToCreateCreateCardOffset = -NTDPullToCreateScrollCardOffset * 2;
         self.pullToCreateCardIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
         self.pullToCreateEnabled = YES;
     }
@@ -108,13 +106,13 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
         
         CGFloat y = self.collectionView.contentOffset.y;
-        if (y > self.pullToCreateShowCardOffset) {
+        if (y > NTDPullToCreateShowCardOffset) {
             layoutAttributes.hidden = YES;
             NSLog(@"gone rogue");
-        } else if (y <= self.pullToCreateShowCardOffset && y > self.pullToCreateScrollCardOffset) {
-            frame.origin.y = y + ABS(self.pullToCreateShowCardOffset);
-        } else if (y <= self.pullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
-            frame.origin.y =  ABS(self.pullToCreateShowCardOffset) + ABS(self.pullToCreateScrollCardOffset) + 2*y;
+        } else if (y <= -NTDPullToCreateShowCardOffset && y > -NTDPullToCreateScrollCardOffset) {
+            frame.origin.y = y + NTDPullToCreateShowCardOffset;
+        } else if (y <= -NTDPullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
+            frame.origin.y =  NTDPullToCreateShowCardOffset + NTDPullToCreateScrollCardOffset + 2*y;
             frame.origin.y = MAX(frame.origin.y, y);
         } else if (y <= self.pullToCreateCreateCardOffset) {
             frame.origin.y = y;
@@ -181,7 +179,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
 {
-   return (newBounds.origin.y < self.pullToCreateShowCardOffset);
+   return (newBounds.origin.y < -NTDPullToCreateShowCardOffset);
 }
 
 - (void)setSwipedCardOffset:(CGFloat)swipedCardOffset
@@ -249,7 +247,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (BOOL)shouldShowCreateableCard
 {
-    return (self.collectionView.contentOffset.y < self.pullToCreateShowCardOffset) &&
+    return (self.collectionView.contentOffset.y < -NTDPullToCreateShowCardOffset) &&
             self.pullToCreateEnabled;
 }
 

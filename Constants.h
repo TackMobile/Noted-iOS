@@ -9,10 +9,12 @@ static inline BOOL IsEmpty(id thing) {
 
 typedef void(^NTDVoidBlock)();
 
+static const float NTDPullToCreateShowCardOffset = 30.0;
+static const float NTDPullToCreateScrollCardOffset = 50.0;
+
 #define APP_DELEGATE            (AppDelegate*)[UIApplication sharedApplication].delegate
 
 // user defaults
-
 #define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"
 #define HIDE_STATUS_BAR                         @"hideStatusBar"
 #define kFirstUse                               @"firstUse"
