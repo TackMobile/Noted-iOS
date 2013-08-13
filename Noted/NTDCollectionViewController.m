@@ -933,11 +933,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
-    
-    if (self.notes.count == 1) {
-        self.pagingLayout.activeCardIndex = 0;
-        [self updateLayout:self.pagingLayout animated:NO];
-    }
 }
 
 - (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
@@ -981,6 +976,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.notes = [notes mutableCopy];
         if (self.notes.count == 0) {
             [self addDefaultNotesIfNecessary];
+        } else if (self.notes.count == 1) {
+            self.pagingLayout.activeCardIndex = 0;
+            [self updateLayout:self.pagingLayout animated:NO];
         } else {
             [self.collectionView reloadData];
         }
