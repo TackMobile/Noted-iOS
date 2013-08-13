@@ -1,17 +1,20 @@
 PODS:
   - BlocksKit (1.8.2):
     - libffi
+  - FlurrySDK (4.2.2)
   - libffi (3.0.13)
   - Reveal-iOS-SDK (0.8.3)
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
   - BlocksKit (~> 1.8)
+  - FlurrySDK (~> 4.2)
   - Reveal-iOS-SDK
   - UIView+FrameAdditions (= 0.0.1)
 
 SPEC CHECKSUMS:
   BlocksKit: 7396526b0816734103f6133fbb1a520c8b04e80c
+  FlurrySDK: a3f369251a1f46eb6d53fbd817cb41ce4bd9b513
   libffi: 64ef39353e747bb2b25e1026afd96a157bf9231c
   Reveal-iOS-SDK: 0d58ea01260eb109b924a09631d9cc8dd96e12c4
   UIView+FrameAdditions: 74f908c61c7a87cf732c07b67add2a4ad8022f8d

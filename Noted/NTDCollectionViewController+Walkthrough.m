@@ -7,6 +7,7 @@
 //
 
 #import <BlocksKit/NSObject+BlockObservation.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "NTDWalkthroughGestureIndicatorView.h"
 #import "NTDNote.h"
@@ -18,42 +19,12 @@
 //TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
-    NSArray *initialNotes = @[
-        @"Note 3",
-        @"Note 2",
-        @"Note 1"
-    ];
-    
-    NSArray *initialThemes = @[
-       [NTDTheme themeForColorScheme:NTDColorSchemeTack],
-       [NTDTheme themeForColorScheme:NTDColorSchemeLime],
-       [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
-    ];
-    
-    for (NTDNote *note in self.notes.copy) {
-        [self.notes removeObject:note];
-        [note deleteWithCompletionHandler:nil];
+    if (self.collectionView.collectionViewLayout != self.listLayout) {
+        [self updateLayout:self.listLayout animated:NO];
+        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
     }
-    
-    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
-        [self.notes insertObject:note atIndex:0];
-        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-                [self.notes insertObject:note atIndex:0];
-                [self bindGestureRecognizers];
-                [self.collectionView reloadData];
-            }];
-        }];
-    }];
-    
-    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];
-        
-}
-
-- (void)didDeclineWalkthrough:(NSNotification *)notification
-{
-    
+    [self hideOriginalNotes];
+    self.tokenRecognizerTable = [NSMapTable weakToStrongObjectsMapTable];        
 }
 
 - (void)setEnabled:(BOOL)enabled forRecognizer:(UIGestureRecognizer *)recognizer
@@ -179,13 +150,15 @@
     }
 }
 
-- (void)didCompleteWalkthrough:(NSNotification *)notification
+- (void)didEndWalkthrough:(NSNotification *)notification
 {
-    self.selectCardGestureRecognizer.enabled = YES;
     for (UIGestureRecognizer *recognizer in self.tokenRecognizerTable.keyEnumerator) {
         [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
     }
     self.tokenRecognizerTable = nil;
+    BOOL wasCompleted = [notification.userInfo[NTDDidCompleteWalkthroughUserInfoKey] boolValue];
+    if (wasCompleted)
+        [self restoreOriginalNotes];
 }
 
 - (void)bindGestureRecognizers
@@ -206,4 +179,75 @@
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.removeCardGestureRecognizer
                                                       forStep:NTDWalkthroughOneFingerDeleteStep];
 }
+
+- (void)closeNotesWithCompletionHandler:(void(^)())handler
+{
+    // flush pending file operations
+    dispatch_group_t close_group = dispatch_group_create();
+    for (NTDNote *note in self.notes) {
+        if (note.fileState != NTDNoteFileStateClosed) {
+            dispatch_group_enter(close_group);
+            [note closeWithCompletionHandler:^(BOOL success) {
+                dispatch_group_leave(close_group);
+            }];
+        }
+    }
+    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), handler);
+}
+
+- (void)hideOriginalNotes
+{    
+    [self closeNotesWithCompletionHandler:^{
+        [NTDNote backupNotesWithCompletionHandler:^(BOOL success) {
+            if (success) {
+                [self createWalkthroughNotes];
+            } else {
+                //TODO cancel walkthrough
+                NSLog(@"Canceling walkthrough");
+            }
+        }];
+    }];
+}
+
+- (void)restoreOriginalNotes
+{
+    [self closeNotesWithCompletionHandler:^{
+        [NTDNote restoreNotesFromBackupWithCompletionHandler:^(BOOL success) {
+            if (!success) {
+                //TODO log this using analytics. this is a bad situation.
+                NSLog(@"Couldn't restore notes backup....");
+                [Flurry logError:@"Couldn't restore notes backup" message:nil error:nil];
+            }
+            [self reloadNotes];
+        }];
+    }];
+}
+
+- (void)createWalkthroughNotes
+{
+    NSArray *initialNotes = @[
+                              @"Note 3",
+                              @"Note 2",
+                              @"Note 1"
+                              ];
+    
+    NSArray *initialThemes = @[
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeLime],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
+                               ];
+    
+    self.notes = [NSMutableArray array];
+    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+        [self.notes insertObject:note atIndex:0];
+        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:0];
+            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
+                [self.notes insertObject:note atIndex:0];
+                [self.collectionView reloadData];
+            }];
+        }];
+    }];    
+}
+
 @end

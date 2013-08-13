@@ -10,8 +10,10 @@
 #import <MessageUI/MessageUI.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
+#import "NTDWalkthrough.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -61,12 +63,14 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 typedef NS_ENUM(NSInteger, NTDOptionsTags) {
     NTDOptionsShareTag = 0,
     NTDOptionsSettingsTag,
-    NTDOptionsAboutTag
+    NTDOptionsAboutTag,
+    NTDOptionsVersionTag
 };
 
 typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
     NTDAboutOptionsVisitTag = 0,
-    NTDAboutOptionsFollowTag
+    NTDAboutOptionsFollowTag,
+    NTDAboutOptionsWalkthroughTag
 };
 
 @interface NTDOptionsViewController ()
@@ -186,12 +190,15 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.doneButton addTarget:self action:@selector(doneTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.toggleStatusBarButton addTarget:self action:@selector(toggleStatusBar:) forControlEvents:UIControlEventTouchUpInside];
     
-//    self.hasSetUpView = YES;
-    
     // check the status bar
     BOOL show = ![[UIApplication sharedApplication] isStatusBarHidden];
     [self.toggleStatusBarButton setTitle:!show?@"OFF":@"ON" forState:UIControlStateNormal];
     
+    // set version number
+    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0];
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    versionLabel.text = [NSString stringWithFormat:@"v%@", version];
+
     [self reset];
     
 }
@@ -331,6 +338,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
+            
+        case NTDAboutOptionsWalkthroughTag:
+            [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+            [self.delegate dismissOptions];
         default:
             break;
     }
@@ -346,9 +357,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.messageViewController = controller;
     controller.body = self.note.text;
     controller.messageComposeDelegate = self;
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)sendEmail
@@ -371,23 +382,25 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     
 	[controller setSubject:noteTitle];
 	[controller setMessageBody:noteText isHTML:NO];
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
 {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+    [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.mailViewController = nil;
     }];
+    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"mail"}];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
-    [(UIViewController *)self.delegate dismissViewControllerAnimated:YES completion:^{
+    [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.messageViewController = nil;
     }];
+    if (result == MessageComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"sms"}];
 }
 
 - (void)createSocialPostForServiceType:(NSString *)serviceType
@@ -397,10 +410,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [controller setInitialText:self.note.text];
     [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
         self.composeViewController = nil;
+        if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : serviceType}];
     }];
-    [(UIViewController *)self.delegate presentViewController:controller
-                                                    animated:YES
-                                                  completion:nil];
+    [self.delegate presentViewController:controller
+                                animated:YES
+                              completion:nil];
 }
 
 - (void)copyToPasteboard
@@ -408,7 +422,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
     
-    [(UIViewController *)self.delegate showToastWithMessage:@"Text copied to clipboard"];
+    [self.delegate showToastWithMessage:@"Text copied to clipboard"];
+    [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"copied"}];
 }
 
 #pragma mark - Positioning

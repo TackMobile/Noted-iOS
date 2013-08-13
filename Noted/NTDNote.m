@@ -46,4 +46,14 @@ static Class PrivateImplentingClass;
     }];
 }
 
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    [PrivateImplentingClass backupNotesWithCompletionHandler:handler];
+}
+
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    [PrivateImplentingClass restoreNotesFromBackupWithCompletionHandler:handler];
+}
+
 @end

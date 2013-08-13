@@ -102,10 +102,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillBeginWalkthroughNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didDeclineWalkthrough:)
-                                                     name:NTDDidDeclineWalkthroughNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didAdvanceWalkthroughToStep:)
                                                      name:NTDDidAdvanceWalkthroughToStepNotification
                                                    object:nil];
@@ -114,8 +110,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                      name:NTDWillEndWalkthroughStepNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didCompleteWalkthrough:)
-                                                     name:NTDDidCompleteWalkthroughNotification
+                                                 selector:@selector(didEndWalkthrough:)
+                                                     name:NTDDidEndWalkthroughNotification
                                                    object:nil];
 
     }
@@ -180,9 +176,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // set up properties
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         self.notes = [notes mutableCopy];
-        if (self.notes.count == 0) {
-            [self noteListChanged:nil];
-        } else if (self.notes.count == 1){
+        if (self.notes.count == 1){
             [self updateLayout:self.pagingLayout animated:NO];
             [self.collectionView reloadData];
         }
@@ -196,15 +190,16 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                              selector:@selector(toggledStatusBar:)
                                                  name:NTDDidToggleStatusBarNotification
                                                object:nil];
-    
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
+    [self reloadNotes];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+    if (!NTDWalkthrough.isCompleted)
+        [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
 }
 
 -(void)dealloc
@@ -255,16 +250,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
-#if DEBUG
-    cell.relativeTimeLabel.text = [NSString stringWithFormat:@"[%d] %@", indexPath.item, cell.relativeTimeLabel.text];
-#endif
-    
+
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;
 
     cell.textView.text = note.headline;
-    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
-    if (collectionView.collectionViewLayout == self.pagingLayout || isFinalCell) {
+    if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) {
         [self setBodyForCell:cell atIndexPath:indexPath];
     }
     [cell applyTheme:note.theme];
@@ -853,8 +844,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
         self.twoFingerPanGestureRecognizer.enabled = YES;
-        self.pinchToListLayoutGestureRecognizer.enabled = YES;
-        
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;        
         self.collectionView.scrollEnabled = NO;
         
     } else if (layout == self.listLayout) {
@@ -862,7 +852,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = YES;
         self.panCardGestureRecognizer.enabled = NO;
         self.twoFingerPanGestureRecognizer.enabled = NO;
-        
+        self.collectionView.scrollEnabled = YES;
+
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
     [self.collectionView reloadData];
@@ -972,8 +963,19 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }];
 }
 
-#pragma mark - Notifications
-- (void)noteListChanged:(NSNotification *)notification
+- (void)reloadNotes
+{
+    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        self.notes = [notes mutableCopy];
+        if (self.notes.count == 0) {
+            [self addDefaultNotesIfNecessary];
+        } else {
+            [self.collectionView reloadData];
+        }
+    }];
+}
+
+- (void)addDefaultNotesIfNecessary
 {
     if (self.notes.count == 0) {
         NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
@@ -994,6 +996,23 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
 }
 
+- (BOOL)shouldShowBodyForNoteAtIndexPath:(NSIndexPath *)indexPath
+{
+    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
+
+    if (self.collectionView.collectionViewLayout == self.pagingLayout)
+        return YES;
+    
+    if (isFinalCell)
+        return YES;
+    
+    if ([self.listLayout.pinchedCardIndexPath isEqual:indexPath])
+        return YES;
+    
+    return NO;
+}
+
+#pragma mark - Notifications
 -(void)toggledStatusBar:(NSNotification *)notification
 {
     // Main app frame and status bar size
@@ -1205,4 +1224,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughChangeColorsStep];
 }
+
+- (void)dismissOptions
+{
+    [self closeOptionsWithVelocity:.2];
+}
+
 @end

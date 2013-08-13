@@ -20,10 +20,11 @@ FOUNDATION_EXPORT NSString *const NTDDidToggleStatusBarNotification;
 - (void)changeOptionsViewWidth:(CGFloat)width;
 - (CGFloat)initialOptionsViewWidth;
 - (void)didChangeNoteTheme;
+- (void)dismissOptions;
 @end
 
 @interface NTDOptionsViewController : UIViewController
-@property (strong, nonatomic) id<NTDOptionsViewDelegate> delegate;
+@property (strong, nonatomic) UIViewController<NTDOptionsViewDelegate> *delegate;
 @property (strong, nonatomic) NTDNote *note;
 - (void) reset;
 @end

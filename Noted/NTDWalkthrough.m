@@ -11,8 +11,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
-NSString *const NTDDidDeclineWalkthroughNotification = @"NTDUserDidDeclineWalkthroughNotification";
-NSString *const NTDDidCompleteWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+NSString *const NTDDidCompleteWalkthroughUserInfoKey = @"NTDDidCompleteWalkthroughKey";
 NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
 NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";
 
@@ -25,22 +25,21 @@ static NTDWalkthrough *sharedInstance;
 
 @implementation NTDWalkthrough
 
-+ (void)initializeWalkthroughIfNecessary
-{
-    BOOL didCompleteWalkthrough = [NSUserDefaults.standardUserDefaults boolForKey:DidCompleteWalkthroughKey];
-    if (!didCompleteWalkthrough) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            sharedInstance = [[NTDWalkthrough alloc] init];
-            sharedInstance.numberOfSteps = NTDWalkthroughNumberOfSteps;
-            sharedInstance.currentStep = -1;
-        });
-    }
-}
-
 + (instancetype)sharedWalkthrough
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[NTDWalkthrough alloc] init];
+        sharedInstance.numberOfSteps = NTDWalkthroughNumberOfSteps;
+        sharedInstance.currentStep = -1;
+    });
     return sharedInstance;
+}
+
++ (BOOL)isCompleted
+{
+    BOOL didCompleteWalkthrough = [NSUserDefaults.standardUserDefaults boolForKey:DidCompleteWalkthroughKey];
+    return didCompleteWalkthrough;
 }
 
 - (void)promptUserToStartWalkthrough
@@ -61,19 +60,19 @@ static NTDWalkthrough *sharedInstance;
         return;
     
     if (step == NTDWalkthroughShouldBeginWalkthroughStep) {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:DidCompleteWalkthroughKey];
         [NSNotificationCenter.defaultCenter postNotificationName:NTDWillBeginWalkthroughNotification object:self];
     }
     
     self.currentStep++;
     
     if (self.currentStep == self.numberOfSteps) {
-        [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
-        [self completeWalkthrough];
+        [self endWalkthrough:YES];
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
     [NSNotificationCenter.defaultCenter postNotificationName:NTDDidAdvanceWalkthroughToStepNotification object:self];
-    NSLog(@"advancing to step: %d", self.currentStep);
+//    NSLog(@"advancing to step: %d", self.currentStep);
 }
 
 - (void)stepShouldEnd:(NTDWalkthroughStep)step
@@ -82,13 +81,16 @@ static NTDWalkthrough *sharedInstance;
         return;
     [self.viewController endDisplayingViewsForStep:step];
     [NSNotificationCenter.defaultCenter postNotificationName:NTDWillEndWalkthroughStepNotification object:self];
-    NSLog(@"stepShouldEnd: %d", self.currentStep);
+//    NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
-- (void)completeWalkthrough {
-    [NSNotificationCenter.defaultCenter postNotificationName:NTDDidCompleteWalkthroughNotification object:self];
-    //        [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
-    //        [NSUserDefaults.standardUserDefaults synchronize];
+- (void)endWalkthrough:(BOOL)wasCompleted
+{
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDDidEndWalkthroughNotification
+                                                      object:self
+                                                    userInfo:@{NTDDidCompleteWalkthroughUserInfoKey : @(wasCompleted)}];
+    [NSUserDefaults.standardUserDefaults setBool:YES forKey:DidCompleteWalkthroughKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
     [self.viewController.view removeFromSuperview];
     self.viewController = nil;
 }

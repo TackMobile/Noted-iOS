@@ -8,15 +8,20 @@
 
 //TODO: better error handling in callbacks
 
-#include <mach/mach.h>
-#include <mach/clock.h>
+#include <errno.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
 #import "NTDCoreDataStore.h"
 
 static NSString *const FileExtension = @"txt";
-static const NSUInteger HeadlineLength = 35;
+static NSString *const DatabaseFilename = @".noted.metadata";
+static const char *NotesDirectoryName = "Notes";
+static const char *BackupDirectoryName = "NotesBackup";
+static NTDCoreDataStore *sharedDatastore;
+static const NSUInteger HeadlineLength = 75;
+static NSUInteger filenameCounter = 1;
 
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
@@ -26,7 +31,7 @@ static const NSUInteger HeadlineLength = 35;
 @implementation NTDNoteDocument
 
 #pragma mark - Helpers
-+ (NSURL*)localDocumentsDirectoryURL
++ (NSURL *)localDocumentsDirectoryURL
 {
     static NSURL *localDocumentsDirectoryURL = nil;
     if (localDocumentsDirectoryURL == nil) {
@@ -37,35 +42,133 @@ static const NSUInteger HeadlineLength = 35;
     return localDocumentsDirectoryURL;
 }
 
-+ (NSURL *)newFileURL
++ (NSURL *)notesDirectoryURL
 {
-    static NSDateFormatter *filenameDateFormatter = nil;
-    if (!filenameDateFormatter) {
-        NSString *format = @"yyyy-MM-dd HH_mm_ss.SSS";
-        filenameDateFormatter = [[NSDateFormatter alloc] init];
-        [filenameDateFormatter setDateFormat:format];
-    }
-    NSString *now = [filenameDateFormatter stringFromDate:[NSDate date]];
-    mach_timespec_t mts = ntd_get_time();
-    NSString *basename = [NSString stringWithFormat:@"Note %@.%d.%d", now, mts.tv_sec, mts.tv_nsec];
-    NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
-    return [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:filename];
+    NSURL *url = [self localDocumentsDirectoryURL];
+    return [url URLByAppendingPathComponent:[NSString stringWithCString:NotesDirectoryName encoding:NSUTF8StringEncoding] isDirectory:YES];
 }
 
-mach_timespec_t ntd_get_time()
++ (NSURL *)backupDirectoryURL
 {
-    clock_serv_t cclock;
-    mach_timespec_t mts;
+    NSURL *url = [self localDocumentsDirectoryURL];
+    return [url URLByAppendingPathComponent:[NSString stringWithCString:BackupDirectoryName encoding:NSUTF8StringEncoding] isDirectory:YES];
+}
+
++ (NSURL *)newFileURL
+{
+    NSURL *url;
+    do
+    {
+        NSString *basename = [NSString stringWithFormat:@"Note %d", filenameCounter];
+        NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
+        url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
+        filenameCounter++;
+    }
+    while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
     
-    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    return mts;
+    return url;
+}
+
++ (NSUInteger)indexFromFilename:(NSString *)filename
+{
+    /* Depends on filename structure as defined by +newFileURL */
+    static NSUInteger NilIndex = 0;
+    static NSRegularExpression *matcher;
+    if (!matcher) {
+        NSError __autoreleasing *error;
+        matcher = [NSRegularExpression regularExpressionWithPattern:@"^Note ([0-9]+)$"
+                                                            options:0
+                                                              error:&error];
+        if (error) return NilIndex;
+    }
+    
+    filename = [filename stringByDeletingPathExtension];
+    if (!filename || 0==filename.length) return NilIndex;
+
+    NSTextCheckingResult *result = [matcher firstMatchInString:filename options:0 range:[filename rangeOfString:filename]];
+    if (!result) return NilIndex;
+
+    NSRange range = [result rangeAtIndex:1];
+    if (NSEqualRanges(range, NSMakeRange(NSNotFound, 0))) {
+        return NilIndex;
+    } else {
+        return [[filename substringWithRange:range] integerValue];
+    }    
+}
+
+BOOL safe_rename(const char *old, const char *new)
+{
+    // http://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
+    int old_fd, new_fd, error;
+    
+    old_fd = open(old, O_RDONLY);
+    if (-1 == old_fd) return NO;
+    
+    error = rename(old, new);
+    if (-1 == error) return NO;
+    
+    new_fd = open(new, O_RDONLY);
+    if (-1 == new_fd) return NO;
+    
+    error = fsync(old_fd); /* Not sure what to do if we fail here so let's punt for now. */
+    error = fsync(new_fd);
+    
+    return YES;
+}
+
++ (BOOL)safelyMoveItemAtURL:(NSURL *)oldURL toURL:(NSURL *)newURL
+{
+    const char *oldpath = [[oldURL path] cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *newpath = [[newURL path] cStringUsingEncoding:NSUTF8StringEncoding];
+    BOOL success = safe_rename(oldpath, newpath);
+    if (!success) {
+        NSString *errorMsg = [NSString stringWithFormat:@"safe_rename failed. errno = %d", errno];
+        NSLog(@"%@", errorMsg);
+        [Flurry logError:@"safe_rename() failure" message:errorMsg error:nil];
+    }
+    return success;
+}
+
++ (BOOL)restoreFromBackup
+{
+    if ([NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]]) {
+        // delete current notes directory
+        NSError __autoreleasing *error;
+        [NSFileManager.defaultManager removeItemAtURL:[self notesDirectoryURL] error:&error];
+        if (error) {
+            NSLog(@"Couldn't delete current notes directory: %@", error);
+            [Flurry logError:@"Couldn't delete current notes directory" message:[error localizedDescription] error:error];
+            return NO;
+        }
+        
+        // restore from backup
+        BOOL didRestore = [self safelyMoveItemAtURL:[self backupDirectoryURL] toURL:[self notesDirectoryURL]];
+        if (!didRestore) {
+            NSLog(@"Couldn't restore from backup?!");
+            return NO;
+        }
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)createNotesDirectory
+{
+    NSError __autoreleasing *error;
+    BOOL success = [NSFileManager.defaultManager createDirectoryAtURL:[self notesDirectoryURL]
+                                          withIntermediateDirectories:YES
+                                                           attributes:nil
+                                                                error:&error];
+    if (!success) {
+        NSLog(@"Couldn't create notes directory: %@", error);
+        [Flurry logError:@"Couldn't create notes directory" message:[error localizedDescription] error:error];
+    }
+    return success;
 }
 
 + (instancetype)documentFromMetadata:(NTDNoteMetadata *)metadata
 {
-    NSURL *fileURL = [[self localDocumentsDirectoryURL] URLByAppendingPathComponent:metadata.filename];
+    NSURL *fileURL = [[self notesDirectoryURL] URLByAppendingPathComponent:metadata.filename];
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:fileURL];
     document.metadata = metadata;
     return document;
@@ -73,15 +176,16 @@ mach_timespec_t ntd_get_time()
 
 + (NSManagedObjectContext *)managedObjectContext
 {
-    return [[NTDCoreDataStore sharedStore] persistingManagedObjectContext];
+    return [sharedDatastore persistingManagedObjectContext];
 }
 
-- (void)setBodyText:(NSString *)bodyText
++ (NTDNoteDefaultCompletionHandler)handlerDispatchedToMainQueue:(NTDNoteDefaultCompletionHandler)handler
 {
-    if (0 == [bodyText length])
-        NSLog(@"Changing bodyText from \"%@\" to \"%@\".", _bodyText, bodyText);
-    _bodyText = bodyText;
-    return;
+    return ^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (handler) handler(success);
+        });
+    };
 }
 
 #pragma mark - UIDocument
@@ -89,7 +193,7 @@ mach_timespec_t ntd_get_time()
     if ([contents length] > 0) {
         self.bodyText = [[NSString alloc] initWithData:(NSData *)contents encoding:NSUTF8StringEncoding];
     } else {
-        NSLog(@"INFO: Opening empty file.");
+//        NSLog(@"INFO: Opening empty file.");
         self.bodyText = @"";
     }
     return YES;
@@ -113,6 +217,7 @@ mach_timespec_t ntd_get_time()
                                       error:outError];
     if (!didSaveFile) {
         NSLog(@"WARNING: Couldn't save file: %@", *outError);
+        [Flurry logError:@"Couldn't save file" message:[*outError localizedDescription] error:*outError];
         return NO;
     }
     
@@ -123,6 +228,7 @@ mach_timespec_t ntd_get_time()
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
+            [Flurry logError:@"Couldn't save metadata" message:[*outError localizedDescription] error:*outError];
             [self revertToContentsOfURL:originalContentsURL completionHandler:NULL];
             didSaveMetadata = NO;
         }
@@ -131,17 +237,33 @@ mach_timespec_t ntd_get_time()
 }
 
 #pragma mark - NTDNote
++ (void)initialize
+{
+    [self createNotesDirectory];
+    if ([self restoreFromBackup]) {
+        NSLog(@"Successfully restored from backup.");
+        [Flurry logError:@"Restored from Backup" message:nil error:nil];
+    }
+    NSURL *databaseURL = [[self notesDirectoryURL] URLByAppendingPathComponent:DatabaseFilename];
+    sharedDatastore = [NTDCoreDataStore datastoreWithURL:databaseURL];
+}
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *))handler
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
     NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
     fetchRequest.sortDescriptors = @[filenameSortDescriptor];
-    NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    if (results == nil) NSLog(@"WARNING: Couldn't fetch list of notes!");
+    NSError __autoreleasing *error;
+    NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if (results == nil) {
+        NSLog(@"WARNING: Couldn't fetch list of notes!");
+        [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
+    }
+
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
     for (NTDNoteMetadata *metadata in results) {
         [notes addObject:[self documentFromMetadata:metadata]];
+        filenameCounter = MAX(filenameCounter, [self indexFromFilename:metadata.filename]);
     }
     handler(notes);
 }
@@ -157,16 +279,86 @@ mach_timespec_t ntd_get_time()
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
           if (success) {
+              [Flurry logEvent:@"Note Created" withParameters:@{@"counter" : @(filenameCounter-1)}];
               handler((NTDNote *)document /* Shhh... */);
           } else {
               NSLog(@"WARNING: Couldn't create new note!");
+              [Flurry logError:@"Couldn't create new note" message:nil error:nil];
               handler(nil);
           };
       }];
 }
 
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler = [self handlerDispatchedToMainQueue:handler];
+    
+    // lock PSC
+    [[sharedDatastore persistentStoreCoordinator] lock];
+
+    // move current notes directory to backup
+    NSAssert(![NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]],
+             @"Backup should have been restored on app launch. Are you trying to do a backup while doing a backup?");
+    BOOL didBackup = [self safelyMoveItemAtURL:[self notesDirectoryURL] toURL:[self backupDirectoryURL]];
+    
+    // unlock PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    
+    // quit if file operations failed
+    if (!didBackup || ![self createNotesDirectory]) {
+        handler(NO);
+        return;
+    }
+    
+    // reset PSC
+    [sharedDatastore resetStore];
+
+    handler(YES);
+}
+
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler = [self handlerDispatchedToMainQueue:handler];
+    
+//    // delete store
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    NSError __autoreleasing *error;
+//
+//    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
+//    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
+//    [fileManager removeItemAtURL:[mainStore URL] error:&error];
+//    if (error) {
+//        NSLog(@"Couldn't delete persistent store: %@", error);
+//        handler(NO);
+//        return;
+//    }
+    
+    // nil PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    [sharedDatastore resetStore];
+
+    // lock PSC
+    [[sharedDatastore persistentStoreCoordinator] lock];
+    
+    BOOL didRestore = [self restoreFromBackup];
+    
+    // unlock PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+
+    if (!didRestore) {
+        handler(NO);
+        return;
+    }
+
+    // reset PSC
+    [sharedDatastore resetStore];
+
+    handler(YES);
+}
+
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
+    completionHandler = [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler];
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didDeleteMetadata;
     [context performBlockAndWait:^{
@@ -177,9 +369,8 @@ mach_timespec_t ntd_get_time()
         self.metadata = nil;
     } else {
         NSLog(@"WARNING: Couldn't delete metadata!");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionHandler) completionHandler(NO);
-        });
+        [Flurry logError:@"Couldn't delete metadata" message:nil error:nil];
+        completionHandler(NO);
         return;
     }
     
@@ -195,9 +386,8 @@ mach_timespec_t ntd_get_time()
                                              [fileManager removeItemAtURL:writingURL error:nil];
                                          }];
         BOOL success = !error;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionHandler) completionHandler(success);
-        });
+        if (success) [Flurry logEvent:@"Note Deleted"];
+        completionHandler(success);
     }];
 }
 
@@ -244,6 +434,7 @@ mach_timespec_t ntd_get_time()
     if (theme.colorScheme != self.metadata.colorScheme) {
         self.metadata.colorScheme = theme.colorScheme;
         [self updateChangeCount:UIDocumentChangeDone];
+        [Flurry logEvent:@"Theme Changed" withParameters:@{@"theme": [theme themeName]}];
     }
 }
  
@@ -258,6 +449,7 @@ mach_timespec_t ntd_get_time()
             self.metadata.headline = [text substringToIndex:HeadlineLength];
         }
         [self updateChangeCount:UIDocumentChangeDone];
+        [Flurry logEvent:@"Note Edited"];
     }
 }
 @end

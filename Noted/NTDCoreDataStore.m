@@ -6,10 +6,15 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <FlurrySDK/Flurry.h>
 #import "NTDCoreDataStore.h"
 
 static NSString *const ModelFilename = @"NTDNoteMetadata";
-static NSString *const DatabaseFilename = @"metadata";
+//static NSString *const DatabaseFilename = @".noted.metadata";
+
+@interface NTDCoreDataStore ()
+@property (nonatomic, strong) NSURL *databaseURL;
+@end
 
 @implementation NTDCoreDataStore
 
@@ -17,15 +22,22 @@ static NSString *const DatabaseFilename = @"metadata";
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
-#pragma mark - Singleton
-+ (NTDCoreDataStore *) sharedStore
+//#pragma mark - Singleton
+//+ (NTDCoreDataStore *) sharedStore
+//{
+//    static NTDCoreDataStore *sharedInstance = nil;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        sharedInstance = [[NTDCoreDataStore alloc] init];
+//    });
+//    return sharedInstance;
+//}
+
++ (NTDCoreDataStore *)datastoreWithURL:(NSURL *)dbURL
 {
-    static NTDCoreDataStore *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[NTDCoreDataStore alloc] init];
-    });
-    return sharedInstance;
+    NTDCoreDataStore *store = [NTDCoreDataStore new];
+    store.databaseURL = dbURL;
+    return store;
 }
 
 #pragma mark - Core Data
@@ -71,10 +83,11 @@ static NSString *const DatabaseFilename = @"metadata";
         return _persistentStoreCoordinator;
     }
     
-    NSString *dbFilename = [NSString stringWithFormat:@"%@.db", DatabaseFilename];
-    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:dbFilename];
-    [self copyInitialStoreToURLIfNecessary:storeURL];
-    
+//    NSString *dbFilename = [NSString stringWithFormat:@"%@.db", DatabaseFilename];
+//    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:dbFilename];
+//    [self copyInitialStoreToURLIfNecessary:storeURL];
+
+    NSURL *storeURL = self.databaseURL;
     NSError *error = nil;
     NSDictionary *options = @{NSMigratePersistentStoresAutomaticallyOption:@TRUE, NSInferMappingModelAutomaticallyOption:@TRUE};
     _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
@@ -86,6 +99,7 @@ static NSString *const DatabaseFilename = @"metadata";
         
         if (error.code != NSPersistentStoreIncompatibleVersionHashError && error.code == NSMigrationMissingSourceModelError) {
             NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            [Flurry logError:@"Error loading DB" message:[error localizedDescription] error:error];
         }
         
         if (!didDeleteExistingStore) {
@@ -102,25 +116,30 @@ static NSString *const DatabaseFilename = @"metadata";
     return _persistentStoreCoordinator;
 }
 
-- (void)copyInitialStoreToURLIfNecessary:(NSURL *)storeURL
-{
-    NSString *storePath = [storeURL path];
-    NSString *initialStoreName = [NSString stringWithFormat:@"%@.initial", DatabaseFilename];
-    NSString *initialStorePath = [[NSBundle mainBundle] pathForResource:initialStoreName ofType:@"db"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:initialStorePath] && ![fileManager fileExistsAtPath:storePath]) {
-        NSError __autoreleasing *error;
-        [fileManager copyItemAtPath:initialStorePath toPath:storePath error:&error];
-        if (error)
-            NSLog(@"Couldn't copy initial DB: %@", error);
-        else
-            NSLog(@"Copied initial DB.");
-    }
-}
+//- (void)copyInitialStoreToURLIfNecessary:(NSURL *)storeURL
+//{
+//    NSString *storePath = [storeURL path];
+//    NSString *initialStoreName = [NSString stringWithFormat:@"%@.initial", DatabaseFilename];
+//    NSString *initialStorePath = [[NSBundle mainBundle] pathForResource:initialStoreName ofType:@"db"];
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    if ([fileManager fileExistsAtPath:initialStorePath] && ![fileManager fileExistsAtPath:storePath]) {
+//        NSError __autoreleasing *error;
+//        [fileManager copyItemAtPath:initialStorePath toPath:storePath error:&error];
+//        if (error)
+//            NSLog(@"Couldn't copy initial DB: %@", error);
+//        else
+//            NSLog(@"Copied initial DB.");
+//    }
+//}
 
 - (NSURL *)applicationDocumentsDirectory
 {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
+- (void)resetStore
+{
+    _persistentStoreCoordinator = nil;
+    _managedObjectContext = nil;
+}
 @end

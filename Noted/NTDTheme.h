@@ -27,4 +27,5 @@ typedef NS_ENUM(int16_t, NTDColorScheme) {
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
 + (NTDTheme *)randomTheme;
 - (BOOL)isDarkColorScheme;
+- (NSString *)themeName;
 @end
