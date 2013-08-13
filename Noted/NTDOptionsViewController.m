@@ -349,10 +349,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             
         case NTDAboutOptionsFollowTag:
         {
-            NSURL *tweetbotAppURL = [NSURL URLWithString:@"tweetbot://TakeNoted/timeline"];
+//            NSURL *tweetbotAppURL = [NSURL URLWithString:@"tweetbot://TakeNoted/timeline"];
             NSURL *twitterAppURL = [NSURL URLWithString:@"twitter://user?screen_name=TakeNoted"];
             NSURL *webURL = [NSURL URLWithString:@"http://twitter.com/TakeNoted"];
-            NSArray *urls = @[tweetbotAppURL, twitterAppURL, webURL];
+            NSArray *urls = @[/*tweetbotAppURL,*/ twitterAppURL, webURL];
             for (NSURL *url in urls) {
                 if ([[UIApplication sharedApplication] canOpenURL:url]) {
                     [[UIApplication sharedApplication] openURL:url];

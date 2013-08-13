@@ -228,7 +228,7 @@
     NSArray *initialNotes = @[
                               @"“We write to taste life twice, in the moment and in retrospect.” ― Anaïs Nin",
                               @"“The scariest moment is always just before you start.” ― Stephen King",
-                              @"“History will be kind to me for I intend to write it.” ― Winston Churchill",
+                              @"“You can make anything by writing.” ― C.S. Lewis",
                               ];
     
     NSArray *initialThemes = @[
