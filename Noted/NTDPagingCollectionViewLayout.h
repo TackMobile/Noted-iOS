@@ -11,13 +11,17 @@
 @interface NTDPagingCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
+@property (nonatomic, assign) CGFloat pannedCardYTranslation;
+
 @property (nonatomic) int activeCardIndex;
 @property (nonatomic, readonly) CGFloat currentOptionsOffset;
 
 @property (nonatomic, strong) UIView *settingsView;
 
-- (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock ;
+- (void) finishAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock;
+- (void) completePullAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock ;
+
 - (void) revealOptionsViewWithOffset:(CGFloat)offset;
-- (void)revealOptionsViewWithOffset:(CGFloat)offset completion:(void (^)(void))completionBlock;
-- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(void (^)(void))completionBlock;
+- (void) revealOptionsViewWithOffset:(CGFloat)offset completion:(NTDVoidBlock)completionBlock;
+- (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock;
 @end

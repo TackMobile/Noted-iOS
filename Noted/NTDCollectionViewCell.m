@@ -41,6 +41,7 @@
     
     self.settingsButton.alpha = 0;
     self._doNotHideSettingsForNextLayoutChange = NO;
+    [self applyMaskWithScrolledOffset:self.textView.contentOffset.y];
 }
 
 -(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
@@ -97,11 +98,8 @@
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
 {
     if ([newLayout isKindOfClass:[NTDListCollectionViewLayout class]]) {
-        if (self._doNotHideSettingsForNextLayoutChange) {
-            self._doNotHideSettingsForNextLayoutChange = NO;
-        } else {
+        if (!self._doNotHideSettingsForNextLayoutChange)
             self.settingsButton.alpha = 0;
-        }
         
         self.textView.editable = NO;
         self.textView.scrollEnabled = NO;
@@ -112,6 +110,7 @@
         self.textView.scrollEnabled = YES;
         [self applyShadow:YES];
     }
+    self._doNotHideSettingsForNextLayoutChange = NO;
 }
 
 - (void)prepareForReuse

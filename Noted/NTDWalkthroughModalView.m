@@ -303,12 +303,12 @@ static NSDictionary *messages;
     [self buttonTouchEnded:button];
 }
 - (void)noButtonTapped:(UIButton *)button {
-        __strong id foo = self;
+    __strong id foo = self;
     self.promptHandler(NO);
     [self buttonTouchEnded:button];
 }
 - (void)dismissButtonTapped:(UIButton *)button {
-        __strong id foo = self;
+    __strong id foo = self;
     self.promptHandler(YES);
     [self buttonTouchEnded:button];
 }
