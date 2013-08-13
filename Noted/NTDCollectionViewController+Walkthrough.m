@@ -226,15 +226,15 @@
 - (void)createWalkthroughNotes
 {
     NSArray *initialNotes = @[
-                              @"Note 3",
-                              @"Note 2",
-                              @"Note 1"
+                              @"“We write to taste life twice, in the moment and in retrospect.” ― Anaïs Nin",
+                              @"“The scariest moment is always just before you start.” ― Stephen King",
+                              @"“History will be kind to me for I intend to write it.” ― Winston Churchill",
                               ];
     
     NSArray *initialThemes = @[
-                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeShadow],
                                [NTDTheme themeForColorScheme:NTDColorSchemeLime],
-                               [NTDTheme themeForColorScheme:NTDColorSchemeWhite]
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack]
                                ];
     
     self.notes = [NSMutableArray array];
