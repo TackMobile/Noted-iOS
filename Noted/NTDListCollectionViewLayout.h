@@ -21,8 +21,6 @@ UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
 @property (nonatomic, strong) NSIndexPath *swipedCardIndexPath;
 @property (nonatomic, assign) CGFloat swipedCardOffset;
 
-@property (nonatomic, assign) CGFloat pullToCreateShowCardOffset;
-@property (nonatomic, assign) CGFloat pullToCreateScrollCardOffset;
 @property (nonatomic, assign) CGFloat pullToCreateCreateCardOffset;
 @property (nonatomic, assign, readonly) BOOL shouldShowCreateableCard;
 @property (nonatomic, assign) BOOL pullToCreateEnabled;

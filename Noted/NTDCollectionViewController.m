@@ -23,6 +23,13 @@
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 
+
+typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
+    NTDCardPanningNoDirection = -1,
+    NTDCardPanningHorizontalDirection,
+    NTDCardPanningVerticalDirection
+};
+
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
@@ -34,6 +41,7 @@
 @property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 
+@property (nonatomic) NTDCardPanningDirection cardPanningDirection;
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
 @property (nonatomic) CGRect noteTextViewFrameWhileNotEditing;
 
@@ -56,6 +64,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     if (self) {
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
+        self.cardPanningDirection = NTDCardPanningNoDirection;
         
         // decide on the slice count
         if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
@@ -133,7 +142,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [panGestureRecognizer setMaximumNumberOfTouches:1];
     self.panCardGestureRecognizer = panGestureRecognizer;
     [self.collectionView addGestureRecognizer:panGestureRecognizer];
-    
+  
     // 2 finger pan to delete card
     UIPanGestureRecognizer *twoFingerPanGestureRecognizer;
     twoFingerPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCardWithTwoFingers:)];
@@ -164,6 +173,9 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
+    // set up properties
+    [self.collectionView reloadData];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
                                                  name:NTDDidToggleStatusBarNotification
@@ -191,7 +203,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.pullToCreateLabel.text = @"Pull to create a new note.";
-    self.pullToCreateLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16];
+    self.pullToCreateLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
     [self.pullToCreateLabel sizeToFit];
@@ -451,10 +463,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 shouldDelete = NO;
             }
             
-            NSIndexPath *prevvisibleCardIndexPath = self.visibleCardIndexPath;
+            NSIndexPath *prevVisibleCardIndexPath = self.visibleCardIndexPath;
             
             // make sure we stay within bounds
-            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+            newIndex =  CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
             self.pagingLayout.activeCardIndex = newIndex ;
             
             // update this so we know to animate to resting position
@@ -465,7 +477,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
                     [self.collectionView performBatchUpdates:^{
-                        [self deleteCardAtIndexPath:prevvisibleCardIndexPath];
+                        [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
                     } completion:^(BOOL finished) {
                         [self.collectionView reloadData];
                         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
@@ -495,10 +507,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (IBAction)panCard:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
-    CGFloat velocity = [panGestureRecognizer velocityInView:self.collectionView].x;
+    CGPoint velocity = [panGestureRecognizer velocityInView:self.collectionView];
     
-    BOOL panEnded = NO;
-    BOOL doNotRefresh = NO;
     int newIndex = self.pagingLayout.activeCardIndex;
     
     switch (panGestureRecognizer.state) {
@@ -508,55 +518,138 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             break;
             
         case UIGestureRecognizerStateChanged :
-            self.pagingLayout.pannedCardXTranslation = translation.x;            
+            
+            // decide whether it is a vertical of horizontal pan
+            if (self.cardPanningDirection == NTDCardPanningNoDirection) {
+                self.cardPanningDirection = (translation.y > fabsf(translation.x))?NTDCardPanningVerticalDirection : NTDCardPanningHorizontalDirection;
+            
+                // if we are in the process of swiping down
+                if (self.cardPanningDirection == NTDCardPanningVerticalDirection
+                    && velocity.y > 0) {
+                    // and the textview is scrolled to the top or further
+                    if (self.visibleCell.textView.contentOffset.y <= 0)
+                        // animate it to a content offset of 0 and disable scrolling
+                        [UIView animateWithDuration:.2 animations:^{
+                            // animates the contentoffset to CGPointZero
+                            self.visibleCell.textView.scrollEnabled = NO;
+                        }];
+                    else
+                        panGestureRecognizer.enabled = NO;
+                }
+            }
+            
+            switch (self.cardPanningDirection) {
+                case NTDCardPanningHorizontalDirection:
+                    self.pagingLayout.pannedCardXTranslation = translation.x;
+                    break;
+                case NTDCardPanningVerticalDirection:
+                {
+                    CGFloat y = translation.y *.4;
+                    if (y < self.pullToCreateContainerView.$height) {
+                        self.pullToCreateContainerView.$y = y-self.pullToCreateContainerView.$height;
+                    } else {
+                        self.pullToCreateContainerView.$y = 0;
+                    }
+                    self.pagingLayout.pannedCardYTranslation = y;
+
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+            
+            
+            if (!self.hasTwoFingerNoteDeletionBegun)
+                [self.pagingLayout invalidateLayout];
+            
             break;
             
         case UIGestureRecognizerStateEnded :
         {
-            // check if translation is past threshold
-            if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
-                // left
-                if (translation.x < 0)
-                    newIndex ++ ;
-                else
-                    newIndex -- ;
+            self.visibleCell.textView.scrollEnabled = YES;
+
+            switch (self.cardPanningDirection) {
+                case NTDCardPanningHorizontalDirection:
+                {
+//                    if (self.visibleCell.textView)
+                    // check if translation is past threshold
+                    if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
+                        // left
+                        if (translation.x < 0)
+                            newIndex ++ ;
+                        else
+                            newIndex -- ;
+                        
+                        // check for a swipe
+                    } else if (fabs(velocity.x) > SwipeVelocityThreshold
+                               && fabs(velocity.x) > fabs(velocity.y)) {
+                        // left
+                        if (velocity.x < 0 && translation.x < 0)
+                            newIndex ++ ;
+                        else if (velocity.x > 0 && translation.x > 0)
+                            newIndex -- ;
+                    }
+                    
+                    // make sure we stay within bounds
+                    newIndex = CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
+                    self.pagingLayout.activeCardIndex = newIndex ;
+                    [self.pagingLayout finishAnimationWithVelocity:velocity.x+30 completion:nil];
+
+                    break;
+                }
+                case NTDCardPanningVerticalDirection:
+                {                    
+                    BOOL shouldCreateNewCard = (-self.pagingLayout.pannedCardYTranslation <= self.listLayout.pullToCreateCreateCardOffset);
+                    
+                    if (shouldCreateNewCard) {
+                        CGFloat panSpeed = fabsf(velocity.y) - 30;
+                        CGFloat panPosition = fabsf(translation.y);
+                        CGFloat panDuration = panPosition / panSpeed;
+                        
+                        NSTimeInterval duration = panDuration;
+                        duration = CLAMP(duration, 0.2, 0.6);
+                        
+                        // finish the pull and reveal the new card
+                        [self insertNewCardWithDuration:duration];
+                        self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+                    } else {
+                        
+                        // return the card to the top
+                        [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+                            self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+                        }];
+                    }
+                    
+                    break;
+                }
                 
-            // check for a swipe
-            } else if (fabs(velocity) > SwipeVelocityThreshold ) {
-                // left
-                if (velocity < 0 && translation.x < 0)
-                    newIndex ++ ;
-                else if (velocity > 0 && translation.x > 0)
-                    newIndex -- ;
+                    
+                    
+                default:
+                    self.visibleCell.textView.scrollEnabled = YES;
+                    break;
             }
-                                    
-            // make sure we stay within bounds
-            newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
-            self.pagingLayout.activeCardIndex = newIndex ;
             
-//            NSLog(@"new Index is: %i", self.pagingLayout.activeCardIndex);
+            self.cardPanningDirection = NTDCardPanningNoDirection;
             
-            // update this so we know to animate to resting position
-            self.pagingLayout.pannedCardXTranslation = 0;            
-            panEnded = YES;
+            
             break;
         }
             
         case UIGestureRecognizerStateFailed :
         case UIGestureRecognizerStateCancelled :
+        {
+            self.cardPanningDirection = NTDCardPanningNoDirection;
             panGestureRecognizer.enabled = YES;
-            
-        default:            
+            self.visibleCell.textView.scrollEnabled = YES;
+            [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+                self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
+            }];
+        }
+        default:
             break;
     }
-    
-    if (!doNotRefresh) {
-        if (panEnded)
-            // animate to rest with some added velocity
-            [self.pagingLayout finishAnimationWithVelocity:velocity+30 completion:nil];
-        else if (!self.hasTwoFingerNoteDeletionBegun)
-            [self.pagingLayout invalidateLayout];
-    }    
 }
 
 - (IBAction)panCardWhileViewingOptions:(UIPanGestureRecognizer *)panGestureRecognizer
@@ -569,7 +662,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
         case UIGestureRecognizerStateChanged :
-            self.pagingLayout.pannedCardXTranslation = translation.x < 0 ? fmax(-self.pagingLayout.currentOptionsOffset, translation.x) : 0;
+            self.pagingLayout.pannedCardXTranslation = translation.x < 0 ? MAX(-self.pagingLayout.currentOptionsOffset, translation.x) : 0;
             needsTranslation = YES;
             break;
             
@@ -605,6 +698,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
+            if (self.notes.count == 1) {
+                pinchGestureRecognizer.enabled = NO;
+                break;
+            }
+
             NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
             
             initialDistance = PinchDistance(pinchGestureRecognizer);
@@ -628,6 +726,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateChanged:
         {
+            // don't do anything when we have none left            
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             
@@ -645,7 +744,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0 && pinchGestureRecognizer.velocity > -PinchVelocityThreshold);
             
-            if (shouldReturnToPagingLayout) {
+            if (self.notes.count == 1 || shouldReturnToPagingLayout) {
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
@@ -770,39 +869,52 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughMakeANoteStep];
+    [self pretendPullToCreateCardIsANewNote];
+    
+    BOOL isListLayout = (self.collectionView.collectionViewLayout == self.listLayout);
+    
     [UIView animateWithDuration:duration
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
+                         // reveal new card
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
                          for (NSIndexPath *visibleIndexPath in indexPaths) {
                              NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleIndexPath];
-                             cell.$y += self.collectionView.frame.size.height;
-                             [subviews removeObject:cell];
-                         }
-                         for (UIView *view in subviews) {
-                             /* Search for & edit the 'pull to create card' cell. */
-                             if ([view isKindOfClass:[NTDCollectionViewCell class]] &&
-                                 (view.$y <= self.listLayout.pullToCreateCreateCardOffset) &&
-                                 !view.hidden) {
-                                 NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
-                                 cell.relativeTimeLabel.text = @"Today";
-                                 break;
-                             }
+                             cell.$y += self.collectionView.$height;
                          }
                      } completion:^(BOOL finished) {
+                         // repleace dummy card
                          [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
                              [self.notes insertObject:note atIndex:0];
                              self.pagingLayout.activeCardIndex = 0;
-                             [self updateLayout:self.pagingLayout
-                                       animated:NO];
+                             self.pagingLayout.pannedCardYTranslation = 0;
+                             
+                             if (isListLayout)
+                                 [self updateLayout:self.pagingLayout animated:NO];
+                             else
+                                 [self.collectionView reloadData];
+                                 
                              dispatch_async(dispatch_get_main_queue(), ^{
                                  [self.visibleCell.textView becomeFirstResponder];
-                                 [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
+                                 if (isListLayout)
+                                     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
                              });
                          }];
-                     }];
+                     }];    
+}
+
+- (void)pretendPullToCreateCardIsANewNote {
+    NSMutableArray *subviews = [[self.collectionView subviews] mutableCopy];
+    for (UIView *view in subviews) {
+        /* Search for & edit the 'pull to create card' cell. */
+        if ([view isKindOfClass:[NTDCollectionViewCell class]]) {
+            NTDCollectionViewCell *cell = (NTDCollectionViewCell *)view;
+            if ([cell.textView.text isEqualToString:@"Release to create a note"]) {
+                cell.relativeTimeLabel.text = @"Today";
+            }
+        }
+    }
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
@@ -854,6 +966,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.notes = [notes mutableCopy];
         if (self.notes.count == 0) {
             [self addDefaultNotesIfNecessary];
+        } else if (self.notes.count == 1) {
+            self.pagingLayout.activeCardIndex = 0;
+            [self updateLayout:self.pagingLayout animated:NO];
         } else {
             [self.collectionView reloadData];
         }
@@ -925,7 +1040,35 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{    
+{
+    // if the scrollview
+    if (otherGestureRecognizer.view == self.visibleCell.textView
+        && gestureRecognizer == self.panCardGestureRecognizer) {
+        if (self.visibleCell.textView.contentOffset.y <= 0)
+            return YES;
+        
+//        CGFloat pullVelocity = [self.panCardGestureRecognizer velocityInView:self.visibleCell.textView].y;
+//        BOOL pullRecognized = NO;
+//        
+//        if (self.visibleCell.textView.contentOffset.y < 0)
+//            pullRecognized = (pullVelocity == 0);
+//        else if (self.visibleCell.textView.contentOffset.y == 0)
+//            pullRecognized = (pullVelocity > 0);
+//        
+//        if (pullRecognized) {
+//            if (self.visibleCell.textView.contentOffset.y < 0)
+//                [UIView animateWithDuration:.1 animations:^{
+//                    self.visibleCell.textView.contentOffset = CGPointZero;
+//                } completion:^(BOOL finished) {
+//                    self.visibleCell.textView.scrollEnabled = NO;
+//                }];
+//            else
+//                self.visibleCell.textView.scrollEnabled = NO;
+//            
+//            return YES;
+//        }
+    }
+//    NSLog(@"%@ \n&&\n%@", gestureRecognizer, otherGestureRecognizer);
     if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
         return YES;
     
@@ -936,6 +1079,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 #pragma mark - UIScrollViewDelegate
+
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (scrollView == self.visibleCell.textView)
@@ -1004,7 +1148,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         CGPoint newPoint = scrollView.contentOffset;
         *targetContentOffset = newPoint;
     }
-
 }
 
 #pragma mark - UITextViewDelegate
