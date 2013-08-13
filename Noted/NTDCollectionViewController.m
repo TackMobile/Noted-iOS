@@ -174,17 +174,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // set up properties
-    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        self.notes = [notes mutableCopy];
-        if (self.notes.count == 1){
-            [self updateLayout:self.pagingLayout animated:NO];
-            [self.collectionView reloadData];
-        }
-    }];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                             selector:@selector(noteListChanged:)
-//                                                 name:kNoteListChangedNotification
-//                                               object:nil];
+    [self.collectionView reloadData];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(toggledStatusBar:)
@@ -602,7 +592,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     }
                     
                     // make sure we stay within bounds
-                    newIndex = MAX(0, MIN(newIndex, [self.collectionView numberOfItemsInSection:0]-1));
+                    newIndex = CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
                     self.pagingLayout.activeCardIndex = newIndex ;
                     [self.pagingLayout finishAnimationWithVelocity:velocity.x+30 completion:nil];
 
@@ -672,7 +662,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
         case UIGestureRecognizerStateChanged :
-            self.pagingLayout.pannedCardXTranslation = translation.x < 0 ? fmax(-self.pagingLayout.currentOptionsOffset, translation.x) : 0;
+            self.pagingLayout.pannedCardXTranslation = translation.x < 0 ? MAX(-self.pagingLayout.currentOptionsOffset, translation.x) : 0;
             needsTranslation = YES;
             break;
             

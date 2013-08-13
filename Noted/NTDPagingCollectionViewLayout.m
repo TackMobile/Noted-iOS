@@ -52,9 +52,9 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     
     // add the creatable card behind everything
     if (self.pannedCardYTranslation != 0) {
-        UICollectionViewLayoutAttributes *creatableCardAttributes = [self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard atIndexPath: [NSIndexPath indexPathForItem:0 inSection:0] ];
+        UICollectionViewLayoutAttributes *pullToCreateCardAttributes = [self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard atIndexPath: [NSIndexPath indexPathForItem:0 inSection:0] ];
         
-        [attributesArray addObject:creatableCardAttributes];
+        [attributesArray addObject:pullToCreateCardAttributes];
     }
 
     return attributesArray;
@@ -111,13 +111,13 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
         
-    self.pannedCardYTranslation = fmax(0, self.pannedCardYTranslation);
+    self.pannedCardYTranslation = MAX(0, self.pannedCardYTranslation);
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + self.pannedCardYTranslation);
     CGPoint right = CGPointMake(center.x + self.collectionView.frame.size.width, center.y);
     
     // keep the panned translation smaller than screenwidth
-    pannedCardXTranslation = fmaxf(-self.collectionView.frame.size.width, fminf(self.collectionView.frame.size.width, pannedCardXTranslation));
+    pannedCardXTranslation = MAX(-self.collectionView.frame.size.width, fminf(self.collectionView.frame.size.width, pannedCardXTranslation));
     
     // if we're viewing options, offset center
     if (isViewingOptions && attr.indexPath.row == activeCardIndex) {
@@ -198,7 +198,7 @@ static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
     }];
 }
 
-- (void) completePullWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
+- (void) completePullAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
 
 }
