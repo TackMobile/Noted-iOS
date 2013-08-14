@@ -301,16 +301,19 @@ static NSDictionary *messages;
     __strong id foo = self;
     self.promptHandler(YES);
     [self buttonTouchEnded:button];
+    foo = nil;
 }
 - (void)noButtonTapped:(UIButton *)button {
     __strong id foo = self;
     self.promptHandler(NO);
     [self buttonTouchEnded:button];
+    foo = nil;
 }
 - (void)dismissButtonTapped:(UIButton *)button {
     __strong id foo = self;
     self.promptHandler(YES);
     [self buttonTouchEnded:button];
+    foo = nil;
 }
 
 @end
