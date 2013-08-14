@@ -86,8 +86,8 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughSwipeToCloseKeyboardStep:
         {
-            CGPoint start = {.x = CenterX, .y = 180};
-            CGPoint end = {.x = CenterX, .y = 260 + YOffset};
+            CGPoint start = {.x = CenterX, .y = 205};
+            CGPoint end = {.x = CenterX, .y = 250 + YOffset};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }

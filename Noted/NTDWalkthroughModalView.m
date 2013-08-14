@@ -45,7 +45,7 @@ static NSDictionary *messages;
 {
     messages = @{@(NTDWalkthroughShouldBeginWalkthroughStep) : @"Would you like to begin the walkthrough?",
                  @(NTDWalkthroughMakeANoteStep) : @"Pull to create a new note.",
-                 @(NTDWalkthroughSwipeToCloseKeyboardStep) : @"Type something, then swipe the keyboard down to finish.",
+                 @(NTDWalkthroughSwipeToCloseKeyboardStep) : @"Type something, then swipe the keyboard down.",
                  @(NTDWalkthroughTapOptionsStep) : @"Tap the options button.",
                  @(NTDWalkthroughChangeColorsStep) : @"Pick a new color for your note.",
                  @(NTDWalkthroughCloseOptionsStep) : @"Swipe left to close the options menu.",
@@ -240,7 +240,7 @@ static NSDictionary *messages;
     // calculate the modal's position within its allowable bounds
     switch (self.position) {
         case NTDWalkthroughModalPositionTop:
-            modalFrame.origin.y = modalBounds.origin.y - screenFrame.origin.y;
+            modalFrame.origin.y = modalBounds.origin.y - screenFrame.origin.y + 30;
             break;
             
         case NTDWalkthroughModalPositionCenter:
