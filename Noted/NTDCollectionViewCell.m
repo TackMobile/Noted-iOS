@@ -98,17 +98,16 @@
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
 {
     if ([newLayout isKindOfClass:[NTDListCollectionViewLayout class]]) {
-        if (!self._doNotHideSettingsForNextLayoutChange)
-            self.settingsButton.alpha = 0;
-        
         self.textView.editable = NO;
-        self.textView.scrollEnabled = NO;
+        self.textView.userInteractionEnabled = NO;
         [self applyShadow:NO];
+        if (!self._doNotHideSettingsForNextLayoutChange) self.settingsButton.alpha = 0;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
-        self.settingsButton.alpha = 1;
+        self.textView.userInteractionEnabled = YES;
         self.textView.editable = YES;
         self.textView.scrollEnabled = YES;
         [self applyShadow:YES];
+        self.settingsButton.alpha = 1;
     }
     self._doNotHideSettingsForNextLayoutChange = NO;
 }
