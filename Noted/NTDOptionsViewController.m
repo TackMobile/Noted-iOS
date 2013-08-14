@@ -422,7 +422,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.mailViewController = nil;
     }];
-    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"mail"}];
+    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"mail"}];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
@@ -430,7 +430,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.messageViewController = nil;
     }];
-    if (result == MessageComposeResultSent) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"sms"}];
+    if (result == MessageComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"sms"}];
 }
 
 - (void)createSocialPostForServiceType:(NSString *)serviceType
@@ -440,7 +440,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [controller setInitialText:self.note.text];
     [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
         self.composeViewController = nil;
-        if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : serviceType}];
+        if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : serviceType}];
     }];
     [self.delegate presentViewController:controller
                                 animated:YES
@@ -453,7 +453,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
     
     [self.delegate showToastWithMessage:@"Text copied to clipboard"];
-    [Flurry logEvent:@"Noted Shared" withParameters:@{@"type" : @"copied"}];
+    [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"copied"}];
 }
 
 #pragma mark - Positioning
