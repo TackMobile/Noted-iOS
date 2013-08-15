@@ -96,6 +96,9 @@ static NTDWalkthrough *sharedInstance;
     [NSUserDefaults.standardUserDefaults synchronize];
     [self.viewController.view removeFromSuperview];
     self.viewController = nil;
+    if (self.currentStep == NTDWalkthroughShouldBeginWalkthroughStep) {
+        [Flurry endTimedEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)}];
+    }
 }
 
 @end
