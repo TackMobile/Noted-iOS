@@ -10,6 +10,7 @@
 #import <MessageUI/MessageUI.h>
 #import <Twitter/Twitter.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDCollectionViewController.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
@@ -22,7 +23,6 @@
 #import "Utilities.h"
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
-
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -1171,6 +1171,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)textViewDidChange:(UITextView *)textView
 {
     [[self noteAtIndexPath:self.visibleCardIndexPath] setText:textView.text];
+    [Flurry logEvent:@"Note Edited"];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
@@ -1226,6 +1227,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.visibleCell applyTheme:self.optionsViewController.note.theme];
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughChangeColorsStep];
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughChangeColorsStep];
+    [Flurry logEvent:@"Theme Changed" withParameters:@{@"theme": [self.optionsViewController.note.theme themeName]}];
 }
 
 - (void)dismissOptions

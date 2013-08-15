@@ -434,7 +434,6 @@ BOOL safe_rename(const char *old, const char *new)
     if (theme.colorScheme != self.metadata.colorScheme) {
         self.metadata.colorScheme = theme.colorScheme;
         [self updateChangeCount:UIDocumentChangeDone];
-        [Flurry logEvent:@"Theme Changed" withParameters:@{@"theme": [theme themeName]}];
     }
 }
  
@@ -449,7 +448,6 @@ BOOL safe_rename(const char *old, const char *new)
             self.metadata.headline = [text substringToIndex:HeadlineLength];
         }
         [self updateChangeCount:UIDocumentChangeDone];
-        [Flurry logEvent:@"Note Edited"];
     }
 }
 @end
