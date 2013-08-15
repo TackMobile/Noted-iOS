@@ -144,7 +144,7 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 					<object class="IBUIButton" id="211979168">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{284, -1}, {40, 38}}</string>
+						<string key="NSFrame">{{282, 1}, {40, 38}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -355,35 +355,17 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NTDCollectionViewController</string>
 					<string key="superclassName">UICollectionViewController</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="panCard:">UIPanGestureRecognizer</string>
-						<string key="panCardWhileViewingOptions:">UIPanGestureRecognizer</string>
-						<string key="panCardWithTwoFingers:">UIPanGestureRecognizer</string>
-						<string key="pinchToListLayout:">UIPinchGestureRecognizer</string>
-						<string key="showSettings:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="panCard:">
-							<string key="name">panCard:</string>
-							<string key="candidateClassName">UIPanGestureRecognizer</string>
-						</object>
-						<object class="IBActionInfo" key="panCardWhileViewingOptions:">
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">panCardWhileViewingOptions:</string>
+						<string key="NS.object.0">UIPanGestureRecognizer</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">panCardWhileViewingOptions:</string>
+						<object class="IBActionInfo" key="NS.object.0">
 							<string key="name">panCardWhileViewingOptions:</string>
 							<string key="candidateClassName">UIPanGestureRecognizer</string>
 						</object>
-						<object class="IBActionInfo" key="panCardWithTwoFingers:">
-							<string key="name">panCardWithTwoFingers:</string>
-							<string key="candidateClassName">UIPanGestureRecognizer</string>
-						</object>
-						<object class="IBActionInfo" key="pinchToListLayout:">
-							<string key="name">pinchToListLayout:</string>
-							<string key="candidateClassName">UIPinchGestureRecognizer</string>
-						</object>
-						<object class="IBActionInfo" key="showSettings:">
-							<string key="name">showSettings:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/NTDCollectionViewController.h</string>
@@ -421,7 +403,7 @@ bnQgdG8gZmFjdG9yIHR1bSBwb2VuIGxlZ3VtIG9kaW9xdWUgY2l2aXVkYS4</bytes>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="NS.key.0">menu-icon-grey.png</string>
-			<string key="NS.object.0">{15, 16}</string>
+			<string key="NS.object.0">{20, 20}</string>
 		</object>
 		<string key="IBCocoaTouchPluginVersion">2083</string>
 	</data>
