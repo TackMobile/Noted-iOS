@@ -13,6 +13,7 @@
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
 #import "NTDReplicatorView.h"
+#import "NTDWalkthroughModalView.h"
 
 //TODO when walkthrough advances to a new step, clear the dictionary of old step (including associations)
 //TODO add KVO for self.visibleCell.textView.keyboardPanRecognizer
@@ -173,11 +174,8 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     CGSize indicatorSize = {.width = StandardIndicatorWidth, .height = StandardIndicatorWidth};
     CGRect bounds = {.size = indicatorSize};
     NTDWalkthroughGestureIndicatorView *view = [[NTDWalkthroughGestureIndicatorView alloc] initWithFrame:bounds];
-    view.backgroundColor = [NTDTheme themeForColorScheme:NTDColorSchemeTack].backgroundColor;
-    view.layer.shadowOpacity = 0.35;
-    view.layer.shadowOffset = CGSizeZero;
-    view.clipsToBounds = NO;
-    view.layer.shouldRasterize = YES;
+    view.layer.cornerRadius = StandardIndicatorWidth/2;
+    view.backgroundColor = WalkthroughModalBackgroundColor;
 
     return view;
 }
@@ -194,45 +192,14 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     
     [view addDragAnimation];
     return view;
-    
-//    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-//    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
-//    fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
-//    fadeInAnimation.duration = .2;
-//    fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-//    fadeInAnimation.fillMode = kCAFillModeForwards;
-//
-//    CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-//    positionAnimation.fromValue = [NSValue valueWithCGPoint:start];
-//    positionAnimation.toValue = [NSValue valueWithCGPoint:end];
-//    positionAnimation.duration = duration;
-//    positionAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//    positionAnimation.fillMode = kCAFillModeForwards;
-//    positionAnimation.beginTime = fadeInAnimation.duration;
-//    
-//    CABasicAnimation *fadeOutAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-//    fadeOutAnimation.fromValue = [NSNumber numberWithFloat:1.0];
-//    fadeOutAnimation.toValue = [NSNumber numberWithFloat:0.0];
-//    fadeOutAnimation.duration = .2;
-//    fadeOutAnimation.beginTime = positionAnimation.beginTime + positionAnimation.duration + .1;
-//    fadeOutAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//    fadeOutAnimation.fillMode = kCAFillModeForwards;
-//    
-//    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-//    animationGroup.animations = @[fadeInAnimation, positionAnimation, fadeOutAnimation];
-//    animationGroup.repeatCount = HUGE_VALF;
-//    animationGroup.duration = fadeOutAnimation.beginTime + fadeOutAnimation.duration + .1;
-//    [view.layer addAnimation:animationGroup forKey:@"dragAnimation"];
-//    
-//    return view;
 }
 
 + (instancetype)animatedTapIndicatorViewAtCenter:(CGPoint)center
 {
     NTDWalkthroughGestureIndicatorView *view = [self newIndicatorView];
     view.$size = CGSizeMake(TapIndicatorWidth, TapIndicatorWidth);
+    view.layer.cornerRadius = TapIndicatorWidth/2;
     view.center = center;
-    view.alpha = 0.7;
         
     NSTimeInterval TotalDuration = 1.6;
     CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];

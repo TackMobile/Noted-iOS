@@ -22,6 +22,8 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
     NTDWalkthroughModalTypeDismiss
 };
 
+UIColor *WalkthroughModalBackgroundColor;
+
 const CGFloat NTDWalkthroughModalEdgeMargin = 30;
 const CGFloat NTDWalkthroughModalPadding = 15;
 const CGFloat NTDWalkthroughModalButtonsHeight = 40;
@@ -55,7 +57,9 @@ static NSDictionary *messages;
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
                  @(NTDWalkthroughCompletedStep) : @"You've completed the walkthrough!",
     };
+    WalkthroughModalBackgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
 }
+
 - (id)initWithStep:(NTDWalkthroughStep)step
 {
     if (self = [super initWithFrame:CGRectZero]) {
@@ -267,7 +271,7 @@ static NSDictionary *messages;
     // add the background for the label
     [self.modalBackground removeFromSuperview];
     self.modalBackground = [UIView new];
-    self.modalBackground.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+    self.modalBackground.backgroundColor = WalkthroughModalBackgroundColor;
     self.modalBackground.frame = modalBackgroundFrame;
     
     // add the text
