@@ -6,9 +6,10 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <QuartzCore/QuartzCore.h>
+#import <FlurrySDK/Flurry.h>
 #import "NTDWalkthrough.h"
 #import "NTDWalkthroughViewController.h"
-#import <QuartzCore/QuartzCore.h>
 
 NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
 NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
@@ -52,6 +53,7 @@ static NTDWalkthrough *sharedInstance;
     [rootController.view addSubview:self.viewController.view];
 
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
+    [Flurry logEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)} timed:YES];
 }
 
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step
@@ -68,11 +70,12 @@ static NTDWalkthrough *sharedInstance;
     
     if (self.currentStep == self.numberOfSteps) {
         [self endWalkthrough:YES];
+        return;
     } else {
         [self.viewController beginDisplayingViewsForStep:self.currentStep];
     }
+    [Flurry logEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)} timed:YES];
     [NSNotificationCenter.defaultCenter postNotificationName:NTDDidAdvanceWalkthroughToStepNotification object:self];
-//    NSLog(@"advancing to step: %d", self.currentStep);
 }
 
 - (void)stepShouldEnd:(NTDWalkthroughStep)step
@@ -80,8 +83,8 @@ static NTDWalkthrough *sharedInstance;
     if (self.currentStep != step)
         return;
     [self.viewController endDisplayingViewsForStep:step];
+    [Flurry endTimedEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)}];
     [NSNotificationCenter.defaultCenter postNotificationName:NTDWillEndWalkthroughStepNotification object:self];
-//    NSLog(@"stepShouldEnd: %d", self.currentStep);
 }
 
 - (void)endWalkthrough:(BOOL)wasCompleted
