@@ -226,23 +226,23 @@
 - (void)createWalkthroughNotes
 {
     NSArray *initialNotes = @[
-                              @"“We write to taste life twice, in the moment and in retrospect.” ― Anaïs Nin",
-                              @"“The scariest moment is always just before you start.” ― Stephen King",
-                              @"“You can make anything by writing.” ― C.S. Lewis",
+                              @"“That’s been one of my mantras – focus and simplicity. Simple can be harder than complex. You have to work hard to get your thinking clean to make it simple. But it’s worth it in the end because once you get there, you can move mountains.” ― Steve Jobs",
+                              @"“Good design is a lot like clear thinking made visual.” ― Edward Tufte",
+                              @"“It is not a daily increase, but a daily decrease. Hack away at the inessentials.” ― Bruce Lee",
                               ];
     
     NSArray *initialThemes = @[
                                [NTDTheme themeForColorScheme:NTDColorSchemeShadow],
-                               [NTDTheme themeForColorScheme:NTDColorSchemeLime],
-                               [NTDTheme themeForColorScheme:NTDColorSchemeTack]
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeKernal]
                                ];
     
     self.notes = [NSMutableArray array];
-    [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
+    [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
         [self.notes insertObject:note atIndex:0];
         [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
             [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
+            [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
                 [self.notes insertObject:note atIndex:0];
                 [self.collectionView reloadData];
             }];

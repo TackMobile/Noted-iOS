@@ -977,16 +977,47 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)addDefaultNotesIfNecessary
 {
+    //TODO This is shitte. Fix this.
+    NSArray *initialNotes = @[
+                              @"“The best art makes your head spin with questions. Perhaps this is the fundamental distinction between pure art and pure design. While great art makes you wonder, great design makes things clear.” ― John Maeda",
+                              @"“I am not a genius, I am just curious. I ask many questions. and when the answer is simple, then God is answering.” ― Albert Einstein",
+                              @"“Truth is ever to be found in the simplicity, and not in the multiplicity and confusion of things.” ― Isaac Newton",
+                              @"“That’s been one of my mantras – focus and simplicity. Simple can be harder than complex. You have to work hard to get your thinking clean to make it simple. But it’s worth it in the end because once you get there, you can move mountains.” ― Steve Jobs",
+                              @"“Good design is a lot like clear thinking made visual.” ― Edward Tufte",
+                              @"“It is not a daily increase, but a daily decrease. Hack away at the inessentials.” ― Bruce Lee",
+                              ];
+    
+    NSArray *initialThemes = @[
+                               [NTDTheme themeForColorScheme:NTDColorSchemeWhite],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeSky],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeLime],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeShadow],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeTack],
+                               [NTDTheme themeForColorScheme:NTDColorSchemeKernal]
+                               ];
+    
+
+    initialNotes = initialNotes.reverseObjectEnumerator.allObjects;
+    initialThemes = initialThemes.reverseObjectEnumerator.allObjects;
+    
     if (self.notes.count == 0) {
-        NSString *firstNoteText = @"Welcome to Noted.\n\n• Pull the list down to create a new note.\n• Swipe a note out of the stack to delete it.\n• Tap a note to see it and edit it.\n• Swipe left and right to page through notes.\n• Swipe right with two fingers to shred a note.\n\n😁 Have fun and send us your feedback!";
-        NSString *secondNoteText = @"Here's another note.";
-        NTDTheme *firstNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeTack], *secondNoteTheme = [NTDTheme themeForColorScheme:NTDColorSchemeWhite];
-        // add 2 notes
-        [NTDNote newNoteWithText:firstNoteText theme:firstNoteTheme completionHandler:^(NTDNote *note) {
+        [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
             [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:secondNoteText theme:secondNoteTheme completionHandler:^(NTDNote *note) {
+            [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
                 [self.notes insertObject:note atIndex:0];
-                [self.collectionView reloadData];
+                [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
+                    [self.notes insertObject:note atIndex:0];
+                    [NTDNote newNoteWithText:initialNotes[3] theme:initialThemes[3] completionHandler:^(NTDNote *note) {
+                        [self.notes insertObject:note atIndex:0];
+                        [NTDNote newNoteWithText:initialNotes[4] theme:initialThemes[4] completionHandler:^(NTDNote *note) {
+                            [self.notes insertObject:note atIndex:0];
+                            [NTDNote newNoteWithText:initialNotes[5] theme:initialThemes[5] completionHandler:^(NTDNote *note) {
+                                [self.notes insertObject:note atIndex:0];
+                                [self.collectionView reloadData];
+                            }];
+                        }];
+                    }];
+                }];
             }];
         }];
     }
