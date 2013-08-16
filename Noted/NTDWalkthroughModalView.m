@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
 
 const CGFloat NTDWalkthroughModalEdgeMargin = 30;
 const CGFloat NTDWalkthroughModalPadding = 15;
-const CGFloat NTDWalkthroughModalButtonsHeight = 40;
+const CGFloat NTDWalkthroughModalButtonHeight = 40;
 
 static NSDictionary *messages;
 
@@ -180,7 +180,7 @@ static NSDictionary *messages;
     CGRect buttonFrame = {
         .origin.x = (self.modalBackground.frame.size.width + buttonMargin) * percent * index,
         .origin.y = self.modalBackground.frame.size.height + buttonMargin,
-        .size.height = NTDWalkthroughModalButtonsHeight,
+        .size.height = NTDWalkthroughModalButtonHeight,
         .size.width =self.modalBackground.frame.size.width * percent - buttonMargin * percent
     };
     
@@ -231,7 +231,7 @@ static NSDictionary *messages;
     switch (self.type) {
         case NTDWalkthroughModalTypeBoolean:
         case NTDWalkthroughModalTypeDismiss:
-            modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonsHeight;
+            modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonHeight;
             break;
             
         default:
@@ -292,10 +292,10 @@ static NSDictionary *messages;
 
 #pragma mark - Button Action Handling
 - (void)buttonTouchedDown:(UIButton *)button {
-    button.backgroundColor = [UIColor colorWithWhite:.27 alpha:1];
+    button.backgroundColor = [UIColor colorWithWhite:0 alpha:.85];
 }
 - (void)buttonTouchEnded:(UIButton *)button {
-    button.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+    button.backgroundColor = ModalBackgroundColor;
 }
 
 - (void)yesButtonTapped:(UIButton *)button {
