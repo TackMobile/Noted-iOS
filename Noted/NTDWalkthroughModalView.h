@@ -10,7 +10,6 @@
 #import "NTDWalkthrough.h"
 
 typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
-FOUNDATION_EXPORT UIColor *WalkthroughModalBackgroundColor;
 
 @interface NTDWalkthroughModalView : UIView
 

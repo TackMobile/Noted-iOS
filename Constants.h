@@ -1,26 +1,13 @@
-
-static inline BOOL IsEmpty(id thing) {
-    return thing == nil
-    || ([thing respondsToSelector:@selector(length)]
-        && [(NSData *)thing length] == 0)
-    || ([thing respondsToSelector:@selector(count)]
-        && [(NSArray *)thing count] == 0);
-}
-
 typedef void(^NTDVoidBlock)();
 
 static const float NTDPullToCreateShowCardOffset = 30.0;
 static const float NTDPullToCreateScrollCardOffset = 50.0;
 
-#define APP_DELEGATE            (AppDelegate*)[UIApplication sharedApplication].delegate
+UIColor *ModalBackgroundColor;
 
 // user defaults
-#define USE_STANDARD_SYSTEM_KEYBOARD            @"useDefaultKeyboard"
 #define HIDE_STATUS_BAR                         @"hideStatusBar"
 #define kFirstUse                               @"firstUse"
-
-// notifications
-#define SHOULD_CREATE_NOTE                      @"shouldCreateNote"
 
 // System Versioning Preprocessor Macros
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)

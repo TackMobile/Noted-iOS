@@ -175,7 +175,7 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     CGRect bounds = {.size = indicatorSize};
     NTDWalkthroughGestureIndicatorView *view = [[NTDWalkthroughGestureIndicatorView alloc] initWithFrame:bounds];
     view.layer.cornerRadius = StandardIndicatorWidth/2;
-    view.backgroundColor = WalkthroughModalBackgroundColor;
+    view.backgroundColor = ModalBackgroundColor;
 
     return view;
 }

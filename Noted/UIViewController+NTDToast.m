@@ -7,6 +7,7 @@
 //
 
 #import "UIViewController+NTDToast.h"
+#import "NTDWalkthroughModalView.h"
 
 @implementation UIViewController (NTDToast)
 
@@ -25,7 +26,7 @@
     UILabel *toast = [[UILabel alloc] initWithFrame:toastRect];
     toast.text = message;
     toast.font = toastFont;
-    toast.backgroundColor = [UIColor colorWithWhite:.17 alpha:1];
+    toast.backgroundColor = ModalBackgroundColor;
     toast.textColor = [UIColor whiteColor];
     toast.textAlignment = NSTextAlignmentCenter;
     

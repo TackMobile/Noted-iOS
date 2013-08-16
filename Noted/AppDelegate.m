@@ -27,6 +27,7 @@
     [Flurry startSession:@"F9R3ZM7J2KWNPCGR6XBF"];
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
 
+    [self customizeAppearance];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = [[NTDCollectionViewController alloc] init];
     self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
@@ -51,5 +52,8 @@
     [NSUserDefaults.standardUserDefaults synchronize];
 }
 
-
+- (void)customizeAppearance
+{
+    ModalBackgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
+}
 @end

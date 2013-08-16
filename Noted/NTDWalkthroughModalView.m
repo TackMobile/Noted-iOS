@@ -22,8 +22,6 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
     NTDWalkthroughModalTypeDismiss
 };
 
-UIColor *WalkthroughModalBackgroundColor;
-
 const CGFloat NTDWalkthroughModalEdgeMargin = 30;
 const CGFloat NTDWalkthroughModalPadding = 15;
 const CGFloat NTDWalkthroughModalButtonsHeight = 40;
@@ -57,7 +55,6 @@ static NSDictionary *messages;
                  @(NTDWalkthroughOneFingerDeleteStep) : @"Swipe with one finger to delete when viewing all of your notes.",
                  @(NTDWalkthroughCompletedStep) : @"You've completed the walkthrough!",
     };
-    WalkthroughModalBackgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
 }
 
 - (id)initWithStep:(NTDWalkthroughStep)step
@@ -176,7 +173,7 @@ static NSDictionary *messages;
 
 -(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
     // ensure the background is off-white for the dividers
-    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
+//    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
     CGFloat buttonMargin = 1/[UIScreen mainScreen].scale;
     
     // add the yes/no buttons
@@ -271,7 +268,7 @@ static NSDictionary *messages;
     // add the background for the label
     [self.modalBackground removeFromSuperview];
     self.modalBackground = [UIView new];
-    self.modalBackground.backgroundColor = WalkthroughModalBackgroundColor;
+    self.modalBackground.backgroundColor = ModalBackgroundColor;
     self.modalBackground.frame = modalBackgroundFrame;
     
     // add the text
