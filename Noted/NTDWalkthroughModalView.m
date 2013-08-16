@@ -176,13 +176,15 @@ static NSDictionary *messages;
     // ensure the background is off-white for the dividers
 //    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
     CGFloat buttonMargin = 1/[UIScreen mainScreen].scale;
+    CGFloat buttonMarginTop = buttonMargin;
+    CGFloat buttonMarginSides = (percent == 1) ? 0 : buttonMargin;
     
     // add the yes/no buttons
     CGRect buttonFrame = {
-        .origin.x = (self.modalBackground.$width + buttonMargin) * percent * index,
-        .origin.y = self.modalBackground.$height + buttonMargin,
+        .origin.x = (self.modalBackground.$width + buttonMarginSides) * percent * index,
+        .origin.y = self.modalBackground.$height + buttonMarginTop,
         .size.height = NTDWalkthroughModalButtonHeight,
-        .size.width =self.modalBackground.$width * percent - buttonMargin * percent
+        .size.width =self.modalBackground.$width * percent - buttonMarginSides * percent
     };
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -203,7 +205,6 @@ static NSDictionary *messages;
     
     button.backgroundColor = self.modalBackground.backgroundColor;
     button.frame = buttonFrame;
-    if (percent == 1) button.$width += .5; /* hack to get a proper button width for dismiss modals. */
     
     [self addSubview:button];
 }
