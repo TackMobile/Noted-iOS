@@ -35,7 +35,7 @@
     toast.transform = CGAffineTransformMakeScale(1.3, 1.3);
     
     [UIView animateWithDuration:.1 animations:^{
-        toast.alpha = 1;
+        toast.alpha = .7;
         toast.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         [UIView animateWithDuration:.3 delay:.5 options:0 animations:^{
