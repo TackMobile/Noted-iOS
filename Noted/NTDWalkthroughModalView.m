@@ -169,7 +169,7 @@ static NSDictionary *messages;
 
 -(void)drawDismissModalWithHandlerForDismiss:(SEL)dismiss {
     [self drawModalMessage];
-    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Cool."];
+    [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Start Writing"];
 }
 
 -(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
