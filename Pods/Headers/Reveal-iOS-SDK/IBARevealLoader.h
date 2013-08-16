@@ -1,1 +1,0 @@
-../../Reveal-iOS-SDK/Reveal-Framework-0.8.3/Reveal.framework/Versions/A/Headers/IBARevealLoader.h
