@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import "NTDWalkthroughModalView.h"
 
 typedef NS_ENUM(NSInteger, NTDWalkthroughModalPosition)
@@ -178,10 +179,10 @@ static NSDictionary *messages;
     
     // add the yes/no buttons
     CGRect buttonFrame = {
-        .origin.x = (self.modalBackground.frame.size.width + buttonMargin) * percent * index,
-        .origin.y = self.modalBackground.frame.size.height + buttonMargin,
+        .origin.x = (self.modalBackground.$width + buttonMargin) * percent * index,
+        .origin.y = self.modalBackground.$height + buttonMargin,
         .size.height = NTDWalkthroughModalButtonHeight,
-        .size.width =self.modalBackground.frame.size.width * percent - buttonMargin * percent
+        .size.width =self.modalBackground.$width * percent - buttonMargin * percent
     };
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -202,6 +203,7 @@ static NSDictionary *messages;
     
     button.backgroundColor = self.modalBackground.backgroundColor;
     button.frame = buttonFrame;
+    if (percent == 1) button.$width += .5; /* hack to get a proper button width for dismiss modals. */
     
     [self addSubview:button];
 }
