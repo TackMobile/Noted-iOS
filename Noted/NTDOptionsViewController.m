@@ -437,7 +437,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 {
     SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:serviceType];
     self.composeViewController = controller;
-    [controller setInitialText:self.note.text];
+    BOOL didTextFit = [controller setInitialText:self.note.text];
+    if (!didTextFit) [controller setInitialText:[self.note.text substringToIndex:140]];
     [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
         self.composeViewController = nil;
         if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : serviceType}];
