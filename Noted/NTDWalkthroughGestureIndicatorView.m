@@ -100,7 +100,9 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughChangeColorsStep:
         {
-            CGPoint center = {.x = 48, .y = 146};
+            CGPoint center = {.x = 48, .y = 142.5};
+            if (YOffset != 0) center.y -= 4; /* hack to position properly on 4" displays. */
+            
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
