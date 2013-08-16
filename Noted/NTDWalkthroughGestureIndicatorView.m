@@ -94,7 +94,7 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughTapOptionsStep:
         {
-            CGPoint center = {.x = 302, .y = 20};
+            CGPoint center = {.x = 294, .y = 20};
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
@@ -157,8 +157,8 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughOneFingerDeleteStep:
         {
-            CGPoint start = {.x = 70, .y = 97};
-            CGPoint end = {.x = 320-70, .y = 97};
+            CGPoint start = {.x = 70, .y = 98};
+            CGPoint end = {.x = 320-70, .y = 98};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }            
