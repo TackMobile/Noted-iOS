@@ -236,18 +236,11 @@
                                [NTDTheme themeForColorScheme:NTDColorSchemeTack],
                                [NTDTheme themeForColorScheme:NTDColorSchemeKernal]
                                ];
-    
-    self.notes = [NSMutableArray array];
-    [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-        [self.notes insertObject:note atIndex:0];
-        [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
-                [self.notes insertObject:note atIndex:0];
-                [self.collectionView reloadData];
-            }];
-        }];
-    }];    
-}
 
+    [NTDNote newNotesWithTexts:initialNotes themes:initialThemes completionHandler:^(NSArray *notes) {
+        self.notes = [notes mutableCopy];
+        [self.collectionView reloadData];
+    }];
+}
+  
 @end

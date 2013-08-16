@@ -977,7 +977,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)addDefaultNotesIfNecessary
 {
-    //TODO This is shitte. Fix this.
+    
     NSArray *initialNotes = @[
                               @"“The best art makes your head spin with questions. Perhaps this is the fundamental distinction between pure art and pure design. While great art makes you wonder, great design makes things clear.” ― John Maeda",
                               @"“I am not a genius, I am just curious. I ask many questions. and when the answer is simple, then God is answering.” ― Albert Einstein",
@@ -996,32 +996,13 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                [NTDTheme themeForColorScheme:NTDColorSchemeKernal]
                                ];
     
-
-    initialNotes = initialNotes.reverseObjectEnumerator.allObjects;
-    initialThemes = initialThemes.reverseObjectEnumerator.allObjects;
-    
     if (self.notes.count == 0) {
-        [NTDNote newNoteWithText:initialNotes[0] theme:initialThemes[0] completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:0];
-            [NTDNote newNoteWithText:initialNotes[1] theme:initialThemes[1] completionHandler:^(NTDNote *note) {
-                [self.notes insertObject:note atIndex:0];
-                [NTDNote newNoteWithText:initialNotes[2] theme:initialThemes[2] completionHandler:^(NTDNote *note) {
-                    [self.notes insertObject:note atIndex:0];
-                    [NTDNote newNoteWithText:initialNotes[3] theme:initialThemes[3] completionHandler:^(NTDNote *note) {
-                        [self.notes insertObject:note atIndex:0];
-                        [NTDNote newNoteWithText:initialNotes[4] theme:initialThemes[4] completionHandler:^(NTDNote *note) {
-                            [self.notes insertObject:note atIndex:0];
-                            [NTDNote newNoteWithText:initialNotes[5] theme:initialThemes[5] completionHandler:^(NTDNote *note) {
-                                [self.notes insertObject:note atIndex:0];
-                                [self.collectionView reloadData];
-                            }];
-                        }];
-                    }];
-                }];
-            }];
+        [NTDNote newNotesWithTexts:initialNotes themes:initialThemes completionHandler:^(NSArray *notes) {
+            self.notes = [notes mutableCopy];
+            [self.collectionView reloadData];
         }];
     }
-    
+
     if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
         [self.collectionView reloadData];
     }

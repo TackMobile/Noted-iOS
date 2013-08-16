@@ -46,6 +46,34 @@ static Class PrivateImplentingClass;
     }];
 }
 
++ (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler
+{
+    NSAssert(texts && themes && handler, @"All parameters must be non-nil");
+    NSAssert(texts.count == themes.count, @"texts must be the same length as themes");
+    
+    NSMutableArray *_texts = [texts mutableCopy], *_themes = [themes mutableCopy];
+    NSMutableArray *notes = [NSMutableArray arrayWithCapacity:texts.count];
+    
+    __block NTDVoidBlock retainedRecursiveBlock;
+    NTDVoidBlock recursiveBlock = ^(){
+        if (0==_texts.count) {
+            handler(notes);
+            retainedRecursiveBlock = nil;
+        } else {
+            NSString *text = [_texts lastObject];
+            NTDTheme *theme = [_themes lastObject];
+            [self newNoteWithText:text theme:theme completionHandler:^(NTDNote *note) {
+                [notes insertObject:note atIndex:0];
+                [_texts removeLastObject];
+                [_themes removeLastObject];
+                retainedRecursiveBlock();
+            }];
+        }
+    };
+    retainedRecursiveBlock = recursiveBlock;
+    recursiveBlock();
+}
+
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     [PrivateImplentingClass backupNotesWithCompletionHandler:handler];
