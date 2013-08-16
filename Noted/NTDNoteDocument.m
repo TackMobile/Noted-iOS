@@ -10,6 +10,7 @@
 
 #include <errno.h>
 #import <FlurrySDK/Flurry.h>
+#import <Crashlytics/Crashlytics.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
@@ -224,6 +225,8 @@ BOOL safe_rename(const char *old, const char *new)
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didSaveMetadata = YES;
     [context performBlockAndWait:^{
+        [Crashlytics setObjectValue:self forKey:@"saved_note"];
+        [Crashlytics setObjectValue:self.metadata forKey:@"saved_note_metadata"];
         self.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
