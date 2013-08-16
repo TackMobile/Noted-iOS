@@ -80,7 +80,7 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     switch (step) {
         case NTDWalkthroughMakeANoteStep:
         {
-            CGPoint start = {.x = CenterX, .y = 32};
+            CGPoint start = {.x = CenterX, .y = 65};
             CGPoint end = {.x = CenterX, .y = 270 + YOffset};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
