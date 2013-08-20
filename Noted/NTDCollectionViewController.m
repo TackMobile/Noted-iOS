@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 @end
 
 NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
-NSString *const NTDCollectionViewDuplicateCardReuseIdentifier = @"NoteCollectionViewDuplicateCardReuseIdentifier";
+NSString *const NTDCollectionViewPullToCreateCardReuseIdentifier = @"NTDCollectionViewPullToCreateCardReuseIdentifier";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 400.0;
@@ -81,8 +81,12 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         self.collectionView.alwaysBounceVertical = YES;
-        [self.collectionView registerNib:[UINib nibWithNibName:NSStringFromClass([NTDCollectionViewCell class]) bundle:nil]
+        UINib *nib = [UINib nibWithNibName:NSStringFromClass([NTDCollectionViewCell class]) bundle:nil];
+        [self.collectionView registerNib:nib
               forCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier];
+        [self.collectionView registerNib:nib
+              forSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
+                     withReuseIdentifier:NTDCollectionViewPullToCreateCardReuseIdentifier];
         
         // register for keyboard notification so we can resize the textview
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -257,7 +261,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - UICollectionViewDelegate
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     if ([kind isEqualToString:NTDCollectionElementKindPullToCreateCard]) {
-        NTDCollectionViewCell *cell = (NTDCollectionViewCell *) [self collectionView:collectionView cellForItemAtIndexPath:indexPath];
+        NTDCollectionViewCell *cell = [collectionView dequeueReusableSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
+                                                                         withReuseIdentifier:NTDCollectionViewPullToCreateCardReuseIdentifier
+                                                                                forIndexPath:indexPath];
         cell.relativeTimeLabel.text = @"Today";
         cell.textView.text = @"Release to create a note";
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
