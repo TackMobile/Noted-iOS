@@ -30,7 +30,6 @@
     [self customizeAppearance];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = [[NTDCollectionViewController alloc] init];
-    self.window.frame = CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height);
     [self.window makeKeyAndVisible];
     
     return YES;
@@ -38,12 +37,12 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    
     BOOL hideStatusBar = [[NSUserDefaults standardUserDefaults] boolForKey:HIDE_STATUS_BAR];
     [[UIApplication sharedApplication] setStatusBarHidden:hideStatusBar withAnimation:NO];
     
     self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
- 
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
