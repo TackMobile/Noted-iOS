@@ -430,6 +430,11 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Tack Mobile";
+				TargetAttributes = {
+					29FC490E156EE0CD0007BBAD = {
+						DevelopmentTeam = 9B83N8S7VW;
+					};
+				};
 			};
 			buildConfigurationList = 29FC4909156EE0CD0007BBAD /* Build configuration list for PBXProject "Noted" */;
 			compatibilityVersion = "Xcode 3.2";
