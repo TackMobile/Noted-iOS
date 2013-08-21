@@ -44,14 +44,11 @@
     [self applyMaskWithScrolledOffset:self.textView.contentOffset.y];
 }
 
--(void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
+- (void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
     CGFloat clearLocation = .5 + CLAMP(scrolledOffset/24, 0, .5);
-    
-    NSArray *maskLocationsArray = [NSArray arrayWithObjects:@0.5f, @(clearLocation), nil];
+    NSArray *maskLocationsArray = @[@0.5f, @(clearLocation)];
     
     if (!self.maskLayer) {
-        // apply the fade for the textView
-
         CAGradientLayer *maskLayer = [CAGradientLayer layer];
         maskLayer.colors = @[ (id)[UIColor whiteColor].CGColor, (id)[UIColor clearColor].CGColor];
         
@@ -64,8 +61,6 @@
         
         self.fadeView.layer.mask = self.maskLayer;
     } else {
-        
-        // adjust locations
         self.maskLayer.locations = maskLocationsArray;
     }
 }
@@ -102,12 +97,15 @@
         self.textView.userInteractionEnabled = NO;
         [self applyShadow:NO];
         if (!self._doNotHideSettingsForNextLayoutChange) self.settingsButton.alpha = 0;
+        self.fadeView.hidden = YES;
+        self.maskLayer = nil;
     } else if ([newLayout isKindOfClass:[NTDPagingCollectionViewLayout class]]) {
         self.textView.userInteractionEnabled = YES;
         self.textView.editable = YES;
         self.textView.scrollEnabled = YES;
         [self applyShadow:YES];
         self.settingsButton.alpha = 1;
+        self.fadeView.hidden = NO;
     }
     self._doNotHideSettingsForNextLayoutChange = NO;
 }
