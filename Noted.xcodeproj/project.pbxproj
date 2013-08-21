@@ -39,6 +39,7 @@
 		3F9D3F20179494B600EA183D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9D3F1F179494B600EA183D /* CoreData.framework */; };
 		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
+		3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */; };
 		584E150C15B7A57400DD24D2 /* UIImage+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E150B15B7A57400DD24D2 /* UIImage+Crop.m */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
 		A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB62BC5EED29406FBB1BE6A4 /* libPods.a */; };
@@ -110,6 +111,7 @@
 		3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNoteMetadata.m; sourceTree = "<group>"; };
 		3FB8976517B1A5EA004D0DC3 /* NTDReplicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDReplicatorView.h; sourceTree = "<group>"; };
 		3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDReplicatorView.m; sourceTree = "<group>"; };
+		3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		584E150A15B7A57400DD24D2 /* UIImage+Crop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Crop.h"; sourceTree = "<group>"; };
 		584E150B15B7A57400DD24D2 /* UIImage+Crop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Crop.m"; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				29E326C4157556920013399B /* Default@2x.png */,
 				29E326C1157556920013399B /* Icon.png */,
 				29E326C2157556920013399B /* Icon@2x.png */,
+				3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */,
 				379E97D61678EE650051218D /* menu-icon-grey.png */,
 				379E97D71678EE650051218D /* menu-icon-grey@2x.png */,
 				379E97DB1678EE710051218D /* menu-icon-white.png */,
@@ -458,6 +461,7 @@
 				964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */,
 				379E97D81678EE650051218D /* menu-icon-grey.png in Resources */,
 				379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */,
+				3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
