@@ -380,6 +380,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
                                            shouldDelete = NO;
                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
+                                           if (self.notes.count == 1)
+                                               [self updateLayout:self.pagingLayout animated:NO];
                                        }];
             } else {
                 // animate the cell back to its orig position
