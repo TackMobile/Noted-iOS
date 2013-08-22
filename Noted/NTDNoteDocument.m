@@ -268,6 +268,20 @@ BOOL safe_rename(const char *old, const char *new)
         [notes addObject:[self documentFromMetadata:metadata]];
         filenameCounter = MAX(filenameCounter, [self indexFromFilename:metadata.filename]);
     }
+
+    [notes sortUsingComparator:^NSComparisonResult(NTDNoteMetadata *metadata1, NTDNoteMetadata *metadata2) {
+        NSUInteger i = [self indexFromFilename:metadata1.filename];
+        NSUInteger j = [self indexFromFilename:metadata2.filename];
+        
+        if (i > j) {
+            return (NSComparisonResult)NSOrderedAscending;
+        } else if (i < j) {
+            return (NSComparisonResult)NSOrderedDescending;
+        } else {
+            return (NSComparisonResult)NSOrderedSame;
+        }
+    }];
+
     handler(notes);
 }
 
