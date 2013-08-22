@@ -111,6 +111,7 @@
 - (void)prepareForReuse
 {
     self.textView.contentOffset = CGPointZero;
+    [self applyMaskWithScrolledOffset:0];
 }
 
 - (void)doNotHideSettingsForNextLayoutChange {
