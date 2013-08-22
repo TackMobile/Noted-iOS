@@ -1184,8 +1184,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [self keyboardWasPannedToFrame:keyboardFrameInView];
     }];
     
-    // resize the textview
-    
     return YES;
 }
 
@@ -1212,7 +1210,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     // resize the textview
     NSDictionary* info = [notification userInfo];
     CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-    self.visibleCell.textView.$bottom = self.collectionView.frame.size.height - keyboardSize.height;
+    UITextView *textView = self.visibleCell.textView;
+    textView.$bottom = self.collectionView.$height - keyboardSize.height;
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)notification
@@ -1230,7 +1229,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)keyboardWasPannedToFrame:(CGRect)frame
 {
     // resize the textview
-    self.visibleCell.textView.$bottom = frame.origin.y - self.visibleCell.textView.contentOffset.y + self.visibleCell.textView.frame.origin.y;
+    UITextView *textView = self.visibleCell.textView;
+    textView.$bottom = frame.origin.y - textView.contentOffset.y + textView.$y;
 }
 
 #pragma mark - NTDOptionsViewControllerDelegate
