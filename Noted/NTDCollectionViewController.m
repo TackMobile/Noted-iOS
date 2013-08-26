@@ -78,6 +78,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         }
 
         self.hasTwoFingerNoteDeletionBegun = NO;
+        self.note_refresh_group = dispatch_group_create();
         self.collectionView.showsHorizontalScrollIndicator = NO;
         self.collectionView.allowsSelection = NO;
         self.collectionView.alwaysBounceVertical = YES;
@@ -968,6 +969,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)reloadNotes
 {
+    dispatch_group_enter(self.note_refresh_group);
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         self.notes = [notes mutableCopy];
         if (self.notes.count == 0) {
@@ -978,6 +980,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         } else {
             [self.collectionView reloadData];
         }
+        dispatch_group_leave(self.note_refresh_group);
     }];
 }
 
@@ -1003,15 +1006,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                ];
     
     if (self.notes.count == 0) {
+        dispatch_group_enter(self.note_refresh_group);
         [NTDNote newNotesWithTexts:initialNotes themes:initialThemes completionHandler:^(NSArray *notes) {
             self.notes = [notes mutableCopy];
             [self.collectionView reloadData];
+            dispatch_group_leave(self.note_refresh_group);
         }];
     }
 
-    if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
-        [self.collectionView reloadData];
-    }
+//    if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
+//        [self.collectionView reloadData];
+//    }
 }
 
 - (BOOL)shouldShowBodyForNoteAtIndexPath:(NSIndexPath *)indexPath

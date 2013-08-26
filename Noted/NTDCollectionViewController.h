@@ -40,6 +40,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) NTDListCollectionViewLayout *listLayout;
 @property (nonatomic, strong) NTDPagingCollectionViewLayout *pagingLayout;
 @property (nonatomic, strong) UILabel *pullToCreateLabel;
+@property (nonatomic, strong) dispatch_group_t note_refresh_group;
 
 - (void)reloadNotes;
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated;
