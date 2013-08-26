@@ -77,7 +77,8 @@
 
 +(NSString*)formatRelativeDate:(NSDate*)dateCreated {
     
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    static NSDateFormatter *dateFormatter;
+    if (!dateFormatter) dateFormatter = [[NSDateFormatter alloc] init];
 	NSDate *now = [NSDate date];
     
     [dateFormatter setDateFormat:@"yyyy"];
