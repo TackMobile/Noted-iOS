@@ -118,6 +118,14 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(didEndWalkthrough:)
                                                      name:NTDDidEndWalkthroughNotification
                                                    object:nil];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(keyboardFrameChanged:)
+//                                                     name:UIKeyboardWillChangeFrameNotification
+//                                                   object:nil];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(keyboardFrameChanged:)
+//                                                     name:UIKeyboardDidChangeFrameNotification
+//                                                   object:nil];
 
     }
     return self;
@@ -1108,6 +1116,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView == self.visibleCell.textView)
         [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
     
+    if (scrollView == self.visibleCell.textView &&
+        [self.visibleCell.textView isFirstResponder] &&
+        SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        CGRect keyboardFrame = [self keyboardFrame];
+        [self keyboardWasPannedToFrame:[self.visibleCell.textView convertRect:keyboardFrame
+                                                                     fromView:[[UIApplication sharedApplication] keyWindow]]];
+    }
+    
     if (scrollView != self.collectionView)
         return;
     
@@ -1185,10 +1201,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
-    [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
-        [self keyboardWasPannedToFrame:keyboardFrameInView];
-    }];
-    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        textView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+        textView.alwaysBounceVertical = YES;
+    } else {
+        [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
+            [self keyboardWasPannedToFrame:keyboardFrameInView];
+        }];
+    }
     return YES;
 }
 
@@ -1200,7 +1220,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-//    [textView removeKeyboardControl];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        textView.alwaysBounceVertical = NO;
+    } else {
+        [textView removeKeyboardControl];
+    }
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
@@ -1236,6 +1260,28 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     // resize the textview
     UITextView *textView = self.visibleCell.textView;
     textView.$bottom = frame.origin.y - textView.contentOffset.y + textView.$y;
+//    NSLog(@"%s textview: %@, content offset: %@, bottom: %f, frame: %@", __PRETTY_FUNCTION__, NSStringFromCGRect(textView.frame), NSStringFromCGPoint(textView.contentOffset), textView.$bottom, NSStringFromCGRect(frame));
+}
+
+//- (void)keyboardFrameChanged:(NSNotification *)notification
+//{
+//    CGRect frameBegin = [notification.userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+//    CGRect frameEnd = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+//    NSLog(@"name: %@; frameBegin: %@, frameEnd: %@", notification.name, NSStringFromCGRect(frameBegin),
+//          NSStringFromCGRect(frameEnd));
+//}
+
+- (CGRect)keyboardFrame
+{
+    NSAssert(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"), @"You should only call this on iOS 7 or above.");
+    NSMutableArray *windows = [[[UIApplication sharedApplication] windows] mutableCopy];
+    [windows removeObject:[[UIApplication sharedApplication] keyWindow]];
+    NSAssert(1==windows.count, @"More than one extra window found. Confused.");
+    UIWindow *textEffectsWindow = windows[0];
+    NSAssert([textEffectsWindow isKindOfClass:NSClassFromString(@"UITextEffectsWindow")], @"window.class != UITextEffectsWindow");
+    UIView *peripheralHostView = textEffectsWindow.subviews[0];
+    NSAssert([peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")], @"view.class != UIPeripheralHostView");
+    return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame fromWindow:textEffectsWindow];
 }
 
 #pragma mark - NTDOptionsViewControllerDelegate
