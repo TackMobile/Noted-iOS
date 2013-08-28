@@ -542,14 +542,20 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 if (self.cardPanningDirection == NTDCardPanningVerticalDirection
                     && velocity.y > 0) {
                     // and the textview is scrolled to the top or further
-                    if (self.visibleCell.textView.contentOffset.y <= 0)
-                        // animate it to a content offset of 0 and disable scrolling
-                        [UIView animateWithDuration:.2 animations:^{
-                            // animates the contentoffset to CGPointZero
-                            self.visibleCell.textView.scrollEnabled = NO;
-                        }];
-                    else
+                    if (self.visibleCell.textView.contentOffset.y <= 0) {
+                        
+                        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+                            self.visibleCell.textView.panGestureRecognizer.enabled = NO;
+                        } else {
+                            // animate it to a content offset of 0 and disable scrolling
+                            [UIView animateWithDuration:.2 animations:^{
+                                // animates the contentoffset to CGPointZero
+                                self.visibleCell.textView.scrollEnabled = NO;
+                            }];
+                        }
+                    } else {
                         panGestureRecognizer.enabled = NO;
+                    }
                 }
             }
             
@@ -582,12 +588,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateEnded :
         {
-            self.visibleCell.textView.scrollEnabled = YES;
+            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+                self.visibleCell.textView.panGestureRecognizer.enabled = YES;
+            } else {
+                self.visibleCell.textView.scrollEnabled = YES;
+            }
 
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
                 {
-//                    if (self.visibleCell.textView)
                     // check if translation is past threshold
                     if (fabs(translation.x) >= self.collectionView.frame.size.width/2) {
                         // left
