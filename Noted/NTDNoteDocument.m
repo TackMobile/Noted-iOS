@@ -196,6 +196,7 @@ BOOL safe_rename(const char *old, const char *new)
     } else {
 //        NSLog(@"INFO: Opening empty file.");
         self.bodyText = @"";
+        self.metadata.headline = @"";
     }
     return YES;
 }
@@ -204,6 +205,7 @@ BOOL safe_rename(const char *old, const char *new)
 {
     if (!self.bodyText) {
         self.bodyText = @"";
+        self.metadata.headline = @"";
     }
     NSData *docData = [self.bodyText dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
     return docData;

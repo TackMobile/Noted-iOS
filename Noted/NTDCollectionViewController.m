@@ -962,7 +962,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDCollectionViewCell __weak *weakCell = cell;
     if (note.fileState != NTDNoteFileStateOpened) {
         [note openWithCompletionHandler:^(BOOL success) {
-            weakCell.textView.text = note.text;
+            if ([weakCell.textView.text isEqualToString:note.headline])
+                weakCell.textView.text = note.text;
+            else
+                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
         }];
     } else {
         weakCell.textView.text = note.text;
