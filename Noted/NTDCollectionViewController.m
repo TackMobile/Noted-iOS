@@ -1288,12 +1288,19 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NSAssert(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"), @"You should only call this on iOS 7 or above.");
     NSMutableArray *windows = [[[UIApplication sharedApplication] windows] mutableCopy];
     [windows removeObject:[[UIApplication sharedApplication] keyWindow]];
-    NSAssert(1==windows.count, @"More than one extra window found. Confused.");
-    UIWindow *textEffectsWindow = windows[0];
-    NSAssert([textEffectsWindow isKindOfClass:NSClassFromString(@"UITextEffectsWindow")], @"window.class != UITextEffectsWindow");
-    UIView *peripheralHostView = textEffectsWindow.subviews[0];
-    NSAssert([peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")], @"view.class != UIPeripheralHostView");
-    return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame fromWindow:textEffectsWindow];
+    
+    for (UIWindow *window in windows) {
+        if (![window isKindOfClass:NSClassFromString(@"UITextEffectsWindow")]) continue;
+
+        UIView *peripheralHostView = window.subviews[0];
+        if (![peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")]) continue;
+        
+        return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame
+                                                               fromWindow:window];
+    }
+    
+    NSAssert(TRUE, @"Wasn't able to find keyboard frame. Bailing");
+    return CGRectZero;
 }
 
 #pragma mark - NTDOptionsViewControllerDelegate
