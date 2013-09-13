@@ -40,6 +40,10 @@
     [self applyMaskWithScrolledOffset:0];    
     self.settingsButton.alpha = 0;
     self._doNotHideSettingsForNextLayoutChange = NO;
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        self.textView.$x += 3;
+    }
 }
 
 - (void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {
