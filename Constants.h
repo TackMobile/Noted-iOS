@@ -1,7 +1,7 @@
 typedef void(^NTDVoidBlock)();
 
-static const float NTDPullToCreateShowCardOffset = 30.0;
-static const float NTDPullToCreateScrollCardOffset = 50.0;
+static const CGFloat NTDPullToCreateShowCardOffset = 30.0;
+static const CGFloat NTDPullToCreateScrollCardOffset = 50.0;
 
 UIColor *ModalBackgroundColor;
 
