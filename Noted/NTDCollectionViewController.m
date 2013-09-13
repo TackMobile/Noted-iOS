@@ -214,6 +214,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (void)setupPullToCreate
 {
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        PullToCreateLabelXOffset -= 8.5;
+        PullToCreateLabelYOffset -= 2;
+    }
     self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.pullToCreateLabel.text = @"Pull to create a new note.";
     self.pullToCreateLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
