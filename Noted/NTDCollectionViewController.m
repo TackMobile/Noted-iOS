@@ -1245,21 +1245,50 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 #pragma mark - Keyboard Handling
+static BOOL keyboardIsBeingShown;
 - (void)keyboardWasShown:(NSNotification*)notification
 {
-    // save the frame
-    self.noteTextViewFrameWhileNotEditing = self.visibleCell.textView.frame;
+    /* This particular nightmare is necessary because a UIKeyboardDidShow notification is
+        is sent right before a UIKeyboardWillHide notification. Jesus Christ. */
+    if (keyboardIsBeingShown) return;
+    keyboardIsBeingShown = YES;
     
-    // resize the textview
-    NSDictionary* info = [notification userInfo];
-    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    if ([notification.name isEqualToString:UIKeyboardWillShowNotification]) return;
+    
+    CGSize keyboardSize = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     UITextView *textView = self.visibleCell.textView;
-    textView.$bottom = self.collectionView.$height - keyboardSize.height;
+    
+    UIEdgeInsets contentInset = UIEdgeInsetsZero;
+    contentInset.bottom += keyboardSize.height;
+    textView.contentInset = contentInset;
+    textView.scrollIndicatorInsets = contentInset;
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        UITextPosition *textPosition = [textView positionWithinRange:textView.selectedTextRange farthestInDirection:UITextLayoutDirectionRight];
+        CGRect caretRect = [textView caretRectForPosition:textPosition];
+//        CGPoint caretBottomPoint = CGPointMake(0, CGRectGetMaxY(caretRect));
+        caretRect.size.height *= 2;
+        
+//        [textView scrollRangeToVisible:textView.selectedRange]; /* doesn't work  */
+//        [textView scrollRectToVisible:caretRect animated:YES]; /* doesn't work */
+        [textView scrollRectToVisible:caretRect animated:NO]; /*works */
+//        [textView setContentOffset:caretBottomPoint animated:NO]; /* works */
+    }
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)notification
 {
-    self.visibleCell.textView.frame = self.noteTextViewFrameWhileNotEditing;
+    NSTimeInterval duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+
+    [UIView animateWithDuration:duration
+                          delay:0
+                        options:(curve << 16)
+                     animations:^{
+                         self.visibleCell.textView.contentInset = self.visibleCell.textView.scrollIndicatorInsets = UIEdgeInsetsZero;
+                     } completion:^(BOOL finished) {
+                     }];
+
     [self.visibleCell applyMaskWithScrolledOffset:0];
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToCloseKeyboardStep];
 }
@@ -1267,23 +1296,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)keyboardDidHide:(NSNotification *)notification
 {
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToCloseKeyboardStep];
+    keyboardIsBeingShown = FALSE;
 }
 
 - (void)keyboardWasPannedToFrame:(CGRect)frame
 {
-    // resize the textview
     UITextView *textView = self.visibleCell.textView;
-    textView.$bottom = frame.origin.y - textView.contentOffset.y + textView.$y;
-//    NSLog(@"%s textview: %@, content offset: %@, bottom: %f, frame: %@", __PRETTY_FUNCTION__, NSStringFromCGRect(textView.frame), NSStringFromCGPoint(textView.contentOffset), textView.$bottom, NSStringFromCGRect(frame));
+    UIEdgeInsets contentInset = textView.contentInset;
+    contentInset.bottom = textView.$height - (frame.origin.y - textView.contentOffset.y);
+    textView.contentInset = contentInset;
+    textView.scrollIndicatorInsets = contentInset;
 }
-
-//- (void)keyboardFrameChanged:(NSNotification *)notification
-//{
-//    CGRect frameBegin = [notification.userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-//    CGRect frameEnd = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-//    NSLog(@"name: %@; frameBegin: %@, frameEnd: %@", notification.name, NSStringFromCGRect(frameBegin),
-//          NSStringFromCGRect(frameEnd));
-//}
 
 - (CGRect)keyboardFrame
 {
