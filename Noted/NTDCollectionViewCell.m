@@ -43,8 +43,7 @@
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         self.textView.$x += 3;
-        self.fadeView.$x = self.textView.$x;
-        self.fadeView.$width = self.textView.$width;
+        self.fadeView.$width += 3;
     }
 }
 
