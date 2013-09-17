@@ -1301,7 +1301,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                                                fromWindow:window];
     }
     
-    NSAssert(TRUE, @"Wasn't able to find keyboard frame. Bailing");
+    NSAssert(FALSE, @"Wasn't able to find keyboard frame. Bailing");
     return CGRectZero;
 }
 
