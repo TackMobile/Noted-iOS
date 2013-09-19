@@ -206,7 +206,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 //    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0]; /* "simple" way */
     UILabel *versionLabel = [versionContainerView subviews][0];
     NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-    versionLabel.text = [NSString stringWithFormat:@"v%@", version];
+    versionLabel.text = version;
 
     [self reset];    
 }
