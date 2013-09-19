@@ -156,8 +156,11 @@
     self.contentView.backgroundColor = theme.backgroundColor;
     self.fadeView.backgroundColor = theme.backgroundColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
-    //self.textView.backgroundColor = theme.backgroundColor;
     self.textView.textColor = theme.textColor;
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
+    self.textView.indicatorStyle = ([theme isDarkColorScheme]) ? UIScrollViewIndicatorStyleWhite : UIScrollViewIndicatorStyleBlack;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        self.textView.tintColor = theme.subheaderColor;
+    }
 }
 @end
