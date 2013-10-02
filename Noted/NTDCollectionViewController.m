@@ -254,7 +254,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NTDCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier
                                                                             forIndexPath:indexPath];
     cell.textView.delegate = self;
-    
+//    NSLog(@"%s: creating cell for note #%d\n", __FUNCTION__, indexPath.item);
+
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
                   forControlEvents:UIControlEventTouchUpInside];
@@ -973,6 +974,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDNote *note = [self noteAtIndexPath:indexPath];
     NTDCollectionViewCell __weak *weakCell = cell;
     if (note.fileState != NTDNoteFileStateOpened) {
+//        NSLog(@"%s: opening note #%d\n", __FUNCTION__, indexPath.item);
         [note openWithCompletionHandler:^(BOOL success) {
             if ([weakCell.textView.text isEqualToString:note.headline])
                 weakCell.textView.text = note.text;
@@ -1095,10 +1097,20 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)mayShowNoteAtIndexPath:(NSNotification *)notification
 {
+    //TODO fix this when I start closing files again.
+    //PS why in the world am I not closing files?
+    static NSMutableSet *visitedPaths;
+    if (!visitedPaths) visitedPaths = [NSMutableSet set];
+    
     NSIndexPath *indexPath = notification.object;
+    if ([visitedPaths containsObject:indexPath])
+        return;
+    
     NTDNote *note = [self noteAtIndexPath:indexPath];
+//    NSLog(@"checking state of note #%d", indexPath.item);
     if (note.fileState != NTDNoteFileStateOpened) {
-//        NSLog(@"%s (%d)", __PRETTY_FUNCTION__, indexPath.item);
+        [visitedPaths addObject:indexPath];
+//        NSLog(@"%s: opening note #%d\n", __FUNCTION__, indexPath.item);
         [note openWithCompletionHandler:NULL];
     }
 }

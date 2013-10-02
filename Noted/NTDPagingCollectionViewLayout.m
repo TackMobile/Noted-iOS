@@ -47,6 +47,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [attributesArray addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
+//            NSLog(@"%s: may show note #%d? [ACI = %d]", __FUNCTION__, indexPath.item, activeCardIndex);
             [NSNotificationCenter.defaultCenter postNotificationName:NTDMayShowNoteAtIndexPathNotification
                                                               object:indexPath];
         }
@@ -106,6 +107,21 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 
 - (CGSize)collectionViewContentSize {
     return self.collectionView.frame.size;
+}
+
+-(void)setActiveCardIndex:(int)newActiveCardIndex
+{
+    activeCardIndex = newActiveCardIndex;
+    for (int i = activeCardIndex+1; i >= activeCardIndex-1; i--) {
+        if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+            continue;
+        else {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+//            NSLog(@"%s: may show note #%d? [ACI = %d]", __FUNCTION__, indexPath.item, activeCardIndex);
+            [NSNotificationCenter.defaultCenter postNotificationName:NTDMayShowNoteAtIndexPathNotification
+                                                              object:indexPath];
+        }
+    }
 }
 
 - (void)customizeLayoutAttributes:(NTDCollectionViewLayoutAttributes *)attr {
