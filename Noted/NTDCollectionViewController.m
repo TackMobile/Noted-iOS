@@ -118,6 +118,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(didEndWalkthrough:)
                                                      name:NTDDidEndWalkthroughNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(mayShowNoteAtIndexPath:)
+                                                     name:NTDMayShowNoteAtIndexPathNotification
+                                                   object:nil];
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(keyboardFrameChanged:)
 //                                                     name:UIKeyboardWillChangeFrameNotification
@@ -1087,6 +1091,16 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     
     self.view.frame = newViewFrame;
     self.optionsViewController.view.frame = newOptionsFrame;
+}
+
+- (void)mayShowNoteAtIndexPath:(NSNotification *)notification
+{
+    NSIndexPath *indexPath = notification.object;
+    NTDNote *note = [self noteAtIndexPath:indexPath];
+    if (note.fileState != NTDNoteFileStateOpened) {
+//        NSLog(@"%s (%d)", __PRETTY_FUNCTION__, indexPath.item);
+        [note openWithCompletionHandler:NULL];
+    }
 }
 
 #pragma mark - UIGestureRecognizerDelegate

@@ -27,6 +27,8 @@ static NSUInteger filenameCounter = 1;
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
 @property (nonatomic, strong) NTDNoteMetadata *metadata;
+@property (nonatomic, assign) BOOL isOpenOperationInFlight;
+@property (nonatomic, strong) NSMutableArray *pendingOpenOperations;
 @end
 
 @implementation NTDNoteDocument
@@ -190,6 +192,14 @@ BOOL safe_rename(const char *old, const char *new)
 }
 
 #pragma mark - UIDocument
+- (id)initWithFileURL:(NSURL *)url
+{
+    if (self = [super initWithFileURL:url]) {
+        self.pendingOpenOperations = [NSMutableArray new];
+    }
+    return self;
+}
+
 - (BOOL)loadFromContents:(id)contents ofType:(NSString *)typeName error:(NSError **)outError {
     if ([contents length] > 0) {
         self.bodyText = [[NSString alloc] initWithData:(NSData *)contents encoding:NSUTF8StringEncoding];
@@ -239,6 +249,33 @@ BOOL safe_rename(const char *old, const char *new)
         }
     }];
     return didSaveMetadata;
+}
+
+-(void)openWithCompletionHandler:(void (^)(BOOL))completionHandler
+{
+    /* This code depends on the following:
+     * - It's only run on the main thread. It's not designed for concurrency.
+     * - -[super openWithCompletionHandler:] executes the completion handler even if the file is open. (Verified on iOS v6.1.3 & 7.0.2)
+     *
+     * It may be useful to note that self.documentState == UIDocumentStateNormal inside the completion handler.
+     */
+    
+    NSAssert([NSThread isMainThread], @"%s MUST be called from main thread.", __PRETTY_FUNCTION__);
+
+    if (completionHandler != NULL) {
+        [self.pendingOpenOperations addObject:completionHandler];
+    }
+    
+    if (!self.isOpenOperationInFlight) {
+        self.isOpenOperationInFlight = YES;
+        [super openWithCompletionHandler:^(BOOL success) {
+            self.isOpenOperationInFlight = NO;
+            for (void(^handler)(BOOL success) in self.pendingOpenOperations) {
+                handler(success);
+                [self.pendingOpenOperations removeObject:handler];
+            }
+        }];
+    }
 }
 
 #pragma mark - NTDNote

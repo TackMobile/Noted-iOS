@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+UIKIT_EXTERN NSString *NTDMayShowNoteAtIndexPathNotification;
+
 @interface NTDPagingCollectionViewLayout : UICollectionViewLayout
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
