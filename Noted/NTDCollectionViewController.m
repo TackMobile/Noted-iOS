@@ -11,6 +11,7 @@
 #import <Twitter/Twitter.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
+#import <BlocksKit/NSObject+BlockObservation.h>
 #import "NTDCollectionViewController.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
@@ -88,6 +89,24 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         [self.collectionView registerNib:nib
               forSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
                      withReuseIdentifier:NTDCollectionViewPullToCreateCardReuseIdentifier];
+        
+        /* Enable scrollsToTop functionality. */
+        __weak UICollectionView *collectionView = self.collectionView;
+        [self.pagingLayout addObserverForKeyPath:@"activeCardIndex"
+                                         options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+                                            task:^(id obj, NSDictionary *change) {
+                                                NSInteger oldIndex = [change[NSKeyValueChangeOldKey] integerValue];
+                                                NSInteger newIndex = [change[NSKeyValueChangeNewKey] integerValue];
+                                                
+                                                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForItem:oldIndex inSection:0];
+                                                NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
+                                                
+                                                NTDCollectionViewCell *oldCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:oldIndexPath];
+                                                NTDCollectionViewCell *newCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:newIndexPath];
+                                                
+                                                oldCell.textView.scrollsToTop = NO;
+                                                newCell.textView.scrollsToTop = YES;
+                                            }];
         
         // register for keyboard notification so we can resize the textview
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -890,6 +909,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.twoFingerPanGestureRecognizer.enabled = YES;
         self.pinchToListLayoutGestureRecognizer.enabled = YES;        
         self.collectionView.scrollEnabled = NO;
+        self.collectionView.scrollsToTop = NO;
         
     } else if (layout == self.listLayout) {
         self.selectCardGestureRecognizer.enabled = YES;
@@ -897,6 +917,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.panCardGestureRecognizer.enabled = NO;
         self.twoFingerPanGestureRecognizer.enabled = NO;
         self.collectionView.scrollEnabled = YES;
+        self.collectionView.scrollsToTop = YES;
 
         self.view.$width = [[UIScreen mainScreen] bounds].size.width;
     }
