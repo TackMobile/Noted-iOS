@@ -378,6 +378,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 #pragma mark - Sharing Actions
+- (NSString *)sharingText
+{
+    return (self.selectedText) ?: self.note.text;
+}
+
 - (void)sendSMS
 {
     if (![MFMessageComposeViewController canSendText])
@@ -385,7 +390,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
     MFMessageComposeViewController *controller = [[MFMessageComposeViewController alloc] init];
     self.messageViewController = controller;
-    controller.body = self.note.text;
+    controller.body = self.sharingText;
     controller.messageComposeDelegate = self;
     [self.delegate presentViewController:controller
                                 animated:YES
@@ -401,7 +406,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     controller.mailComposeDelegate = self;
     self.mailViewController = controller;
     
-    NSString *noteText = self.note.text;
+    NSString *noteText = self.sharingText;
     __block NSString *noteTitle;
     [noteText enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
         noteTitle = line;
@@ -437,8 +442,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 {
     SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:serviceType];
     self.composeViewController = controller;
-    BOOL didTextFit = [controller setInitialText:self.note.text];
-    if (!didTextFit) [controller setInitialText:[self.note.text substringToIndex:140]];
+    BOOL didTextFit = [controller setInitialText:self.sharingText];
+    if (!didTextFit) [controller setInitialText:[self.sharingText substringToIndex:140]];
     [controller setCompletionHandler:^(SLComposeViewControllerResult result) {
         self.composeViewController = nil;
         if (result == SLComposeViewControllerResultDone) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : serviceType}];
@@ -451,7 +456,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void)copyToPasteboard
 {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    [pasteboard setValue:self.note.text forPasteboardType:(NSString *)kUTTypeText];
+    [pasteboard setValue:self.sharingText forPasteboardType:(NSString *)kUTTypeText];
     
     [self.delegate showToastWithMessage:@"Text copied to clipboard"];
     [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"copied"}];

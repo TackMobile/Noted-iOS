@@ -863,6 +863,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NTDCollectionViewCell *visibleCell = self.visibleCell;
     
+    /* Get selected text.*/
+    NSRange selectedRange = visibleCell.textView.selectedRange;
+    if (selectedRange.length == 0) {
+        self.optionsViewController.selectedText = nil;
+    } else {
+        NSString *selectedText = [visibleCell.textView.text substringWithRange:selectedRange];
+        self.optionsViewController.selectedText = selectedText;
+    }
+    
     /* Don't let user interact with anything but our options. */
     visibleCell.textView.editable = NO;
     self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
