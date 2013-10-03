@@ -153,6 +153,10 @@ static NSDictionary *bodyFontSizes;
 {
 //    self.textView.contentOffset = CGPointZero;
     [self applyMaskWithScrolledOffset:0];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        NSLog(@"removing motion effects for reused cell: %p", self);
+        for (UIMotionEffect *effect in self.motionEffects) [self removeMotionEffect:effect];
+    }
 }
 
 - (void)doNotHideSettingsForNextLayoutChange {
