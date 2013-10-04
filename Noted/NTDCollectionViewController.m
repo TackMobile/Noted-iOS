@@ -1105,6 +1105,38 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return NO;
 }
 
+- (void)adjustCaret:(UITextView *)textView
+{
+    /* Bogarted from http://stackoverflow.com/a/19045027 */
+    
+    // Get caret frame
+    UITextPosition *caret = [textView positionFromPosition:textView.beginningOfDocument offset:textView.selectedRange.location];
+    CGRect caretFrame     = [textView caretRectForPosition:caret];
+    
+    // Get absolute y position of caret in textView
+    float absCaretY       = caretFrame.origin.y - textView.contentOffset.y;
+    
+    // Set a max y for the caret (in this case the textView is resized to avoid the keyboard and an arbitrary padding is added)
+    float maxCaretY       = (textView.frame.size.height - textView.contentInset.bottom) - caretFrame.size.height - 2;
+    
+    // Get how far below the maxY the caret is
+    float overflow        = absCaretY - maxCaretY;
+    
+    // No need to scroll if the caret is above the maxY
+    if (overflow < 0)
+        return;
+    
+    // Need to add a delay for this to work
+    double delayInMilliseconds = 50;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInMilliseconds * NSEC_PER_MSEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        
+        // Scroll to the maxCaretY
+        CGPoint contentOffset = CGPointMake(0, textView.contentOffset.y + overflow);
+        [textView setContentOffset:contentOffset animated:YES];
+    });
+}
+
 #pragma mark - Notifications
 -(void)toggledStatusBar:(NSNotification *)notification
 {
@@ -1280,6 +1312,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     [[self noteAtIndexPath:self.visibleCardIndexPath] setText:textView.text];
     [Flurry logEvent:@"Note Edited"];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+        [self adjustCaret:textView];
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView
+{
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+        [self adjustCaret:textView];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
