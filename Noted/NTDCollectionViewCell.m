@@ -19,7 +19,27 @@
 @property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
 @end
 
+static NSDictionary *bodyFontSizes;
+
 @implementation NTDCollectionViewCell
+
++(void)initialize
+{
+    bodyFontSizes = @{
+      UIContentSizeCategoryExtraSmall: @(14),
+      UIContentSizeCategorySmall: @(15),
+      UIContentSizeCategoryMedium: @(16),
+      UIContentSizeCategoryLarge: @(17),
+      UIContentSizeCategoryExtraLarge: @(18),
+      UIContentSizeCategoryExtraExtraLarge: @(19),
+      UIContentSizeCategoryExtraExtraExtraLarge: @(20),
+      UIContentSizeCategoryAccessibilityMedium: @(24),
+      UIContentSizeCategoryAccessibilityLarge: @(28),
+      UIContentSizeCategoryAccessibilityExtraLarge: @(34),
+      UIContentSizeCategoryAccessibilityExtraExtraLarge: @(40),
+      UIContentSizeCategoryAccessibilityExtraExtraExtraLarge: @(46)
+    };
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -28,6 +48,11 @@
         
     }
     return self;
+}
+
+-(void)dealloc
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)awakeFromNib
@@ -45,6 +70,12 @@
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         self.textView.$x += 3;
         self.fadeView.$width += 3;
+        [self adjustTextViewForContentSize:nil];
+        
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(adjustTextViewForContentSize:)
+                                                   name:UIContentSizeCategoryDidChangeNotification
+                                                 object:nil];
     }
 }
 
@@ -149,6 +180,14 @@
 {
     self.layer.shadowPath = nil;
     [self setNeedsDisplay];
+}
+
+- (void)adjustTextViewForContentSize:(NSNotification *)notification
+{
+    NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
+    CGFloat fontSize = [bodyFontSizes[contentSizeCategory] floatValue];
+    self.textView.font = [UIFont fontWithName:@"Avenir-Light" size:fontSize];
+    [self.textView setNeedsDisplay];
 }
 
 #pragma mark - Theming
