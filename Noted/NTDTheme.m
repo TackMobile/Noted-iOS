@@ -14,7 +14,7 @@
 
 @implementation NTDTheme
 
-static NSArray *backgroundColors, *themes;
+static NSArray *backgroundColors, *caretColors, *themes;
 
 + (void)initialize
 {
@@ -26,6 +26,16 @@ static NSArray *backgroundColors, *themes;
             [UIColor colorWithHexString:@"333333"],
             [UIColor colorWithHexString:@"1A9FEB"],
             nil];
+    
+    caretColors = [[NSArray alloc] initWithObjects:
+            [UIColor colorWithHexString:@"999999"],
+            [UIColor colorWithHexString:@"0088CA"],
+            [UIColor colorWithHexString:@"7DA700"],
+            [UIColor colorWithHexString:@"C7AC00"],
+            [UIColor colorWithHexString:@"999999"],
+            [UIColor colorWithHexString:@"00639C"],
+            nil];
+
 }
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme
@@ -47,9 +57,14 @@ static NSArray *backgroundColors, *themes;
     return [self themeForColorScheme:arc4random_uniform(NTDNumberOfColorSchemes)];
 }
 
--(UIColor *)backgroundColor
+- (UIColor *)backgroundColor
 {
     return backgroundColors[self.colorScheme];
+}
+
+- (UIColor *)caretColor
+{
+    return caretColors[self.colorScheme];
 }
 
 - (UIColor *)textColor

@@ -161,7 +161,7 @@
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
     self.textView.indicatorStyle = ([theme isDarkColorScheme]) ? UIScrollViewIndicatorStyleWhite : UIScrollViewIndicatorStyleBlack;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        self.textView.tintColor = theme.subheaderColor;
+        self.textView.tintColor = theme.caretColor;
     }
 }
 @end
