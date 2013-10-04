@@ -591,7 +591,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
-                    self.pagingLayout.pannedCardXTranslation = translation.x;
+                    /* This bit of logic exists to make dragging text and horizontally panning cards
+                     * mutually exclusive. So if we're currently dragging, don't start panning. And when
+                     * we do start panning, prevent future dragging. */
+                    if (!self.visibleCell.textView.dragging) {
+                        self.pagingLayout.pannedCardXTranslation = translation.x;
+                        self.visibleCell.textView.scrollEnabled = NO;
+                    }
                     break;
                 case NTDCardPanningVerticalDirection:
                 {
@@ -620,9 +626,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         {
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
                 self.visibleCell.textView.panGestureRecognizer.enabled = YES;
-            } else {
-                self.visibleCell.textView.scrollEnabled = YES;
             }
+            self.visibleCell.textView.scrollEnabled = YES;
+            
 
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
@@ -1153,29 +1159,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         && gestureRecognizer == self.panCardGestureRecognizer) {
         if (self.visibleCell.textView.contentOffset.y <= 0)
             return YES;
-        
-//        CGFloat pullVelocity = [self.panCardGestureRecognizer velocityInView:self.visibleCell.textView].y;
-//        BOOL pullRecognized = NO;
-//        
-//        if (self.visibleCell.textView.contentOffset.y < 0)
-//            pullRecognized = (pullVelocity == 0);
-//        else if (self.visibleCell.textView.contentOffset.y == 0)
-//            pullRecognized = (pullVelocity > 0);
-//        
-//        if (pullRecognized) {
-//            if (self.visibleCell.textView.contentOffset.y < 0)
-//                [UIView animateWithDuration:.1 animations:^{
-//                    self.visibleCell.textView.contentOffset = CGPointZero;
-//                } completion:^(BOOL finished) {
-//                    self.visibleCell.textView.scrollEnabled = NO;
-//                }];
-//            else
-//                self.visibleCell.textView.scrollEnabled = NO;
-//            
-//            return YES;
-//        }
     }
-//    NSLog(@"%@ \n&&\n%@", gestureRecognizer, otherGestureRecognizer);
+
     if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
         return YES;
     
