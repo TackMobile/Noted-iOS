@@ -270,10 +270,11 @@ BOOL safe_rename(const char *old, const char *new)
         self.isOpenOperationInFlight = YES;
         [super openWithCompletionHandler:^(BOOL success) {
             self.isOpenOperationInFlight = NO;
-            for (void(^handler)(BOOL success) in self.pendingOpenOperations) {
+            NSArray *operations = [self.pendingOpenOperations copy];
+            for (void(^handler)(BOOL success) in operations) {
                 handler(success);
-                [self.pendingOpenOperations removeObject:handler];
             }
+            [self.pendingOpenOperations removeObjectsInArray:operations];
         }];
     }
 }
