@@ -25,6 +25,10 @@ static NSDictionary *bodyFontSizes;
 
 +(void)initialize
 {
+    /* The content size category constants obviously only exist on iOS >=7. */
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
+        return;
+    
     bodyFontSizes = @{
       UIContentSizeCategoryExtraSmall: @(14),
       UIContentSizeCategorySmall: @(15),
