@@ -52,7 +52,7 @@ NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellR
 NSString *const NTDCollectionViewPullToCreateCardReuseIdentifier = @"NTDCollectionViewPullToCreateCardReuseIdentifier";
 
 static const CGFloat SettingsTransitionDuration = 0.5;
-static const CGFloat SwipeVelocityThreshold = 400.0;
+static const CGFloat SwipeVelocityThreshold = 1000.0;
 static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 
