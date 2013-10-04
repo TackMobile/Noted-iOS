@@ -21,7 +21,7 @@ static NSString *const DatabaseFilename = @".noted.metadata";
 static const char *NotesDirectoryName = "Notes";
 static const char *BackupDirectoryName = "NotesBackup";
 static NTDCoreDataStore *sharedDatastore;
-static const NSUInteger HeadlineLength = 75;
+static const NSUInteger HeadlineLength = 160;
 static NSUInteger filenameCounter = 1;
 
 @interface NTDNoteDocument ()
