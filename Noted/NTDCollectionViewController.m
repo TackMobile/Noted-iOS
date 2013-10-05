@@ -219,13 +219,12 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
     [self reloadNotes];
-}
-
--(void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    if (!NTDWalkthrough.isCompleted)
-        [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+    dispatch_group_notify(self.note_refresh_group,
+                          dispatch_get_main_queue(),
+                          ^{
+                              if (!NTDWalkthrough.isCompleted)
+                                  [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+                          });
 }
 
 -(void)dealloc
