@@ -11,7 +11,7 @@
 #import <Twitter/Twitter.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
-#import <BlocksKit/NSObject+BlockObservation.h>
+#import <BlocksKit/BlocksKit.h>
 #import "NTDCollectionViewController.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
@@ -222,8 +222,11 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
                           ^{
-                              if (!NTDWalkthrough.isCompleted)
-                                  [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+                              [self performBlock:^(id sender) {
+                                  if (!NTDWalkthrough.isCompleted)
+                                      [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+                              }
+                                      afterDelay:.75];
                           });
 }
 
