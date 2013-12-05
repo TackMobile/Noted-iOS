@@ -890,7 +890,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     self.optionsViewController.view.frame = visibleCell.frame;
     self.optionsViewController.note = [self noteAtIndexPath:self.visibleCardIndexPath];
+    [self addChildViewController:self.optionsViewController];
     [self.collectionView insertSubview:self.optionsViewController.view belowSubview:visibleCell];
+    [self.optionsViewController didMoveToParentViewController:self];
     self.optionsViewController.view.layer.transform = CATransform3DMakeTranslation(0, 0, self.pagingLayout.activeCardIndex);
     
     [self.optionsViewController reset];
@@ -1033,7 +1035,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         self.visibleCell.textView.editable = YES;
         self.pinchToListLayoutGestureRecognizer.enabled = YES;
+        [self.optionsViewController willMoveToParentViewController:nil];
         [self.optionsViewController.view removeFromSuperview];
+        [self.optionsViewController removeFromParentViewController];
         [self.optionsViewController reset];
         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
     }];
