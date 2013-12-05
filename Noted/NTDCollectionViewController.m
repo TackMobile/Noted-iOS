@@ -235,6 +235,33 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+-(void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    if (self.collectionView.collectionViewLayout != self.pagingLayout) return;
+    
+    /* Fixes a 7.1b1 bug. It seems that zIndex isn't being respected, so we resort the collection view's subviews here. */
+    NSMutableArray *cells = [NSMutableArray array];
+    [[self.collectionView subviews] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[NTDCollectionViewCell class]]) [cells addObject:obj];
+    }];
+    if (cells.count <= 1) return;
+
+    // Bubble sort
+    BOOL didSwap;
+    do {
+        didSwap = NO;
+        for (int i = 1; i < cells.count; i++) {
+            NTDCollectionViewCell *cell = cells[i], *previousCell = cells[i-1];
+            if (cell.layer.transform.m43 < previousCell.layer.transform.m43) {
+                [self.collectionView insertSubview:cell belowSubview:previousCell];
+                [cells exchangeObjectAtIndex:i withObjectAtIndex:i-1];
+                didSwap = YES;
+            }
+        }
+    } while (didSwap);
+}
+
 #pragma mark - Setup
 static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (void)setupPullToCreate
