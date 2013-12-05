@@ -25,4 +25,12 @@
     return copy;
 }
 
+-(BOOL)isEqual:(id)object
+{
+    if ([super isEqual:object]) {
+        return CGAffineTransformEqualToTransform(self.transform2D, [object transform2D]);
+    } else {
+        return NO;
+    }
+}
 @end
