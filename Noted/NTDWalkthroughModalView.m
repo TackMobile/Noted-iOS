@@ -156,7 +156,7 @@ static NSDictionary *messages;
         self.alpha = 1;
         self.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
-        
+        [self applyParallax];
     }];
 }
 
@@ -293,6 +293,22 @@ static NSDictionary *messages;
     return [UIFont fontWithName:@"Avenir-Light" size:20];
 }
 
+- (void)applyParallax
+{
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        UIInterpolatingMotionEffect *verticalTilt = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.y"
+                                                                                                    type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+        UIInterpolatingMotionEffect *horizTilt = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x"
+                                                                                                    type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+        static CGFloat Offset = 20;
+        verticalTilt.minimumRelativeValue = horizTilt.minimumRelativeValue = @(-Offset);
+        verticalTilt.maximumRelativeValue = horizTilt.maximumRelativeValue = @(Offset);
+        
+        UIMotionEffectGroup *effectGroup = [[UIMotionEffectGroup alloc] init];
+        effectGroup.motionEffects = @[verticalTilt, horizTilt];
+        [self addMotionEffect:effectGroup];
+    }
+}
 #pragma mark - Button Action Handling
 - (void)buttonTouchedDown:(UIButton *)button {
     button.backgroundColor = [UIColor colorWithWhite:0 alpha:.85];
