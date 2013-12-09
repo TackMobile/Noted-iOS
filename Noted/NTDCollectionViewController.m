@@ -882,27 +882,45 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     CGFloat topOffset = selectedCell.frame.origin.y - self.collectionView.contentOffset.y;
     CGFloat bottomOffset = self.collectionView.frame.size.height - (topOffset + self.listLayout.cardOffset);
 
-    [UIView animateWithDuration:.25
-                          delay:0
-                        options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{
-                         selectedCell.settingsButton.alpha = 1;
-                         NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
-                         for (NSIndexPath *visibleCardIndexPath in indexPaths) {
-                             NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
-                             if (visibleCardIndexPath.row <= indexPath.row) {
-                                 cell.$y -= topOffset;
-                             } else {
-                                 cell.$y += bottomOffset;
-                             }
+    void (^animationBlock)() = ^{
+        selectedCell.settingsButton.alpha = 1;
+        NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
+        for (NSIndexPath *visibleCardIndexPath in indexPaths) {
+            NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:visibleCardIndexPath];
+            if (visibleCardIndexPath.row <= indexPath.row) {
+                cell.$y -= topOffset;
+            } else {
+                cell.$y += bottomOffset;
+            }
+            
+        }
+    };
+    void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
+        self.pagingLayout.activeCardIndex = indexPath.row;
+        [self updateLayout:self.pagingLayout
+                  animated:NO];
+        self.transitioningToPagingLayout = NO;
 
-                         }
-                     } completion:^(BOOL finished) {
-                         self.pagingLayout.activeCardIndex = indexPath.row;
-                         [self updateLayout:self.pagingLayout
-                                   animated:NO];
-                         self.transitioningToPagingLayout = NO;
-                     }];
+    };
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
+            [self removeMotionEffects:cell atIndexPath:nil];
+        }
+        [UIView animateWithDuration:.4
+                              delay:0
+             usingSpringWithDamping:.7
+              initialSpringVelocity:.2
+                            options:UIViewAnimationCurveEaseInOut  | UIViewAnimationOptionBeginFromCurrentState
+                         animations:animationBlock
+                         completion:completionBlock];
+    } else {
+        [UIView animateWithDuration:.25
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
+                         animations:animationBlock
+                         completion:completionBlock];
+    }
     
 }
 
@@ -1155,7 +1173,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - Motion Effects
 - (void)addMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"adding motion effects: (%d) %p", indexPath.item, cell);
+//    NSLog(@"adding motion effects: (%d) %p", indexPath.item, cell);
     UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"frame.origin.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
     effect.minimumRelativeValue = @(-10 * indexPath.item);
     effect.maximumRelativeValue = @(10 * indexPath.item);
@@ -1164,7 +1182,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)removeMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
+//    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
     for (UIMotionEffect *effect in cell.motionEffects) [cell removeMotionEffect:effect];
 }
 
