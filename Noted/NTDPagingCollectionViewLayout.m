@@ -171,26 +171,40 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     // xTranslation, yTranslation will not be zeroed out yet
     // activeCardIndex will be current
+    CGFloat translation = self.pannedCardXTranslation + self.pannedCardYTranslation; //only one of these will be non-zero
+    BOOL translatingAlongXAxis = self.pannedCardXTranslation != 0;
+    
     self.pannedCardYTranslation = 0;
     self.pannedCardXTranslation = 0;
     
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     NSTimeInterval dur;
+    CGFloat length = translatingAlongXAxis ? self.collectionView.frame.size.width : self.collectionView.frame.size.height;
+    if (ABS(translation)/length > .5) length = ABS(translation);
+    
     if (isViewingOptions)
-        dur = self.currentOptionsOffset / fabsf(velocity);
+        dur = self.currentOptionsOffset / ABS(velocity);
     else
-        dur = (self.collectionView.frame.size.width-pannedCardXTranslation) / fabsf(velocity);
+        dur = (length) / ABS(velocity);
     
     // keep dur between .05 and .2. feels comfortable
 //    float position = dur * fabsf(velocity);
-    dur = CLAMP(dur, .05, .2);
+//    dur = CLAMP(dur, .05, .2);
     
     BOOL shouldAdvanceToNextWalkthroughStep = (self.activeCardIndex+1 == [self.collectionView numberOfItemsInSection:0]);
     if (shouldAdvanceToNextWalkthroughStep) [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToLastNoteStep];
     
     //  animate
-    [UIView animateWithDuration:dur
+//    void (^animationBlock)() = ^{
+//        
+//    };
+    NSTimeInterval animationDuration = CLAMP(dur, .05, .5);
+    CGFloat springVelocity = animationDuration * (ABS(velocity)/320);
+    CGFloat damping = (dur < .5) ? .7 : .5;
+    [UIView animateWithDuration:animationDuration
                           delay:0.0
+         usingSpringWithDamping:damping
+          initialSpringVelocity:0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                         for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {

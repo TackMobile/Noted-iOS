@@ -695,7 +695,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     // make sure we stay within bounds
                     newIndex = CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
                     self.pagingLayout.activeCardIndex = newIndex ;
-                    [self.pagingLayout finishAnimationWithVelocity:velocity.x+30 completion:^{
+                    [self.pagingLayout finishAnimationWithVelocity:velocity.x completion:^{
 //                        NSLog(@"%@", self.visibleCell.textView);
                     }];
 
