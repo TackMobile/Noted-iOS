@@ -46,6 +46,8 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 @property (nonatomic) BOOL hasTwoFingerNoteDeletionBegun;
 @property (nonatomic) CGRect noteTextViewFrameWhileNotEditing;
 
+@property (nonatomic, assign) BOOL transitioningToPagingLayout;
+
 @end
 
 NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
@@ -320,6 +322,16 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     }
     [cell applyTheme:note.theme];
 
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        if (self.collectionView.collectionViewLayout == self.listLayout && 0 != indexPath.item && !self.transitioningToPagingLayout) {
+            /* It's necessary to remove and re-add the motion effects (on the next turn of the run-loop) because the effects
+             * were being suspended for some unknown reason. */
+            [self removeMotionEffects:cell atIndexPath:indexPath];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self addMotionEffects:cell atIndexPath:indexPath];
+            });
+        }
+    }
     [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
     return cell;
 }
@@ -862,7 +874,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 #pragma mark - Actions
 
 -(void) didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{    
+{
+    self.transitioningToPagingLayout = YES;
     NTDCollectionViewCell *selectedCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     [self setBodyForCell:selectedCell atIndexPath:indexPath];
     
@@ -871,7 +884,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     [UIView animateWithDuration:.25
                           delay:0
-                        options:UIViewAnimationOptionCurveEaseInOut
+                        options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
                          selectedCell.settingsButton.alpha = 1;
                          NSArray *indexPaths = [self.collectionView indexPathsForVisibleItems];
@@ -888,6 +901,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                          self.pagingLayout.activeCardIndex = indexPath.row;
                          [self updateLayout:self.pagingLayout
                                    animated:NO];
+                         self.transitioningToPagingLayout = NO;
                      }];
     
 }
@@ -1136,6 +1150,22 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         return YES;
     
     return NO;
+}
+
+#pragma mark - Motion Effects
+- (void)addMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"adding motion effects: (%d) %p", indexPath.item, cell);
+    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"frame.origin.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+    effect.minimumRelativeValue = @(-10 * indexPath.item);
+    effect.maximumRelativeValue = @(10 * indexPath.item);
+    [cell addMotionEffect:effect];
+}
+
+- (void)removeMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
+    for (UIMotionEffect *effect in cell.motionEffects) [cell removeMotionEffect:effect];
 }
 
 #pragma mark - Notifications
