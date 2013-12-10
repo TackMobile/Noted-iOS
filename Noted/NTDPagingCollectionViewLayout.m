@@ -195,39 +195,47 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     if (shouldAdvanceToNextWalkthroughStep) [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToLastNoteStep];
     
     //  animate
-//    void (^animationBlock)() = ^{
-//        
-//    };
+    void (^animationBlock)() = ^{
+        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
+            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+                continue;
+            else {
+                NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+                
+                UICollectionViewLayoutAttributes *theAttr;
+                theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                
+                [theCell setFrame:theAttr.frame];
+            }
+        }
+    };
+    void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
+        if (completionBlock)
+            completionBlock();
+        if (shouldAdvanceToNextWalkthroughStep)
+            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToLastNoteStep];
+    };
+
     NSTimeInterval animationDuration = CLAMP(dur, .05, .5);
     CGFloat springVelocity = animationDuration * (ABS(velocity)/320);
     CGFloat damping = (dur < .5) ? .7 : .5;
-    [UIView animateWithDuration:animationDuration
-                          delay:0.0
-         usingSpringWithDamping:damping
-          initialSpringVelocity:0
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
-                            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
-                                continue;
-                            else {
-                                NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
-                                UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
-                                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-                                
-                                UICollectionViewLayoutAttributes *theAttr;
-                                theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
-                                
-                                [theCell setFrame:theAttr.frame];
-                            }
-                        }
-                    }
-                     completion:^(BOOL finished) {
-                         if (completionBlock)
-                             completionBlock();
-                         if (shouldAdvanceToNextWalkthroughStep)
-                             [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToLastNoteStep];
-    }];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        [UIView animateWithDuration:animationDuration
+                              delay:0.0
+             usingSpringWithDamping:damping
+              initialSpringVelocity:0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:animationBlock
+                         completion:animationCompletionBlock];
+    } else {
+        [UIView animateWithDuration:animationDuration
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:animationBlock
+                         completion:animationCompletionBlock];
+    }
 }
 
 - (void) completePullAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
