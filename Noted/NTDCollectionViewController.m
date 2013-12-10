@@ -910,7 +910,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         [UIView animateWithDuration:.4
                               delay:0
              usingSpringWithDamping:.7
-              initialSpringVelocity:.2
+              initialSpringVelocity:-10
                             options:UIViewAnimationCurveEaseInOut  | UIViewAnimationOptionBeginFromCurrentState
                          animations:animationBlock
                          completion:completionBlock];
