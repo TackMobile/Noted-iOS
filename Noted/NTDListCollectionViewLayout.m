@@ -18,6 +18,7 @@ static const NSTimeInterval NTDDeleteAnimationDuration = 0.25f;
 @interface NTDListCollectionViewLayout ()
 @property (nonatomic, strong) NSMutableArray *layoutAttributesArray;
 @property (nonatomic, strong) NSIndexPath *pullToCreateCardIndexPath;
+@property (nonatomic, assign) CGFloat originalPinchRatio;
 @end
 
 @implementation NTDListCollectionViewLayout
@@ -260,6 +261,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 
 - (void)setPinchRatio:(CGFloat)pinchRatio
 {
+    _originalPinchRatio = pinchRatio;
     pinchRatio = MIN(MAX(0.0, pinchRatio), 1.0);
     _pinchRatio = pinchRatio;
     [self invalidateLayout];
@@ -302,6 +304,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             [pinchingLayoutAttributesArray addObject:layoutAttributes];
         }
     }
+    
     return pinchingLayoutAttributesArray;
 }
 
@@ -315,11 +318,19 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     
 //    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     
+    if (_originalPinchRatio < 0) {
+        NSInteger itemOffset = self.pinchedCardIndexPath.item - indexPath.item;
+        CGFloat offset = _originalPinchRatio * 100;
+        offset *= ABS(itemOffset);
+        pinchGap += offset;
+        pinchOffset -= offset;
+    }
     if (indexPath.item > self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);
     } else if (indexPath.item <= self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchOffset);
     }
+    
     return layoutAttributes;
 }
 @end
