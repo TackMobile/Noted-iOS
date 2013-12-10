@@ -256,7 +256,35 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 - (void)setPinchedCardIndexPath:(NSIndexPath *)pinchedCardIndexPath
 {
     _pinchedCardIndexPath = pinchedCardIndexPath;
-    [self invalidateLayout];
+    if (pinchedCardIndexPath) {
+        [self invalidateLayout];
+    } else {
+        void (^animationBlock)() = ^{
+            for (NSIndexPath *indexPath in [self.collectionView indexPathsForVisibleItems]) {
+                UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+                UICollectionViewLayoutAttributes *attributes = [self generateCellLayoutAttributesForItem:indexPath.item];
+                cell.center = attributes.center;
+            }
+        };
+        void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
+        };
+        UIViewAnimationOptions options = UIViewAnimationOptionBeginFromCurrentState;
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+            [UIView animateWithDuration:.3
+                                  delay:0
+                 usingSpringWithDamping:.4
+                  initialSpringVelocity:-1
+                                options:options
+                             animations:animationBlock
+                             completion:completionBlock];
+        } else {
+            [UIView animateWithDuration:.2
+                                  delay:0
+                                options:options
+                             animations:animationBlock
+                             completion:completionBlock];
+        }
+    }
 }
 
 - (void)setPinchRatio:(CGFloat)pinchRatio
