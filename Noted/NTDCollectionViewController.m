@@ -303,7 +303,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NTDCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier
                                                                             forIndexPath:indexPath];
     cell.textView.delegate = self;
-//    NSLog(@"%s: creating cell for note #%d\n", __FUNCTION__, indexPath.item);
+    NSLog(@"[%p] creating cell for note #%d\n", cell, indexPath.item);
 
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
@@ -1072,6 +1072,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
     [self.notes removeObject:note];
+    NSLog(@"[%p] deleting cell #%d", [self.collectionView cellForItemAtIndexPath:indexPath], indexPath.item);
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
 }
@@ -1188,7 +1189,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - Motion Effects
 - (void)addMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-//    NSLog(@"adding motion effects: (%d) %p", indexPath.item, cell);
+    NSLog(@"[%p] adding motion effects to cell #%d", cell, indexPath.item);
     UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"frame.origin.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
     effect.minimumRelativeValue = @(-10 * indexPath.item);
     effect.maximumRelativeValue = @(10 * indexPath.item);
@@ -1197,7 +1198,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)removeMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-//    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
+    NSLog(@"[%p] removing motion effects from cell #%d", cell, indexPath.item);
     for (UIMotionEffect *effect in cell.motionEffects) [cell removeMotionEffect:effect];
 }
 
