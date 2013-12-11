@@ -12,7 +12,6 @@
 #import "NTDWalkthrough.h"
 #import "NTDListCollectionViewLayout.h"
 
-static const NSTimeInterval RevealOptionsAnimationDuration = 0.2f;
 NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNotification";
 
 @interface NTDPagingCollectionViewLayout ()
@@ -253,7 +252,8 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
-    [self finishAnimationWithVelocity:RevealOptionsAnimationDuration completion:completionBlock];
+    CGFloat velocity = (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) ? 0.2 : 600;
+    [self finishAnimationWithVelocity:velocity completion:completionBlock];
 
 }
 
