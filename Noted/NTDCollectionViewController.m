@@ -1039,6 +1039,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              [self.notes insertObject:note atIndex:0];
                              self.pagingLayout.activeCardIndex = 0;
                              self.pagingLayout.pannedCardYTranslation = 0;
+                             self.visibleCell.$y = 0; /* Hack for iOS 7.1 during 2nd step of walkthrough. Card was at (0,568) for some reason. */
                              
                              if (isListLayout)
                                  [self updateLayout:self.pagingLayout animated:NO];
