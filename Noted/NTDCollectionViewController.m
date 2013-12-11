@@ -194,7 +194,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // pinch to bring back tolist layout
     UIPinchGestureRecognizer *pinchGestureRecognizer;
     pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchToListLayout:)];
-    pinchGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer = pinchGestureRecognizer;
     [self.collectionView addGestureRecognizer:pinchGestureRecognizer];
     
@@ -798,20 +797,25 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 {
     static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
     static CGPoint initialContentOffset;
+    
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
-            if (self.notes.count == 1) {
+            if (self.notes.count == 1 || pinchGestureRecognizer.velocity > 0) {
                 pinchGestureRecognizer.enabled = NO;
                 break;
             }
 
             NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
-            
+            self.listLayout.pinchStartedInListLayout = (self.collectionView.collectionViewLayout == self.listLayout);
             initialDistance = PinchDistance(pinchGestureRecognizer);
             self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
-            self.listLayout.pinchRatio = 1.0;
-            
+            self.listLayout.pinchRatio = (self.listLayout.pinchStartedInListLayout) ? 0.0 : 1.0;
+            if (self.listLayout.pinchStartedInListLayout) {
+                CGPoint touchPoint = [pinchGestureRecognizer locationInView:self.collectionView];
+                touchPoint = self.collectionView.center;
+                self.listLayout.pinchedCardIndexPath = [self.collectionView indexPathForItemAtPoint:touchPoint];
+            }
             [self.pinchedCell doNotHideSettingsForNextLayoutChange];
             
             initialContentOffset = self.collectionView.contentOffset;
@@ -832,8 +836,19 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             // don't do anything when we have none left            
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-            
-            self.pinchedCell.settingsButton.alpha = CLAMP(pinchRatio, 0, 1) ;
+            if (self.listLayout.pinchStartedInListLayout) {
+                CGFloat offset, adjustedPinchRatio = pinchRatio - 1, minRatioCutoff = -0.05, maxRatioCutoff = 0.1;
+                if (adjustedPinchRatio < minRatioCutoff) {
+                    offset = adjustedPinchRatio - minRatioCutoff;
+                    adjustedPinchRatio = minRatioCutoff + offset/10;
+                } else if (adjustedPinchRatio > 0.1) {
+                    offset = adjustedPinchRatio - 0.1;
+                    adjustedPinchRatio = 0.1 + offset/10;
+                }
+                pinchRatio = CLAMP(adjustedPinchRatio, -0.2, 0.2);
+            } else {
+                self.pinchedCell.settingsButton.alpha = CLAMP(pinchRatio, 0, 1) ;
+            }
 //                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
 //                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
             self.listLayout.pinchRatio = pinchRatio;
@@ -846,13 +861,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0 && pinchGestureRecognizer.velocity > -PinchVelocityThreshold);
+            shouldReturnToPagingLayout &= !self.listLayout.pinchStartedInListLayout;
             
             if (self.notes.count == 1 || shouldReturnToPagingLayout) {
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
             } else {
-                pinchGestureRecognizer.enabled = NO;
                 self.collectionView.scrollEnabled = YES;
                 self.pinchedCell.settingsButton.alpha = 0;
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughPinchToListStep];
@@ -985,7 +1000,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.removeCardGestureRecognizer.enabled = NO;
         self.panCardGestureRecognizer.enabled = YES;
         self.twoFingerPanGestureRecognizer.enabled = YES;
-        self.pinchToListLayoutGestureRecognizer.enabled = YES;        
         self.collectionView.scrollEnabled = NO;
         self.collectionView.scrollsToTop = NO;
         

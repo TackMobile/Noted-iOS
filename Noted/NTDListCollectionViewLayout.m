@@ -267,6 +267,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             }
         };
         void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
+            self.pinchStartedInListLayout = NO;
         };
         UIViewAnimationOptions options = UIViewAnimationOptionBeginFromCurrentState;
         if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
@@ -344,6 +345,8 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     CGFloat pinchGap = self.pinchRatio * self.cardSize.height;
     CGFloat pinchOffset = self.pinchRatio * (-pinchedCardLayoutAttributes.frame.origin.y + self.collectionView.contentOffset.y);
     
+    if (self.pinchStartedInListLayout) pinchGap = 0;
+
 //    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     
     if (_originalPinchRatio < 0) {
@@ -353,6 +356,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         pinchGap += offset;
         pinchOffset -= offset;
     }
+    
     if (indexPath.item > self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);
     } else if (indexPath.item <= self.pinchedCardIndexPath.item) {
