@@ -1516,6 +1516,8 @@ static BOOL keyboardIsBeingShown;
 
 - (void)closeOptionsWithVelocity:(CGFloat)velocity
 {
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0") && fabs(velocity - 0.2) <= 0.001 ) velocity = 1600;
+
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughCloseOptionsStep];
     /* We need this coverup view b/c in iOS 7, if you tap to close from Settings or About, 
      * you'll see the right edge of the options view while the bounce animation runs. */
