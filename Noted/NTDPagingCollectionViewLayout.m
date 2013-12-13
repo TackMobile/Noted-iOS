@@ -11,6 +11,7 @@
 #import "NTDCollectionViewLayoutAttributes.h"
 #import "NTDWalkthrough.h"
 #import "NTDListCollectionViewLayout.h"
+#import "NTDCollectionViewController.h"
 
 NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNotification";
 
@@ -41,7 +42,25 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
     // show the current card, the card on bottom, the card on top
     for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
-        if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+        
+        /* So, this is a pretty dirty hack. The reason why it's here is because there was a crash that occured when restarting the
+         * walkthrough with only one note. Upon reloading the original notes, [self.collectionView numberOfItemsInSection:0] would
+         * return 2 instead of 1, which would cause -[NTDCollectionViewController noteAtIndexPath:] to crash after
+         * NTDMayShowNoteAtIndexPathNotification was sent because there was only one note.
+         *
+         * I suppose [self.collectionView numberOfItemsInSection:0] returns the wrong thing because we haven't called
+         * -[collectionView reloadData] by the time we get here. During the crash, we get to this spot when
+         * -[collectionView setCollectionViewLayout:animated:] is called within -[NTDCollectionViewController updateLayout:animated:]
+         * -reloadData isn't called until the end of that method.
+         *
+         * There's probably a deeper bug here, but it's Thursday night and we need to ship by Saturday, so....
+         */
+        NTDCollectionViewController *controller = (NTDCollectionViewController *)[self.collectionView.window rootViewController];
+        NSMutableArray *notes = [controller notes];
+        NSUInteger noteCount = notes.count;
+//        NSUInteger noteCount = [self.collectionView numberOfItemsInSection:0];
+
+        if (i < 0 || i+1 > noteCount)
             continue;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
