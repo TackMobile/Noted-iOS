@@ -1344,6 +1344,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             possibleIndicatorView.layer.transform = CATransform3DMakeTranslation(0.0, 0.0, CGFLOAT_MAX);
     }
     
+    [self adjustMotionEffects];
 //    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
@@ -1355,7 +1356,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     
     // re-enable swipe to delete
     self.removeCardGestureRecognizer.enabled = YES;
-    [self adjustMotionEffects];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -1386,27 +1386,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         CGPoint newPoint = scrollView.contentOffset;
         *targetContentOffset = newPoint;
     }
-}
-
--(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    if (scrollView != self.collectionView)
-        return;
-    [self adjustMotionEffects];
-}
-
--(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    if (scrollView != self.collectionView)
-        return;
-    [self adjustMotionEffects];
-}
-
-- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
-{
-    if (scrollView != self.collectionView)
-        return;
-    [self adjustMotionEffects];
 }
 
 #pragma mark - UITextViewDelegate
