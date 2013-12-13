@@ -439,6 +439,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             }
             if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughOneFingerDeleteStep];
+                gestureRecognizer.enabled = NO;
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
@@ -446,6 +447,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
                                            if (self.notes.count == 1)
                                                [self updateLayout:self.pagingLayout animated:NO];
+                                           gestureRecognizer.enabled = YES;
                                        }];
             } else {
                 // animate the cell back to its orig position
