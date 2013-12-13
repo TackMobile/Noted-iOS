@@ -274,7 +274,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
             self.pinchStartedInListLayout = NO;
         };
-        UIViewAnimationOptions options = UIViewAnimationOptionBeginFromCurrentState;
+        UIViewAnimationOptions options = UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction;
         if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
             [UIView animateWithDuration:.3
                                   delay:0
