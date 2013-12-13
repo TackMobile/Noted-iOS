@@ -300,7 +300,7 @@ static NSDictionary *messages;
                                                                                                     type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
         UIInterpolatingMotionEffect *horizTilt = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x"
                                                                                                     type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
-        static CGFloat Offset = 20;
+        static CGFloat Offset = 10;
         verticalTilt.minimumRelativeValue = horizTilt.minimumRelativeValue = @(-Offset);
         verticalTilt.maximumRelativeValue = horizTilt.maximumRelativeValue = @(Offset);
         
