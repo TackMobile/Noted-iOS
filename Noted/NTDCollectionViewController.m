@@ -1189,24 +1189,13 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return NO;
 }
 
-- (void)adjustMotionEffects
+- (NSArray *)visibleCells
 {
-    CGFloat verticalContentOffset = self.collectionView.contentOffset.y;
-    for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
-        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-        CGFloat offset = cell.$y - verticalContentOffset;
-        if (offset < 0) {
-            [self removeMotionEffects:cell atIndexPath:indexPath];
-        }
-        NSInteger index = floor(offset / (int)self.listLayout.cardOffset);
-        if (cell.motionEffects.count == 0) {
-            [self addMotionEffects:cell atIndexPath:indexPath];
-        }
-        UIInterpolatingMotionEffect *effect = cell.motionEffects[0];
-        effect.minimumRelativeValue = @(-10 * index);
-        effect.maximumRelativeValue = @(10 * index);
-    }
+    return [self.collectionView.subviews select:^BOOL(UIView *view) {
+        return [view isKindOfClass:[NTDCollectionViewCell class]];
+    }];
 }
+
 #pragma mark - Motion Effects
 - (void)addMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
@@ -1221,6 +1210,29 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
 //    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
     for (UIMotionEffect *effect in cell.motionEffects) [cell removeMotionEffect:effect];
+}
+
+- (void)adjustMotionEffects
+{
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) return;
+    
+    CGFloat verticalContentOffset = self.collectionView.contentOffset.y;
+    for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
+//        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+        CGFloat offset = cell.$y - verticalContentOffset;
+//        if (offset < 0) {
+//            [self removeMotionEffects:cell atIndexPath:indexPath];
+//            continue;
+//        }
+        NSInteger index = floor(offset / (int)self.listLayout.cardOffset);
+//        if (cell.motionEffects.count == 0) {
+//            [self addMotionEffects:cell atIndexPath:indexPath];
+//        }
+        if (index < 0 || cell.motionEffects.count == 0) continue;
+        UIInterpolatingMotionEffect *effect = cell.motionEffects[0];
+        effect.minimumRelativeValue = @(-10 * index);
+        effect.maximumRelativeValue = @(10 * index);
+    }
 }
 
 #pragma mark - Notifications
@@ -1330,8 +1342,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             possibleIndicatorView.layer.transform = CATransform3DMakeTranslation(0.0, 0.0, CGFLOAT_MAX);
     }
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-        [self adjustMotionEffects];
 //    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
 //    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
@@ -1343,7 +1353,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     
     // re-enable swipe to delete
     self.removeCardGestureRecognizer.enabled = YES;
-    
+    [self adjustMotionEffects];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
@@ -1374,6 +1384,27 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         CGPoint newPoint = scrollView.contentOffset;
         *targetContentOffset = newPoint;
     }
+}
+
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if (scrollView != self.collectionView)
+        return;
+    [self adjustMotionEffects];
+}
+
+-(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    if (scrollView != self.collectionView)
+        return;
+    [self adjustMotionEffects];
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    if (scrollView != self.collectionView)
+        return;
+    [self adjustMotionEffects];
 }
 
 #pragma mark - UITextViewDelegate
