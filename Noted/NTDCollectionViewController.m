@@ -1106,23 +1106,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
 }
 
-- (void)closeOptionsWithVelocity:(CGFloat)velocity
-{
-    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughCloseOptionsStep];
-    [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
-        self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-        self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
-        
-        self.visibleCell.textView.editable = YES;
-        self.pinchToListLayoutGestureRecognizer.enabled = YES;
-        [self.optionsViewController willMoveToParentViewController:nil];
-        [self.optionsViewController.view removeFromSuperview];
-        [self.optionsViewController removeFromParentViewController];
-        [self.optionsViewController reset];
-        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
-    }];
-}
-
 - (void)reloadNotes
 {
     dispatch_group_enter(self.note_refresh_group);
@@ -1529,6 +1512,30 @@ static BOOL keyboardIsBeingShown;
 - (void)dismissOptions
 {
     [self closeOptionsWithVelocity:.2];
+}
+
+- (void)closeOptionsWithVelocity:(CGFloat)velocity
+{
+    [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughCloseOptionsStep];
+    /* We need this coverup view b/c in iOS 7, if you tap to close from Settings or About, 
+     * you'll see the right edge of the options view while the bounce animation runs. */
+    UIView *coverupView = [[UIView alloc] initWithFrame:self.optionsViewController.view.frame];
+    coverupView.$left = coverupView.center.x;
+    coverupView.backgroundColor = [UIColor blackColor];
+    [self.collectionView insertSubview:coverupView aboveSubview:self.optionsViewController.view];
+    [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
+        self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+        self.tapCardWhileViewingOptionsGestureRecognizer.enabled = NO;
+        
+        self.visibleCell.textView.editable = YES;
+        self.pinchToListLayoutGestureRecognizer.enabled = YES;
+        [self.optionsViewController willMoveToParentViewController:nil];
+        [self.optionsViewController.view removeFromSuperview];
+        [self.optionsViewController removeFromParentViewController];
+        [self.optionsViewController reset];
+        [coverupView removeFromSuperview];
+        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
+    }];
 }
 
 @end
