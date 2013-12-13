@@ -310,8 +310,10 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     NTDCollectionViewLayoutAttributes *attr = (NTDCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:cardIndexPath];
     UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:cardIndexPath];
     /* Fixes bug in iOS 7 where deleting a cell w/ motion effects will prevent that cell from having motion effects upon reuse. */
-    for (UIMotionEffect *effect in theCell.motionEffects)
-        [theCell removeMotionEffect:effect];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        for (UIMotionEffect *effect in theCell.motionEffects)
+            [theCell removeMotionEffect:effect];
+    }
 
     if (self.swipedCardOffset < 0) {
         attr.transform2D = CGAffineTransformMakeRotation(-NTDMaxNoteTiltAngle);
