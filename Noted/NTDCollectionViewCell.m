@@ -16,8 +16,7 @@
 
 @interface NTDCollectionViewCell ()
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
-@property (nonatomic, assign) BOOL _doNotHideSettingsForNextLayoutChange;
-@property (nonatomic, assign) NSUInteger index;
+@property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
 @end
 
 static NSDictionary *bodyFontSizes;
@@ -46,6 +45,15 @@ static NSDictionary *bodyFontSizes;
     };
 }
 
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+    }
+    return self;
+}
+
 -(void)dealloc
 {
     [NSNotificationCenter.defaultCenter removeObserver:self];
@@ -62,7 +70,6 @@ static NSDictionary *bodyFontSizes;
     self.settingsButton.alpha = 0;
     self._doNotHideSettingsForNextLayoutChange = NO;
     self.textView.scrollsToTop = NO;
-    self.index = -1;
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         self.textView.$x += 3;
@@ -120,8 +127,6 @@ static NSDictionary *bodyFontSizes;
     }
     
 //    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
-    self.index = layoutAttributes.indexPath.item;
-    NSLog(@"[%p] applying layout attributes to cell #%d", self, self.index);
 }
 
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
@@ -146,7 +151,7 @@ static NSDictionary *bodyFontSizes;
 
 - (void)prepareForReuse
 {
-    NSLog(@"[%p] preparing cell #%d for reuse", self, self.index);
+//    self.textView.contentOffset = CGPointZero;
     [self applyMaskWithScrolledOffset:0];
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
 //        NSLog(@"removing motion effects for reused cell: %p", self);
