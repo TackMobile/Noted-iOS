@@ -261,18 +261,22 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     } else {
         void (^animationBlock)() = ^{
             NSInteger minIndexPath = NSIntegerMax, maxIndexPath = NSIntegerMin, count = 0;
-            for (NSIndexPath *indexPath in [self.collectionView indexPathsForVisibleItems]) {
-                UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+            for (UIView *view in self.collectionView.subviews) {
+                if (![view isKindOfClass:[UICollectionViewCell class]]) continue;
+                UICollectionViewCell *cell = (UICollectionViewCell *)view;
+                NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+                if (!indexPath) continue;
                 UICollectionViewLayoutAttributes *attributes = [self generateCellLayoutAttributesForItem:indexPath.item];
                 cell.center = attributes.center;
                 minIndexPath = MIN(minIndexPath, indexPath.item);
                 maxIndexPath = MAX(maxIndexPath, indexPath.item);
                 count ++;
             }
-            NSLog(@"%@", NSDictionaryOfVariableBindings(@(minIndexPath), @(maxIndexPath), @(count)));
+//            NSLog(@"%@", NSDictionaryOfVariableBindings(@(minIndexPath), @(maxIndexPath), @(count)));
         };
         void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
             self.pinchStartedInListLayout = NO;
+            [self invalidateLayout];
         };
         UIViewAnimationOptions options = UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction;
         if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
