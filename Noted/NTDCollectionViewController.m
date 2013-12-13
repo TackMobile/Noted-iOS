@@ -815,7 +815,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             self.listLayout.pinchRatio = (self.listLayout.pinchStartedInListLayout) ? 0.0 : 1.0;
             if (self.listLayout.pinchStartedInListLayout) {
                 CGPoint touchPoint = [pinchGestureRecognizer locationInView:self.collectionView];
-                touchPoint = self.collectionView.center;
                 self.listLayout.pinchedCardIndexPath = [self.collectionView indexPathForItemAtPoint:touchPoint];
             }
             [self.pinchedCell doNotHideSettingsForNextLayoutChange];
