@@ -112,6 +112,8 @@
 {
     NTDWalkthroughStep step = [NTDWalkthrough.sharedWalkthrough currentStep];
     switch (step) {
+        case NTDWalkthroughShouldBeginWalkthroughStep:
+            self.collectionView.userInteractionEnabled = NO;
         case NTDWalkthroughMakeANoteStep:
             [self setEnabled:YES forRecognizer:self.selectCardGestureRecognizer];
             [self setEnabled:YES forRecognizer:self.removeCardGestureRecognizer];
@@ -242,7 +244,8 @@
     [NTDNote newNotesWithTexts:initialNotes themes:initialThemes completionHandler:^(NSArray *notes) {
         self.notes = [notes mutableCopy];
         [self.collectionView reloadData];
+        self.collectionView.userInteractionEnabled = YES;
     }];
 }
-  
+
 @end
