@@ -1522,6 +1522,7 @@ static BOOL keyboardIsBeingShown;
     UIView *coverupView = [[UIView alloc] initWithFrame:self.optionsViewController.view.frame];
     coverupView.$left = coverupView.center.x;
     coverupView.backgroundColor = [UIColor blackColor];
+    coverupView.layer.transform = self.optionsViewController.view.layer.transform;
     [self.collectionView insertSubview:coverupView aboveSubview:self.optionsViewController.view];
     [self.pagingLayout hideOptionsWithVelocity:velocity completion:^{
         self.panCardWhileViewingOptionsGestureRecognizer.enabled = NO;
