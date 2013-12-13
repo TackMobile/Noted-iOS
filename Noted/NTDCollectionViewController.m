@@ -1083,7 +1083,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
 {
     NSParameterAssert(indexPath);
-    NSParameterAssert(indexPath.item < self.notes.count);
+    NSAssert(indexPath.item < self.notes.count, @"!(%d < %d)", indexPath.item, self.notes.count);
+    if (indexPath.item >= self.notes.count)
+        [NSException raise:NSInvalidArgumentException format:@"!(%d < %d)", indexPath.item, self.notes.count];
     return self.notes[indexPath.item];
 }
 
