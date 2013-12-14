@@ -1534,6 +1534,7 @@ static BOOL keyboardIsBeingShown;
         
         self.visibleCell.textView.editable = YES;
         self.pinchToListLayoutGestureRecognizer.enabled = YES;
+        self.twoFingerPanGestureRecognizer.enabled = YES;
         [self.optionsViewController willMoveToParentViewController:nil];
         [self.optionsViewController.view removeFromSuperview];
         [self.optionsViewController removeFromParentViewController];
