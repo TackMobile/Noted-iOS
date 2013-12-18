@@ -19,10 +19,7 @@
 //TODO move this to the walkthrough class?
 - (void)willBeginWalkthrough:(NSNotification *)notification
 {
-    if (self.collectionView.collectionViewLayout != self.listLayout) {
-        [self updateLayout:self.listLayout animated:NO];
-        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
-    }
+    [self returnToListLayout];
     dispatch_group_notify(self.note_refresh_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self hideOriginalNotes];
     });
@@ -250,4 +247,11 @@
     }];
 }
 
+- (void)returnToListLayout
+{
+    if (self.collectionView.collectionViewLayout != self.listLayout) {
+        [self updateLayout:self.listLayout animated:NO];
+        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
+    }
+}
 @end

@@ -14,5 +14,5 @@
 - (void)didAdvanceWalkthroughToStep:(NSNotification *)notification;
 - (void)didEndWalkthrough:(NSNotification *)notification;
 - (void)bindGestureRecognizers;
-
+- (void)returnToListLayout;
 @end

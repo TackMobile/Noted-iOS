@@ -8,6 +8,8 @@
 
 #import "NTDNote.h"
 #import "NTDNoteDocument.h"
+#import "NTDDropboxManager.h"
+#import "NTDDropboxNote.h"
 
 static Class PrivateImplentingClass;
 
@@ -16,9 +18,8 @@ static Class PrivateImplentingClass;
 
 + (void)initialize
 {
-    /* In the future, we'll probably look up some configuration variable
-     and set this appropriately. */
-    PrivateImplentingClass = [NTDNoteDocument class];
+    [self refreshStoragePreferences];
+//     PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
@@ -89,4 +90,11 @@ static Class PrivateImplentingClass;
     [PrivateImplentingClass restoreNotesFromBackupWithCompletionHandler:handler];
 }
 
++ (void)refreshStoragePreferences
+{
+    if ([NTDDropboxManager isDropboxEnabled])
+        PrivateImplentingClass = [NTDDropboxNote class];
+    else
+        PrivateImplentingClass = [NTDNoteDocument class];
+}
 @end

@@ -218,6 +218,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         NSString *msg = @"Would you like to enable Dropbox?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg handler:^(BOOL userClickedYes) {
             if (userClickedYes) {
+                [self.delegate dismissOptions];
                 [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
