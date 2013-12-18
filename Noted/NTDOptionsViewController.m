@@ -11,10 +11,11 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
-#import <BlocksKit/NSArray+BlocksKit.h>
+#import <BlocksKit/BlocksKit.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
+#import "NTDModalView.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -31,6 +32,7 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *shareOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
+@property (weak, nonatomic) IBOutlet UILabel *toggleDropboxLabel;
 
 @end
 
@@ -209,10 +211,23 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     versionLabel.text = version;
 
-    [self reset];    
+    // Dropbox
+    self.toggleDropboxLabel.userInteractionEnabled = YES;
+    self.toggleDropboxLabel.onTouchDownBlock = ^(NSSet *touches, UIEvent *event) {
+        NSString *msg = @"Would you like to enable Dropbox?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg handler:^(BOOL userClickedYes) {
+            if (userClickedYes) {
+                
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
+    };
+    [self reset];
 }
 
-- (void)viewWillAppear:(BOOL)animated   {
+- (void)viewWillAppear:(BOOL)animated
+{
     [super viewWillAppear:animated];
 }
 

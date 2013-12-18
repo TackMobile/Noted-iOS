@@ -287,6 +287,7 @@
 				29FC4919156EE0CD0007BBAD /* Noted */,
 				3F1FF28717A048AA00213F2F /* Walkthrough */,
 				3F73710418AECD600092694E /* NotedTests */,
+				3FC8309018622058001C141C /* Dropbox */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
 				56511FDB4151478DBAF18458 /* Pods.xcconfig */,
@@ -447,6 +448,14 @@
 				3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */,
 			);
 			name = Private;
+			sourceTree = "<group>";
+		};
+		3FC8309018622058001C141C /* Dropbox */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Dropbox;
+			path = Noted;
 			sourceTree = "<group>";
 		};
 		B52114D8171CA79E007670F3 /* Models */ = {
