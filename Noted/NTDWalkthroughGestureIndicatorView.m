@@ -238,7 +238,7 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
                 originalPosition = self.layer.position;
                 dragAnimation = [self.layer animationForKey:@"dragAnimation"];
                 [self.layer removeAnimationForKey:@"dragAnimation"];
-                self.layer.position = [[self.layer presentationLayer] position];
+                self.layer.position = [(CALayer *)[self.layer presentationLayer] position];
                 [UIView animateWithDuration:0.2
                                  animations:^{
                                      self.center = touchPosition;
