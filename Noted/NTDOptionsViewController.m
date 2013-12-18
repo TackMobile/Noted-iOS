@@ -16,6 +16,7 @@
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
 #import "NTDModalView.h"
+#import "NTDDropboxManager.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
@@ -217,7 +218,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         NSString *msg = @"Would you like to enable Dropbox?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg handler:^(BOOL userClickedYes) {
             if (userClickedYes) {
-                
+                [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];

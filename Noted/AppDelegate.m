@@ -12,6 +12,7 @@
 #import "Constants.h"
 #import "NTDCollectionViewController.h"
 #import "NTDWalkthrough.h"
+#import "NTDDropboxManager.h"
 
 NSString *const NTDInitialVersionKey = @"NTDInitialVersionKey";
 NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
@@ -52,6 +53,11 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
 - (void)customizeAppearance
 {
     ModalBackgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url sourceApplication:(NSString *)source annotation:(id)annotation
+{
+    return [NTDDropboxManager handleOpenURL:url];
 }
 
 - (void)recordInitialLaunchData

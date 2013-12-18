@@ -62,6 +62,7 @@
 		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
 		3FC8308F1861FB50001C141C /* NTDModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8308E1861FB50001C141C /* NTDModalView.m */; };
+		3FC830941862209D001C141C /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
 		3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
 		9C53A0360BDA46B5B8544B1C /* libPods-NotedTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49647001D63E48259E02462C /* libPods-NotedTests.a */; };
@@ -164,6 +165,8 @@
 		3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDReplicatorView.m; sourceTree = "<group>"; };
 		3FC8308D1861FB50001C141C /* NTDModalView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = NTDModalView.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 1; };
 		3FC8308E1861FB50001C141C /* NTDModalView.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = NTDModalView.m; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 1; };
+		3FC830921862209D001C141C /* NTDDropboxManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDropboxManager.h; sourceTree = "<group>"; };
+		3FC830931862209D001C141C /* NTDDropboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxManager.m; sourceTree = "<group>"; };
 		3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		49647001D63E48259E02462C /* libPods-NotedTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotedTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -453,6 +456,8 @@
 		3FC8309018622058001C141C /* Dropbox */ = {
 			isa = PBXGroup;
 			children = (
+				3FC830921862209D001C141C /* NTDDropboxManager.h */,
+				3FC830931862209D001C141C /* NTDDropboxManager.m */,
 			);
 			name = Dropbox;
 			path = Noted;
@@ -724,6 +729,7 @@
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
+				3FC830941862209D001C141C /* NTDDropboxManager.m in Sources */,
 				F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */,
 				CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */,
 				CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */,
