@@ -33,13 +33,6 @@ static DBDatastore *datastore;
     main_dispatch_queue = dispatch_get_main_queue();
 }
 
--(void)copyFromNote:(NTDNote *)note file:(DBFile *)file
-{
-    self.file = file;
-    self.theme = note.theme;
-    self.headline = note.headline;
-}
-
 #pragma mark - Properties
 -(void)setFile:(DBFile *)file
 {
@@ -140,11 +133,14 @@ static DBDatastore *datastore;
     handler = [NTDNote handlerDispatchedToMainQueue:handler];
     dispatch_async(background_dispatch_queue, ^{
         DBError __autoreleasing *error;
+        BOOL success = YES;
         
         /* open file */
-        self.file = [[DBFilesystem sharedFilesystem] openFile:self.fileinfo.path error:&error];
-        if (error) [NTDNote logError:error withMessage:@"Couldn't open file!"];
-        BOOL success = (error == nil);
+        if (self.fileState != NTDNoteFileStateOpened) {
+            self.file = [[DBFilesystem sharedFilesystem] openFile:self.fileinfo.path error:&error];
+            if (error) [NTDNote logError:error withMessage:@"Couldn't open file!"];
+            success = (error == nil);
+        }
         
         /* read text from file */
         if (success) {
@@ -213,7 +209,7 @@ static DBDatastore *datastore;
 
 #pragma mark Datastore-backed properties
 
-static NSString *const kMetadataTableName = @"noted_metadata";
+static NSString *const kMetadataTableName = @"metadata";
 static const NSString *kHeadlineKey = @"headline";
 static const NSString *kThemeKey = @"theme";
 static const NSString *kFilenameKey = @"filename";
@@ -280,5 +276,30 @@ static const NSString *kFilenameKey = @"filename";
                                         kHeadlineKey : [NTDNote headlineForString:self.bodyText],
                                         kThemeKey    : @(NTDColorSchemeWhite)}];
     }
+}
+
+#pragma  mark - Import
+-(void)copyFromNote:(NTDNote *)note file:(DBFile *)file
+{
+    self.file = file;
+    self.theme = note.theme;
+    self.headline = note.headline;
+}
+
++ (void)clearExistingMetadata
+{
+    DBDatastore *datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+                                                  error:nil];
+    if (!datastore) return;
+    
+    DBTable *table = [datastore getTable:kMetadataTableName];
+    for (DBRecord *record in [table query:nil error:nil])
+        [record deleteRecord];
+
+    table = [datastore getTable:@"noted_metadata"];
+    for (DBRecord *record in [table query:nil error:nil])
+        [record deleteRecord];
+
+    [datastore sync:nil];
 }
 @end

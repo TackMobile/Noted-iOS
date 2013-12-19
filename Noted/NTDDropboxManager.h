@@ -14,4 +14,5 @@
 +(void)linkAccountFromViewController:(UIViewController *)controller;
 +(BOOL)handleOpenURL:(NSURL *)url;
 +(BOOL)isDropboxEnabled;
++(BOOL)isDropboxLinked;
 @end

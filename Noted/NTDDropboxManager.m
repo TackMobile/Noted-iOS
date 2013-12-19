@@ -61,6 +61,11 @@ static NTDModalView *modalView;
     return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxEnabledKey];
 }
 
++(BOOL)isDropboxLinked
+{
+    return [[DBAccountManager sharedManager] linkedAccount] != nil;
+}
+
 +(void)setDropboxEnabled:(BOOL)enabled
 {
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
@@ -78,6 +83,7 @@ static NTDModalView *modalView;
     [controller returnToListLayout];
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [NTDDropboxNote clearExistingMetadata];
             for (NTDNote *note in notes) {
                 DBError __autoreleasing *error;
                 DBPath *path = [[DBPath root] childPath:note.filename];

@@ -18,8 +18,8 @@ static Class PrivateImplentingClass;
 
 + (void)initialize
 {
-    [self refreshStoragePreferences];
-//     PrivateImplentingClass = [NTDNoteDocument class];
+//    [self refreshStoragePreferences];
+     PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
@@ -92,7 +92,7 @@ static Class PrivateImplentingClass;
 
 + (void)refreshStoragePreferences
 {
-    if ([NTDDropboxManager isDropboxEnabled])
+    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
         PrivateImplentingClass = [NTDDropboxNote class];
     else
         PrivateImplentingClass = [NTDNoteDocument class];

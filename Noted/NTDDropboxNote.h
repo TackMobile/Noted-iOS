@@ -11,6 +11,6 @@
 @class NTDNote, DBFile;
 @interface NTDDropboxNote : NSObject
 
--(void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
-
+- (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
++ (void)clearExistingMetadata;
 @end
