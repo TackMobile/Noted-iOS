@@ -50,3 +50,8 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 //- (id<NTDNoteDelegate>)delegate;
 //- (void)setDelegate:(id<NTDNoteDelegate>)delegate;
 @end
+
+UIKIT_EXTERN NSString *const NTDNoteWasChangedNotification;
+UIKIT_EXTERN NSString *const NTDNoteWasAddedNotification;
+UIKIT_EXTERN NSString *const NTDNoteWasDeletedNotification;
+UIKIT_EXTERN NSString *const NTDNoteHasConflictNotification;

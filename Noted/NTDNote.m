@@ -13,13 +13,18 @@
 
 static Class PrivateImplentingClass;
 
+NSString *const NTDNoteWasChangedNotification = @"NTDNoteWasChangedNotification";
+NSString *const NTDNoteWasAddedNotification = @"NTDNoteWasAddedNotification";
+NSString *const NTDNoteWasDeletedNotification = @"NTDNoteWasDeletedNotification";
+NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification";
+
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation NTDNote
 
 + (void)initialize
 {
-//    [self refreshStoragePreferences];
-     PrivateImplentingClass = [NTDNoteDocument class];
+    [self refreshStoragePreferences];
+//     PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
