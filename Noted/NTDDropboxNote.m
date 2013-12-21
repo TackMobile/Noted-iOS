@@ -108,6 +108,7 @@ static DBDatastore *datastore;
             NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
             note.fileinfo = fileinfo;
             [notes addObject:note];
+            [[NTDDropboxObserver sharedObserver] observeNote:note];
             filenameCounter = MAX(filenameCounter, [NTDNote indexFromFilename:note.filename]);
         }
         

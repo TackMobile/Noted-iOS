@@ -7,18 +7,13 @@
 //
 
 #import <Dropbox/Dropbox.h>
+#import <BlocksKit/BlocksKit.h>
 #import "NTDDropboxObserver.h"
 #import "NTDDropboxNote.h"
 #import "NTDNote.h"
 
 @interface NTDDropboxObserver()
 @property (nonatomic, strong) NSMutableDictionary *fileToPathMap, *fileinfoToNoteMap;
-@end
-
-@interface NSArray (NTDArrayComparison)
-
--(void)compareAgainst:(NSArray *)newArray withResults:(void(^)(NSIndexSet *insertedObjects, NSIndexSet *deletedObjects))differenceBlock;
-
 @end
 
 @implementation NTDDropboxObserver
@@ -75,23 +70,35 @@
             NSLog(@"%s: Couldn't get new list of files: %@", sel_getName(_cmd), error);
             return;
         }
-        [files compareAgainst:newFiles withResults:^(NSIndexSet *insertedObjects, NSIndexSet *deletedObjects) {
-            NSLog(@"Searching for newly inserted & deleted files. %d vs %d", files.count, newFiles.count);
+        [self compare:files against:newFiles withResults:^(NSArray *insertedFiles, NSArray *updatedFiles, NSArray *deletedFiles) {
+            NSLog(@"Searching for newly inserted, updated & deleted files. %d vs %d", files.count, newFiles.count);
             NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-            NSArray *insertedFiles = [newFiles objectsAtIndexes:insertedObjects];
             for (DBFileInfo *fileinfo in insertedFiles) {
                 [files addObject:fileinfo];
                 NTDDropboxNote *note = [NTDDropboxNote noteFromFileInfo:fileinfo];
                 [notificationCenter postNotificationName:NTDNoteWasAddedNotification object:note];
                 NSLog(@"Found new inserted file: %@", fileinfo.path);
             }
-            NSArray *deletedFiles = [files objectsAtIndexes:deletedObjects];
+            for (DBFileInfo *fileinfo in updatedFiles) {
+                NSLog(@"Found new updated file: %@", fileinfo.path);
+                DBFileInfo *fileinfoWithMatchingPath = [files match:^BOOL(DBFileInfo *oldFileInfo) {
+                    return ([fileinfo.path isEqual:oldFileInfo.path]);
+                }];
+                NTDDropboxNote *note = self.fileinfoToNoteMap[fileinfoWithMatchingPath];
+                NSUInteger index = [files indexOfObject:fileinfoWithMatchingPath];
+                if (index != NSNotFound) [files replaceObjectAtIndex:index withObject:fileinfo];
+                if (note) {
+                    [self.fileinfoToNoteMap removeObjectForKey:fileinfoWithMatchingPath];
+                    self.fileinfoToNoteMap[fileinfo] = note;
+                    [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];
+                }
+            }
             for (DBFileInfo *fileinfo in deletedFiles) {
                 [files removeObject:fileinfo];
                 NSLog(@"Found new deleted file: %@", fileinfo.path);
                 NTDDropboxNote *note = self.fileinfoToNoteMap[fileinfo];
                 if (note) {
-                    [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];                    
+                    [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];
                 }
                 
             }
@@ -106,21 +113,32 @@
     return YES;
 }
 
-@end
-
-@implementation NSArray (NTDArrayComparison)
-
--(void)compareAgainst:(NSArray *)newArray withResults:(void(^)(NSIndexSet *insertedObjects, NSIndexSet *deletedObjects))differenceBlock
+-(void)compare:(NSArray *)oldArray against:(NSArray *)newArray withResults:(void(^)(NSArray *insertedFiles, NSArray *updatedFiles, NSArray *deletedFiles))differenceBlock
 {
-    NSIndexSet *insertedObjects = [newArray indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return ![self containsObject:obj];
-    }];
+    NSMutableArray *insertedFiles = [NSMutableArray array];
+    NSMutableArray *updatedFiles = [NSMutableArray array];
+    NSMutableArray *deletedFiles = [NSMutableArray array];
+    [deletedFiles addObjectsFromArray:oldArray];
+
+    for (DBFileInfo *newFileInfo in newArray) {
+        if ([oldArray containsObject:newFileInfo]) {
+            [deletedFiles removeObject:newFileInfo];
+            continue;
+        }
+        /* If our original array doesn't contain this new object, either it's path is different or another property is different.
+         * If the path has remained the same, let's consider that an update, else it's an insert. */
+        DBFileInfo *fileinfoWithMatchingPath = [oldArray match:^BOOL(DBFileInfo *oldFileInfo) {
+            return ([newFileInfo.path isEqual:oldFileInfo.path]);
+        }];
+        
+        if (fileinfoWithMatchingPath) {
+            [updatedFiles addObject:newFileInfo];
+            [deletedFiles removeObject:fileinfoWithMatchingPath];
+        } else {
+            [insertedFiles addObject:newFileInfo];
+        }
+    }
     
-    NSIndexSet *deletedObjects = [self indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return ![newArray containsObject:obj];
-    }];
-
-    differenceBlock(insertedObjects, deletedObjects);
+    differenceBlock(insertedFiles, updatedFiles, deletedFiles);
 }
-
 @end
