@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@class NTDNote, DBFile;
+@class NTDNote, DBFile, DBFileInfo;
 @interface NTDDropboxNote : NSObject
+
++ (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
 
 - (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
 + (void)clearExistingMetadata;

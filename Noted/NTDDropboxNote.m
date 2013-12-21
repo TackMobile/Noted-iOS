@@ -11,6 +11,7 @@
 #import "NTDDropboxNote.h"
 #import "NTDNote+ImplUtils.h"
 #import "NTDTheme.h"
+#import "NTDDropboxObserver.h"
 
 static dispatch_queue_t background_dispatch_queue, main_dispatch_queue;
 static NSUInteger filenameCounter = 1;
@@ -31,6 +32,13 @@ static DBDatastore *datastore;
 {
     background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     main_dispatch_queue = dispatch_get_main_queue();
+}
+
++(instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo
+{
+    NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
+    note.fileinfo = fileinfo;
+    return note;
 }
 
 #pragma mark - Properties
@@ -87,8 +95,14 @@ static DBDatastore *datastore;
             return;
         }
 
+        BOOL isOK = [[NTDDropboxObserver sharedObserver] observeRootPath:[self rootPath]];
+        if (!isOK) {
+            NSLog(@"Couldn't observe path: %@", [self rootPath].stringValue);
+        }
         datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                       error:&error];
+        if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."];
+        
         NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[fileinfoArray count]];
         for (DBFileInfo *fileinfo in fileinfoArray) {
             NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
