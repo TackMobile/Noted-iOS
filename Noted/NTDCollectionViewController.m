@@ -841,7 +841,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
             if (self.listLayout.pinchStartedInListLayout) {
-                CGFloat offset, adjustedPinchRatio = pinchRatio - 1, minRatioCutoff = -0.05, maxRatioCutoff = 0.1;
+                CGFloat offset, adjustedPinchRatio = pinchRatio - 1, minRatioCutoff = -0.05;// maxRatioCutoff = 0.1;
                 if (adjustedPinchRatio < minRatioCutoff) {
                     offset = adjustedPinchRatio - minRatioCutoff;
                     adjustedPinchRatio = minRatioCutoff + offset/10;
