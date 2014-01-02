@@ -72,7 +72,9 @@ static CGFloat zTranslation;
             sliceImageView.layer.shadowOffset = CGSizeZero;
             sliceImageView.layer.shouldRasterize = YES;
             
-            sliceImageView.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(sliceImageView.bounds, 0, 0), nil);
+            CGPathRef shadowPathRef = CGPathCreateWithRect(CGRectOffset(sliceImageView.bounds, 0, 0), nil);
+            sliceImageView.layer.shadowPath = shadowPathRef;
+            CGPathRelease(shadowPathRef);
             sliceImageView.layer.shadowOpacity = .5;
             
             sliceImageView.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
@@ -177,7 +179,9 @@ static CGFloat zTranslation;
                 // animate shredding of the column
                 for (UIImageView *slice in column.slices) {
                     // remove any mask and set up properties
-                    slice.layer.shadowPath = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
+                    CGPathRef shadowPathRef = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
+                    slice.layer.shadowPath = shadowPathRef;
+                    CGPathRelease(shadowPathRef);
                     slice.layer.shadowRadius = (float)rand()/RAND_MAX * 3 + 3;
                     slice.alpha = 0;
                     
