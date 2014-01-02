@@ -310,6 +310,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                   forControlEvents:UIControlEventTouchUpInside];
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
+    NSLog(@"%@", note.lastModifiedDate);
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
 
     if (!self.hasTwoFingerNoteDeletionBegun)
