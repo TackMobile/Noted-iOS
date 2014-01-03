@@ -101,28 +101,30 @@
     	int diff = round(ti / 60 / 60 / 24);
     	return[NSString stringWithFormat:@"%d days ago", diff];
     } */
-    NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setFormatterBehavior:NSDateFormatterBehavior10_4];
-    [df setDateFormat:@"EEE, dd MMM yy HH:mm:ss VVVV"];
+    
     NSDate *todayDate = [NSDate date];
-    double ti = [dateCreated timeIntervalSinceDate:todayDate];
-    ti = ti * -1;
-    if (ti < 86400) {
+    
+    // include the year if it differs from this year
+    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
+    NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
+    
+    // timeinterval
+    NSTimeInterval createdDays = ceil( [dateCreated timeIntervalSince1970] / 86400);
+    NSTimeInterval todayDays = ceil ( [todayDate timeIntervalSince1970] / 86400);
+    
+    int days = todayDays - createdDays;
+    
+    if (days == 0) {
     	return @"Today";
-    } else if (ti < 172800) {
+    } else if (days == 1) {
         return @"Yesterday";
-    } else if (ti < 518400) { // up to 6 days ago
-    	int diff = round(ti / 60 / 60 / 24);
-    	return[NSString stringWithFormat:@"%d days ago", diff];
+    } else if (days < 7) { // up to 6 days ago
+    	return[NSString stringWithFormat:@"%d days ago", days];
     } else {
         // format the date
         NSDateFormatter *dateFormatter = [NSDateFormatter new];
         [dateFormatter setDateStyle:NSDateFormatterLongStyle];
         NSString *formattedDate = [dateFormatter stringFromDate:dateCreated];
-        
-        // include the year if it differs from this year
-        NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
-        NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
 
         if ([todayComponents year] == [createdComponents year]) {
             // delete any combination of (space|comma)* year (space|comma)*
