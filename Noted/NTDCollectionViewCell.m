@@ -107,7 +107,8 @@ static NSDictionary *bodyFontSizes;
 -(void)removeFromSuperview
 {
     [super removeFromSuperview];
-    [self.textView removeKeyboardControl];
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
+        [self.textView removeKeyboardControl];
 }
 
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
