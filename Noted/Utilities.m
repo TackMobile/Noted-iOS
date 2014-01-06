@@ -114,12 +114,16 @@
     
     int days = todayDays - createdDays;
     
-    if (days == 0) {
-    	return @"Today";
-    } else if (days == 1) {
-        return @"Yesterday";
-    } else if (days < 7) { // up to 6 days ago
-    	return[NSString stringWithFormat:@"%d days ago", days];
+    if (days < 2) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+        [dateFormatter setLocale:[NSLocale currentLocale] ];
+        [dateFormatter setDoesRelativeDateFormatting:YES];
+        NSLog(@"%@", [dateFormatter stringFromDate:dateCreated]);
+        return [dateFormatter stringFromDate:dateCreated];
+    } else if (days < 7) {
+        return [NSString stringWithFormat:@"%d days ago", days];
     } else {
         // format the date
         NSDateFormatter *dateFormatter = [NSDateFormatter new];
