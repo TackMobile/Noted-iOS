@@ -120,7 +120,6 @@
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
         [dateFormatter setLocale:[NSLocale currentLocale] ];
         [dateFormatter setDoesRelativeDateFormatting:YES];
-        NSLog(@"%@", [dateFormatter stringFromDate:dateCreated]);
         return [dateFormatter stringFromDate:dateCreated];
     } else if (days < 7) {
         return [NSString stringWithFormat:@"%d days ago", days];
