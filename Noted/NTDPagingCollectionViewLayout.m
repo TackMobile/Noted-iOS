@@ -242,7 +242,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     };
 
     NSTimeInterval animationDuration = CLAMP(dur, .05, .5);
-    CGFloat springVelocity = animationDuration * (ABS(velocity)/320);
+//    CGFloat springVelocity = animationDuration * (ABS(velocity)/320);
     CGFloat damping = (dur < .5) ? .7 : .5;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         [UIView animateWithDuration:animationDuration
