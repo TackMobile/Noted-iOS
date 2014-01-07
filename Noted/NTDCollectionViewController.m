@@ -311,6 +311,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
+    cell.dateCreated = note.lastModifiedDate;
 
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;

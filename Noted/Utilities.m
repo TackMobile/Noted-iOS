@@ -77,45 +77,88 @@
 
 +(NSString*)formatRelativeDate:(NSDate*)dateCreated {
     
-    static NSDateFormatter *dateFormatter;
-    if (!dateFormatter) dateFormatter = [[NSDateFormatter alloc] init];
-	NSDate *now = [NSDate date];
+    // The folloing is good if we were updating consistiently
+    /*
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setFormatterBehavior:NSDateFormatterBehavior10_4];
+    [df setDateFormat:@"EEE, dd MMM yy HH:mm:ss VVVV"];
+    NSDate *todayDate = [NSDate date];
+    double ti = [dateCreated timeIntervalSinceDate:todayDate];
+    ti = ti * -1;
+    if(ti < 1) {
+    	return @"a few seconds ago";
+    } else 	if (ti < 60) {
+    	return @"less than a minute ago";
+    } else if (ti < 3600) {
+    	int diff = round(ti / 60);
+    	return [NSString stringWithFormat:@"%d minutes ago", diff];
+    } else if (ti < 86400) {
+    	int diff = round(ti / 60 / 60);
+    	return[NSString stringWithFormat:@"%d hours ago", diff];
+    } else if (ti < 172800) {
+        return @"yesterday";
+    } else {
+    	int diff = round(ti / 60 / 60 / 24);
+    	return[NSString stringWithFormat:@"%d days ago", diff];
+    } */
     
-    [dateFormatter setDateFormat:@"yyyy"];
-    int year = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowYear = [[dateFormatter stringFromDate:now] intValue];
-    [dateFormatter setDateFormat:@"MM"];
-    int month = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowMonth = [[dateFormatter stringFromDate:now] intValue];
-    [dateFormatter setDateFormat:@"dd"];
-    int day = [[dateFormatter stringFromDate:dateCreated] intValue];
-    int nowDay = [[dateFormatter stringFromDate:now] intValue];
+    NSDate *todayDate = [NSDate date];
     
+    // include the year if it differs from this year
+    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
+    todayComponents.hour = 0;
+    todayComponents.minute = 0;
+    NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
+    createdComponents.hour = 0;
+    createdComponents.minute = 0;
     
-    if (month == 1 || month == 2) {
-        month += 12;
-        year -= 1;
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    [cal setTimeZone:[NSTimeZone localTimeZone]];
+    [cal setLocale:[NSLocale currentLocale]];
+    
+    todayDate = [cal dateFromComponents:todayComponents];
+    dateCreated = [cal dateFromComponents:createdComponents];
+    
+    NSDateComponents *components = [cal components:NSDayCalendarUnit
+                                          fromDate:dateCreated
+                                            toDate:todayDate
+                                           options:0];
+        
+    int days = [components day];
+    
+    if (days < 2) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+        [dateFormatter setLocale:[NSLocale currentLocale] ];
+        [dateFormatter setDoesRelativeDateFormatting:YES];
+        return [dateFormatter stringFromDate:dateCreated];
+    } else if (days < 7) {
+        return [NSString stringWithFormat:@"%d days ago", days];
+    } else {
+        // format the date
+        NSDateFormatter *dateFormatter = [NSDateFormatter new];
+        
+        if ([todayComponents year] == [createdComponents year]) {
+            [dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:[NSLocale currentLocale]]];
+        } else {
+            [dateFormatter setDateStyle:NSDateFormatterLongStyle];
+        }
+        
+        NSString *formattedDate = [dateFormatter stringFromDate:dateCreated];
+
+        return formattedDate;
     }
-    if (nowMonth == 1 || nowMonth == 2) {
-        month+=12;
-        year -= 1;
-    }
     
-    int totalDays = floorf(365.0*year) + floorf(year/4.0) - floorf(year/100.0) + floorf(year/400.0) + day + floorf((153*month+8)/5);
+    // today
+    // yesterday
+    // x days ago (up to 6)
+    // date (January 2nd) (December 25th 2013)
     
-    int totalNowDays = floorf(365.0*nowYear) + floorf(nowYear/4.0) - floorf(nowYear/100.0) + floorf(nowYear/400.0) + nowDay + floorf((153*nowMonth+8)/5);
+    // update days on app open and refresh
+    // 1.1.1
     
-    int daysAgo = totalNowDays - totalDays;
-    NSString *dateString;
     
-    if (daysAgo == 0) {
-        dateString = [NSString stringWithFormat:@"Today"];
-    }else if (daysAgo == 1) {
-        dateString = [NSString stringWithFormat:@"Yesterday"];
-    }else {
-        dateString = [NSString stringWithFormat:@"%i days ago",daysAgo];
-    }
-    return dateString;
 }
 
 
