@@ -60,6 +60,7 @@
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
 		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
+		F349FB50187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m in Sources */ = {isa = PBXBuildFile; fileRef = F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */; };
 		F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */ = {isa = PBXBuildFile; fileRef = F3F5579A177E05650003E152 /* UIDeviceHardware.m */; };
 /* End PBXBuildFile section */
 
@@ -150,6 +151,8 @@
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
 		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		F349FB4E187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+ShakeToUndoDelete.h"; sourceTree = "<group>"; };
+		F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+ShakeToUndoDelete.m"; sourceTree = "<group>"; };
 		F3F55799177E05650003E152 /* UIDeviceHardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceHardware.h; sourceTree = "<group>"; };
 		F3F5579A177E05650003E152 /* UIDeviceHardware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceHardware.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -405,6 +408,8 @@
 				CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */,
 				CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */,
 				CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */,
+				F349FB4E187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.h */,
+				F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -546,6 +551,7 @@
 				B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */,
 				B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */,
 				B5A2B0D0171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m in Sources */,
+				F349FB50187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m in Sources */,
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,

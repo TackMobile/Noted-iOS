@@ -508,4 +508,12 @@ BOOL safe_rename(const char *old, const char *new)
         [self updateChangeCount:UIDocumentChangeDone];
     }
 }
+
+- (void)setLastModifiedDate:(NSDate *)date
+{
+    if (![date isEqualToDate:self.lastModifiedDate]) {
+        self.metadata.lastModifiedDate = date;
+        [self updateChangeCount:UIDocumentChangeDone];
+    }
+}
 @end
