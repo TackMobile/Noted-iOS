@@ -239,7 +239,8 @@ BOOL safe_rename(const char *old, const char *new)
     [context performBlockAndWait:^{
         [Crashlytics setObjectValue:self forKey:@"saved_note"];
         [Crashlytics setObjectValue:self.metadata forKey:@"saved_note_metadata"];
-        self.metadata.lastModifiedDate = [NSDate date];
+        if (self.metadata.lastModifiedDate != nil)
+            self.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
