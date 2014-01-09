@@ -14,6 +14,7 @@
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
+#import "NTDDummyNote.h"
 #import "NTDCoreDataStore.h"
 
 static NSString *const FileExtension = @"txt";
@@ -68,6 +69,26 @@ static NSUInteger filenameCounter = 1;
         filenameCounter++;
     }
     while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
+    
+    return url;
+}
+
++ (NSURL *)fileURLFromIndex:(NSUInteger)index
+{
+    // try to use the new index. if not, keep incrimenting
+    NSURL *url;
+    do
+    {
+        NSString *basename = [NSString stringWithFormat:@"Note %d", index];
+        NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
+        url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
+        index++;
+    }
+    while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
+    
+    // if our new index exceeds our counter, update it
+    if (index>filenameCounter)
+        filenameCounter=index;
     
     return url;
 }
@@ -329,6 +350,22 @@ BOOL safe_rename(const char *old, const char *new)
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
 {
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL]];
+    [self newNoteWithDocument:document completionHandler:handler];
+}
+
++ (void)restoreNote:(NTDDummyNote *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
+    NSUInteger fileIndex = [self indexFromFilename:deletedNote.filename];
+    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+    
+    [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
+        [note setText:deletedNote.text];
+        [note setTheme:deletedNote.theme];
+        [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        handler(note);
+    }];
+}
+
++ (void)newNoteWithDocument:(NTDNoteDocument *)document completionHandler:(void(^)(NTDNote *))handler {
     document.metadata = [NSEntityDescription insertNewObjectForEntityForName:@"NTDNoteMetadata"
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
@@ -440,8 +477,12 @@ BOOL safe_rename(const char *old, const char *new)
                                             options:NSFileCoordinatorWritingForDeleting
                                               error:&error
                                          byAccessor:^(NSURL* writingURL) {
+                                             NSError __autoreleasing *fileDeletingError;
+
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
-                                             [fileManager removeItemAtURL:writingURL error:nil];
+                                             [fileManager removeItemAtURL:writingURL error:&fileDeletingError];
+                                             
+                                             if (fileDeletingError) NSLog(@"%@", fileDeletingError); else NSLog(@"delete success");
                                          }];
         BOOL success = !error;
         if (success) [Flurry logEvent:@"Note Deleted"];

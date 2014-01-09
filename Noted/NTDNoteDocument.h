@@ -10,4 +10,5 @@
 
 @interface NTDNoteDocument : UIDocument
 
+
 @end

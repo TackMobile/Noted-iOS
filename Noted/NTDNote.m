@@ -31,6 +31,11 @@ static Class PrivateImplentingClass;
     [PrivateImplentingClass listNotesWithCompletionHandler:handler];
 }
 
++ (void)restoreNote:(NTDDummyNote *)deletedNote completionHandler:(void(^)(NTDNote *note))handler
+{
+    [PrivateImplentingClass restoreNote:deletedNote completionHandler:handler];
+}
+
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
 {
     [PrivateImplentingClass newNoteWithCompletionHandler:handler];

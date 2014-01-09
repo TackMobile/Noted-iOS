@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NTDCollectionViewCell.h"
 #import "NTDOptionsViewController.h"
+#import "NTDDummyNote.h"
 
 typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
     NTDPageDeletionDirectionLeft = 0,
@@ -27,6 +28,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NTDCollectionViewCell *currentDeletionCell;
 @property (nonatomic) NTDPageDeletionDirection deletionDirection;
+@property (nonatomic, strong) NTDDummyNote *deletedNote;
 
 /* Walkthrough */
 //TODO rename removeCard & twoFingerPan

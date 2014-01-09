@@ -1076,6 +1076,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
+    self.deletedNote = [[NTDDummyNote alloc] initWithNote:note];
+    
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];

@@ -23,12 +23,14 @@
 {
     if (motion == UIEventSubtypeMotionShake )
     {
-        [NTDNote newNoteWithText:@"This is a new note." theme:[NTDTheme themeForColorScheme:NTDColorSchemeTack] completionHandler:^(NTDNote *note) {
-            [note setLastModifiedDate:[NSDate dateWithTimeIntervalSinceNow:-2*24*60*60]];
-            [self reloadNotes];
-        }];
+        if (self.deletedNote) {
+            [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
+                [self reloadNotes];
+                self.deletedNote = nil;
+            }];
         
-        NSLog(@"undo");
+            NSLog(@"undo");
+        }
     }
 }
 
