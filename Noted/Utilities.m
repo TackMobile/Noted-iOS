@@ -106,13 +106,25 @@
     
     // include the year if it differs from this year
     NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
+    todayComponents.hour = 0;
+    todayComponents.minute = 0;
     NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
+    createdComponents.hour = 0;
+    createdComponents.minute = 0;
     
-    // timeinterval
-    NSTimeInterval createdDays = ceil( [dateCreated timeIntervalSince1970] / 86400);
-    NSTimeInterval todayDays = ceil ( [todayDate timeIntervalSince1970] / 86400);
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    [cal setTimeZone:[NSTimeZone localTimeZone]];
+    [cal setLocale:[NSLocale currentLocale]];
     
-    int days = todayDays - createdDays;
+    todayDate = [cal dateFromComponents:todayComponents];
+    dateCreated = [cal dateFromComponents:createdComponents];
+    
+    NSDateComponents *components = [cal components:NSDayCalendarUnit
+                                          fromDate:dateCreated
+                                            toDate:todayDate
+                                           options:0];
+        
+    int days = [components day];
     
     if (days < 2) {
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
