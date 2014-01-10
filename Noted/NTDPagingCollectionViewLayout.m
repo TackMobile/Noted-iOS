@@ -147,7 +147,18 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     attr.zIndex = attr.indexPath.row; // stack the cards
     attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
-        
+    
+    CGFloat scaleX = 1; CGFloat scaleY = 1;
+//    if (pinchRatio != 1)
+//        scaleY = pinchRatio;
+    if (deletedLastNote) {
+        scaleY = .1;
+        scaleX = .1;
+        attr.alpha = 0;
+    }
+    CATransform3D zTranslation = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
+    attr.transform3D = CATransform3DScale(zTranslation, scaleX, scaleY, 1);
+    
     self.pannedCardYTranslation = MAX(0, self.pannedCardYTranslation);
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + self.pannedCardYTranslation);
@@ -200,7 +211,8 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
     self.pannedCardYTranslation = 0;
     self.pannedCardXTranslation = 0;
-    
+    self.deletedLastNote = NO;
+
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     NSTimeInterval dur;
     CGFloat length = translatingAlongXAxis ? self.collectionView.frame.size.width : self.collectionView.frame.size.height;
@@ -231,6 +243,10 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
                 UICollectionViewLayoutAttributes *theAttr;
                 theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
                 
+//                if (self.noteCount == 1) {
+//                    theCell.layer.transform = theAttr.transform3D;
+//                    theCell.layer.opacity = 1;
+//                }
                 [theCell setFrame:theAttr.frame];
             }
         }

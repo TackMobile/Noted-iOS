@@ -569,11 +569,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
                     if (shouldDeleteLastNote) {
+                        self.pagingLayout.deletedLastNote = YES;
+                        
                         NTDNote *deletedNote = [self.notes objectAtIndex:0];
                         [deletedNote setText:@""];
-                        self.pagingLayout.deletedLastNote = YES;
-                        [self.pagingLayout invalidateLayout];
-                        [self.pagingLayout finishAnimationWithVelocity:30 completion:nil];
+                        [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        
+                        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+                        [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
+
                     } else {
                         [self.collectionView performBatchUpdates:^{
                             [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
