@@ -152,8 +152,8 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 //    if (pinchRatio != 1)
 //        scaleY = pinchRatio;
     if (deletedLastNote) {
-        scaleY = .1;
-        scaleX = .1;
+        scaleY = .05;
+        scaleX = .05;
         attr.alpha = 0;
     }
     CATransform3D zTranslation = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
