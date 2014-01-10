@@ -24,11 +24,11 @@
     if (motion == UIEventSubtypeMotionShake )
     {
         if (self.deletedNote) {
-            [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
-                [self reloadNotes];
-                self.deletedNote = nil;
-            }];
-        
+//            [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
+//                [self reloadNotes];
+//                self.deletedNote = nil;
+//            }];
+            
             NSLog(@"undo");
         }
     }

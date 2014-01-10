@@ -1073,6 +1073,32 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
 }
 
+- (void)restoreCardAtIndexPath:(NSIndexPath *)indexPath
+{
+    // note has already been added back into the model.
+    // we must reload the notes
+    if (self.collectionViewLayout == self.pagingLayout) {
+        // shred the note
+        self.pagingLayout.activeCardIndex = indexPath.row;
+        [self.pagingLayout invalidateLayout];
+        self.deletionDirection = NTDPageDeletionDirectionLeft;
+        [self shredVisibleNoteByPercent:1 completion:nil];
+        
+        // cancel the shred
+        [self cancelShredForVisibleNote];
+    } else if (self.collectionViewLayout == self.listLayout) {
+        // push the note offscreen
+        self.listLayout.swipedCardIndexPath = indexPath;
+        self.listLayout.swipedCardOffset = self.collectionView.frame.size.width;
+        [self.listLayout invalidateLayout];
+        self.listLayout.swipedCardOffset = 0;
+        
+        // cancel the shred
+        [self updateLayout:self.listLayout animated:YES];
+        
+    }
+}
+
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
