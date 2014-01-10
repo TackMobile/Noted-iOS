@@ -15,6 +15,7 @@ UIKIT_EXTERN NSString *NTDMayShowNoteAtIndexPathNotification;
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
 @property (nonatomic, assign) CGFloat pannedCardYTranslation;
 
+@property (nonatomic) BOOL deletedLastNote; /* we never truly delete last note. We just clear it, hide it, and fade it back in */
 @property (nonatomic) int activeCardIndex;
 @property (nonatomic, readonly) CGFloat currentOptionsOffset;
 

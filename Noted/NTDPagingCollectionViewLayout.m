@@ -23,6 +23,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 
 @implementation NTDPagingCollectionViewLayout
 @synthesize activeCardIndex, pannedCardXTranslation, pannedCardYTranslation, currentOptionsOffset, isViewingOptions;
+@synthesize deletedLastNote;
 
 -(id)init
 {

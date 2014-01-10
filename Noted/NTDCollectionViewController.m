@@ -544,9 +544,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.hasTwoFingerNoteDeletionBegun = NO;
             }
             
-            if (self.notes.count > 1 && shouldDelete) {
+            BOOL shouldDeleteLastNote = NO;
+            if (shouldDelete) {
                 doNotRefresh = YES;
-                newIndex--;
+                if (self.notes.count == 1)
+                    shouldDeleteLastNote = YES;
+                else
+                    newIndex--;
             } else {
                 shouldDelete = NO;
             }
@@ -564,12 +568,20 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
-                    [self.collectionView performBatchUpdates:^{
-                        [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
-                    } completion:^(BOOL finished) {
-                        [self.collectionView reloadData];
-                        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
-                    }];
+                    if (shouldDeleteLastNote) {
+                        NTDNote *deletedNote = [self.notes objectAtIndex:0];
+                        [deletedNote setText:@""];
+                        self.pagingLayout.deletedLastNote = YES;
+                        [self.pagingLayout invalidateLayout];
+                        [self.pagingLayout finishAnimationWithVelocity:30 completion:nil];
+                    } else {
+                        [self.collectionView performBatchUpdates:^{
+                            [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
+                        } completion:^(BOOL finished) {
+                            [self.collectionView reloadData];
+                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
+                        }];
+                    }
                 }];
                     
             } else {
