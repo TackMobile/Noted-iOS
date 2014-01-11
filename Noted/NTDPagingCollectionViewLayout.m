@@ -148,16 +148,19 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
     
-    CGFloat scaleX = 1; CGFloat scaleY = 1;
+    CGFloat scaleX = 1; CGFloat scaleY = 1; CGFloat translateY = 0; CGFloat rotateAngle = 0;
 //    if (pinchRatio != 1)
 //        scaleY = pinchRatio;
     if (deletedLastNote) {
-        scaleY = .05;
-        scaleX = .05;
+        scaleY = .1;
+        scaleX = .1;
+        translateY = 300;
         attr.alpha = 0;
+        rotateAngle = 45;
     }
-    CATransform3D zTranslation = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
-    attr.transform3D = CATransform3DScale(zTranslation, scaleX, scaleY, 1);
+    CATransform3D zTranslation = CATransform3DMakeTranslation(0, translateY, attr.indexPath.item);
+    CATransform3D rotation = CATransform3DRotate(zTranslation, rotateAngle, 0, 0, 1);
+    attr.transform3D = CATransform3DScale(rotation, scaleX, scaleY, 1);
     
     self.pannedCardYTranslation = MAX(0, self.pannedCardYTranslation);
     
