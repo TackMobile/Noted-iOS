@@ -235,7 +235,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
     //  animate
     void (^animationBlock)() = ^{
-        for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
+        for (int i = activeCardIndex+1; i > activeCardIndex-6; i--) {
             if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
                 continue;
             else {

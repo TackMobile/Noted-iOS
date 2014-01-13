@@ -60,12 +60,6 @@
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
 		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
-		F3D51F811880C4FF00C845FC /* apple-touch-icon-precomposed-57x57.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F7B1880C4FF00C845FC /* apple-touch-icon-precomposed-57x57.png */; };
-		F3D51F821880C4FF00C845FC /* apple-touch-icon-precomposed-72x72.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F7C1880C4FF00C845FC /* apple-touch-icon-precomposed-72x72.png */; };
-		F3D51F831880C4FF00C845FC /* apple-touch-icon-precomposed-114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F7D1880C4FF00C845FC /* apple-touch-icon-precomposed-114x114.png */; };
-		F3D51F841880C4FF00C845FC /* apple-touch-icon-precomposed-120x120.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F7E1880C4FF00C845FC /* apple-touch-icon-precomposed-120x120.png */; };
-		F3D51F851880C4FF00C845FC /* apple-touch-icon-precomposed-144x144.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F7F1880C4FF00C845FC /* apple-touch-icon-precomposed-144x144.png */; };
-		F3D51F861880C4FF00C845FC /* apple-touch-icon-precomposed-152x152.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D51F801880C4FF00C845FC /* apple-touch-icon-precomposed-152x152.png */; };
 		F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */ = {isa = PBXBuildFile; fileRef = F3F5579A177E05650003E152 /* UIDeviceHardware.m */; };
 /* End PBXBuildFile section */
 
@@ -156,12 +150,6 @@
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
 		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
-		F3D51F7B1880C4FF00C845FC /* apple-touch-icon-precomposed-57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-57x57.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-57x57.png"; sourceTree = "<group>"; };
-		F3D51F7C1880C4FF00C845FC /* apple-touch-icon-precomposed-72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-72x72.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-72x72.png"; sourceTree = "<group>"; };
-		F3D51F7D1880C4FF00C845FC /* apple-touch-icon-precomposed-114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-114x114.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-114x114.png"; sourceTree = "<group>"; };
-		F3D51F7E1880C4FF00C845FC /* apple-touch-icon-precomposed-120x120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-120x120.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-120x120.png"; sourceTree = "<group>"; };
-		F3D51F7F1880C4FF00C845FC /* apple-touch-icon-precomposed-144x144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-144x144.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-144x144.png"; sourceTree = "<group>"; };
-		F3D51F801880C4FF00C845FC /* apple-touch-icon-precomposed-152x152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "apple-touch-icon-precomposed-152x152.png"; path = "../../../Desktop/touch-icons/apple-touch-icon-precomposed-152x152.png"; sourceTree = "<group>"; };
 		F3F55799177E05650003E152 /* UIDeviceHardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceHardware.h; sourceTree = "<group>"; };
 		F3F5579A177E05650003E152 /* UIDeviceHardware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceHardware.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -191,12 +179,6 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				F3D51F7B1880C4FF00C845FC /* apple-touch-icon-precomposed-57x57.png */,
-				F3D51F7C1880C4FF00C845FC /* apple-touch-icon-precomposed-72x72.png */,
-				F3D51F7D1880C4FF00C845FC /* apple-touch-icon-precomposed-114x114.png */,
-				F3D51F7E1880C4FF00C845FC /* apple-touch-icon-precomposed-120x120.png */,
-				F3D51F7F1880C4FF00C845FC /* apple-touch-icon-precomposed-144x144.png */,
-				F3D51F801880C4FF00C845FC /* apple-touch-icon-precomposed-152x152.png */,
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29E326C3157556920013399B /* Default.png */,
 				29E326C4157556920013399B /* Default@2x.png */,
@@ -488,18 +470,12 @@
 			files = (
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
-				F3D51F831880C4FF00C845FC /* apple-touch-icon-precomposed-114x114.png in Resources */,
 				29E326D4157556920013399B /* Icon@2x.png in Resources */,
-				F3D51F861880C4FF00C845FC /* apple-touch-icon-precomposed-152x152.png in Resources */,
 				29E326D5157556920013399B /* Default.png in Resources */,
-				F3D51F821880C4FF00C845FC /* apple-touch-icon-precomposed-72x72.png in Resources */,
 				29E326D6157556920013399B /* Default@2x.png in Resources */,
 				964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */,
 				379E97D81678EE650051218D /* menu-icon-grey.png in Resources */,
-				F3D51F841880C4FF00C845FC /* apple-touch-icon-precomposed-120x120.png in Resources */,
 				379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */,
-				F3D51F811880C4FF00C845FC /* apple-touch-icon-precomposed-57x57.png in Resources */,
-				F3D51F851880C4FF00C845FC /* apple-touch-icon-precomposed-144x144.png in Resources */,
 				3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
