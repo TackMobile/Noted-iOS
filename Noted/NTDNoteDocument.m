@@ -279,6 +279,17 @@ BOOL safe_rename(const char *old, const char *new)
     }
 }
 
+/* NOTE: If the documentState of the file is UIDocumentStateClosed, the completion handler is not called.
+ * We override this method to manually invoke the completion handler.
+ */
+-(void)closeWithCompletionHandler:(void (^)(BOOL))completionHandler
+{
+    if (self.documentState == UIDocumentStateClosed)
+        completionHandler(YES);
+    else
+        [super closeWithCompletionHandler:completionHandler];
+}
+
 #pragma mark - NTDNote
 + (void)initialize
 {
