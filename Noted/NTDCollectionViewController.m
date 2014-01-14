@@ -1101,8 +1101,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [note openWithCompletionHandler:^(BOOL success) {
             if ([weakCell.textView.text isEqualToString:note.headline])
                 weakCell.textView.text = note.text;
-            else
-                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
+//            else
+//                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
         }];
     } else {
         weakCell.textView.text = note.text;
