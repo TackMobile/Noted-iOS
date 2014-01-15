@@ -195,7 +195,10 @@
             dispatch_group_leave(close_group);
         }];
     }
-    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), handler);
+    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        close_group = nil;
+        handler();
+    });
 }
 
 - (void)hideOriginalNotes

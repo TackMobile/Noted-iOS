@@ -944,6 +944,16 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
 }
 
+//-(void)setNotes:(NSMutableArray *)notes
+//{
+//    if (_notes) {
+//        NSLog(@"Changing notes from %p to %p", _notes, notes);
+//        NSLog(@"Old Notes: %@", _notes);
+//    }
+//    NSLog(@"New Notes: %@", notes);
+//    _notes = notes;
+//}
+
 - (IBAction)showSettings:(id)sender
 {
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTapOptionsStep];
