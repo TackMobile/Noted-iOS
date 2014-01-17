@@ -14,6 +14,7 @@ UIKIT_EXTERN NSString *NTDMayShowNoteAtIndexPathNotification;
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
 @property (nonatomic, assign) CGFloat pannedCardYTranslation;
+@property (nonatomic, assign) CGFloat pinchRatio;
 
 @property (nonatomic) int activeCardIndex;
 @property (nonatomic, readonly) CGFloat currentOptionsOffset;
