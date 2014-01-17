@@ -256,10 +256,6 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     else
         dur = (length) / ABS(velocity);
     
-    // keep dur between .05 and .2. feels comfortable
-//    float position = dur * fabsf(velocity);
-//    dur = CLAMP(dur, .05, .2);
-    
     BOOL shouldAdvanceToNextWalkthroughStep = (self.activeCardIndex+1 == [self.collectionView numberOfItemsInSection:0]);
     if (shouldAdvanceToNextWalkthroughStep) [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToLastNoteStep];
     
@@ -280,14 +276,16 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
                  * Also, without setitng the cell's opacity back to 1, a new card will not fade back in after thelast card is deleted
                  */
                 if (self.noteCount == 1) {
-                    theCell.layer.transform = theAttr.transform3D;
+                    theCell.transform = theAttr.transform;
                     theCell.layer.opacity = 1;
                 }
+                
+                theCell.frame = theAttr.frame;
             }
         }
     };
     void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
-        [self invalidateLayout]; /* This may not be needed. */
+//        [self invalidateLayout]; /* This may not be needed. */
         if (completionBlock)
             completionBlock();
         if (shouldAdvanceToNextWalkthroughStep)
