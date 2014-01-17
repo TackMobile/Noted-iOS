@@ -289,7 +289,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
         }
     };
     void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
-//        [self invalidateLayout]; /* This may not be needed. */
+        [self invalidateLayout]; /* This fixes the bug where the last note would disappear when deleting in list layout. */
         if (completionBlock)
             completionBlock();
         if (shouldAdvanceToNextWalkthroughStep)
