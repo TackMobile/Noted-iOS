@@ -18,6 +18,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
+@property (nonatomic) NSUInteger noteCount;
 
 @end
 
@@ -29,6 +30,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 {
     if (self = [super init]) {
         isViewingOptions = NO;
+        self.pinchRatio = 1;
     }
     return self;
 }
@@ -41,27 +43,26 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
-    // show the current card, the card on bottom, the card on top
-    for (int i = activeCardIndex+1; i > activeCardIndex-2; i--) {
-        
-        /* So, this is a pretty dirty hack. The reason why it's here is because there was a crash that occured when restarting the
-         * walkthrough with only one note. Upon reloading the original notes, [self.collectionView numberOfItemsInSection:0] would
-         * return 2 instead of 1, which would cause -[NTDCollectionViewController noteAtIndexPath:] to crash after
-         * NTDMayShowNoteAtIndexPathNotification was sent because there was only one note.
-         *
-         * I suppose [self.collectionView numberOfItemsInSection:0] returns the wrong thing because we haven't called
-         * -[collectionView reloadData] by the time we get here. During the crash, we get to this spot when
-         * -[collectionView setCollectionViewLayout:animated:] is called within -[NTDCollectionViewController updateLayout:animated:]
-         * -reloadData isn't called until the end of that method.
-         *
-         * There's probably a deeper bug here, but it's Thursday night and we need to ship by Saturday, so....
-         */
-        NTDCollectionViewController *controller = (NTDCollectionViewController *)[self.collectionView.window rootViewController];
-        NSMutableArray *notes = [controller notes];
-        NSUInteger noteCount = notes.count;
-//        NSUInteger noteCount = [self.collectionView numberOfItemsInSection:0];
-
-        if (i < 0 || i+1 > noteCount)
+    /* So, this is a pretty dirty hack. The reason why it's here is because there was a crash that occured when restarting the
+     * walkthrough with only one note. Upon reloading the original notes, [self.collectionView numberOfItemsInSection:0] would
+     * return 2 instead of 1, which would cause -[NTDCollectionViewController noteAtIndexPath:] to crash after
+     * NTDMayShowNoteAtIndexPathNotification was sent because there was only one note.
+     *
+     * I suppose [self.collectionView numberOfItemsInSection:0] returns the wrong thing because we haven't called
+     * -[collectionView reloadData] by the time we get here. During the crash, we get to this spot when
+     * -[collectionView setCollectionViewLayout:animated:] is called within -[NTDCollectionViewController updateLayout:animated:]
+     * -reloadData isn't called until the end of that method.
+     *
+     * There's probably a deeper bug here, but it's Thursday night and we need to ship by Saturday, so....
+     */
+//  NSUInteger noteCount = [self.collectionView numberOfItemsInSection:0];
+    NTDCollectionViewController *controller = (NTDCollectionViewController *)[self.collectionView.window rootViewController];
+    NSMutableArray *notes = [controller notes];
+    self.noteCount = notes.count;
+    
+    for (int i = activeCardIndex+1; i > activeCardIndex - [self numberOfCardsToRender];
+         i--) {
+        if (i < 0 || i > self.noteCount-1)
             continue;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
@@ -120,6 +121,15 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
 }
 
+static const int NumberOfCardsToFanOut = 6;
+- (int)numberOfCardsToRender {
+// render the active card with the cards above and below it unless we are at the top of the stack. In that case, render the top 6 cards
+    int numberOfCardsToRender = 2;
+    if (self.activeCardIndex == self.noteCount-1)
+        numberOfCardsToRender = NumberOfCardsToFanOut;
+    return numberOfCardsToRender;
+}
+
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
     return YES;
 }
@@ -131,7 +141,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 -(void)setActiveCardIndex:(int)newActiveCardIndex
 {
     activeCardIndex = newActiveCardIndex;
-    for (int i = activeCardIndex+1; i >= activeCardIndex-1; i--) {
+    for (int i = activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
         if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
             continue;
         else {
@@ -142,15 +152,19 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
         }
     }
 }
+static const CGFloat EdgeSpaceLimit = 30;
+static const CGFloat RatioToScaleEdgeSpaceAfterLimitReached = .07;
+
+static const CGFloat PinchedNoteScaleLimit = .9;
+static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
 
 - (void)customizeLayoutAttributes:(NTDCollectionViewLayoutAttributes *)attr {
     attr.zIndex = attr.indexPath.row; // stack the cards
-    attr.transform3D = CATransform3DMakeTranslation(0, 0, attr.indexPath.item);
     attr.size = self.collectionView.frame.size;
     
     CGFloat scaleX = 1; CGFloat scaleY = 1; CGFloat translateY = 0; CGFloat rotateAngle = 0;
-//    if (pinchRatio != 1)
-//        scaleY = pinchRatio;
+    if (self.pinchRatio != 1)
+        scaleY = self.pinchRatio;
     if (deletedLastNote) {
         scaleY = .1;
         scaleX = .1;
@@ -175,26 +189,41 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
         center = (CGPoint){center.x+currentOptionsOffset, center.y};
     }
     
-    // if were panning right, slide active card off of stack
+    // if were panning right, slide active card off of stack (unless there are no more card, in which case, show edge)
     if (pannedCardXTranslation > 0 &&
-        attr.indexPath.row == activeCardIndex &&
-        activeCardIndex > 0) {
-        attr.center = (CGPoint){center.x+pannedCardXTranslation, center.y};
+        attr.indexPath.row == activeCardIndex) {
+        CGFloat adjustedTranslation = pannedCardXTranslation;
+        if (activeCardIndex == 0)
+            if (pannedCardXTranslation > EdgeSpaceLimit)
+                adjustedTranslation = EdgeSpaceLimit + (pannedCardXTranslation-EdgeSpaceLimit)*RatioToScalePinchedNoteAfterLimitReached;
+        attr.center = (CGPoint){center.x+adjustedTranslation, center.y};
         
     // if panning left and in options, push it back
     } else if (pannedCardXTranslation < 0 && isViewingOptions &&
                attr.indexPath.row == activeCardIndex) {
         attr.center = (CGPoint){center.x+pannedCardXTranslation, center.y};
     
+    // if panning left and not in options, slide next card towards center
     } else if (pannedCardXTranslation < 0 && !isViewingOptions &&
                attr.indexPath.row == activeCardIndex+1) {
         attr.center = (CGPoint){right.x+pannedCardXTranslation, right.y};
         
+    // if panning left and not in options and we're on the last card, show edge
+    } else if (pannedCardXTranslation < 0 && !isViewingOptions && activeCardIndex == self.noteCount-1) {
+        CGFloat adjustedTranslation = pannedCardXTranslation;
+        if (pannedCardXTranslation < -EdgeSpaceLimit)
+            adjustedTranslation = -EdgeSpaceLimit + (pannedCardXTranslation + EdgeSpaceLimit)*RatioToScalePinchedNoteAfterLimitReached;
+        if (self.noteCount > 1) {
+            // fan the cards behind the top card out
+            NSUInteger numberOfCardsBeingFanned = MIN(self.noteCount, NumberOfCardsToFanOut) - 1;
+            NSUInteger countOffset = self.noteCount - 1 - numberOfCardsBeingFanned;
+            adjustedTranslation = adjustedTranslation/numberOfCardsBeingFanned * (attr.indexPath.item - countOffset);
+        }
+        attr.center = (CGPoint){center.x+adjustedTranslation, center.y};
+    
     // if not panning and greater than active, stack outside
     } else if (attr.indexPath.row > activeCardIndex) {
-        
         attr.center = right;
-        
     // if not panning and less than or equal to active, stack in center
     } else {
         attr.center = center;
@@ -215,7 +244,8 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     self.pannedCardYTranslation = 0;
     self.pannedCardXTranslation = 0;
     self.deletedLastNote = NO;
-
+    self.pinchRatio = 1;
+    
     // calculate animation duration (velocity=points/seconds so seconds=points/velocity)
     NSTimeInterval dur;
     CGFloat length = translatingAlongXAxis ? self.collectionView.frame.size.width : self.collectionView.frame.size.height;
@@ -235,8 +265,8 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
     //  animate
     void (^animationBlock)() = ^{
-        for (int i = activeCardIndex+1; i > activeCardIndex-6; i--) {
-            if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+        for (int i = activeCardIndex+1; i > activeCardIndex-[self numberOfCardsToRender]; i--) {
+            if (i < 0 || i+1 > self.noteCount)
                 continue;
             else {
                 NSIndexPath *theIndexPath = [NSIndexPath indexPathForItem:i inSection:0];
@@ -246,15 +276,18 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
                 UICollectionViewLayoutAttributes *theAttr;
                 theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
                 
-//                if (self.noteCount == 1) {
-//                    theCell.layer.transform = theAttr.transform3D;
-//                    theCell.layer.opacity = 1;
-//                }
-                [theCell setFrame:theAttr.frame];
+                /* Without this, after the one card pinch animation completes, the relative time label will snap back. 
+                 * Also, without setitng the cell's opacity back to 1, a new card will not fade back in after thelast card is deleted
+                 */
+                if (self.noteCount == 1) {
+                    theCell.layer.transform = theAttr.transform3D;
+                    theCell.layer.opacity = 1;
+                }
             }
         }
     };
     void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
+        [self invalidateLayout]; /* This may not be needed. */
         if (completionBlock)
             completionBlock();
         if (shouldAdvanceToNextWalkthroughStep)
