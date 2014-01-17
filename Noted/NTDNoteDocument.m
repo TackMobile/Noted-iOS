@@ -469,6 +469,16 @@ BOOL safe_rename(const char *old, const char *new)
 
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
+    [self closeWithCompletionHandler:^(BOOL success) {
+       if (success)
+           [self actuallyDeleteWithCompletionHandler:completionHandler];
+        else
+            [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler](NO);
+    }];
+}
+
+- (void)actuallyDeleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
+{
     completionHandler = [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler];
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didDeleteMetadata;
