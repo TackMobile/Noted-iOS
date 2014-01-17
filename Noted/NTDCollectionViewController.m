@@ -1492,7 +1492,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)textViewDidChange:(UITextView *)textView
 {
     [[self noteAtIndexPath:self.visibleCardIndexPath] setText:textView.text];
-    [Flurry logEvent:@"Note Edited"];
+    [Flurry logEvent:@"Note Edited" withParameters:@{@"length" : @(textView.text.length)}];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
