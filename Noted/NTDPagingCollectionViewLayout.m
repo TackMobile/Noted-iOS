@@ -162,6 +162,10 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     attr.zIndex = attr.indexPath.row; // stack the cards
     attr.size = self.collectionView.frame.size;
     
+    // dampen punchRatio if it is less than the scale limit
+    if (self.pinchRatio < PinchedNoteScaleLimit)
+        self.pinchRatio = PinchedNoteScaleLimit - (PinchedNoteScaleLimit - self.pinchRatio) * RatioToScaleEdgeSpaceAfterLimitReached;
+    
     CGFloat scaleX = 1; CGFloat scaleY = 1; CGFloat translateY = 0; CGFloat rotateAngle = 0;
     if (self.pinchRatio != 1)
         scaleY = self.pinchRatio;
