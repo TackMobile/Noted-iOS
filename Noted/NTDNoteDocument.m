@@ -250,8 +250,6 @@ BOOL safe_rename(const char *old, const char *new)
             didSaveMetadata = NO;
             return;
         }
-        [Crashlytics setObjectValue:self forKey:@"saved_note"];
-        [Crashlytics setObjectValue:self.metadata forKey:@"saved_note_metadata"];
         strongSelf.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
