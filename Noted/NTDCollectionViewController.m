@@ -1020,6 +1020,16 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
 }
 
+//-(void)setNotes:(NSMutableArray *)notes
+//{
+//    if (_notes) {
+//        NSLog(@"Changing notes from %p to %p", _notes, notes);
+//        NSLog(@"Old Notes: %@", _notes);
+//    }
+//    NSLog(@"New Notes: %@", notes);
+//    _notes = notes;
+//}
+
 - (IBAction)showSettings:(id)sender
 {
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTapOptionsStep];
@@ -1186,8 +1196,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [note openWithCompletionHandler:^(BOOL success) {
             if ([weakCell.textView.text isEqualToString:note.headline])
                 weakCell.textView.text = note.text;
-            else
-                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
+//            else
+//                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
         }];
     } else {
         weakCell.textView.text = note.text;
