@@ -7,7 +7,6 @@ UIColor *ModalBackgroundColor;
 
 // user defaults
 #define HIDE_STATUS_BAR                         @"hideStatusBar"
-#define kFirstUse                               @"firstUse"
 
 // System Versioning Preprocessor Macros
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
