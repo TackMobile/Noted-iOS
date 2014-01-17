@@ -1,19 +1,19 @@
 PODS:
   - BlocksKit (1.8.2):
     - libffi
-  - FlurrySDK (4.2.2)
+  - FlurrySDK (4.3.0)
   - libffi (3.0.13)
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
   - BlocksKit (~> 1.8)
-  - FlurrySDK (~> 4.2)
+  - FlurrySDK (~> 4.3)
   - UIView+FrameAdditions (= 0.0.1)
 
 SPEC CHECKSUMS:
   BlocksKit: 7396526b0816734103f6133fbb1a520c8b04e80c
-  FlurrySDK: a3f369251a1f46eb6d53fbd817cb41ce4bd9b513
+  FlurrySDK: 7d91ccc3b3591fd8eb8919f2b90e271e2b0acabe
   libffi: 64ef39353e747bb2b25e1026afd96a157bf9231c
-  UIView+FrameAdditions: 74f908c61c7a87cf732c07b67add2a4ad8022f8d
+  UIView+FrameAdditions: 29a4d424803f1c674671792c874f7951d6a64f97
 
-COCOAPODS: 0.22.3
+COCOAPODS: 0.27.1
