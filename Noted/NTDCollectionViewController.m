@@ -194,6 +194,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // pinch to bring back tolist layout
     UIPinchGestureRecognizer *pinchGestureRecognizer;
     pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchToListLayout:)];
+    [pinchGestureRecognizer addTarget:self action:@selector(squeezeLastNote:)];
     self.pinchToListLayoutGestureRecognizer = pinchGestureRecognizer;
     [self.collectionView addGestureRecognizer:pinchGestureRecognizer];
     
@@ -544,9 +545,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.hasTwoFingerNoteDeletionBegun = NO;
             }
             
-            if (self.notes.count > 1 && shouldDelete) {
+            BOOL shouldDeleteLastNote = NO;
+            if (shouldDelete) {
                 doNotRefresh = YES;
-                newIndex--;
+                if (self.notes.count == 1)
+                    shouldDeleteLastNote = YES;
+                else
+                    newIndex--;
             } else {
                 shouldDelete = NO;
             }
@@ -564,12 +569,24 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy completion:^{
-                    [self.collectionView performBatchUpdates:^{
-                        [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
-                    } completion:^(BOOL finished) {
-                        [self.collectionView reloadData];
-                        [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
-                    }];
+                    if (shouldDeleteLastNote) {
+                        self.pagingLayout.deletedLastNote = YES;
+                        
+                        NTDNote *deletedNote = [self.notes objectAtIndex:0];
+                        [deletedNote setText:@""];
+                        [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        
+                        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+                        [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
+
+                    } else {
+                        [self.collectionView performBatchUpdates:^{
+                            [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
+                        } completion:^(BOOL finished) {
+                            [self.collectionView reloadData];
+                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
+                        }];
+                    }
                 }];
                     
             } else {
@@ -603,6 +620,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         case UIGestureRecognizerStateBegan :
             if (panGestureRecognizer.numberOfTouches != 1)
                 panGestureRecognizer.enabled = NO;
+            else
+                // prevent user from editing note with one finger while panning with another
+                self.visibleCell.textView.userInteractionEnabled = NO;
             break;
             
         case UIGestureRecognizerStateChanged :
@@ -663,6 +683,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (!self.hasTwoFingerNoteDeletionBegun)
                 [self.pagingLayout invalidateLayout];
             
+            // if we are at the end or beginning of the stack, cancel the touch early to indicate that the user has reached the limit.
+            float cancelTouchLimit = self.view.frame.size.width/2 ;
+            if ((self.visibleCardIndexPath.item == 0 && translation.x > cancelTouchLimit) ||
+                (self.visibleCardIndexPath.item == self.notes.count-1 && translation.x < -cancelTouchLimit))
+                panGestureRecognizer.enabled = NO;
             break;
             
         case UIGestureRecognizerStateEnded :
@@ -697,9 +722,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     // make sure we stay within bounds
                     newIndex = CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
                     self.pagingLayout.activeCardIndex = newIndex ;
-                    [self.pagingLayout finishAnimationWithVelocity:velocity.x completion:^{
-//                        NSLog(@"%@", self.visibleCell.textView);
-                    }];
+                    [self finishAnimationForVisibleCardWithVelocity:velocity.x completion:nil];
 
                     break;
                 }
@@ -721,7 +744,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     } else {
                         
                         // return the card to the top
-                        [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+                        [self finishAnimationForVisibleCardWithVelocity:velocity.y completion:^{
                             self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
                         }];
                     }
@@ -748,7 +771,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             self.cardPanningDirection = NTDCardPanningNoDirection;
             panGestureRecognizer.enabled = YES;
             self.visibleCell.textView.scrollEnabled = YES;
-            [self.pagingLayout finishAnimationWithVelocity:velocity.y completion:^{
+
+            [self finishAnimationForVisibleCardWithVelocity:velocity.y completion:^{
                 self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
             }];
         }
@@ -796,28 +820,80 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         [self closeOptionsWithVelocity:.2];
 }
 
-- (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer;
+- (IBAction)squeezeLastNote:(UIPinchGestureRecognizer *)pinchGestureRecognizer {
+    if (self.notes.count != 1)
+        return;
+    
+    static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
+    
+    switch (pinchGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+        {
+            if (pinchGestureRecognizer.velocity > 0) {
+                pinchGestureRecognizer.enabled = NO;
+                break;
+            } else {
+                initialDistance = PinchDistance(pinchGestureRecognizer);
+            }
+            
+            break;
+        }
+            
+        case UIGestureRecognizerStateChanged:
+        {
+            CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
+            CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            
+            pinchRatio = CLAMP(pinchRatio, 0, 1);
+            self.pagingLayout.pinchRatio = pinchRatio;
+            
+            // if pinched more than halfway, cancel the gesture
+            if (pinchRatio < .5)
+                pinchGestureRecognizer.enabled = NO;
+            else
+                // update the affine transform
+                [self.pagingLayout invalidateLayout];
+            
+            break;
+        }
+            
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+            [self.pagingLayout finishAnimationWithVelocity:pinchGestureRecognizer.velocity completion:nil];
+            pinchGestureRecognizer.enabled = YES;
+            break;
+            
+        default:
+            break;
+    }
+
+}
+
+- (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer
 {
+    if (self.notes.count == 1)
+        return;
+
     static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
     static CGPoint initialContentOffset;
     
     switch (pinchGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         {
-            if (self.notes.count == 1 || pinchGestureRecognizer.velocity > 0) {
+            if (pinchGestureRecognizer.velocity > 0) {
                 pinchGestureRecognizer.enabled = NO;
                 break;
+            } else {
+                initialDistance = PinchDistance(pinchGestureRecognizer);
             }
-
+            
             NSIndexPath *visibleCardIndexPath = [NSIndexPath indexPathForItem:self.pagingLayout.activeCardIndex inSection:0 ];
             self.listLayout.pinchStartedInListLayout = (self.collectionView.collectionViewLayout == self.listLayout);
-            initialDistance = PinchDistance(pinchGestureRecognizer);
             self.listLayout.pinchedCardIndexPath = visibleCardIndexPath;
             self.listLayout.pinchRatio = (self.listLayout.pinchStartedInListLayout) ? 0.0 : 1.0;
             if (self.listLayout.pinchStartedInListLayout) {
                 CGPoint touchPoint = [pinchGestureRecognizer locationInView:self.collectionView];
                 self.listLayout.pinchedCardIndexPath = [self.collectionView indexPathForItemAtPoint:touchPoint];
-//                NSLog(@"touch point: %@ (%d)", NSStringFromCGPoint(touchPoint), self.listLayout.pinchedCardIndexPath.item);
             }
             [self.pinchedCell doNotHideSettingsForNextLayoutChange];
             
@@ -831,16 +907,17 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                                           self.collectionView.contentSize.height - self.collectionView.frame.size.height);
                 
                 [self.collectionView setContentOffset:CGPointMake(0, returnCardToContentOffset) animated:NO];
+                self.collectionView.scrollEnabled = NO;
             }
-            self.collectionView.scrollEnabled = NO;
             break;
         }
             
         case UIGestureRecognizerStateChanged:
         {
-            // don't do anything when we have none left            
+            // don't do anything when we have none left
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
+            
             if (self.listLayout.pinchStartedInListLayout) {
                 CGFloat offset, adjustedPinchRatio = pinchRatio - 1, minRatioCutoff = -0.05;// maxRatioCutoff = 0.1;
                 if (adjustedPinchRatio < minRatioCutoff) {
@@ -854,9 +931,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             } else {
                 self.pinchedCell.settingsButton.alpha = CLAMP(pinchRatio, 0, 1) ;
             }
-//                NSLog(@"scale: %.2f, ratio: %.2f", pinchGestureRecognizer.scale, pinchRatio);
-//                NSLog(@"initial d: %.2f, current d: %.2f", initialDistance, currentDistance);
             self.listLayout.pinchRatio = pinchRatio;
+            
             break;
         }
             
@@ -864,11 +940,11 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         {
             CGFloat currentDistance = pinchGestureRecognizer.scale * initialDistance;
             CGFloat pinchRatio = (currentDistance - endDistance) / (initialDistance - endDistance);
-            
+
             BOOL shouldReturnToPagingLayout = (pinchRatio > 0.0 && pinchGestureRecognizer.velocity > -PinchVelocityThreshold);
             shouldReturnToPagingLayout &= !self.listLayout.pinchStartedInListLayout;
             
-            if (self.notes.count == 1 || shouldReturnToPagingLayout) {
+            if (shouldReturnToPagingLayout) {
                 [self updateLayout:self.pagingLayout
                           animated:NO];
                 [self.collectionView setContentOffset:initialContentOffset animated:NO];
@@ -1021,6 +1097,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView reloadData];
 }
 
+- (void)finishAnimationForVisibleCardWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
+    [self.pagingLayout finishAnimationWithVelocity:velocity completion:^{
+        [self.visibleCell.textView setUserInteractionEnabled:YES];
+        if (completionBlock)
+            completionBlock();
+    }];
+}
+
 - (void)insertNewCardWithDuration:(NSTimeInterval)duration
 {
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughMakeANoteStep];
@@ -1044,6 +1128,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              [self.notes insertObject:note atIndex:0];
                              self.pagingLayout.activeCardIndex = 0;
                              self.pagingLayout.pannedCardYTranslation = 0;
+                             self.pagingLayout.pinchRatio = 1;
                              self.visibleCell.$y = 0; /* Hack for iOS 7.1 during 2nd step of walkthrough. Card was at (0,568) for some reason. */
                              
                              if (isListLayout)

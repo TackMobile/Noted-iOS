@@ -248,9 +248,10 @@ static CGFloat zTranslation;
             
             maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
             
+            self.currentDeletionCell.layer.opacity = 0;
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-            self.currentDeletionCell.layer.mask.frame = maskFrame;
+            self.currentDeletionCell.layer.mask = nil;
             [CATransaction commit];
             
             [self clearAllShreddedPieces];

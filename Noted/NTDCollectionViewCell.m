@@ -125,7 +125,9 @@ static NSDictionary *bodyFontSizes;
 {
     if (![layoutAttributes isKindOfClass:[NTDCollectionViewLayoutAttributes class]])
           return;
-          
+    
+    [self applyShadow:YES];
+    
     NTDCollectionViewLayoutAttributes *noteLayoutAttributes = (NTDCollectionViewLayoutAttributes *)layoutAttributes;
     if (!CGAffineTransformIsIdentity(noteLayoutAttributes.transform2D)) {
         if (!CATransform3DIsIdentity(noteLayoutAttributes.transform3D)) {
