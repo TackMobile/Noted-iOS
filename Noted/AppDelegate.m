@@ -13,6 +13,9 @@
 #import "NTDCollectionViewController.h"
 #import "NTDWalkthrough.h"
 
+NSString *const NTDInitialVersionKey = @"NTDInitialVersionKey";
+NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
+
 @interface AppDelegate()
 @end
 
@@ -28,6 +31,7 @@
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
 
     [self customizeAppearance];
+    [self recordInitialLaunchData];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = [[NTDCollectionViewController alloc] init];
     [self.window makeKeyAndVisible];
@@ -45,14 +49,24 @@
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:kFirstUse];
-    [NSUserDefaults.standardUserDefaults synchronize];
-}
-
 - (void)customizeAppearance
 {
     ModalBackgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
+}
+
+- (void)recordInitialLaunchData
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (![defaults objectForKey:NTDInitialVersionKey]) {
+        NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+        [defaults setObject:version forKey:NTDInitialVersionKey];
+    }
+    if (![defaults objectForKey:NTDInitialLaunchDateKey]) {
+        [defaults setObject:[NSDate date] forKey:NTDInitialLaunchDateKey];
+    }
+    [defaults synchronize];
+    
+    [Crashlytics setObjectValue:[defaults objectForKey:NTDInitialVersionKey] forKey:NTDInitialVersionKey];
+    [Crashlytics setObjectValue:[defaults objectForKey:NTDInitialLaunchDateKey] forKey:NTDInitialLaunchDateKey];
 }
 @end

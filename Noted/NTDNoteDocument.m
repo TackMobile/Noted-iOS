@@ -28,7 +28,7 @@ static NSUInteger filenameCounter = 1;
 @interface NTDNoteDocument ()
 @property (nonatomic, strong) NSString *bodyText;
 @property (nonatomic, strong) NTDNoteMetadata *metadata;
-@property (nonatomic, assign) BOOL isOpenOperationInFlight;
+@property (nonatomic, assign) BOOL isOpenOperationInFlight, wasClosed;
 @property (nonatomic, strong) NSMutableArray *pendingOpenOperations;
 @end
 
@@ -212,6 +212,13 @@ BOOL safe_rename(const char *old, const char *new)
     };
 }
 
++ (NTDNoteDefaultCompletionHandler)nonNilHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    return ^(BOOL success) {
+        if (handler) handler(success);
+    };
+}
+
 #pragma mark - UIDocument
 - (id)initWithFileURL:(NSURL *)url
 {
@@ -257,16 +264,19 @@ BOOL safe_rename(const char *old, const char *new)
     
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didSaveMetadata = YES;
+    typeof(self) __weak weakSelf = self;
     [context performBlockAndWait:^{
-        [Crashlytics setObjectValue:self forKey:@"saved_note"];
-        [Crashlytics setObjectValue:self.metadata forKey:@"saved_note_metadata"];
-        if (self.metadata.lastModifiedDate != nil)
-            self.metadata.lastModifiedDate = [NSDate date];
+        typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) {
+            didSaveMetadata = NO;
+            return;
+        }
+        strongSelf.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
             [Flurry logError:@"Couldn't save metadata" message:[*outError localizedDescription] error:*outError];
-            [self revertToContentsOfURL:originalContentsURL completionHandler:NULL];
+            [strongSelf revertToContentsOfURL:originalContentsURL completionHandler:NULL];
             didSaveMetadata = NO;
         }
     }];
@@ -283,22 +293,63 @@ BOOL safe_rename(const char *old, const char *new)
      */
     
     NSAssert([NSThread isMainThread], @"%s MUST be called from main thread.", __PRETTY_FUNCTION__);
-
+    
+    completionHandler = [NTDNoteDocument nonNilHandler:completionHandler];
+    
+    // If the document is already open, skip this rigmarole.
+    if (self.documentState & UIDocumentStateNormal) {
+        completionHandler(YES);
+        return;
+    }
+    
+    // If the document has been closed, it's bad UIDocument mojo to open it again.
+    if (self.wasClosed) {
+        completionHandler(NO);
+        return;
+    }
+    
     if (completionHandler != NULL) {
         [self.pendingOpenOperations addObject:completionHandler];
     }
     
     if (!self.isOpenOperationInFlight) {
         self.isOpenOperationInFlight = YES;
+        typeof(self) __weak weakSelf = self;
         [super openWithCompletionHandler:^(BOOL success) {
-            self.isOpenOperationInFlight = NO;
-            NSArray *operations = [self.pendingOpenOperations copy];
+            typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            
+            strongSelf.isOpenOperationInFlight = NO;
+            NSArray *operations = [strongSelf.pendingOpenOperations copy];
             for (void(^handler)(BOOL success) in operations) {
                 handler(success);
             }
-            [self.pendingOpenOperations removeObjectsInArray:operations];
+            [strongSelf.pendingOpenOperations removeObjectsInArray:operations];
         }];
     }
+}
+
+/* NOTE: If the documentState of the file is UIDocumentStateClosed, the completion handler is not called.
+ * We override this method to manually invoke the completion handler.
+ */
+-(void)closeWithCompletionHandler:(void (^)(BOOL))completionHandler
+{
+    completionHandler = [NTDNoteDocument nonNilHandler:completionHandler];
+    if (self.wasClosed) {
+        completionHandler(NO);
+        return;
+    }
+    
+    // We need to wrap the close here so that it serializes with any in-flight opens.
+    // NOTE: I'm kind of assuming that this block runs on a serial queue.
+    [self performAsynchronousFileAccessUsingBlock:^{
+        self.wasClosed = YES; // It's fine to prevent in-flight closes.
+        if (self.documentState & UIDocumentStateClosed)
+            completionHandler(YES);
+        else {
+            [super closeWithCompletionHandler:completionHandler];
+        }
+    }];
 }
 
 #pragma mark - NTDNote
@@ -452,6 +503,16 @@ BOOL safe_rename(const char *old, const char *new)
 }
 
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
+{
+    [self closeWithCompletionHandler:^(BOOL success) {
+       if (success)
+           [self actuallyDeleteWithCompletionHandler:completionHandler];
+        else
+            [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler](NO);
+    }];
+}
+
+- (void)actuallyDeleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
     completionHandler = [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler];
     NSManagedObjectContext *context = [[self class] managedObjectContext];

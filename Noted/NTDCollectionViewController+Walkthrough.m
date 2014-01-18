@@ -187,14 +187,18 @@
 - (void)closeNotesWithCompletionHandler:(void(^)())handler
 {
     // flush pending file operations
-    dispatch_group_t close_group = dispatch_group_create();
+    static dispatch_group_t close_group;
+    close_group = dispatch_group_create();
     for (NTDNote *note in self.notes) {
         dispatch_group_enter(close_group);
         [note closeWithCompletionHandler:^(BOOL success) {
             dispatch_group_leave(close_group);
         }];
     }
-    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), handler);
+    dispatch_group_notify(close_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        close_group = nil;
+        handler();
+    });
 }
 
 - (void)hideOriginalNotes

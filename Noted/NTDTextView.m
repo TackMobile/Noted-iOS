@@ -21,7 +21,7 @@ static CGFloat heightDifference;
         !self.dragging && /* Otherwise this triggers while the keyboard is scrolling. */
         ABS(offsetDifference - heightDifference) < 0.01) /* Ghetto tolerance check */
     {
-        NSLog(@"[RESET] %p Existing Offset: %@ New Offset: %@ Height Difference: %.2f", self, NSStringFromCGPoint(self.contentOffset), NSStringFromCGPoint(contentOffset), offsetDifference);
+//        NSLog(@"[RESET] %p Existing Offset: %@ New Offset: %@ Height Difference: %.2f", self, NSStringFromCGPoint(self.contentOffset), NSStringFromCGPoint(contentOffset), offsetDifference);
         contentOffset = CGPointZero;
     }
     [super setContentOffset:contentOffset];
