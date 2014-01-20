@@ -1107,6 +1107,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 - (void)animateSwipedCellToOriginalPosition {
+    self.listLayout.swipedCardIndexPath = nil;
     [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
     }];
 }
@@ -1175,8 +1176,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)restoreCardAtIndexPath:(NSIndexPath *)indexPath
 {
     self.pagingLayout.activeCardIndex = indexPath.row;
+    
+    if (self.collectionView.collectionViewLayout == self.listLayout)
+        self.listLayout.swipedCardIndexPath = indexPath;
+    
     [self.collectionView insertItemsAtIndexPaths:@[self.deletedNoteIndexPath]];
-    self.listLayout.swipedCardIndexPath = nil;
+    
+    if (self.collectionView.collectionViewLayout == self.listLayout)
+        [self animateSwipedCellToOriginalPosition];
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
