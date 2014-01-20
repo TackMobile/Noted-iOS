@@ -684,7 +684,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [self.pagingLayout invalidateLayout];
             
             // if we are at the end or beginning of the stack, cancel the touch early to indicate that the user has reached the limit.
-            float cancelTouchLimit = self.view.frame.size.width/2 ;
+            CGFloat cancelTouchLimit = self.view.frame.size.width * 0.67 ;
             if ((self.visibleCardIndexPath.item == 0 && translation.x > cancelTouchLimit) ||
                 (self.visibleCardIndexPath.item == self.notes.count-1 && translation.x < -cancelTouchLimit))
                 panGestureRecognizer.enabled = NO;
@@ -847,8 +847,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             pinchRatio = CLAMP(pinchRatio, 0, 1);
             self.pagingLayout.pinchRatio = pinchRatio;
             
-            // if pinched more than halfway, cancel the gesture
-            if (pinchRatio < .5)
+            // if pinched more than Cutoff, cancel the gesture
+            static CGFloat Cutoff = 0.45;
+            if (pinchRatio < Cutoff)
                 pinchGestureRecognizer.enabled = NO;
             else
                 // update the affine transform
