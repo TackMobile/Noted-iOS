@@ -575,6 +575,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         NTDNote *deletedNote = [self.notes objectAtIndex:0];
                         [deletedNote setText:@""];
                         [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        // forcing the controller to reload the notes, thus updating the lastModifiedDate of the deletedNote (which isnt actually being deleted)
+                        [self reloadNotes];
                         
                         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
                         [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
