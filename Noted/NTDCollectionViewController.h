@@ -28,7 +28,6 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NTDCollectionViewCell *currentDeletionCell;
 @property (nonatomic) NTDPageDeletionDirection deletionDirection;
-@property (nonatomic, strong) NTDDummyNote *deletedNote;
 
 /* Walkthrough */
 //TODO rename removeCard & twoFingerPan
@@ -46,4 +45,5 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 
 - (void)reloadNotes;
 - (void)updateLayout:(UICollectionViewLayout *)layout animated:(BOOL)animated;
+- (void)restoreDeletedNote;
 @end

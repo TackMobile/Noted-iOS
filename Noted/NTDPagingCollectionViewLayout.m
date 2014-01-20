@@ -142,7 +142,7 @@ static const int NumberOfCardsToFanOut = 6;
 {
     activeCardIndex = newActiveCardIndex;
     for (int i = activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
-        if (i < 0 || i+1 > [self.collectionView numberOfItemsInSection:0])
+        if (i < 0 || i+1 > self.noteCount)
             continue;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];

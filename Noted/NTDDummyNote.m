@@ -27,10 +27,6 @@
     self._lastModifiedDate = [note.lastModifiedDate copy];
     self._colorScheme = [[note theme] colorScheme];
     
-    note = nil;
-    
-    NSLog(@"dummy note with text: %@", self.bodyText);
-    
     return self;
 }
 - (NSString *)filename {

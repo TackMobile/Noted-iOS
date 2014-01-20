@@ -37,6 +37,10 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
+@property (nonatomic, strong) NTDDummyNote *deletedNote;
+@property (nonatomic, strong) NSIndexPath *deletedNoteIndexPath;
+@property (nonatomic, strong) UICollectionViewLayout *deletedNoteLayout;
+
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
 @property (nonatomic, strong) NTDOptionsViewController *optionsViewController;
@@ -453,12 +457,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                        }];
             } else {
                 // animate the cell back to its orig position
-                [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
-                    // if it didnt delete, make the shadow smaller and un rasterized
-                    NTDCollectionViewCell *theCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:swipedCardIndexPath];
-                    theCell.layer.shouldRasterize = NO;
-                    [theCell applyShadow:NO];
-                }];
+                [self animateSwipedCellToOriginalPosition];
                 
             }
         
@@ -1107,6 +1106,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView reloadData];
 }
 
+- (void)animateSwipedCellToOriginalPosition {
+    [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
+    }];
+}
+
 - (void)finishAnimationForVisibleCardWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     [self.pagingLayout finishAnimationWithVelocity:velocity completion:^{
         [self.visibleCell.textView setUserInteractionEnabled:YES];
@@ -1170,39 +1174,35 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)restoreCardAtIndexPath:(NSIndexPath *)indexPath
 {
-    // note has already been added back into the model.
-    // we must reload the notes
-    if (self.collectionViewLayout == self.pagingLayout) {
-        // shred the note
-        self.pagingLayout.activeCardIndex = indexPath.row;
-        [self.pagingLayout invalidateLayout];
-        self.deletionDirection = NTDPageDeletionDirectionLeft;
-        [self shredVisibleNoteByPercent:1 completion:nil];
-        
-        // cancel the shred
-        [self cancelShredForVisibleNote];
-    } else if (self.collectionViewLayout == self.listLayout) {
-        // push the note offscreen
-        self.listLayout.swipedCardIndexPath = indexPath;
-        self.listLayout.swipedCardOffset = self.collectionView.frame.size.width;
-        [self.listLayout invalidateLayout];
-        self.listLayout.swipedCardOffset = 0;
-        
-        // cancel the shred
-        [self updateLayout:self.listLayout animated:YES];
-        
-    }
+    self.pagingLayout.activeCardIndex = indexPath.row;
+    [self.collectionView insertItemsAtIndexPaths:@[self.deletedNoteIndexPath]];
+    self.listLayout.swipedCardIndexPath = nil;
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
     self.deletedNote = [[NTDDummyNote alloc] initWithNote:note];
+    self.deletedNoteIndexPath = indexPath;
+    self.deletedNoteLayout = self.collectionView.collectionViewLayout;
     
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
 }
+- (void) restoreDeletedNote {
+    // moved this method here because it involves inserting into the notes array
+    if (self.deletedNote) {
+        [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
+            [self.notes insertObject:note atIndex:self.deletedNoteIndexPath.item];
+            
+            self.deletedNote = nil;
+            [self restoreCardAtIndexPath:self.deletedNoteIndexPath];
+        }];
+        NSLog(@"undo");
+    }
+}
+
 
 - (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
 {
