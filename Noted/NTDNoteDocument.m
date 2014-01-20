@@ -224,6 +224,8 @@ BOOL safe_rename(const char *old, const char *new)
 {
     if (self = [super initWithFileURL:url]) {
         self.pendingOpenOperations = [NSMutableArray new];
+        
+        //self.metadata = [NTDNoteMetadata alloc];
     }
     return self;
 }
@@ -271,7 +273,8 @@ BOOL safe_rename(const char *old, const char *new)
             didSaveMetadata = NO;
             return;
         }
-        strongSelf.metadata.lastModifiedDate = [NSDate date];
+        if (self.metadata.lastModifiedDate != nil)
+            strongSelf.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
@@ -409,9 +412,10 @@ BOOL safe_rename(const char *old, const char *new)
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
     
     [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
-        [note setText:deletedNote.text];
-        [note setTheme:deletedNote.theme];
-        [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        [note setTheme:[deletedNote theme]];
+        [note setLastModifiedDate:[deletedNote.lastModifiedDate copy]];
+        [note setText:[deletedNote.headline copy]];
+        
         handler(note);
     }];
 }

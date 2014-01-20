@@ -11,36 +11,43 @@
 @interface NTDDummyNote ()
 
 @property (nonatomic, strong) NSString *_filename;
+@property (nonatomic, strong) NSString *_bodyText;
+@property (nonatomic, strong) NSString *_headline;
+@property (nonatomic) NTDColorScheme _colorScheme;;
 @property (nonatomic, strong) NSDate *_lastModifiedDate;
-@property (nonatomic, strong) NTDTheme *_theme;
-@property (nonatomic, strong) NSString *_text;
 
 @end
 
 @implementation NTDDummyNote
 
 - (NTDDummyNote *)initWithNote:(NTDNote *)note {
-    self._filename = [note filename];
-    self._lastModifiedDate = [note lastModifiedDate];
-    self._theme = [note theme];
-    self._text = [note text];
+    self._filename = [[note filename] copy];
+    self._headline = [[note headline] copy];
+    self._bodyText = [[note text] copy];
+    self._lastModifiedDate = [note.lastModifiedDate copy];
+    self._colorScheme = [[note theme] colorScheme];
     
-    NSLog(@"dummy note with text: %@", self._text);
+    note = nil;
+    
+    NSLog(@"dummy note with text: %@", self.bodyText);
     
     return self;
 }
-
 - (NSString *)filename {
     return self._filename;
+}
+- (NSString *)headline {
+    return self._headline;
+}
+- (NSString *)bodyText {
+    return self._bodyText;
+}
+- (NTDTheme *)theme {
+    return [NTDTheme themeForColorScheme:self._colorScheme];
 }
 - (NSDate *)lastModifiedDate {
     return self._lastModifiedDate;
 }
-- (NTDTheme *)theme {
-    return self._theme;
-}
-- (NSString *)text {
-    return self._text;
-}
+
 
 @end

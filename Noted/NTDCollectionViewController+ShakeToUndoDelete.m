@@ -25,12 +25,9 @@
     {
         if (self.deletedNote) {
             [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
-                [note closeWithCompletionHandler:^(BOOL success) {
-                    [self reloadNotes];
-                    self.deletedNote = nil;
-                }];
+                [self reloadNotes];
+                self.deletedNote = nil;
             }];
-                        
             NSLog(@"undo");
         }
     }

@@ -8,14 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import "NTDNote.h"
+#import "NTDNoteMetadata.h"
 
 @interface NTDDummyNote : NSObject
 
 - (NTDDummyNote *)initWithNote:(NTDNote *)note;
 
 - (NSString *)filename;
-- (NSDate *)lastModifiedDate;
+- (NSString *)headline;
+- (NSString *)bodyText;
 - (NTDTheme *)theme;
-- (NSString *)text;
+- (NSDate *)lastModifiedDate;
 
 @end
