@@ -430,7 +430,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 break;
             
             if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold
-                || translation.x > self.collectionView.frame.size.width/2)
+                || ABS(translation.x) > self.collectionView.frame.size.width/2)
                 shouldDelete = YES;
                 
             self.collectionView.scrollEnabled = YES;            
