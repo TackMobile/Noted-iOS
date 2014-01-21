@@ -46,4 +46,9 @@
     return NTDHighPerformanceDevice;
 }
 
++ (BOOL)isHighPerformanceDevice
+{
+    return [self performanceClass] == NTDHighPerformanceDevice;
+}
+
 @end
