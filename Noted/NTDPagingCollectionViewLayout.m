@@ -304,7 +304,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
                               delay:0.0
              usingSpringWithDamping:damping
               initialSpringVelocity:0
-                            options:UIViewAnimationOptionCurveEaseOut
+                            options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                          animations:animationBlock
                          completion:animationCompletionBlock];
     } else {

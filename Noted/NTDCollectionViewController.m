@@ -1109,8 +1109,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 - (void)finishAnimationForVisibleCardWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
+    self.visibleCell.textView.userInteractionEnabled = NO;
     [self.pagingLayout finishAnimationWithVelocity:velocity completion:^{
-        [self.visibleCell.textView setUserInteractionEnabled:YES];
+        self.visibleCell.textView.userInteractionEnabled = YES;
         if (completionBlock)
             completionBlock();
     }];
