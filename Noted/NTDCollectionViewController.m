@@ -110,7 +110,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                 newCell.textView.scrollsToTop = YES;
                                             }];
         
-        // register for keyboard notification so we can resize the textview
+        /* Notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWasShown:)
                                                      name:UIKeyboardDidShowNotification
@@ -143,6 +143,11 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(mayShowNoteAtIndexPath:)
                                                      name:NTDMayShowNoteAtIndexPathNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(toggledStatusBar:)
+                                                     name:NTDDidToggleStatusBarNotification
+                                                   object:nil];
+
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(keyboardFrameChanged:)
 //                                                     name:UIKeyboardWillChangeFrameNotification
@@ -211,19 +216,21 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
+    // create launch image view
+    UIImage *launchImage = (IS_TALL_IPHONE) ? [UIImage imageNamed:@"Default-568h"] : [UIImage imageNamed:@"Default"];
+    
+    UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
+    
     // set up properties
     [self.collectionView reloadData];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(toggledStatusBar:)
-                                                 name:NTDDidToggleStatusBarNotification
-                                               object:nil];
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
     [self reloadNotes];
+    [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
                           ^{
+                              [launchImageView removeFromSuperview];
                               [self performBlock:^(id sender) {
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];

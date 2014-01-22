@@ -17,3 +17,8 @@ UIColor *ModalBackgroundColor;
 
 // helpers
 #define CLAMP(x, a, b) MIN(b, MAX(a,x))
+
+// idioms
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_TALL_IPHONE (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height > 567.0f)
