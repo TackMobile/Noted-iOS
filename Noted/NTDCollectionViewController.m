@@ -31,6 +31,12 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningVerticalDirection
 };
 
+typedef NS_ENUM(NSInteger, NTDDeletedCardPanDirection) {
+    NTDDeletedCardPanNoDirection = -1,
+    NTDDeletedCardPanDirectionRight,
+    NTDDeletedCardPanDirectionLeft
+};
+
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
@@ -39,7 +45,7 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 
 @property (nonatomic, strong) NTDDummyNote *deletedNote;
 @property (nonatomic, strong) NSIndexPath *deletedNoteIndexPath;
-@property (nonatomic, strong) UICollectionViewLayout *deletedNoteLayout;
+@property (nonatomic, assign) NTDDeletedCardPanDirection deletedCardDirection;
 
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
@@ -446,6 +452,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughOneFingerDeleteStep];
                 gestureRecognizer.enabled = NO;
+                self.deletedCardDirection = (translation.x > 0) ? NTDDeletedCardPanDirectionRight : NTDDeletedCardPanDirectionLeft;
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
@@ -1108,6 +1115,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)animateSwipedCellToOriginalPosition {
     self.listLayout.swipedCardIndexPath = nil;
+    self.deletedCardDirection = NTDDeletedCardPanNoDirection;
     [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
     }];
 }
@@ -1177,13 +1185,26 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     self.pagingLayout.activeCardIndex = indexPath.row;
     
-    if (self.collectionView.collectionViewLayout == self.listLayout)
+    // if in list layout, set the indexpath and the offset
+    if (self.collectionView.collectionViewLayout == self.listLayout) {
         self.listLayout.swipedCardIndexPath = indexPath;
+        self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
+    }
     
     [self.collectionView insertItemsAtIndexPaths:@[self.deletedNoteIndexPath]];
     
-    if (self.collectionView.collectionViewLayout == self.listLayout)
+//    if (self.collectionView.collectionViewLayout == self.listLayout) {
+        
+    // animate the cell back in
+    if (self.collectionView.collectionViewLayout == self.listLayout) {
+        CGFloat insertedCellScrollPos = self.listLayout.cardOffset * indexPath.item;
+        
+        if (insertedCellScrollPos < self.collectionView.contentOffset.y
+            || insertedCellScrollPos >= self.collectionView.contentOffset.y + self.collectionView.frame.size.height)
+            [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        
         [self animateSwipedCellToOriginalPosition];
+    }
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
@@ -1191,7 +1212,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDNote *note = [self noteAtIndexPath:indexPath];
     self.deletedNote = [[NTDDummyNote alloc] initWithNote:note];
     self.deletedNoteIndexPath = indexPath;
-    self.deletedNoteLayout = self.collectionView.collectionViewLayout;
     
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
