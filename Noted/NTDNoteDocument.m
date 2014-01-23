@@ -11,6 +11,7 @@
 #include <errno.h>
 #import <FlurrySDK/Flurry.h>
 #import <Crashlytics/Crashlytics.h>
+#import <BlocksKit/BlocksKit.h>
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
@@ -167,6 +168,33 @@ BOOL safe_rename(const char *old, const char *new)
         [Flurry logError:@"Couldn't create notes directory" message:[error localizedDescription] error:error];
     }
     return success;
+}
+
++ (void)removeFilesWithNoMetadata:(NSArray *)notes
+{
+    NSError __autoreleasing *error;
+    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[self notesDirectoryURL]
+                                                   includingPropertiesForKeys:nil
+                                                                      options:0
+                                                                        error:&error];
+    if (!files) {
+        NSLog(@"Couldn't get notes from directory! %@", error);
+        [Flurry logError:@"Couldn't get notes from directory" message:[error localizedDescription] error:error];
+    }
+    
+    NSMutableArray *_files = [files mutableCopy];
+    for (NSURL *fileURL in files) {
+        BOOL didMatch = [notes any:^BOOL(NTDNote *note) {
+            NSURL *noteURL = [note.fileURL URLByStandardizingPath];
+            NSURL *_fileURL = [fileURL URLByStandardizingPath];
+            return [noteURL isEqual:_fileURL];
+        }];                         
+        if (didMatch) [_files removeObject:fileURL];
+    }
+    for (NSURL *fileURL in _files) {
+        if ([[fileURL pathExtension] isEqualToString:FileExtension])
+            [NSFileManager.defaultManager removeItemAtURL:fileURL error:nil];
+    }
 }
 
 + (instancetype)documentFromMetadata:(NTDNoteMetadata *)metadata
@@ -374,6 +402,7 @@ BOOL safe_rename(const char *old, const char *new)
         }
     }];
 
+    [self removeFilesWithNoMetadata:notes];
     handler(notes);
 }
 

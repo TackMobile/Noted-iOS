@@ -6,10 +6,11 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
+#import <QuartzCore/QuartzCore.h>
 #import "NTDCollectionViewController+Shredding.h"
 #import "NTDCollectionViewCell.h"
 #import "UIImage+Crop.h"
-#import <QuartzCore/QuartzCore.h>
+#import "UIDeviceHardware.h"
 
 @interface ColumnForShredding : NSObject
 
@@ -321,9 +322,15 @@ static CGFloat zTranslation;
 
 - (UIImage *)imageForView:(UIView *)view
 {
-    // this does not take scale into account on purpose (performance)
-    UIGraphicsBeginImageContext(view.frame.size);
-    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    CGSize imageSize = view.frame.size;
+    CGFloat scale = [UIDeviceHardware isHighPerformanceDevice] ? 0 : 1;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        UIGraphicsBeginImageContextWithOptions(imageSize, YES, scale);
+        [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:NO];
+    } else {
+        UIGraphicsBeginImageContextWithOptions(imageSize, YES, 1);
+        [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+    }
     UIImage* ret = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
