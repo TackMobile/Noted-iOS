@@ -123,15 +123,15 @@
     } else {
         // format the date
         NSDateFormatter *dateFormatter = [NSDateFormatter new];
-        [dateFormatter setDateStyle:NSDateFormatterLongStyle];
+        
+        if ([todayComponents year] == [createdComponents year]) {
+            [dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:[NSLocale currentLocale]]];
+        } else {
+            [dateFormatter setDateStyle:NSDateFormatterLongStyle];
+        }
+        
         NSString *formattedDate = [dateFormatter stringFromDate:dateCreated];
 
-        if ([todayComponents year] == [createdComponents year]) {
-            // delete any combination of (space|comma)* year (space|comma)*
-            NSString *pattern = [NSString stringWithFormat:@"((\\s|,)?)*%i((\\s|,)?)*", [todayComponents year]];
-            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
-            formattedDate = [regex stringByReplacingMatchesInString:formattedDate options:0 range:NSMakeRange(0, [formattedDate length]) withTemplate:@""];
-        }
         return formattedDate;
     }
     
