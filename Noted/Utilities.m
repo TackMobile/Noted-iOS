@@ -124,8 +124,12 @@
         NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
         NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
 
-        if ([todayComponents year] == [createdComponents year])
-            formattedDate = [formattedDate substringToIndex:[formattedDate length] - 6];
+        if ([todayComponents year] == [createdComponents year]) {
+            // delete any combination of (space|comma)* year (space|comma)*
+            NSString *pattern = [NSString stringWithFormat:@"((\\s|,)?)*%i((\\s|,)?)*", [todayComponents year]];
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
+            formattedDate = [regex stringByReplacingMatchesInString:formattedDate options:0 range:NSMakeRange(0, [formattedDate length]) withTemplate:@""];
+        }
         return formattedDate;
     }
     
