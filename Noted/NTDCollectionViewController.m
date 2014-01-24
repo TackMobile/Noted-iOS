@@ -120,7 +120,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                 newCell.textView.scrollsToTop = YES;
                                             }];
         
-        // register for keyboard notification so we can resize the textview
+        /* Notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWasShown:)
                                                      name:UIKeyboardDidShowNotification
@@ -153,6 +153,11 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(mayShowNoteAtIndexPath:)
                                                      name:NTDMayShowNoteAtIndexPathNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(toggledStatusBar:)
+                                                     name:NTDDidToggleStatusBarNotification
+                                                   object:nil];
+
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(keyboardFrameChanged:)
 //                                                     name:UIKeyboardWillChangeFrameNotification
@@ -221,19 +226,21 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
+    // create launch image view
+    UIImage *launchImage = (IS_TALL_IPHONE) ? [UIImage imageNamed:@"Default-568h"] : [UIImage imageNamed:@"Default"];
+    
+    UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
+    
     // set up properties
     [self.collectionView reloadData];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(toggledStatusBar:)
-                                                 name:NTDDidToggleStatusBarNotification
-                                               object:nil];
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
     [self reloadNotes];
+    [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
                           ^{
+                              [launchImageView removeFromSuperview];
                               [self performBlock:^(id sender) {
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
@@ -440,7 +447,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 break;
             
             if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold
-                || translation.x > self.collectionView.frame.size.width/2)
+                || ABS(translation.x) > self.collectionView.frame.size.width/2)
                 shouldDelete = YES;
                 
             self.collectionView.scrollEnabled = YES;            
@@ -581,6 +588,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         NTDNote *deletedNote = [self.notes objectAtIndex:0];
                         [deletedNote setText:@""];
                         [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        // forcing the controller to reload the notes, thus updating the lastModifiedDate of the deletedNote (which isnt actually being deleted)
+                        [self reloadNotes];
                         
                         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
                         [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
@@ -690,7 +699,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 [self.pagingLayout invalidateLayout];
             
             // if we are at the end or beginning of the stack, cancel the touch early to indicate that the user has reached the limit.
-            float cancelTouchLimit = self.view.frame.size.width/2 ;
+            CGFloat cancelTouchLimit = self.view.frame.size.width * 0.67 ;
             if ((self.visibleCardIndexPath.item == 0 && translation.x > cancelTouchLimit) ||
                 (self.visibleCardIndexPath.item == self.notes.count-1 && translation.x < -cancelTouchLimit))
                 panGestureRecognizer.enabled = NO;
@@ -853,8 +862,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             pinchRatio = CLAMP(pinchRatio, 0, 1);
             self.pagingLayout.pinchRatio = pinchRatio;
             
-            // if pinched more than halfway, cancel the gesture
-            if (pinchRatio < .5)
+            // if pinched more than Cutoff, cancel the gesture
+            static CGFloat Cutoff = 0.45;
+            if (pinchRatio < Cutoff)
                 pinchGestureRecognizer.enabled = NO;
             else
                 // update the affine transform
@@ -1121,8 +1131,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 
 - (void)finishAnimationForVisibleCardWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
+    self.visibleCell.textView.userInteractionEnabled = NO;
     [self.pagingLayout finishAnimationWithVelocity:velocity completion:^{
-        [self.visibleCell.textView setUserInteractionEnabled:YES];
+        self.visibleCell.textView.userInteractionEnabled = YES;
         if (completionBlock)
             completionBlock();
     }];
