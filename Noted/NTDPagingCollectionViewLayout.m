@@ -140,6 +140,8 @@ static const int NumberOfCardsToFanOut = 6;
 
 -(void)setActiveCardIndex:(int)newActiveCardIndex
 {
+    // we need to recalculate noteCount
+    self.noteCount = [self.collectionView numberOfItemsInSection:0];
     activeCardIndex = newActiveCardIndex;
     for (int i = activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
         if (i < 0 || i+1 > self.noteCount)

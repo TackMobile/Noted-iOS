@@ -43,8 +43,8 @@ typedef NS_ENUM(NSInteger, NTDDeletedCardPanDirection) {
 @property (nonatomic, strong, readonly) NSIndexPath *visibleCardIndexPath;
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
-@property (nonatomic, strong) NTDDummyNote *deletedNote;
-@property (nonatomic, strong) NSIndexPath *deletedNoteIndexPath;
+@property (nonatomic, strong) NSMutableArray *deletedNotesStack;
+@property (nonatomic, strong) NSMutableArray *deletedNotesIndexPathsStack;
 @property (nonatomic, assign) NTDDeletedCardPanDirection deletedCardDirection;
 
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
@@ -78,6 +78,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
         self.cardPanningDirection = NTDCardPanningNoDirection;
+        self.deletedNotesStack = [NSMutableArray new];
+        self.deletedNotesIndexPathsStack = [NSMutableArray new];
         
         // decide on the slice count
         if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
@@ -1202,7 +1204,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
     }
     
-    [self.collectionView insertItemsAtIndexPaths:@[self.deletedNoteIndexPath]];
+    [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     
 //    if (self.collectionView.collectionViewLayout == self.listLayout) {
         
@@ -1216,13 +1218,15 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         [self animateSwipedCellToOriginalPosition];
     }
+    
+    [self.deletedNotesIndexPathsStack removeLastObject];
 }
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
     NTDNote *note = [self noteAtIndexPath:indexPath];
-    self.deletedNote = [[NTDDummyNote alloc] initWithNote:note];
-    self.deletedNoteIndexPath = indexPath;
+    [self.deletedNotesStack addObject:[[NTDDummyNote alloc] initWithNote:note]];
+    [self.deletedNotesIndexPathsStack addObject:indexPath];
     
     [self.notes removeObject:note];
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
@@ -1230,12 +1234,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 }
 - (void) restoreDeletedNote {
     // moved this method here because it involves inserting into the notes array
-    if (self.deletedNote) {
-        [NTDNote restoreNote:self.deletedNote completionHandler:^(NTDNote *note) {
-            [self.notes insertObject:note atIndex:self.deletedNoteIndexPath.item];
+    if (self.deletedNotesStack.count > 0) {
+        [NTDNote restoreNote:[self.deletedNotesStack lastObject] completionHandler:^(NTDNote *note) {
+            NSIndexPath *restoredIndexPath = [self.deletedNotesIndexPathsStack lastObject];
+            // make sure that we don't insert an object that will be out of bounds
+            [self.notes insertObject:note atIndex:MIN(restoredIndexPath.item, self.notes.count)];
             
-            self.deletedNote = nil;
-            [self restoreCardAtIndexPath:self.deletedNoteIndexPath];
+            // now, recalculate the indexpath of the item
+            restoredIndexPath = [NSIndexPath indexPathForItem:[self.notes indexOfObject:note] inSection:0];
+            
+            [self.deletedNotesStack removeLastObject];
+            
+            [self restoreCardAtIndexPath:restoredIndexPath];
         }];
         NSLog(@"undo");
     }
