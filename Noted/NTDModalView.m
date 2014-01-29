@@ -14,6 +14,8 @@ const CGFloat NTDWalkthroughModalPadding = 15;
 const CGFloat NTDWalkthroughModalButtonHeight = 40;
 
 @interface NTDModalView ()
+@property (nonatomic, strong) NSArray *buttonTitles;
+@property (nonatomic, copy) NTDModalDismissalHandler dismissalHandler;
 @end
 
 @implementation NTDModalView
@@ -29,6 +31,19 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     return self;
 }
 
+-(instancetype)initwithMessage:(NSString *)message buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler
+{
+    if (self == [super init]) {
+        self.message = message;
+        self.position = NTDWalkthroughModalPositionCenter;
+        self.type = NTDWalkthroughModalTypeMultipleButtons;
+        if (!handler) handler = ^(NSUInteger i) {};
+        self.dismissalHandler = handler;
+        self.buttonTitles = buttonTitles;
+    }
+    return self;
+}
+
 -(void)willMoveToSuperview:(UIView *)newSuperview
 {
     self.superviewFrame = newSuperview.frame;
@@ -39,6 +54,9 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
             break;
         case NTDWalkthroughModalTypeDismiss:
             [self drawDismissModalWithHandlerForDismiss:@selector(dismissButtonTapped:)];
+            break;
+        case NTDWalkthroughModalTypeMultipleButtons:
+            [self drawMultipleButtonsModal];
             break;
         default:
             [self drawModalMessage];
@@ -70,6 +88,16 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 -(void)drawDismissModalWithHandlerForDismiss:(SEL)dismiss {
     [self drawModalMessage];
     [self drawPromptOptionWithAction:dismiss ofWidth:1 index:0 title:@"Start Writing"];
+}
+
+-(void)drawMultipleButtonsModal
+{
+    [self drawModalMessage];
+    NSInteger index = 0, count = self.buttonTitles.count;
+    for (NSString *title in self.buttonTitles) {
+        [self drawPromptOptionWithAction:@selector(buttonTapped:) ofWidth:1.0/count index:index title:title];
+        index++;
+    }
 }
 
 -(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
@@ -105,6 +133,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     
     button.backgroundColor = self.modalBackground.backgroundColor;
     button.frame = buttonFrame;
+    button.tag = index;
     
     [self addSubview:button];
 }
@@ -132,12 +161,11 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     
     // account for the height of option buttons
     switch (self.type) {
-        case NTDWalkthroughModalTypeBoolean:
-        case NTDWalkthroughModalTypeDismiss:
-            modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonHeight;
+        case NTDWalkthroughModalTypeMessage:
             break;
             
         default:
+            modalFrame.size.height += buttonMargin + NTDWalkthroughModalButtonHeight;
             break;
     }
     
@@ -209,6 +237,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         [self addMotionEffect:effectGroup];
     }
 }
+
 #pragma mark - Button Action Handling
 - (void)buttonTouchedDown:(UIButton *)button {
     button.backgroundColor = [UIColor colorWithWhite:0 alpha:.85];
@@ -235,11 +264,21 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     [self buttonTouchEnded:button];
     foo = nil;
 }
+- (void)buttonTapped:(UIButton *)button {
+    __strong id foo = self;
+    self.dismissalHandler(button.tag);
+    [self buttonTouchEnded:button];
+    [self dismiss];
+    foo = nil;
+}
+
 
 -(void)show
 {
-    UIWindow *window = [[UIApplication sharedApplication] windows][0];
-    [window addSubview:self];
+    UIView *view = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
+    UIView *touchBlockingView = [[UIView alloc] initWithFrame:view.frame];
+    [touchBlockingView addSubview:self];
+    [view addSubview:touchBlockingView];
 }
 
 -(void)dismiss
@@ -251,7 +290,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
                          self.alpha = 0;
                          self.transform = CGAffineTransformMakeScale(1.3, 1.3);
                      } completion:^(BOOL finished) {
-                         [self removeFromSuperview];
+                         [self.superview removeFromSuperview];
                      }];
 }
 

@@ -1230,10 +1230,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView performBatchUpdates:^{
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } completion:^(BOOL finished) {
-        NSString *msg = @"You can restore the note you just deleted by shaking your iPhone.";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg handler:^(BOOL userClickedYes) {
-            [modalView dismiss];
-        }];
+        NSString *device = (IS_IPHONE) ? @"iPhone" : @"iPad";
+        NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
+        NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg buttons:@[@"OK"] dismissalHandler:nil];
         [modalView show];
     }];
 }

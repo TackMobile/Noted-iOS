@@ -16,7 +16,8 @@ typedef NS_ENUM(NSInteger, NTDWalkthroughModalType)
 {
     NTDWalkthroughModalTypeMessage = 0,
     NTDWalkthroughModalTypeBoolean,
-    NTDWalkthroughModalTypeDismiss
+    NTDWalkthroughModalTypeDismiss,
+    NTDWalkthroughModalTypeMultipleButtons
 };
 
 typedef NS_ENUM(NSInteger, NTDModalBackgroundType)
@@ -26,6 +27,7 @@ typedef NS_ENUM(NSInteger, NTDModalBackgroundType)
 };
 
 typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
+typedef void(^NTDModalDismissalHandler)(NSUInteger index);
 
 @interface NTDModalView : UIView
 
@@ -39,6 +41,8 @@ typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
 @property CGRect superviewFrame;
 
 -(instancetype)initwithMessage:(NSString *)message handler:(NTDWalkthroughPromptHandler)handler;
+-(instancetype)initwithMessage:(NSString *)message buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler;
+
 -(void)show;
 -(void)dismiss;
 @end
