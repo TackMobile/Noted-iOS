@@ -17,8 +17,9 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 };
 
 @class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
+@protocol NTDPagingCollectionViewLayoutDelegate;
 
-@interface NTDCollectionViewController : UICollectionViewController <NTDOptionsViewDelegate>
+@interface NTDCollectionViewController : UICollectionViewController <NTDOptionsViewDelegate, NTDPagingCollectionViewLayoutDelegate>
 
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
 

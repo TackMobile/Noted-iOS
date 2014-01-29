@@ -8,9 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol NTDPagingCollectionViewLayoutDelegate <UICollectionViewDelegate>
+
+- (NSInteger)numberOfNotes;
+
+@end
+
 UIKIT_EXTERN NSString *NTDMayShowNoteAtIndexPathNotification;
 
 @interface NTDPagingCollectionViewLayout : UICollectionViewLayout
+
+@property (nonatomic, weak) id<NTDPagingCollectionViewLayoutDelegate> delegate;
 
 @property (nonatomic, assign) CGFloat pannedCardXTranslation;
 @property (nonatomic, assign) CGFloat pannedCardYTranslation;

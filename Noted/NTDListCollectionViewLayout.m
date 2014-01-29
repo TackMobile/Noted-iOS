@@ -54,8 +54,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     if (self.pinchedCardIndexPath)
         return [self pinchingLayoutAttributesForItemAtIndexPath:indexPath];
     
-    NSLog(@"%@", indexPath);
-    
     NTDCollectionViewLayoutAttributes *layoutAttributes = [self cellLayoutAttributesForItem:indexPath.item];
     layoutAttributes.zIndex = layoutAttributes.indexPath.item;
     layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
@@ -194,7 +192,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 #pragma mark - Caching
 - (NTDCollectionViewLayoutAttributes *)generateCellLayoutAttributesForItem:(NSInteger)i
 {
-    NSLog(@"%d", i);
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
     NTDCollectionViewLayoutAttributes *layoutAttributes = [NTDCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
     

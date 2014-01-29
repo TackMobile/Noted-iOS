@@ -18,7 +18,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 @interface NTDPagingCollectionViewLayout ()
 
 @property (nonatomic) BOOL isViewingOptions;
-@property (nonatomic) NSUInteger noteCount;
+@property (nonatomic, readonly) NSUInteger noteCount;
 
 @end
 
@@ -43,23 +43,6 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
-    /* So, this is a pretty dirty hack. The reason why it's here is because there was a crash that occured when restarting the
-     * walkthrough with only one note. Upon reloading the original notes, [self.collectionView numberOfItemsInSection:0] would
-     * return 2 instead of 1, which would cause -[NTDCollectionViewController noteAtIndexPath:] to crash after
-     * NTDMayShowNoteAtIndexPathNotification was sent because there was only one note.
-     *
-     * I suppose [self.collectionView numberOfItemsInSection:0] returns the wrong thing because we haven't called
-     * -[collectionView reloadData] by the time we get here. During the crash, we get to this spot when
-     * -[collectionView setCollectionViewLayout:animated:] is called within -[NTDCollectionViewController updateLayout:animated:]
-     * -reloadData isn't called until the end of that method.
-     *
-     * There's probably a deeper bug here, but it's Thursday night and we need to ship by Saturday, so....
-     */
-//  NSUInteger noteCount = [self.collectionView numberOfItemsInSection:0];
-    NTDCollectionViewController *controller = (NTDCollectionViewController *)[self.collectionView.window rootViewController];
-    NSMutableArray *notes = [controller notes];
-    self.noteCount = notes.count;
-    
     for (int i = activeCardIndex+1; i > activeCardIndex - [self numberOfCardsToRender];
          i--) {
         if (i < 0 || i > self.noteCount-1)
@@ -81,6 +64,12 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     }
 
     return attributesArray;
+}
+
+- (NSUInteger)noteCount {
+    id<NTDPagingCollectionViewLayoutDelegate> delegate = (id<NTDPagingCollectionViewLayoutDelegate>)self.collectionView.delegate;
+    NSLog(@"noteCount: %d", [delegate numberOfNotes]);
+    return [delegate numberOfNotes];
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -141,7 +130,6 @@ static const int NumberOfCardsToFanOut = 6;
 -(void)setActiveCardIndex:(int)newActiveCardIndex
 {
     // we need to recalculate noteCount
-    self.noteCount = [self.collectionView numberOfItemsInSection:0];
     activeCardIndex = newActiveCardIndex;
     for (int i = activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
         if (i < 0 || i+1 > self.noteCount)

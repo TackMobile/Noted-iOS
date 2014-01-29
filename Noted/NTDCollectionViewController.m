@@ -1716,4 +1716,9 @@ static BOOL keyboardIsBeingShown;
     }];
 }
 
+#pragma mark - Paging Layout Delegate
+- (NSInteger)numberOfNotes {
+    return self.notes.count;
+}
+
 @end
