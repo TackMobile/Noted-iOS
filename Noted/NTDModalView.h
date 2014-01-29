@@ -39,4 +39,6 @@ typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
 @property CGRect superviewFrame;
 
 -(instancetype)initwithMessage:(NSString *)message handler:(NTDWalkthroughPromptHandler)handler;
+-(void)show;
+-(void)dismiss;
 @end

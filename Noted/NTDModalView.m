@@ -29,12 +29,6 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     return self;
 }
 
--(void)show
-{
-    UIWindow *window = [[UIApplication sharedApplication] windows][0];
-    [window addSubview:self];
-}
-
 -(void)willMoveToSuperview:(UIView *)newSuperview
 {
     self.superviewFrame = newSuperview.frame;
@@ -241,5 +235,25 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     [self buttonTouchEnded:button];
     foo = nil;
 }
+
+-(void)show
+{
+    UIWindow *window = [[UIApplication sharedApplication] windows][0];
+    [window addSubview:self];
+}
+
+-(void)dismiss
+{
+    [UIView animateWithDuration:0.1
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{
+                         self.alpha = 0;
+                         self.transform = CGAffineTransformMakeScale(1.3, 1.3);
+                     } completion:^(BOOL finished) {
+                         [self removeFromSuperview];
+                     }];
+}
+
 
 @end
