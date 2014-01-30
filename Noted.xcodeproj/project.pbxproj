@@ -32,6 +32,9 @@
 		3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
 		3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */; };
 		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
+		3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */; };
+		3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959402189B0E4700C86F93 /* Icon.dev.png */; };
+		3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959403189B0E4700C86F93 /* Icon@2x.dev.png */; };
 		3F98D5CA17E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */; };
 		3F98D5CD17EA53B500693202 /* NTDTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D5CC17EA53B500693202 /* NTDTextView.m */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
@@ -101,6 +104,9 @@
 		3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.dev.png"; sourceTree = "<group>"; };
+		3F959402189B0E4700C86F93 /* Icon.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.dev.png; sourceTree = "<group>"; };
+		3F959403189B0E4700C86F93 /* Icon@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.dev.png"; sourceTree = "<group>"; };
 		3F98D5C817E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionView+NTDFixDisappearingCellBug.h"; sourceTree = "<group>"; };
 		3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionView+NTDFixDisappearingCellBug.m"; sourceTree = "<group>"; };
 		3F98D5CB17EA53B500693202 /* NTDTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTextView.h; sourceTree = "<group>"; };
@@ -182,9 +188,12 @@
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29E326C3157556920013399B /* Default.png */,
 				29E326C4157556920013399B /* Default@2x.png */,
-				29E326C1157556920013399B /* Icon.png */,
-				29E326C2157556920013399B /* Icon@2x.png */,
+				3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */,
 				3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */,
+				3F959402189B0E4700C86F93 /* Icon.dev.png */,
+				29E326C1157556920013399B /* Icon.png */,
+				3F959403189B0E4700C86F93 /* Icon@2x.dev.png */,
+				29E326C2157556920013399B /* Icon@2x.png */,
 				379E97D61678EE650051218D /* menu-icon-grey.png */,
 				379E97D71678EE650051218D /* menu-icon-grey@2x.png */,
 				379E97DB1678EE710051218D /* menu-icon-white.png */,
@@ -468,7 +477,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */,
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
+				3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
 				29E326D4157556920013399B /* Icon@2x.png in Resources */,
 				29E326D5157556920013399B /* Default.png in Resources */,
@@ -480,6 +491,7 @@
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
+				3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -586,6 +598,8 @@
 		29FC4931156EE0CD0007BBAD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_DISPLAY_NAME_SUFFIX = " ∆";
+				BUNDLE_ID_SUFFIX = .dev;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -614,6 +628,8 @@
 		29FC4932156EE0CD0007BBAD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_DISPLAY_NAME_SUFFIX = "";
+				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -692,6 +708,8 @@
 		B512B1271611191500E0E8B5 /* Ad Hoc */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_DISPLAY_NAME_SUFFIX = " ß";
+				BUNDLE_ID_SUFFIX = .dev;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
