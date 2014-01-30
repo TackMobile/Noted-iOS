@@ -24,7 +24,7 @@
 #import "Utilities.h"
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
-#import "NTDModalView.h"
+#import "NTDCollectionViewController+ShakeToUndoDelete.h"
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -1230,10 +1230,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView performBatchUpdates:^{
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } completion:^(BOOL finished) {
-        NSString *device = (IS_IPHONE) ? @"iPhone" : @"iPad";
-        NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
-        NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg buttons:@[@"OK"] dismissalHandler:nil];
-        [modalView show];
+        [self showShakeToUndoModalIfNecessary];
     }];
 }
 

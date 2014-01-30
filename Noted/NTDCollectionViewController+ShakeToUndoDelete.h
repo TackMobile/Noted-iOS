@@ -10,4 +10,6 @@
 
 @interface NTDCollectionViewController (ShakeToUndoDelete)
 
+-(void)showShakeToUndoModalIfNecessary;
+
 @end
