@@ -95,7 +95,7 @@ static CGFloat zTranslation;
     self.currentDeletionCell.layer.mask = maskingLayer;
 }
 
-- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(void (^)(void))completionBlock {
+- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(NSMutableArray* (^)(void))completionBlock {
     // percent should range between 0.0 and 1.0
     
     float noteWidth = self.currentDeletionCell.frame.size.width;
@@ -247,12 +247,15 @@ static CGFloat zTranslation;
             self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
-//            [self clearAllShreddedPieces];
+            [self clearAllShreddedPieces];
             
         }
         
         if (completionBlock)
-            completionBlock();
+            completionBlock(self.columnsForDeletion);
+        // this is an error as of now. Basically what I wish to do is return the columns for deletion, which are full of rotated and invisible slices. In the twofingerpan gesture recognizer, if the pan has ended and we are calling this method to completion (shred the entire note), then the twofingerpan method should save these returned deletioncolumns to the most recently added object on the deletednotes stack.
+        // When we wish to restore the deleted note, we should take the array of deleted columns and their associated slices and replace self.columnsfordeletion with them. Now, instead of calling prepare note for deletion, because we already have all of the prepared slices, all we need to do is to add the slices to the superview (collection view)
+        // now, when we call cancelShredding:, because we have simulated a complete shred, cancel shredding should be able to animate these slices back into their original position. Hopefully you were able to follow all of that.
     };
 
     if (shouldAnimate) {
@@ -294,7 +297,7 @@ static CGFloat zTranslation;
         for (UIView *slice in col.slices)
             [slice removeFromSuperview];
     }
-    [self.columnsForDeletion removeAllObjects];
+//    [self.columnsForDeletion removeAllObjects];
 }
 
 - (BOOL)shouldCompleteShredForPercent:(float)percent {

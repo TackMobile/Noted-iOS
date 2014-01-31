@@ -13,6 +13,7 @@
 @interface NTDDeletedNotePlaceholder : NSObject
 
 @property (nonatomic, strong) NSIndexPath *indexPath;
+@property (nonatomic, strong) NSMutableArray *savedColumnsForDeletion; // comes from the shredding category. these columns contain slices that are fully transformed and invisible.
 
 - (NTDDeletedNotePlaceholder *)initWithNote:(NTDNote *)note;
 

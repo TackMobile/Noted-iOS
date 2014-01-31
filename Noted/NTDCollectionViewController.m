@@ -463,6 +463,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.deletedCardDirection = (translation.x > 0) ? NTDDeletedCardPanDirectionRight : NTDDeletedCardPanDirectionLeft;
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
+                                           // this completion block should take in a columnsfordeletion array and copy it over to the ntddeletednoteplaceholder that is on top of the stack. we add that note to the stack inside of the call below. we might want to change that so we don't have to pass the array of deleted slices
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
                                            shouldDelete = NO;
                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
