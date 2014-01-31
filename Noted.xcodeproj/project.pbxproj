@@ -616,7 +616,7 @@
 		29FC4931156EE0CD0007BBAD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_DISPLAY_NAME_SUFFIX = " ∆";
+				BUNDLE_DISPLAY_NAME_SUFFIX = " α";
 				BUNDLE_ID_SUFFIX = .dev;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
