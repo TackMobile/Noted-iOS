@@ -24,6 +24,7 @@
 #import "Utilities.h"
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
+#import "NTDCollectionViewController+ShakeToUndoDelete.h"
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -1240,9 +1241,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.deletedNotesIndexPathsStack addObject:indexPath];
     
     [self.notes removeObject:note];
-    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     [note deleteWithCompletionHandler:nil];
+    [self.collectionView performBatchUpdates:^{
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    } completion:^(BOOL finished) {
+        [self showShakeToUndoModalIfNecessary];
+    }];
 }
+
 - (void) restoreDeletedNote {
     // moved this method here because it involves inserting into the notes array
     if (self.deletedNotesStack.count > 0) {

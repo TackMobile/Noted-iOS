@@ -8,10 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "NTDWalkthrough.h"
+#import "NTDModalView.h"
 
-typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
-
-@interface NTDWalkthroughModalView : UIView
+@interface NTDWalkthroughModalView : NTDModalView
 
 -(id)initWithStep:(NTDWalkthroughStep)step;
 -(id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler;
