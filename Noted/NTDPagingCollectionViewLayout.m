@@ -142,8 +142,9 @@ static const int NumberOfCardsToFanOut = 6;
     return [delegate numberOfNotes];
 }
 
-static const CGFloat EdgeSpaceLimit = 30;
+static const CGFloat EdgeSpaceLimit = 1;
 static const CGFloat RatioToScaleEdgeSpaceAfterLimitReached = .07;
+static const CGFloat FanningFactor = 2.8;
 
 static const CGFloat PinchedNoteScaleLimit = .9;
 static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
@@ -218,7 +219,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
             // fan the cards behind the top card out
             NSUInteger numberOfCardsBeingFanned = MIN(self.noteCount, NumberOfCardsToFanOut) - 1;
             NSUInteger countOffset = self.noteCount - 1 - numberOfCardsBeingFanned;
-            adjustedTranslation = adjustedTranslation/numberOfCardsBeingFanned * (attr.indexPath.item - countOffset);
+            adjustedTranslation = adjustedTranslation/numberOfCardsBeingFanned * FanningFactor * (attr.indexPath.item - countOffset);
         }
         attr.center = (CGPoint){center.x+adjustedTranslation, center.y};
     
