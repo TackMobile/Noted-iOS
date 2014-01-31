@@ -1217,11 +1217,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [self animateSwipedCellToOriginalPosition];
     } else {
         self.pagingLayout.isRestoringActiveCard = YES;
-        [self.collectionView reloadData];
+        [self.pagingLayout invalidateLayout];
         self.pagingLayout.isRestoringActiveCard = NO;
+        [self prepareVisibleNoteForShredding];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self prepareVisibleNoteForShredding];
             self.deletionDirection = NTDPageDeletionDirectionRight;
             [self shredVisibleNoteByPercent:1 animated:NO completion:^{
 //                [self shredVisibleNoteByPercent:.5 animated:YES completion:^{
