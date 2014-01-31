@@ -95,7 +95,7 @@ static CGFloat zTranslation;
     self.currentDeletionCell.layer.mask = maskingLayer;
 }
 
-- (void) shredVisibleNoteByPercent:(float)percent completion:(void (^)(void))completionBlock {
+- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(void (^)(void))completionBlock {
     // percent should range between 0.0 and 1.0
     
     float noteWidth = self.currentDeletionCell.frame.size.width;
@@ -106,8 +106,7 @@ static CGFloat zTranslation;
     __block BOOL shiftMaskAfterAnimation = NO;
     __block ColumnForShredding *columnForUseAsMaskAfterAnimation = nil;
     
-    // animate slices
-    [UIView animateWithDuration:.4 animations:^{
+    void (^animationBlock)() = ^{
         // fade out
         // decide which rows will be deleted
         for (ColumnForShredding *column in self.columnsForDeletion) {
@@ -120,7 +119,7 @@ static CGFloat zTranslation;
                         slice.alpha = 1;
                         
                         // set the transform to normal
-//                        slice.layer.transform = CATransform3DIdentity;
+                        //                        slice.layer.transform = CATransform3DIdentity;
                         slice.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
                         slice.layer.shadowRadius = 3;
                         
@@ -139,7 +138,7 @@ static CGFloat zTranslation;
                     shiftMaskAfterAnimation = YES;  // after the cells animate back to position
                 }
             }
-                        
+            
             if (useNextPercentForMask) {
                 if (shiftMaskAfterAnimation) {
                     columnForUseAsMaskAfterAnimation = column;
@@ -159,7 +158,7 @@ static CGFloat zTranslation;
                         default:
                             break;
                     }
-
+                    
                     [CATransaction begin];
                     [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
                     self.currentDeletionCell.layer.mask.frame = maskFrame;
@@ -172,7 +171,7 @@ static CGFloat zTranslation;
                 //[colsToRemove addObject:column];
                 
                 useNextPercentForMask = YES;
-                    
+                
                 int direction = 1;
                 if (self.deletionDirection == NTDPageDeletionDirectionLeft)
                     direction = -1;
@@ -186,20 +185,12 @@ static CGFloat zTranslation;
                     slice.layer.shadowRadius = (float)rand()/RAND_MAX * 3 + 3;
                     slice.alpha = 0;
                     
-//                    // Rotate some degrees
-//                    CGAffineTransform randomRotation = CGAffineTransformMakeRotation((float)rand()/RAND_MAX*M_PI_2 - M_PI_4);
-//                    
-//                    // Move to the left
-//                    CGAffineTransform randomTranslation = CGAffineTransformMakeTranslation(direction * (float)rand()/RAND_MAX * -100,(float)rand()/RAND_MAX * 100 - 50);
-//                    
-//                    // Apply them to a view
-//                    CGAffineTransform randomTransformation = CGAffineTransformConcat(randomTranslation, randomRotation);
                     CATransform3D randomRotation = CATransform3DRotate(slice.layer.transform, (float)rand()/RAND_MAX*M_PI_2 - M_PI_4, 0, 0, 1);
                     CATransform3D randomTranslation = CATransform3DTranslate(randomRotation, direction * (float)rand()/RAND_MAX * -100, (float)rand()/RAND_MAX * 100 - 50, 0);
                     
                     slice.layer.transform = randomTranslation;
                     
-
+                    
                 }
                 
                 column.isDeleted = YES;
@@ -219,9 +210,10 @@ static CGFloat zTranslation;
             
             useNextPercentForMask = NO;
         }
-        
-    } completion:^(BOOL finished) {
-        
+
+    };
+    
+    void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
         for (ColumnForShredding *column in colsToRemove) {
             for (UIImageView *slice in column.slices)
                 [slice removeFromSuperview];
@@ -249,19 +241,26 @@ static CGFloat zTranslation;
             
             maskFrame.origin.x = (self.deletionDirection == NTDPageDeletionDirectionRight) ? noteWidth : -noteWidth;
             
-            self.currentDeletionCell.layer.opacity = 0;
+//            self.currentDeletionCell.layer.opacity = 0;
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-            self.currentDeletionCell.layer.mask = nil;
+            self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
-            [self clearAllShreddedPieces];
+//            [self clearAllShreddedPieces];
             
         }
         
         if (completionBlock)
             completionBlock();
-    }];
+    };
+
+    if (shouldAnimate) {
+        [UIView animateWithDuration:.4 animations:animationBlock completion:animationCompletionBlock];
+    } else {
+        animationBlock();
+        animationCompletionBlock(YES);
+    }
 }
 
 - (void) cancelShredForVisibleNote {
@@ -282,7 +281,7 @@ static CGFloat zTranslation;
             break;
     }
     
-    [self shredVisibleNoteByPercent:shredByPercent completion:^{
+    [self shredVisibleNoteByPercent:shredByPercent animated:YES completion:^{
         // remove slices from view
         self.currentDeletionCell.layer.mask = nil;
         [self clearAllShreddedPieces];

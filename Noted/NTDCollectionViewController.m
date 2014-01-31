@@ -538,7 +538,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             }
             
             if (self.hasTwoFingerNoteDeletionBegun)
-                [self shredVisibleNoteByPercent:touchLocation.x/self.collectionView.frame.size.width completion:nil];
+                [self shredVisibleNoteByPercent:touchLocation.x/self.collectionView.frame.size.width animated:YES completion:nil];
             
             break;
             
@@ -583,7 +583,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (shouldDelete) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
                 float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
-                [self shredVisibleNoteByPercent:percentToShredBy completion:^{
+                [self shredVisibleNoteByPercent:percentToShredBy animated:YES completion:^{
                     if (shouldDeleteLastNote) {
                         self.pagingLayout.deletedLastNote = YES;
                         
@@ -1204,12 +1204,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
     }
     
-    [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
+//
+    [self.collectionView reloadData];
     
-//    if (self.collectionView.collectionViewLayout == self.listLayout) {
-        
     // animate the cell back in
     if (self.collectionView.collectionViewLayout == self.listLayout) {
+        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
         CGFloat insertedCellScrollPos = self.listLayout.cardOffset * indexPath.item;
         
         if (insertedCellScrollPos < self.collectionView.contentOffset.y
@@ -1217,6 +1217,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         [self animateSwipedCellToOriginalPosition];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self prepareVisibleNoteForShredding];
+            self.deletionDirection = NTDPageDeletionDirectionRight;
+            [self shredVisibleNoteByPercent:1 animated:NO completion:^{
+                [self shredVisibleNoteByPercent:.5 animated:YES completion:^{
+//                self.visibleCell.alpha = 0;
+                [self cancelShredForVisibleNote];
+                }];
+            }];
+        });
     }
     
     [self.deletedNotesIndexPathsStack removeLastObject];

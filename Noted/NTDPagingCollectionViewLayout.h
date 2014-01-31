@@ -26,6 +26,7 @@ UIKIT_EXTERN NSString *NTDMayShowNoteAtIndexPathNotification;
 
 @property (nonatomic) BOOL deletedLastNote; /* we never truly delete last note. We just clear it, hide it, and fade it back in */
 @property (nonatomic) int activeCardIndex;
+@property (nonatomic) int restoredCardIndex;
 @property (nonatomic, readonly) CGFloat currentOptionsOffset;
 
 @property (nonatomic, strong) UIView *settingsView;

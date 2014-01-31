@@ -166,9 +166,14 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
         attr.alpha = 0;
         rotateAngle = 45;
     }
+//    if (self.restoredCardIndex == attr.indexPath.item)
+//        translateY = self.collectionView.frame.size.height;
+    
     CATransform3D zTranslation = CATransform3DMakeTranslation(0, translateY, attr.indexPath.item);
     CATransform3D rotation = CATransform3DRotate(zTranslation, rotateAngle, 0, 0, 1);
     attr.transform3D = CATransform3DScale(rotation, scaleX, scaleY, 1);
+    
+    
     
     self.pannedCardYTranslation = MAX(0, self.pannedCardYTranslation);
     
