@@ -66,12 +66,6 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     return attributesArray;
 }
 
-- (NSUInteger)noteCount {
-    id<NTDPagingCollectionViewLayoutDelegate> delegate = (id<NTDPagingCollectionViewLayoutDelegate>)self.collectionView.delegate;
-    NSLog(@"noteCount: %d", [delegate numberOfNotes]);
-    return [delegate numberOfNotes];
-}
-
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
     NTDCollectionViewLayoutAttributes *attr = [NTDCollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
     [self customizeLayoutAttributes:attr];
@@ -142,6 +136,12 @@ static const int NumberOfCardsToFanOut = 6;
         }
     }
 }
+
+- (NSUInteger)noteCount {
+    id<NTDPagingCollectionViewLayoutDelegate> delegate = (id<NTDPagingCollectionViewLayoutDelegate>)self.collectionView.delegate;
+    return [delegate numberOfNotes];
+}
+
 static const CGFloat EdgeSpaceLimit = 30;
 static const CGFloat RatioToScaleEdgeSpaceAfterLimitReached = .07;
 
@@ -172,9 +172,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     CATransform3D zTranslation = CATransform3DMakeTranslation(0, translateY, attr.indexPath.item);
     CATransform3D rotation = CATransform3DRotate(zTranslation, rotateAngle, 0, 0, 1);
     attr.transform3D = CATransform3DScale(rotation, scaleX, scaleY, 1);
-    
-    
-    
+
     self.pannedCardYTranslation = MAX(0, self.pannedCardYTranslation);
     
     CGPoint center = CGPointMake(attr.size.width/2, attr.size.height/2 + self.pannedCardYTranslation);
@@ -183,6 +181,8 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     // keep the panned translation smaller than screenwidth
     pannedCardXTranslation = MAX(-self.collectionView.frame.size.width, fminf(self.collectionView.frame.size.width, pannedCardXTranslation));
     
+    CGFloat adjustedTranslation;
+    
     // if we're viewing options, offset center
     if (isViewingOptions && attr.indexPath.row == activeCardIndex) {
         center = (CGPoint){center.x+currentOptionsOffset, center.y};
@@ -190,26 +190,28 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     
     // if were panning right, slide active card off of stack (unless there are no more card, in which case, show edge)
     if (pannedCardXTranslation > 0 &&
-        attr.indexPath.row == activeCardIndex) {
-        CGFloat adjustedTranslation = pannedCardXTranslation;
-        if (activeCardIndex == 0)
-            if (pannedCardXTranslation > EdgeSpaceLimit)
-                adjustedTranslation = EdgeSpaceLimit + (pannedCardXTranslation-EdgeSpaceLimit)*RatioToScalePinchedNoteAfterLimitReached;
+        attr.indexPath.row == activeCardIndex &&
+        activeCardIndex == 0 &&
+        pannedCardXTranslation > EdgeSpaceLimit) {
+        adjustedTranslation = EdgeSpaceLimit + (pannedCardXTranslation-EdgeSpaceLimit)*RatioToScalePinchedNoteAfterLimitReached;
         attr.center = (CGPoint){center.x+adjustedTranslation, center.y};
         
     // if panning left and in options, push it back
-    } else if (pannedCardXTranslation < 0 && isViewingOptions &&
+    } else if (pannedCardXTranslation < 0 &&
+               isViewingOptions &&
                attr.indexPath.row == activeCardIndex) {
         attr.center = (CGPoint){center.x+pannedCardXTranslation, center.y};
     
     // if panning left and not in options, slide next card towards center
-    } else if (pannedCardXTranslation < 0 && !isViewingOptions &&
+    } else if (pannedCardXTranslation < 0 &&
+               !isViewingOptions &&
                attr.indexPath.row == activeCardIndex+1) {
         attr.center = (CGPoint){right.x+pannedCardXTranslation, right.y};
         
     // if panning left and not in options and we're on the last card, show edge
-    } else if (pannedCardXTranslation < 0 && !isViewingOptions && activeCardIndex == self.noteCount-1) {
-        CGFloat adjustedTranslation = pannedCardXTranslation;
+    } else if (pannedCardXTranslation < 0 &&
+               !isViewingOptions &&
+               activeCardIndex == self.noteCount-1) {
         if (pannedCardXTranslation < -EdgeSpaceLimit)
             adjustedTranslation = -EdgeSpaceLimit + (pannedCardXTranslation + EdgeSpaceLimit)*RatioToScalePinchedNoteAfterLimitReached;
         if (self.noteCount > 1) {
@@ -228,6 +230,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
         attr.center = center;
     }
 }
+
 #pragma mark - customAnimation
 - (void)finishAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     // xTranslation, yTranslation will not be zeroed out yet
