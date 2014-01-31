@@ -30,6 +30,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 {
     if (self = [super init]) {
         isViewingOptions = NO;
+        self.isRestoringActiveCard = NO;
         self.pinchRatio = 1;
     }
     return self;
@@ -168,8 +169,8 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
         attr.alpha = 0;
         rotateAngle = 45;
     }
-//    if (self.restoredCardIndex == attr.indexPath.item)
-//        translateY = self.collectionView.frame.size.height;
+    if (self.isRestoringActiveCard && attr.indexPath.item == self.activeCardIndex)
+        translateY = self.collectionView.frame.size.height; // push the card offscreen so that we can take a screenshot of it
     
     CATransform3D zTranslation = CATransform3DMakeTranslation(0, translateY, attr.indexPath.item);
     CATransform3D rotation = CATransform3DRotate(zTranslation, rotateAngle, 0, 0, 1);

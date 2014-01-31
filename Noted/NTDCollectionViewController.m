@@ -1205,9 +1205,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
     }
     
-//
-    [self.collectionView reloadData];
-    
     // animate the cell back in
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
@@ -1219,14 +1216,19 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         [self animateSwipedCellToOriginalPosition];
     } else {
+        self.pagingLayout.isRestoringActiveCard = YES;
+        [self.collectionView reloadData];
+        self.pagingLayout.isRestoringActiveCard = NO;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self prepareVisibleNoteForShredding];
             self.deletionDirection = NTDPageDeletionDirectionRight;
             [self shredVisibleNoteByPercent:1 animated:NO completion:^{
-                [self shredVisibleNoteByPercent:.5 animated:YES completion:^{
-//                self.visibleCell.alpha = 0;
+//                [self shredVisibleNoteByPercent:.5 animated:YES completion:^{
+////                self.visibleCell.alpha = 0;
                 [self cancelShredForVisibleNote];
-                }];
+
+//                }];
             }];
         });
     }
