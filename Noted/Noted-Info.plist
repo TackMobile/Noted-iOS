@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>${PRODUCT_NAME}${BUNDLE_DISPLAY_NAME_SUFFIX}</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIcons</key>
@@ -14,16 +14,16 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>Icon-60</string>
-				<string>Icon.png</string>
-				<string>Icon@2x.png</string>
+				<string>Icon-60${BUNDLE_ID_SUFFIX}</string>
+				<string>Icon${BUNDLE_ID_SUFFIX}</string>
+				<string>Icon@2x${BUNDLE_ID_SUFFIX}</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<true/>
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.tackmobile.noted-dev</string>
+	<string>com.tackmobile.noted${BUNDLE_ID_SUFFIX}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
