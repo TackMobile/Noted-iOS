@@ -65,7 +65,7 @@
 		CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */; };
 		CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */; };
 		F349FB50187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m in Sources */ = {isa = PBXBuildFile; fileRef = F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */; };
-		F3EA4F2E188349F40077AD44 /* NTDDummyNote.m in Sources */ = {isa = PBXBuildFile; fileRef = F3EA4F2D188349F40077AD44 /* NTDDummyNote.m */; };
+		F3EA4F2E188349F40077AD44 /* NTDDeletedNotePlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = F3EA4F2D188349F40077AD44 /* NTDDeletedNotePlaceholder.m */; };
 		F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */ = {isa = PBXBuildFile; fileRef = F3F5579A177E05650003E152 /* UIDeviceHardware.m */; };
 /* End PBXBuildFile section */
 
@@ -163,8 +163,8 @@
 		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		F349FB4E187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+ShakeToUndoDelete.h"; sourceTree = "<group>"; };
 		F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+ShakeToUndoDelete.m"; sourceTree = "<group>"; };
-		F3EA4F2C188349F40077AD44 /* NTDDummyNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDummyNote.h; sourceTree = "<group>"; };
-		F3EA4F2D188349F40077AD44 /* NTDDummyNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDummyNote.m; sourceTree = "<group>"; };
+		F3EA4F2C188349F40077AD44 /* NTDDeletedNotePlaceholder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDeletedNotePlaceholder.h; sourceTree = "<group>"; };
+		F3EA4F2D188349F40077AD44 /* NTDDeletedNotePlaceholder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDeletedNotePlaceholder.m; sourceTree = "<group>"; };
 		F3F55799177E05650003E152 /* UIDeviceHardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceHardware.h; sourceTree = "<group>"; };
 		F3F5579A177E05650003E152 /* UIDeviceHardware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceHardware.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -379,8 +379,8 @@
 				3F9D3F141790B3C300EA183D /* Private */,
 				3F9D3F0E1790925100EA183D /* NTDNote.h */,
 				3F9D3F0F1790925100EA183D /* NTDNote.m */,
-				F3EA4F2C188349F40077AD44 /* NTDDummyNote.h */,
-				F3EA4F2D188349F40077AD44 /* NTDDummyNote.m */,
+				F3EA4F2C188349F40077AD44 /* NTDDeletedNotePlaceholder.h */,
+				F3EA4F2D188349F40077AD44 /* NTDDeletedNotePlaceholder.m */,
 				B52114D9171CA800007670F3 /* NTDTheme.h */,
 				B52114DA171CA800007670F3 /* NTDTheme.m */,
 			);
@@ -580,7 +580,7 @@
 				F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */,
 				CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */,
 				CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */,
-				F3EA4F2E188349F40077AD44 /* NTDDummyNote.m in Sources */,
+				F3EA4F2E188349F40077AD44 /* NTDDeletedNotePlaceholder.m in Sources */,
 				3F9D3F101790925100EA183D /* NTDNote.m in Sources */,
 				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
 				3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */,

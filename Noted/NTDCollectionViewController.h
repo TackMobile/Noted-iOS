@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NTDCollectionViewCell.h"
 #import "NTDOptionsViewController.h"
-#import "NTDDummyNote.h"
+#import "NTDDeletedNotePlaceholder.h"
 
 typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
     NTDPageDeletionDirectionLeft = 0,

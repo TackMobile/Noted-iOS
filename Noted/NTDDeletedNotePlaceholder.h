@@ -10,9 +10,11 @@
 #import "NTDNote.h"
 #import "NTDNoteMetadata.h"
 
-@interface NTDDummyNote : NSObject
+@interface NTDDeletedNotePlaceholder : NSObject
 
-- (NTDDummyNote *)initWithNote:(NTDNote *)note;
+@property (nonatomic, strong) NSIndexPath *indexPath;
+
+- (NTDDeletedNotePlaceholder *)initWithNote:(NTDNote *)note;
 
 - (NSString *)filename;
 - (NSString *)headline;

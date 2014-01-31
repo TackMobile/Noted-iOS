@@ -15,7 +15,7 @@
 #import "NTDNoteDocument.h"
 #import "NTDNoteMetadata.h"
 #import "NTDNote.h"
-#import "NTDDummyNote.h"
+#import "NTDDeletedNotePlaceholder.h"
 #import "NTDCoreDataStore.h"
 
 static NSString *const FileExtension = @"txt";
@@ -436,7 +436,7 @@ BOOL safe_rename(const char *old, const char *new)
     [self newNoteWithDocument:document completionHandler:handler];
 }
 
-+ (void)restoreNote:(NTDDummyNote *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
++ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
     NSUInteger fileIndex = [self indexFromFilename:deletedNote.filename];
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
     

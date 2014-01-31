@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Tack Mobile. All rights reserved.
 //
 
-#import "NTDDummyNote.h"
+#import "NTDDeletedNotePlaceholder.h"
 
-@interface NTDDummyNote ()
+@interface NTDDeletedNotePlaceholder ()
 
 @property (nonatomic, strong) NSString *_filename;
 @property (nonatomic, strong) NSString *_bodyText;
@@ -18,9 +18,9 @@
 
 @end
 
-@implementation NTDDummyNote
+@implementation NTDDeletedNotePlaceholder
 
-- (NTDDummyNote *)initWithNote:(NTDNote *)note {
+- (NTDDeletedNotePlaceholder *)initWithNote:(NTDNote *)note {
     self._filename = [[note filename] copy];
     self._headline = [[note headline] copy];
     self._bodyText = [[note text] copy];

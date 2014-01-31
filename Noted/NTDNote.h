@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NTDDummyNote;
+@class NTDDeletedNotePlaceholder;
 
 typedef NS_ENUM(NSInteger, NTDNoteFileState) {
     NTDNoteFileStateOpened = 0,
@@ -26,7 +26,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
-+ (void)restoreNote:(NTDDummyNote *)deletedNote completionHandler:(void(^)(NTDNote *note))handler;
++ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler;
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
