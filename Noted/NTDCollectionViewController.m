@@ -463,7 +463,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                 self.deletedCardDirection = (translation.x > 0) ? NTDDeletedCardPanDirectionRight : NTDDeletedCardPanDirectionLeft;
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
-                                           // this completion block should take in a columnsfordeletion array and copy it over to the ntddeletednoteplaceholder that is on top of the stack. we add that note to the stack inside of the call below. we might want to change that so we don't have to pass the array of deleted slices
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
                                            shouldDelete = NO;
                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
@@ -1194,20 +1193,18 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
 }
 
-- (void)restoreCardAtIndexPath:(NSIndexPath *)indexPath
+- (void)restoreCard:(NTDDeletedNotePlaceholder *)restoredNote
 {
+    NSIndexPath *indexPath = restoredNote.indexPath;
     self.pagingLayout.activeCardIndex = indexPath.row;
     
     // if in list layout, set the indexpath and the offset
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         self.listLayout.swipedCardIndexPath = indexPath;
         self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
-    }
     
-    [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
+        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     
-    // animate the cell back in
-    if (self.collectionView.collectionViewLayout == self.listLayout) {
         CGFloat insertedCellScrollPos = self.listLayout.cardOffset * indexPath.item;
         
         if (insertedCellScrollPos < self.collectionView.contentOffset.y
@@ -1216,21 +1213,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         [self animateSwipedCellToOriginalPosition];
     } else {
-//        self.pagingLayout.isRestoringActiveCard = YES;
-//        [self.pagingLayout invalidateLayout];
-//        self.pagingLayout.isRestoringActiveCard = NO;
-//        [self prepareVisibleNoteForShredding];
-//        
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            self.deletionDirection = NTDPageDeletionDirectionRight;
-//            [self shredVisibleNoteByPercent:1 animated:NO completion:^{
-////                [self shredVisibleNoteByPercent:.5 animated:YES completion:^{
-//////                self.visibleCell.alpha = 0;
-//                [self cancelShredForVisibleNote];
-//
-////                }];
-//            }];
-//        });
+        for (id column in restoredNote.savedColumnsForDeletion)
+            for (UIImageView *slice in [column valueForKey:@"slices"])
+                [self.collectionView addSubview:slice];
+        self.deletionDirection = NTDPageDeletionDirectionRight;
+        self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
+        [self cancelShredForVisibleNoteWithCompletionBlock:^{
+            [self.collectionView reloadData];
+        }];
     }
 }
 
@@ -1239,6 +1229,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDNote *note = [self noteAtIndexPath:indexPath];
     NTDDeletedNotePlaceholder *deletedNote = [[NTDDeletedNotePlaceholder alloc] initWithNote:note];
     deletedNote.indexPath = indexPath;
+    deletedNote.savedColumnsForDeletion = self.columnsForDeletion;
+    self.columnsForDeletion = nil;
     [self.deletedNotesStack addObject:deletedNote];
     
     [self.notes removeObject:note];
@@ -1255,16 +1247,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (self.deletedNotesStack.count > 0) {
         NTDDeletedNotePlaceholder *restoredNote = [self.deletedNotesStack lastObject];
         [NTDNote restoreNote:restoredNote completionHandler:^(NTDNote *note) {
-            NSIndexPath *restoredIndexPath = restoredNote.indexPath;
-            // make sure that we don't insert an object that will be out of bounds
-            [self.notes insertObject:note atIndex:MIN(restoredIndexPath.item, self.notes.count)];
-            
-            // now, recalculate the indexpath of the item
-            restoredIndexPath = [NSIndexPath indexPathForItem:[self.notes indexOfObject:note] inSection:0];
-            
+            NSUInteger newIndex = MIN(restoredNote.indexPath.item, self.notes.count);
+            [self.notes insertObject:note atIndex:newIndex];
+            restoredNote.indexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
             [self.deletedNotesStack removeLastObject];
-            
-            [self restoreCardAtIndexPath:restoredIndexPath];
+            [self restoreCard:restoredNote];
         }];
         NSLog(@"undo");
     }

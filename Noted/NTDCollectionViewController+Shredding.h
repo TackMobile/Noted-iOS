@@ -13,7 +13,8 @@
 @interface NTDCollectionViewController (Shredding)
 
 - (void) prepareVisibleNoteForShredding;
-- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(NSMutableArray* (^)(void))completionBlock;
+- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(void(^)(void))completionBlock;
 - (void) cancelShredForVisibleNote;
+- (void) cancelShredForVisibleNoteWithCompletionBlock:(void(^)(void))completionBlock;
 
 @end
