@@ -45,10 +45,8 @@ static CGFloat zTranslation;
 
 - (void) prepareVisibleNoteForShredding {
     self.columnsForDeletion = [NSMutableArray array];
-    
     self.currentDeletionCell = self.visibleCell;
-    [self.columnsForDeletion removeAllObjects];
-        
+    
     zTranslation = [[self.visibleCell.layer valueForKeyPath:@"transform.translation.z"] floatValue] -1;
     
     CGSize sliceSize = CGSizeMake(self.collectionView.frame.size.width / self.deletedNoteVertSliceCount, self.collectionView.frame.size.height / self.deletedNoteHorizSliceCount);
@@ -300,7 +298,6 @@ static CGFloat zTranslation;
         for (UIView *slice in col.slices)
             [slice removeFromSuperview];
     }
-//    [self.columnsForDeletion removeAllObjects];
 }
 
 - (BOOL)shouldCompleteShredForPercent:(float)percent {

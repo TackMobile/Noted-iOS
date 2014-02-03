@@ -8,19 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import "NTDNote.h"
-#import "NTDNoteMetadata.h"
 
 @interface NTDDeletedNotePlaceholder : NSObject
 
+@property (nonatomic, strong, readonly) NSString *filename, *headline, *bodyText;
+@property (nonatomic, strong, readonly) NTDTheme *theme;
+@property (nonatomic, strong, readonly) NSDate *lastModifiedDate;
 @property (nonatomic, strong) NSIndexPath *indexPath;
 @property (nonatomic, strong) NSMutableArray *savedColumnsForDeletion; // comes from the shredding category. these columns contain slices that are fully transformed and invisible.
 
 - (NTDDeletedNotePlaceholder *)initWithNote:(NTDNote *)note;
-
-- (NSString *)filename;
-- (NSString *)headline;
-- (NSString *)bodyText;
-- (NTDTheme *)theme;
-- (NSDate *)lastModifiedDate;
 
 @end
