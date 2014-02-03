@@ -576,7 +576,7 @@ BOOL safe_rename(const char *old, const char *new)
                                              NSFileManager* fileManager = [[NSFileManager alloc] init];
                                              [fileManager removeItemAtURL:writingURL error:&fileDeletingError];
                                              
-                                             if (fileDeletingError) NSLog(@"%@", fileDeletingError); else NSLog(@"delete success");
+                                             if (fileDeletingError) NSLog(@"Error deleting file: %@", fileDeletingError);
                                          }];
         BOOL success = !error;
         if (success) [Flurry logEvent:@"Note Deleted"];

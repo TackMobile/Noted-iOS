@@ -1196,7 +1196,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)restoreCard:(NTDDeletedNotePlaceholder *)restoredNote
 {
     NSIndexPath *indexPath = restoredNote.indexPath;
-    self.pagingLayout.activeCardIndex = indexPath.row;
+    self.pagingLayout.activeCardIndex = indexPath.item;
     
     // if in list layout, set the indexpath and the offset
     if (self.collectionView.collectionViewLayout == self.listLayout) {
@@ -1212,9 +1212,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         [self animateSwipedCellToOriginalPosition];
+    } else if (restoredNote.savedColumnsForDeletion == nil) {
+        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     } else {
         for (id column in restoredNote.savedColumnsForDeletion)
-            for (UIImageView *slice in [column valueForKey:@"slices"])
+            for (UIImageView *slice in [column valueForKey:@"slices"] /*hax*/)
                 [self.collectionView addSubview:slice];
         self.deletionDirection = NTDPageDeletionDirectionRight;
         self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
@@ -1253,7 +1255,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.deletedNotesStack removeLastObject];
             [self restoreCard:restoredNote];
         }];
-        NSLog(@"undo");
     }
 }
 

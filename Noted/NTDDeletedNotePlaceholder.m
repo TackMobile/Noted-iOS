@@ -26,8 +26,22 @@
         self.bodyText = note.text;
         self.lastModifiedDate = note.lastModifiedDate;
         self.theme = note.theme;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(flushSavedColumns:)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
     }
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)flushSavedColumns:(NSNotification *)notfication
+{
+    self.savedColumnsForDeletion = nil;
+}
 @end
