@@ -532,7 +532,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             }
             
             if (self.hasTwoFingerNoteDeletionBegun)
-                [self shredVisibleNoteByPercent:touchLocation.x/self.collectionView.frame.size.width animated:YES completion:nil];
+                [self shredVisibleNoteByPercent:touchLocation.x/self.collectionView.frame.size.width completion:nil];
             
             break;
             
@@ -577,7 +577,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (shouldDelete) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
                 float percentToShredBy = (self.twoFingerDeletionDirection==NTDDeletionDirectionRight)?1:0;
-                [self shredVisibleNoteByPercent:percentToShredBy animated:YES completion:^{
+                [self shredVisibleNoteByPercent:percentToShredBy completion:^{
                     if (shouldDeleteLastNote) {
                         self.pagingLayout.deletedLastNote = YES;
                         

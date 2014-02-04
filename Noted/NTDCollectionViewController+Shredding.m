@@ -87,7 +87,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     self.currentDeletionCell.layer.mask = maskingLayer;
 }
 
-- (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(void(^)(void))completionBlock {
+- (void) shredVisibleNoteByPercent:(float)percent completion:(void(^)(void))completionBlock {
     // percent should range between 0.0 and 1.0
     
     float noteWidth = self.currentDeletionCell.frame.size.width;
@@ -98,7 +98,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     __block BOOL shiftMaskAfterAnimation = NO;
     __block ColumnForShredding *columnForUseAsMaskAfterAnimation = nil;
     
-    void (^animationBlock)() = ^{
+    [UIView animateWithDuration:ShredAnimationDuration animations:^{
         // fade out
         // decide which rows will be deleted
         for (ColumnForShredding *column in self.columnsForDeletion) {
@@ -203,9 +203,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             useNextPercentForMask = NO;
         }
 
-    };
-    
-    void (^animationCompletionBlock)(BOOL finished) = ^(BOOL finished) {
+    } completion:^(BOOL finished) {
         for (ColumnForShredding *column in colsToRemove) {
             for (UIImageView *slice in column.slices)
                 [slice removeFromSuperview];
@@ -245,14 +243,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         
         if (completionBlock)
             completionBlock();
-    };
+    }];
 
-    if (shouldAnimate) {
-        [UIView animateWithDuration:ShredAnimationDuration animations:animationBlock completion:animationCompletionBlock];
-    } else {
-        animationBlock();
-        animationCompletionBlock(YES);
-    }
 }
 
 - (void) cancelShredForVisibleNote
@@ -278,7 +270,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             break;
     }
     
-    [self shredVisibleNoteByPercent:shredByPercent animated:YES completion:^{
+    [self shredVisibleNoteByPercent:shredByPercent completion:^{
         // remove slices from view
         self.currentDeletionCell.layer.mask = nil;
         [self clearAllShreddedPieces];
