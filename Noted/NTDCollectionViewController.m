@@ -32,12 +32,6 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningVerticalDirection
 };
 
-typedef NS_ENUM(NSInteger, NTDDeletedCardPanDirection) {
-    NTDDeletedCardPanNoDirection = -1,
-    NTDDeletedCardPanDirectionRight,
-    NTDDeletedCardPanDirectionLeft
-};
-
 @interface NTDCollectionViewController () <UIGestureRecognizerDelegate, UITextViewDelegate, NTDOptionsViewDelegate>
 @property (nonatomic, strong) UIView *pullToCreateContainerView;
 
@@ -45,7 +39,7 @@ typedef NS_ENUM(NSInteger, NTDDeletedCardPanDirection) {
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
 @property (nonatomic, strong) NSMutableArray *deletedNotesStack;
-@property (nonatomic, assign) NTDDeletedCardPanDirection deletedCardDirection;
+@property (nonatomic, assign) NTDDeletionDirection deletedCardDirection;
 
 @property (nonatomic, assign) CGRect initialFrameForVisibleNoteWhenViewingOptions;
 
@@ -460,7 +454,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (shouldDelete && [self.collectionView numberOfItemsInSection:0] > 1) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughOneFingerDeleteStep];
                 gestureRecognizer.enabled = NO;
-                self.deletedCardDirection = (translation.x > 0) ? NTDDeletedCardPanDirectionRight : NTDDeletedCardPanDirectionLeft;
+                self.deletedCardDirection = (translation.x > 0) ? NTDDeletionDirectionRight : NTDDeletionDirectionLeft;
                 [self.listLayout completeDeletion:swipedCardIndexPath
                                        completion:^{
                                            [self deleteCardAtIndexPath:swipedCardIndexPath];
@@ -532,7 +526,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             // we want a rtl swipe for shredding to begin
             if (!self.hasTwoFingerNoteDeletionBegun) {
-                self.deletionDirection = (velocity > 0) ? NTDPageDeletionDirectionRight : NTDPageDeletionDirectionLeft;
+                self.deletionDirection = (velocity > 0) ? NTDDeletionDirectionRight : NTDDeletionDirectionLeft;
                 self.hasTwoFingerNoteDeletionBegun = YES;
             }
             
@@ -581,7 +575,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         
             if (shouldDelete) {
                 [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTwoFingerDeleteStep];
-                float percentToShredBy = (self.deletionDirection==NTDPageDeletionDirectionRight)?1:0;
+                float percentToShredBy = (self.deletionDirection==NTDDeletionDirectionRight)?1:0;
                 [self shredVisibleNoteByPercent:percentToShredBy animated:YES completion:^{
                     if (shouldDeleteLastNote) {
                         self.pagingLayout.deletedLastNote = YES;
@@ -1126,7 +1120,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)animateSwipedCellToOriginalPosition {
     self.listLayout.swipedCardIndexPath = nil;
-    self.deletedCardDirection = NTDDeletedCardPanNoDirection;
+    self.deletedCardDirection = NTDDeletionDirectionNoDirection;
     [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
     }];
 }
@@ -1201,7 +1195,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     // if in list layout, set the indexpath and the offset
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         self.listLayout.swipedCardIndexPath = indexPath;
-        self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletedCardPanDirectionRight) ? 150 : -150;
+        self.listLayout.swipedCardOffset = (self.deletedCardDirection == NTDDeletionDirectionRight) ? 150 : -150;
     
         [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     

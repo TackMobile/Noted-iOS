@@ -10,10 +10,12 @@
 #import "NTDCollectionViewCell.h"
 #import "NTDOptionsViewController.h"
 #import "NTDDeletedNotePlaceholder.h"
+#import "NTDPagingCollectionViewLayout.h"
 
-typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
-    NTDPageDeletionDirectionLeft = 0,
-    NTDPageDeletionDirectionRight
+typedef NS_ENUM(NSInteger, NTDDeletionDirection) {
+    NTDDeletionDirectionNoDirection = 0,
+    NTDDeletionDirectionLeft,
+    NTDDeletionDirectionRight
 };
 
 @class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
@@ -28,7 +30,7 @@ typedef NS_ENUM(NSInteger, NTDPageDeletionDirection) {
 @property (nonatomic) int deletedNoteHorizSliceCount;
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NTDCollectionViewCell *currentDeletionCell;
-@property (nonatomic) NTDPageDeletionDirection deletionDirection;
+@property (nonatomic) NTDDeletionDirection deletionDirection;
 
 /* Walkthrough */
 //TODO rename removeCard & twoFingerPan
