@@ -11,13 +11,12 @@
 #import "NTDCollectionViewCell.h"
 #import "UIImage+Crop.h"
 #import "UIDeviceHardware.h"
+#import "NTDDeletedNotePlaceholder.h"
 
 @interface ColumnForShredding : NSObject
-
 @property (nonatomic, strong) NSMutableArray *slices;
 @property (nonatomic) float percentLeft;
 @property (nonatomic) BOOL isDeleted;
-
 @end
 
 @implementation ColumnForShredding
@@ -29,19 +28,14 @@
     isDeleted = NO;
     return self;
 }
-
 @end
 
-/*@interface NoteCollectionViewController ()
-
-@property (nonatomic, strong) NSMutableArray *columnsForDeletion;
-@property (nonatomic, strong) NoteCollectionViewCell *currentDeletionCell;
-
-@end*/
 
 @implementation NTDCollectionViewController (Shredding)
 
 static CGFloat zTranslation;
+static CGFloat const DefaultShredAnimationDuration = 0.4, UnshredAnimationDuration = 0.68;
+static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 
 - (void) prepareVisibleNoteForShredding {
     self.columnsForDeletion = [NSMutableArray array];
@@ -254,7 +248,7 @@ static CGFloat zTranslation;
     };
 
     if (shouldAnimate) {
-        [UIView animateWithDuration:.4 animations:animationBlock completion:animationCompletionBlock];
+        [UIView animateWithDuration:ShredAnimationDuration animations:animationBlock completion:animationCompletionBlock];
     } else {
         animationBlock();
         animationCompletionBlock(YES);
@@ -303,6 +297,22 @@ static CGFloat zTranslation;
 - (BOOL)shouldCompleteShredForPercent:(float)percent {
     return ((self.deletionDirection == NTDPageDeletionDirectionRight && percent == 1)
             || (self.deletionDirection == NTDPageDeletionDirectionLeft && percent == 0));
+}
+
+- (void)restoreShreddedNote:(NTDDeletedNotePlaceholder *)restoredNote
+{
+    for (id column in restoredNote.savedColumnsForDeletion)
+        for (UIImageView *slice in [column valueForKey:@"slices"] /*hax*/)
+            [self.collectionView addSubview:slice];
+
+    zTranslation = CGFLOAT_MAX;
+    ShredAnimationDuration = UnshredAnimationDuration;
+    self.deletionDirection = NTDPageDeletionDirectionRight;
+    self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
+    [self cancelShredForVisibleNoteWithCompletionBlock:^{
+        [self.collectionView reloadData];
+        ShredAnimationDuration = DefaultShredAnimationDuration;
+    }];
 }
 
 #pragma mark - utilities

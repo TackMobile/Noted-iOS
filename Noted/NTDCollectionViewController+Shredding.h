@@ -16,5 +16,6 @@
 - (void) shredVisibleNoteByPercent:(float)percent animated:(BOOL)shouldAnimate completion:(void(^)(void))completionBlock;
 - (void) cancelShredForVisibleNote;
 - (void) cancelShredForVisibleNoteWithCompletionBlock:(void(^)(void))completionBlock;
+- (void)restoreShreddedNote:(NTDDeletedNotePlaceholder *)restoredNote;
 
 @end

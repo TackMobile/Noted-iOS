@@ -1216,14 +1216,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else if (restoredNote.savedColumnsForDeletion == nil) {
         [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     } else {
-        for (id column in restoredNote.savedColumnsForDeletion)
-            for (UIImageView *slice in [column valueForKey:@"slices"] /*hax*/)
-                [self.collectionView addSubview:slice];
-        self.deletionDirection = NTDPageDeletionDirectionRight;
-        self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
-        [self cancelShredForVisibleNoteWithCompletionBlock:^{
-            [self.collectionView reloadData];
-        }];
+        [self restoreShreddedNote:restoredNote];
     }
 }
 
