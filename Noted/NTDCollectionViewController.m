@@ -243,6 +243,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                               }
                                       afterDelay:.75];
                           });
+    
+     [self becomeFirstResponder];
 }
 
 -(void)dealloc
@@ -275,6 +277,12 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
             }
         }
     } while (didSwap);
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    /* So we can detect shake events.*/
+    return YES;
 }
 
 #pragma mark - Setup
