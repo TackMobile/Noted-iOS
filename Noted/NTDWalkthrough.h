@@ -41,4 +41,5 @@ FOUNDATION_EXTERN NSString *const NTDDidAdvanceWalkthroughToStepNotification;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;
 - (void)endWalkthrough:(BOOL)wasCompleted;
+- (BOOL)isActive;
 @end

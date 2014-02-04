@@ -43,6 +43,11 @@ static NTDWalkthrough *sharedInstance;
     return didCompleteWalkthrough;
 }
 
+-(BOOL)isActive
+{
+    return self.currentStep != -1;
+}
+
 - (void)promptUserToStartWalkthrough
 {
     self.currentStep = NTDWalkthroughShouldBeginWalkthroughStep;
@@ -99,6 +104,7 @@ static NTDWalkthrough *sharedInstance;
     if (self.currentStep == NTDWalkthroughShouldBeginWalkthroughStep) {
         [Flurry endTimedEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)}];
     }
+    self.currentStep = -1;
 }
 
 @end

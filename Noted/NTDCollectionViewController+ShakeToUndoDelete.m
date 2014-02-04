@@ -9,7 +9,7 @@
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
 #import "NTDNote.h"
 #import "NTDModalView.h"
-
+#import "NTDWalkthrough.h"
 static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowModalKey";
 
 @implementation NTDCollectionViewController (ShakeToUndoDelete)
@@ -31,7 +31,9 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 
 -(void)showShakeToUndoModalIfNecessary
 {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:NTDShakeToUndoDidShowModalKey])
+    BOOL isWalkthroughActive = [[NTDWalkthrough sharedWalkthrough] isActive];
+    BOOL hasShownModal = [[NSUserDefaults standardUserDefaults] boolForKey:NTDShakeToUndoDidShowModalKey];
+    if (!hasShownModal && !isWalkthroughActive)
         [self showShakeToUndoModal];
 }
 
