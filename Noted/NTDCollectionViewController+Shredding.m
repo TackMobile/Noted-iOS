@@ -103,8 +103,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         // decide which rows will be deleted
         for (ColumnForShredding *column in self.columnsForDeletion) {
             if (column.isDeleted) {
-                if ((self.deletionDirection == NTDDeletionDirectionRight && column.percentLeft >= percent)
-                    || (self.deletionDirection == NTDDeletionDirectionLeft && column.percentLeft <= percent)) {
+                if ((self.twoFingerDeletionDirection == NTDDeletionDirectionRight && column.percentLeft >= percent)
+                    || (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft && column.percentLeft <= percent)) {
                     // begin to animate slices back in
                     // animate un-shredding of the column
                     for (UIImageView *slice in column.slices) {
@@ -138,7 +138,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
                 } else {
                     // shift the mask over
                     CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
-                    switch (self.deletionDirection) {
+                    switch (self.twoFingerDeletionDirection) {
                         case NTDDeletionDirectionRight:
                             maskFrame.origin.x = column.percentLeft * noteWidth;
                             break;
@@ -165,7 +165,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
                 useNextPercentForMask = YES;
                 
                 int direction = 1;
-                if (self.deletionDirection == NTDDeletionDirectionLeft)
+                if (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft)
                     direction = -1;
                 
                 // animate shredding of the column
@@ -193,7 +193,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             // remove the mask
             CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             
-            maskFrame.origin.x = (self.deletionDirection == NTDDeletionDirectionRight) ? noteWidth : -noteWidth;
+            maskFrame.origin.x = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? noteWidth : -noteWidth;
             
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -215,7 +215,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         if (columnForUseAsMaskAfterAnimation != nil) {
             CGRect maskFrame = {.origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             
-            if (self.deletionDirection == NTDDeletionDirectionRight) {
+            if (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) {
                 maskFrame.origin.x = columnForUseAsMaskAfterAnimation.percentLeft*noteWidth;
             } else {
                 maskFrame.origin.x = (columnForUseAsMaskAfterAnimation.percentLeft-1)*noteWidth + columnWidth;
@@ -231,7 +231,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             
             CGRect maskFrame = { .origin.y = 0, .size = self.currentDeletionCell.layer.mask.frame.size};
             
-            maskFrame.origin.x = (self.deletionDirection == NTDDeletionDirectionRight) ? noteWidth : -noteWidth;
+            maskFrame.origin.x = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? noteWidth : -noteWidth;
             
 //            self.currentDeletionCell.layer.opacity = 0;
             [CATransaction begin];
@@ -267,7 +267,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         return;
     
     float shredByPercent;
-    switch (self.deletionDirection) {
+    switch (self.twoFingerDeletionDirection) {
         case NTDDeletionDirectionLeft:
             shredByPercent = 1;
             break;
@@ -295,8 +295,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 }
 
 - (BOOL)shouldCompleteShredForPercent:(float)percent {
-    return ((self.deletionDirection == NTDDeletionDirectionRight && percent == 1)
-            || (self.deletionDirection == NTDDeletionDirectionLeft && percent == 0));
+    return ((self.twoFingerDeletionDirection == NTDDeletionDirectionRight && percent == 1)
+            || (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft && percent == 0));
 }
 
 - (void)restoreShreddedNote:(NTDDeletedNotePlaceholder *)restoredNote
@@ -307,7 +307,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 
     zTranslation = CGFLOAT_MAX;
     ShredAnimationDuration = UnshredAnimationDuration;
-    self.deletionDirection = NTDDeletionDirectionRight;
+    self.twoFingerDeletionDirection = NTDDeletionDirectionRight;
     self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
     [self cancelShredForVisibleNoteWithCompletionBlock:^{
         [self.collectionView reloadData];
@@ -324,9 +324,9 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     if (column.isDeleted)
         return NO;
     
-    if (self.deletionDirection == NTDDeletionDirectionRight)
+    if (self.twoFingerDeletionDirection == NTDDeletionDirectionRight)
         return ((column.percentLeft + (columnWidth/noteWidth)) <= percent);
-    else if (self.deletionDirection == NTDDeletionDirectionLeft)
+    else if (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft)
         return (column.percentLeft >= percent);
     else 
         return NO; /* Should never reach here. */    

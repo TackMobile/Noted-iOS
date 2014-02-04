@@ -145,8 +145,8 @@
 		B5D5F23C17188840008C60EE /* NTDCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewCell.h; sourceTree = "<group>"; };
 		B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewCell.m; sourceTree = "<group>"; };
 		B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NTDCollectionViewCell.xib; sourceTree = "<group>"; };
-		B5D5F23F17188840008C60EE /* NTDCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewController.h; sourceTree = "<group>"; };
-		B5D5F24017188840008C60EE /* NTDCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewController.m; sourceTree = "<group>"; };
+		B5D5F23F17188840008C60EE /* NTDCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = NTDCollectionViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		B5D5F24017188840008C60EE /* NTDCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NTDCollectionViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		B5D5F24117188840008C60EE /* NTDListCollectionViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDListCollectionViewLayout.h; sourceTree = "<group>"; };
 		B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
@@ -156,7 +156,7 @@
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
 		CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
-		CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Shredding.m"; sourceTree = "<group>"; };
+		CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NTDCollectionViewController+Shredding.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		CFAF5CB9178DBDAF00187C79 /* NTDOptionsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDOptionsViewController.h; sourceTree = "<group>"; };
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };

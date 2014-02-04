@@ -30,7 +30,7 @@ typedef NS_ENUM(NSInteger, NTDDeletionDirection) {
 @property (nonatomic) int deletedNoteHorizSliceCount;
 @property (nonatomic, strong) NSMutableArray *columnsForDeletion;
 @property (nonatomic, strong) NTDCollectionViewCell *currentDeletionCell;
-@property (nonatomic) NTDDeletionDirection deletionDirection;
+@property (nonatomic) NTDDeletionDirection twoFingerDeletionDirection;
 
 /* Walkthrough */
 //TODO rename removeCard & twoFingerPan
