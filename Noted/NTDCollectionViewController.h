@@ -12,12 +12,6 @@
 #import "NTDDeletedNotePlaceholder.h"
 #import "NTDPagingCollectionViewLayout.h"
 
-typedef NS_ENUM(NSInteger, NTDDeletionDirection) {
-    NTDDeletionDirectionNoDirection = 0,
-    NTDDeletionDirectionLeft,
-    NTDDeletionDirectionRight
-};
-
 @class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
 @protocol NTDPagingCollectionViewLayoutDelegate;
 

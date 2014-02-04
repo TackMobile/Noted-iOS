@@ -5,6 +5,12 @@ static const CGFloat NTDPullToCreateScrollCardOffset = 50.0;
 
 UIColor *ModalBackgroundColor;
 
+typedef NS_ENUM(NSInteger, NTDDeletionDirection) {
+    NTDDeletionDirectionNoDirection = 0,
+    NTDDeletionDirectionLeft,
+    NTDDeletionDirectionRight
+};
+
 // user defaults
 #define HIDE_STATUS_BAR                         @"hideStatusBar"
 

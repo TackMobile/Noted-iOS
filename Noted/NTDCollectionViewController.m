@@ -1196,7 +1196,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     // if in list layout, set the indexpath and the offset
     if (self.collectionView.collectionViewLayout == self.listLayout) {
         self.listLayout.swipedCardIndexPath = indexPath;
-        self.listLayout.swipedCardOffset = (self.oneFingerDeletionDirection == NTDDeletionDirectionRight) ? 150 : -150;
+        self.listLayout.swipedCardOffset = (restoredNote.deletionDirection == NTDDeletionDirectionRight) ? 150 : -150;
     
         [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     
@@ -1221,6 +1221,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDDeletedNotePlaceholder *deletedNote = [[NTDDeletedNotePlaceholder alloc] initWithNote:note];
     deletedNote.indexPath = indexPath;
     deletedNote.savedColumnsForDeletion = self.columnsForDeletion;
+    deletedNote.deletionDirection = (self.collectionView.collectionViewLayout == self.listLayout) ? self.oneFingerDeletionDirection : self.twoFingerDeletionDirection;
     self.columnsForDeletion = nil;
     [self.deletedNotesStack addObject:deletedNote];
     

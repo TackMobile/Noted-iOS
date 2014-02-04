@@ -307,7 +307,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 
     zTranslation = CGFLOAT_MAX;
     ShredAnimationDuration = UnshredAnimationDuration;
-    self.twoFingerDeletionDirection = NTDDeletionDirectionRight;
+    self.twoFingerDeletionDirection = restoredNote.deletionDirection;
     self.columnsForDeletion = restoredNote.savedColumnsForDeletion;
     [self cancelShredForVisibleNoteWithCompletionBlock:^{
         [self.collectionView reloadData];
