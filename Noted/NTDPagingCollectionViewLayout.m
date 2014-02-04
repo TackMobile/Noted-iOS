@@ -268,14 +268,14 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
                 UICollectionViewCell *theCell = [self.collectionView cellForItemAtIndexPath:theIndexPath];
                 NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
                 
-                UICollectionViewLayoutAttributes *theAttr;
-                theAttr = [self layoutAttributesForItemAtIndexPath:indexPath];
+                NTDCollectionViewLayoutAttributes *theAttr;
+                theAttr = (NTDCollectionViewLayoutAttributes *)[self layoutAttributesForItemAtIndexPath:indexPath];
                 
                 /* Without this, after the one card pinch animation completes, the relative time label will snap back. 
-                 * Also, without setitng the cell's opacity back to 1, a new card will not fade back in after thelast card is deleted
+                 * Also, without setting the cell's opacity back to 1, a new card will not fade back in after the last card is deleted
                  */
                 if (self.noteCount == 1) {
-                    theCell.transform = theAttr.transform;
+                    theCell.transform = theAttr.transform2D;
                     theCell.layer.opacity = 1;
                 }
                 
