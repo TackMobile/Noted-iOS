@@ -51,4 +51,14 @@
     return [self performanceClass] == NTDHighPerformanceDevice;
 }
 
++ (NSString *)deviceType
+{
+    NSString *deviceType = @"Mac";
+    NSString *platformString = [UIDeviceHardware platform];
+    if ([platformString characterAtIndex:0] == 'i') {
+        NSRange range = [platformString rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+        if (range.location != NSNotFound) deviceType = [platformString substringToIndex:range.location];
+    }
+    return deviceType;
+}
 @end

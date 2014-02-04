@@ -13,4 +13,5 @@ typedef NS_ENUM(NSInteger, NTDDevicePerformanceClass) {
 @interface UIDeviceHardware : NSObject
 + (NTDDevicePerformanceClass) performanceClass;
 + (BOOL)isHighPerformanceDevice;
++ (NSString *)deviceType;
 @end

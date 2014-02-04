@@ -10,6 +10,8 @@
 #import "NTDNote.h"
 #import "NTDModalView.h"
 #import "NTDWalkthrough.h"
+#import "UIDeviceHardware.h"
+
 static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowModalKey";
 
 @implementation NTDCollectionViewController (ShakeToUndoDelete)
@@ -39,7 +41,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 
 -(void)showShakeToUndoModal
 {
-    NSString *device = (IS_IPHONE) ? @"iPhone" : @"iPad";
+    NSString *device = [UIDeviceHardware deviceType];
     NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
     NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg buttons:@[@"OK"] dismissalHandler:^(NSUInteger index){
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:NTDShakeToUndoDidShowModalKey];
