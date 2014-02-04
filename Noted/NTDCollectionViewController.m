@@ -1212,6 +1212,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         [self animateSwipedCellToOriginalPosition];
+        [self adjustMotionEffects];
     } else if (restoredNote.savedColumnsForDeletion == nil) {
         [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
     } else {
