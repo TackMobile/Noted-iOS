@@ -202,19 +202,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                               self.cardSize.height);
     layoutAttributes.frame = frame;
     layoutAttributes.zIndex = i;
-    layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, i);
-    
-    if (self.swipedCardIndexPath && i == self.swipedCardIndexPath.item) {
-        CGFloat offset = self.swipedCardOffset;
-        CGFloat angle = NTDMaxNoteTiltAngle * (offset/self.collectionView.frame.size.width/2);
-        
-        static CGFloat MIN_ALPHA = .3;
-        
-        layoutAttributes.alpha = fmaxf(MIN_ALPHA, (self.collectionView.frame.size.width/2 - ABS(offset))/(self.collectionView.frame.size.width/2));
-        layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
-        layoutAttributes.center = CGPointMake(layoutAttributes.center.x + offset, layoutAttributes.center.y);
-    }
-    
+    layoutAttributes.transform3D = CATransform3DMakeTranslation(0, 0, layoutAttributes.indexPath.item);
     layoutAttributes.hidden = NO;
     
     return layoutAttributes;
