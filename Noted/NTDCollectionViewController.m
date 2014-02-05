@@ -25,6 +25,7 @@
 #import "NTDWalkthrough.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
+#import "NTDModalView.h"
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -241,7 +242,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
                               }
-                                      afterDelay:.75];
+                                      afterDelay:NTDDefaultInitialModalDelay];
                           });
     
      [self becomeFirstResponder];

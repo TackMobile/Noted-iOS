@@ -36,7 +36,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     BOOL isWalkthroughActive = [[NTDWalkthrough sharedWalkthrough] isActive];
     BOOL hasShownModal = [[NSUserDefaults standardUserDefaults] boolForKey:NTDShakeToUndoDidShowModalKey];
     if (!hasShownModal && !isWalkthroughActive)
-        [self showShakeToUndoModal];
+        [self performSelector:@selector(showShakeToUndoModal) withObject:nil afterDelay:NTDDefaultInitialModalDelay];
 }
 
 -(void)showShakeToUndoModal

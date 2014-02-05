@@ -29,6 +29,8 @@ typedef NS_ENUM(NSInteger, NTDModalBackgroundType)
 typedef void(^NTDWalkthroughPromptHandler)(BOOL userClickedYes);
 typedef void(^NTDModalDismissalHandler)(NSUInteger index);
 
+static const NSTimeInterval NTDDefaultInitialModalDelay = 0.75;
+
 @interface NTDModalView : UIView
 
 @property (nonatomic, strong) NSString *message;
