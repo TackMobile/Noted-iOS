@@ -216,6 +216,8 @@ static NSDictionary *bodyFontSizes;
 {
     self.contentView.backgroundColor = theme.backgroundColor;
     self.fadeView.backgroundColor = theme.backgroundColor;
+    self.relativeTimeLabel.backgroundColor = theme.backgroundColor;
+    self.textView.backgroundColor = theme.backgroundColor;
     self.relativeTimeLabel.textColor = theme.subheaderColor;
     self.textView.textColor = theme.textColor;
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
