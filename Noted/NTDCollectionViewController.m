@@ -1207,7 +1207,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.listLayout.swipedCardIndexPath = indexPath;
         self.listLayout.swipedCardOffset = (restoredNote.deletionDirection == NTDDeletionDirectionRight) ? 150 : -150;
     
-        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+            [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
+        else
+            [self.collectionView reloadData]; /* fixes the 'two cards animate back in' bug. */
     
         CGFloat insertedCellScrollPos = self.listLayout.cardOffset * indexPath.item;
         
