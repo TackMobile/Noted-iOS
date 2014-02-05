@@ -9,7 +9,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "NTDCollectionViewController+Shredding.h"
 #import "NTDCollectionViewCell.h"
-#import "UIImage+Crop.h"
 #import "UIDeviceHardware.h"
 #import "NTDDeletedNotePlaceholder.h"
 
@@ -59,11 +58,18 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             
             CGRect cropRect = CGRectOffset(sliceRect, i*sliceSize.width, j*sliceSize.height);
             
-            UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:[noteImage crop:cropRect]];
-            
+            UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:noteImage];
             sliceImageView.frame = cropRect;
             sliceImageView.layer.shadowOffset = CGSizeZero;
             sliceImageView.layer.shouldRasterize = YES;
+            
+            CGRect cardRect = self.currentDeletionCell.bounds;
+            CGRect contentFrame = CGRectMake(cropRect.origin.x / cardRect.size.width,
+                                             cropRect.origin.y / cardRect.size.height,
+                                             cropRect.size.width / cardRect.size.width,
+                                             cropRect.size.height / cardRect.size.height);
+            sliceImageView.layer.contentsRect = contentFrame;
+            sliceImageView.layer.contentsGravity = kCAGravityCenter;
             
             CGPathRef shadowPathRef = CGPathCreateWithRect(CGRectOffset(sliceImageView.bounds, 0, 0), nil);
             sliceImageView.layer.shadowPath = shadowPathRef;
