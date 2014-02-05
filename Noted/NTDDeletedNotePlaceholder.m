@@ -20,7 +20,7 @@
 @implementation NTDDeletedNotePlaceholder
 
 - (NTDDeletedNotePlaceholder *)initWithNote:(NTDNote *)note {
-    if (self == [super init]) {
+    if (self = [super init]) {
         self.filename = note.filename;
         self.headline = note.headline;
         self.bodyText = note.text;

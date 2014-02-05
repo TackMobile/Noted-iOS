@@ -146,7 +146,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     
     NSMutableArray *attributesArrayMutable = [NSMutableArray arrayWithArray:attributesArray];
     if ([self shouldRecalcuateLayoutAttributes]) {
-        for (int i = 0, n = [attributesArray count]; i < n; i++) {
+        for (NSInteger i = 0, n = [attributesArray count]; i < n; i++) {
             UICollectionViewLayoutAttributes *layoutAttributes = attributesArray[i];
             attributesArrayMutable[i] = [self layoutAttributesForItemAtIndexPath:layoutAttributes.indexPath];
         }

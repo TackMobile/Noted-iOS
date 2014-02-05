@@ -124,7 +124,7 @@
                                             toDate:todayDate
                                            options:0];
         
-    int days = [components day];
+    NSInteger days = [components day];
     
     if (days < 2) {
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];

@@ -100,7 +100,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     }
 }
 
--(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(int)index title:(NSString *)title {
+-(void)drawPromptOptionWithAction:(SEL)action ofWidth:(float)percent index:(NSInteger)index title:(NSString *)title {
     // ensure the background is off-white for the dividers
     //    self.backgroundColor = [UIColor colorWithWhite:.8 alpha:1];
     CGFloat buttonMargin = 1/[UIScreen mainScreen].scale;

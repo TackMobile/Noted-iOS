@@ -64,7 +64,7 @@ static NSUInteger filenameCounter = 1;
     NSURL *url;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", filenameCounter];
+        NSString *basename = [NSString stringWithFormat:@"Note %d", (int)filenameCounter];
         NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
         url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
         filenameCounter++;
@@ -80,7 +80,7 @@ static NSUInteger filenameCounter = 1;
     NSURL *url;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", index];
+        NSString *basename = [NSString stringWithFormat:@"Note %d", (uint)index];
         NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
         url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
         index++;

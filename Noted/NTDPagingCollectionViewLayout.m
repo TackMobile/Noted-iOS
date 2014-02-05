@@ -120,7 +120,7 @@ static const int NumberOfCardsToFanOut = 6;
     return self.collectionView.frame.size;
 }
 
--(void)setActiveCardIndex:(int)newActiveCardIndex
+-(void)setActiveCardIndex:(NSInteger)newActiveCardIndex
 {
     // we need to recalculate noteCount
     activeCardIndex = newActiveCardIndex;

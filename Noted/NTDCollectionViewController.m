@@ -59,7 +59,7 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
 NSString *const NTDCollectionViewPullToCreateCardReuseIdentifier = @"NTDCollectionViewPullToCreateCardReuseIdentifier";
 
-static const CGFloat SettingsTransitionDuration = 0.5;
+//static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 1000.0;
 static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
@@ -549,7 +549,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         {
             BOOL shouldDelete = NO;
             BOOL doNotRefresh = NO;
-            int newIndex = self.visibleCardIndexPath.row;
+            NSInteger newIndex = self.visibleCardIndexPath.item;
             
             if (self.hasTwoFingerNoteDeletionBegun) {
                 if ( fabsf(translation.x) >= self.collectionView.frame.size.width/2)
@@ -1013,7 +1013,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         }
     };
     void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
-        self.pagingLayout.activeCardIndex = indexPath.row;
+        self.pagingLayout.activeCardIndex = indexPath.item;
         [self updateLayout:self.pagingLayout
                   animated:NO];
         self.transitioningToPagingLayout = NO;
@@ -1266,7 +1266,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NSParameterAssert(indexPath);
     NSAssert(indexPath.item < self.notes.count, @"!(%d < %d)", indexPath.item, self.notes.count);
     if (indexPath.item >= self.notes.count)
-        [NSException raise:NSInvalidArgumentException format:@"!(%d < %d)", indexPath.item, self.notes.count];
+        [NSException raise:NSInvalidArgumentException format:@"!(%d < %d)", (int)indexPath.item, (int)self.notes.count];
     return self.notes[indexPath.item];
 }
 
