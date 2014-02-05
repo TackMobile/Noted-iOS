@@ -100,21 +100,21 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         
         /* Enable scrollsToTop functionality. */
         __weak UICollectionView *collectionView = self.collectionView;
-        [self.pagingLayout addObserverForKeyPath:@"activeCardIndex"
-                                         options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
-                                            task:^(id obj, NSDictionary *change) {
-                                                NSInteger oldIndex = [change[NSKeyValueChangeOldKey] integerValue];
-                                                NSInteger newIndex = [change[NSKeyValueChangeNewKey] integerValue];
-                                                
-                                                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForItem:oldIndex inSection:0];
-                                                NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
-                                                
-                                                NTDCollectionViewCell *oldCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:oldIndexPath];
-                                                NTDCollectionViewCell *newCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:newIndexPath];
-                                                
-                                                oldCell.textView.scrollsToTop = NO;
-                                                newCell.textView.scrollsToTop = YES;
-                                            }];
+        [self.pagingLayout bk_addObserverForKeyPath:@"activeCardIndex"
+                                            options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+                                               task:^(id obj, NSDictionary *change) {
+                                                   NSInteger oldIndex = [change[NSKeyValueChangeOldKey] integerValue];
+                                                   NSInteger newIndex = [change[NSKeyValueChangeNewKey] integerValue];
+
+                                                   NSIndexPath *oldIndexPath = [NSIndexPath indexPathForItem:oldIndex inSection:0];
+                                                   NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
+
+                                                   NTDCollectionViewCell *oldCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:oldIndexPath];
+                                                   NTDCollectionViewCell *newCell = (NTDCollectionViewCell *)[collectionView cellForItemAtIndexPath:newIndexPath];
+
+                                                   oldCell.textView.scrollsToTop = NO;
+                                                   newCell.textView.scrollsToTop = YES;
+                                               }];
         
         /* Notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -237,7 +237,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                           dispatch_get_main_queue(),
                           ^{
                               [launchImageView removeFromSuperview];
-                              [self performBlock:^(id sender) {
+                              [self bk_performBlock:^(id sender) {
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
                               }
@@ -1355,7 +1355,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (NSArray *)visibleCells
 {
-    return [self.collectionView.subviews select:^BOOL(UIView *view) {
+    return [self.collectionView.subviews bk_select:^BOOL(UIView *view) {
         return [view isKindOfClass:[NTDCollectionViewCell class]];
     }];
 }

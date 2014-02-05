@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <BlocksKit/NSObject+BlockObservation.h>
+#import <BlocksKit/NSObject+BKBlockObservation.h>
 #import <FlurrySDK/Flurry.h>
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "NTDWalkthroughGestureIndicatorView.h"
@@ -38,12 +38,12 @@
 {
     NSString *previousToken = [self.tokenRecognizerTable objectForKey:recognizer];
     if (previousToken)
-        [recognizer removeObserversWithIdentifier:previousToken];
+        [recognizer bk_removeObserversWithIdentifier:previousToken];
     
     __block BOOL isSetting = NO;
     recognizer.enabled = enabled;
     if (shouldBeADick) {
-        NSString *token = [recognizer addObserverForKeyPath:@"enabled" task:^(id sender) {
+        NSString *token = [recognizer bk_addObserverForKeyPath:@"enabled" task:^(id sender) {
             if (!isSetting) {
                 isSetting = YES;
                 /* This call will trigger our block again, which is why we use the isSetting variable.
@@ -157,7 +157,7 @@
 - (void)didEndWalkthrough:(NSNotification *)notification
 {
     for (UIGestureRecognizer *recognizer in self.tokenRecognizerTable.keyEnumerator) {
-        [recognizer removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
+        [recognizer bk_removeObserversWithIdentifier:[self.tokenRecognizerTable objectForKey:recognizer]];
     }
     self.tokenRecognizerTable = nil;
     BOOL wasCompleted = [notification.userInfo[NTDDidCompleteWalkthroughUserInfoKey] boolValue];

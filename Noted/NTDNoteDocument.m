@@ -205,7 +205,7 @@ BOOL safe_rename(const char *old, const char *new)
     
     NSMutableArray *_files = [files mutableCopy];
     for (NSURL *fileURL in files) {
-        BOOL didMatch = [notes any:^BOOL(NTDNote *note) {
+        BOOL didMatch = [notes bk_any:^BOOL(NTDNote *note) {
             NSURL *noteURL = [note.fileURL URLByStandardizingPath];
             NSURL *_fileURL = [fileURL URLByStandardizingPath];
             return [noteURL isEqual:_fileURL];

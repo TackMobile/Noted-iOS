@@ -201,7 +201,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // set version number
     /* I have to do this the weird way because the main view has multiple child views with the same tag
      * and the simple way didn't work. */
-    UIView *versionContainerView = [self.options.subviews match:^BOOL(UIView *view) {
+    UIView *versionContainerView = [self.options.subviews bk_match:^BOOL(UIView *view) {
         return view.tag == NTDOptionsVersionTag;
     }];
 //    UILabel *versionLabel = [[self.options viewWithTag:NTDOptionsVersionTag] subviews][0]; /* "simple" way */
