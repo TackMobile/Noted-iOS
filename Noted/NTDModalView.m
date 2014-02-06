@@ -273,12 +273,14 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 }
 
 
+static BOOL isShowing;
 -(void)show
 {
     UIView *view = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
     UIView *touchBlockingView = [[UIView alloc] initWithFrame:view.frame];
     [touchBlockingView addSubview:self];
     [view addSubview:touchBlockingView];
+    isShowing = YES;
 }
 
 -(void)dismiss
@@ -291,8 +293,12 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
                          self.transform = CGAffineTransformMakeScale(1.3, 1.3);
                      } completion:^(BOOL finished) {
                          [self.superview removeFromSuperview];
+                         isShowing = NO;
                      }];
 }
 
-
++ (BOOL)isShowing
+{
+    return isShowing;
+}
 @end

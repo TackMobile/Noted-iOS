@@ -47,4 +47,5 @@ static const NSTimeInterval NTDDefaultInitialModalDelay = 0.75;
 
 -(void)show;
 -(void)dismiss;
++ (BOOL)isShowing;
 @end
