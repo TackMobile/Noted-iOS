@@ -180,7 +180,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
             break;
             
         case NTDWalkthroughModalPositionBottom:
-            modalFrame.origin.y = screenFrame.size.height - screenFrame.origin.y - NTDWalkthroughModalEdgeMargin - modalFrame.size.height;
+            modalFrame.origin.y = screenFrame.size.height - screenFrame.origin.y - NTDWalkthroughModalEdgeMargin - modalFrame.size.height - 20;
             break;
             
         default:
