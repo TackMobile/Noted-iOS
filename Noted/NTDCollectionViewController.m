@@ -1477,9 +1477,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         if (self.visibleCell.textView.contentOffset.y <= 0)
             return YES;
     }
-
-    if ([gestureRecognizer isEqual:self.panCardGestureRecognizer] && [otherGestureRecognizer isEqual:self.twoFingerPanGestureRecognizer])
-        return YES;
     
     if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
         return YES;
