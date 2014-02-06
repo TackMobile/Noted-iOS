@@ -74,7 +74,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.listLayout = initialLayout;
         self.pagingLayout = [[NTDPagingCollectionViewLayout alloc] init];
         self.cardPanningDirection = NTDCardPanningNoDirection;
-        self.deletedNotesStack = [NSMutableArray new];
         
         // decide on the slice count
         if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
@@ -1294,6 +1293,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     dispatch_group_enter(self.note_refresh_group);
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         self.notes = [notes mutableCopy];
+        self.deletedNotesStack = [NSMutableArray array];
         if (self.notes.count == 0) {
             [self addDefaultNotesIfNecessary];
         } else if (self.notes.count == 1) {
