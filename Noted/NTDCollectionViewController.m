@@ -591,6 +591,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         self.pagingLayout.deletedLastNote = YES;
                         
                         NTDNote *deletedNote = [self.notes objectAtIndex:0];
+                        [self.deletedNotesStack addObject:[[NTDDeletedNotePlaceholder alloc] initWithNote:deletedNote]];
+
                         [deletedNote setText:@""];
                         [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
                         // forcing the controller to reload the notes, thus updating the lastModifiedDate of the deletedNote (which isnt actually being deleted)
@@ -602,6 +604,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     } else {
                         [self.collectionView performBatchUpdates:^{
                             [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
+                            if (shouldDeleteLastNote) {
+                                [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+                                    [self.notes insertObject:note atIndex:0];
+                                    self.pagingLayout.deletedLastNote = YES;
+                                    self.pagingLayout.activeCardIndex = 0;
+                                    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+                                    [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
+                                }];
+                            }
                         } completion:^(BOOL finished) {
                             [self.collectionView reloadData];
                             [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
