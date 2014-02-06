@@ -589,13 +589,21 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     if (shouldDeleteLastNote) {
                         self.pagingLayout.deletedLastNote = YES;
                         
+                        // TODO Refactor this so it actually deletes the note, instead of replacing the text. This will fail when we add Dropbox.
                         NTDNote *deletedNote = [self.notes objectAtIndex:0];
                         [self.deletedNotesStack addObject:[[NTDDeletedNotePlaceholder alloc] initWithNote:deletedNote]];
-
                         [deletedNote setText:@""];
                         [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        
                         // forcing the controller to reload the notes, thus updating the lastModifiedDate of the deletedNote (which isnt actually being deleted)
+                        NSMutableArray *stack = [self.deletedNotesStack mutableCopy];
                         [self reloadNotes];
+                        dispatch_group_notify(self.note_refresh_group,
+                                              dispatch_get_main_queue(),
+                                              ^{
+                                                  self.deletedNotesStack = stack;
+                                              });
+
                         
                         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
                         [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
