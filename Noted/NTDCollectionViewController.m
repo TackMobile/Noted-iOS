@@ -26,6 +26,7 @@
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
 #import "NTDModalView.h"
+#import "UIViewController+NTDToast.h"
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -1266,7 +1267,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void) restoreDeletedNote {
     // moved this method here because it involves inserting into the notes array
-    if (self.deletedNotesStack.count > 0) {
+    if (self.deletedNotesStack.count == 0) {
+        [self showToastWithMessage:@"Nothing to undo!"];
+    } else {
         NTDDeletedNotePlaceholder *restoredNote = [self.deletedNotesStack lastObject];
         [NTDNote restoreNote:restoredNote completionHandler:^(NTDNote *note) {
             NSUInteger newIndex = MIN(restoredNote.indexPath.item, self.notes.count);
