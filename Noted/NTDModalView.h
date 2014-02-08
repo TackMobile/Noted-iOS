@@ -34,6 +34,7 @@ static const NSTimeInterval NTDDefaultInitialModalDelay = 0.75;
 @interface NTDModalView : UIView
 
 @property (nonatomic, strong) NSString *message;
+@property (nonatomic, strong) UIImage *image;
 @property (nonatomic, assign) NTDWalkthroughModalPosition position;
 @property (nonatomic, assign) NTDWalkthroughModalType type;
 @property (nonatomic, copy) NTDWalkthroughPromptHandler promptHandler;
@@ -43,7 +44,7 @@ static const NSTimeInterval NTDDefaultInitialModalDelay = 0.75;
 @property CGRect superviewFrame;
 
 -(instancetype)initwithMessage:(NSString *)message handler:(NTDWalkthroughPromptHandler)handler;
--(instancetype)initwithMessage:(NSString *)message buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler;
+-(instancetype)initwithMessage:(NSString *)message image:(UIImage *)image buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler;
 
 -(void)show;
 -(void)dismiss;

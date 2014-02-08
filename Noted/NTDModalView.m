@@ -31,7 +31,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     return self;
 }
 
--(instancetype)initwithMessage:(NSString *)message buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler
+-(instancetype)initwithMessage:(NSString *)message image:(UIImage *)image buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler
 {
     if (self == [super init]) {
         self.message = message;
@@ -40,12 +40,15 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         if (!handler) handler = ^(NSUInteger i) {};
         self.dismissalHandler = handler;
         self.buttonTitles = buttonTitles;
+        self.image = image;
     }
     return self;
 }
 
 -(void)willMoveToSuperview:(UIView *)newSuperview
 {
+    if (newSuperview == nil) return;
+    
     self.superviewFrame = newSuperview.frame;
     
     switch (self.type) {
@@ -156,6 +159,10 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         .size.height = modalSize.height + (2 * NTDWalkthroughModalPadding)
     };
     
+    // account for height of image
+    if (self.image)
+        modalFrame.size.height += self.image.size.height + NTDWalkthroughModalPadding;
+
     CGRect modalBackgroundFrame = modalFrame;
     modalBackgroundFrame.origin = CGPointZero;
     
@@ -215,6 +222,13 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     [self.modalBackground addSubview:modalLabel];
     [self addSubview:self.modalBackground];
     
+    // add image
+    if (self.image) {
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:self.image];
+        imageView.$x = (self.modalBackground.$width - imageView.$width) / 2;
+        imageView.$y = (self.modalBackground.$height + CGRectGetMaxY(modalLabel.frame) - imageView.$height) / 2;
+        [self.modalBackground addSubview:imageView];
+    }
 }
 
 -(UIFont *)modalFont {
