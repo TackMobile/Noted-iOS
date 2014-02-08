@@ -54,6 +54,12 @@
 #define COCOAPODS_VERSION_MINOR_FlurrySDK 3
 #define COCOAPODS_VERSION_PATCH_FlurrySDK 1
 
+// UIImage+animatedGif
+#define COCOAPODS_POD_AVAILABLE_UIImage_animatedGif
+#define COCOAPODS_VERSION_MAJOR_UIImage_animatedGif 0
+#define COCOAPODS_VERSION_MINOR_UIImage_animatedGif 1
+#define COCOAPODS_VERSION_PATCH_UIImage_animatedGif 0
+
 // UIView+FrameAdditions
 #define COCOAPODS_POD_AVAILABLE_UIView_FrameAdditions
 #define COCOAPODS_VERSION_MAJOR_UIView_FrameAdditions 0

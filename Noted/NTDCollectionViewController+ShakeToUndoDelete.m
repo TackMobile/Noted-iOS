@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Tack Mobile. All rights reserved.
 //
 
+//#import <UIImage+animatedGif/UIImage+animatedGIF.h>
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
 #import "NTDNote.h"
 #import "NTDModalView.h"
@@ -45,7 +46,9 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     if ([NTDModalView isShowing]) return; /* The modal was triggered again before the timer fired this selector. Just ignore. */
     NSString *device = [UIDeviceHardware deviceType];
     NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
-    NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg buttons:@[@"OK"] dismissalHandler:^(NSUInteger index){
+    UIImage *image;
+//    image = [UIImage animatedImageWithAnimatedGIFURL:[[NSBundle mainBundle] URLForResource:@"shakeToUndo" withExtension:@"gif"]];
+    NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg image:image buttons:@[@"OK"] dismissalHandler:^(NSUInteger index){
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:NTDShakeToUndoDidShowModalKey];
     }];
     [modalView show];
