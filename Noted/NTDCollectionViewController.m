@@ -471,7 +471,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                            shouldDelete = NO;
                                            [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughOneFingerDeleteStep];
                                            if (self.notes.count == 1)
-                                               [self updateLayout:self.pagingLayout animated:NO];
+                                               [self didSelectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
                                            gestureRecognizer.enabled = YES;
                                        }];
             } else {
