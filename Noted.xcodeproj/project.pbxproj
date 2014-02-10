@@ -30,6 +30,7 @@
 		3F1FF29617A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF29517A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m */; };
 		3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF29817A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m */; };
 		3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
+		3F4E224418A98F0700EEC7E8 /* Shake-Animation.mov in Resources */ = {isa = PBXBuildFile; fileRef = 3F4E224318A98F0700EEC7E8 /* Shake-Animation.mov */; };
 		3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */; };
 		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */; };
@@ -104,6 +105,7 @@
 		3F1FF29817A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+Walkthrough.m"; sourceTree = "<group>"; };
 		3F47D96F17A2F6F000DBFB0E /* NTDWalkthroughModalView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDWalkthroughModalView.h; sourceTree = "<group>"; };
 		3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDWalkthroughModalView.m; sourceTree = "<group>"; };
+		3F4E224318A98F0700EEC7E8 /* Shake-Animation.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = "Shake-Animation.mov"; sourceTree = "<group>"; };
 		3F59DC1E179DCCEB009FF719 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				3F4E224318A98F0700EEC7E8 /* Shake-Animation.mov */,
 				3FC0ADA818A5B5020015A50F /* shakeToUndo@2x.gif */,
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29E326C3157556920013399B /* Default.png */,
@@ -504,6 +507,7 @@
 				3FC0ADA918A5B5020015A50F /* shakeToUndo@2x.gif in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
+				3F4E224418A98F0700EEC7E8 /* Shake-Animation.mov in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
 				3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,

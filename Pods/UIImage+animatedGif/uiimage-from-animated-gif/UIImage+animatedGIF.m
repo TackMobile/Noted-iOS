@@ -67,7 +67,7 @@ static NSArray *frameArray(size_t const count, CGImageRef const images[count], i
     size_t const frameCount = totalDurationCentiseconds / gcd;
     UIImage *frames[frameCount];
     for (size_t i = 0, f = 0; i < count; ++i) {
-        UIImage *const frame = [UIImage imageWithCGImage:images[i]];
+        UIImage *const frame = [UIImage imageWithCGImage:images[i] scale:2 orientation:UIImageOrientationUp];
         for (size_t j = delayCentiseconds[i] / gcd; j > 0; --j) {
             frames[f++] = frame;
         }
@@ -88,7 +88,7 @@ static UIImage *animatedImageWithAnimatedGIFImageSource(CGImageSourceRef const s
     createImagesAndDelays(source, count, images, delayCentiseconds);
     int const totalDurationCentiseconds = sum(count, delayCentiseconds);
     NSArray *const frames = frameArray(count, images, delayCentiseconds, totalDurationCentiseconds);
-    UIImage *const animation = [UIImage animatedImageWithImages:frames duration:(NSTimeInterval)totalDurationCentiseconds / 100.0];
+    UIImage *const animation = [UIImage animatedImageWithImages:frames duration:4.2];
     releaseImages(count, images);
     return animation;
 }
