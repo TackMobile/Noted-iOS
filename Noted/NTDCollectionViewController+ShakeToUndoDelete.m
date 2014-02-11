@@ -48,7 +48,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     NSString *device = [UIDeviceHardware deviceType];
     NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
 
-    AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"shake_06" withExtension:@"mov"]];
+    AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"ShakeToUndoAnimation" withExtension:@"mov"]];
     player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
     playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 220, .size.height = 190};

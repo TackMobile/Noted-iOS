@@ -211,7 +211,9 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         .size.width = modalBounds.size.width - (2*NTDWalkthroughModalPadding),
         .size.height = modalSize.height
     };
-    
+    if (self.contentLayer)
+        modalLabelFrame.origin.y += self.contentLayer.bounds.size.height;
+
     self.frame = modalFrame;
     
     // add the background for the label
@@ -238,7 +240,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         CGPoint origin = CGPointZero;
         CGSize size = self.contentLayer.bounds.size;
         origin.x = (self.modalBackground.$width - size.width) / 2;
-        origin.y = (self.modalBackground.$height + CGRectGetMaxY(modalLabel.frame) - size.height) / 2;
+        origin.y = NTDWalkthroughModalPadding;
         self.contentLayer.frame = (CGRect){.origin = origin, .size = size};
         [self.modalBackground.layer addSublayer:self.contentLayer];
     }
