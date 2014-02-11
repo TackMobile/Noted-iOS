@@ -30,7 +30,7 @@ static NSDictionary *messages;
 
 - (id)initWithStep:(NTDWalkthroughStep)step
 {
-    if (self = [super initWithFrame:CGRectZero]) {
+    if (self = [super init]) {
         [self configureForStep:step];
         [self setPromptHandler:^(BOOL userClickedYes){}];
     }
@@ -39,7 +39,7 @@ static NSDictionary *messages;
 
 - (id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler
 {
-    if (self = [super initWithFrame:CGRectZero]) {
+    if (self = [super init]) {
         [self configureForStep:step];
         if (handler) self.promptHandler = handler;
     }

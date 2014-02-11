@@ -6,7 +6,8 @@
 //  Copyright (c) 2014 Tack Mobile. All rights reserved.
 //
 
-#import <UIImage+animatedGif/UIImage+animatedGIF.h>
+#import <AVFoundation/AVFoundation.h>
+#import <CoreMedia/CoreMedia.h>
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
 #import "NTDNote.h"
 #import "NTDModalView.h"
@@ -46,11 +47,29 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     if ([NTDModalView isShowing]) return; /* The modal was triggered again before the timer fired this selector. Just ignore. */
     NSString *device = [UIDeviceHardware deviceType];
     NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
-    UIImage *image;
-    image = [UIImage animatedImageWithAnimatedGIFURL:[[NSBundle mainBundle] URLForResource:@"shakeToUndo" withExtension:@"gif"]];
-    NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg image:image buttons:@[@"OK"] dismissalHandler:^(NSUInteger index){
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:NTDShakeToUndoDidShowModalKey];
+
+    AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"shake_06" withExtension:@"mov"]];
+    player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 220, .size.height = 190};
+    [player play];
+    
+    id observer;
+    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                              layer:playerLayer
+                                                    backgroundColor:[UIColor blackColor]
+                                                            buttons:@[@"OK"]
+                                                   dismissalHandler:^(NSUInteger index) {
+                                                       [NSUserDefaults.standardUserDefaults setBool:YES forKey:NTDShakeToUndoDidShowModalKey];
+                                                       [NSNotificationCenter.defaultCenter removeObserver:observer];
     }];
+    observer = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
+                                                                 object:player.currentItem
+                                                                  queue:[NSOperationQueue mainQueue]
+                                                             usingBlock:^(NSNotification *note) {
+                                                                  AVPlayerItem *p = [note object];
+                                                                  [p seekToTime:kCMTimeZero];
+                                                              }];
     [modalView show];
 }
 @end

@@ -16,31 +16,42 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 @interface NTDModalView ()
 @property (nonatomic, strong) NSArray *buttonTitles;
 @property (nonatomic, copy) NTDModalDismissalHandler dismissalHandler;
+@property (nonatomic, strong) UIColor *backgroundColor;
 @end
 
 @implementation NTDModalView
 
--(instancetype)initwithMessage:(NSString *)message handler:(NTDWalkthroughPromptHandler)handler;
+-(id)init
 {
-    if (self == [super init]) {
-        self.message = message;
-        self.position = NTDWalkthroughModalPositionCenter;
-        self.type = NTDWalkthroughModalTypeBoolean;
-        self.promptHandler = handler;
+    if (self = [super init]) {
+        self.backgroundColor = ModalBackgroundColor;
     }
     return self;
 }
 
--(instancetype)initwithMessage:(NSString *)message image:(UIImage *)image buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler
+-(instancetype)initWithMessage:(NSString *)message handler:(NTDWalkthroughPromptHandler)handler
 {
-    if (self == [super init]) {
+    if (self = [super init]) {
+        self.message = message;
+        self.position = NTDWalkthroughModalPositionCenter;
+        self.type = NTDWalkthroughModalTypeBoolean;
+        self.promptHandler = handler;
+        self.backgroundColor = ModalBackgroundColor;
+    }
+    return self;
+}
+
+-(instancetype)initWithMessage:(NSString *)message layer:(CALayer *)layer backgroundColor:(UIColor *)backgroundColor buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler
+{
+    if (self = [super init]) {
         self.message = message;
         self.position = NTDWalkthroughModalPositionCenter;
         self.type = NTDWalkthroughModalTypeMultipleButtons;
         if (!handler) handler = ^(NSUInteger i) {};
         self.dismissalHandler = handler;
         self.buttonTitles = buttonTitles;
-        self.image = image;
+        self.contentLayer = layer;
+        self.backgroundColor = backgroundColor;
     }
     return self;
 }
@@ -160,8 +171,8 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     };
     
     // account for height of image
-    if (self.image)
-        modalFrame.size.height += self.image.size.height + NTDWalkthroughModalPadding;
+    if (self.contentLayer)
+        modalFrame.size.height += self.contentLayer.bounds.size.height + NTDWalkthroughModalPadding;
 
     CGRect modalBackgroundFrame = modalFrame;
     modalBackgroundFrame.origin = CGPointZero;
@@ -206,7 +217,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     // add the background for the label
     [self.modalBackground removeFromSuperview];
     self.modalBackground = [UIView new];
-    self.modalBackground.backgroundColor = ModalBackgroundColor;
+    self.modalBackground.backgroundColor = self.backgroundColor;
     self.modalBackground.frame = modalBackgroundFrame;
     
     // add the text
@@ -223,11 +234,13 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     [self addSubview:self.modalBackground];
     
     // add image
-    if (self.image) {
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:self.image];
-        imageView.$x = (self.modalBackground.$width - imageView.$width) / 2;
-        imageView.$y = (self.modalBackground.$height + CGRectGetMaxY(modalLabel.frame) - imageView.$height) / 2;
-        [self.modalBackground addSubview:imageView];
+    if (self.contentLayer) {
+        CGPoint origin = CGPointZero;
+        CGSize size = self.contentLayer.bounds.size;
+        origin.x = (self.modalBackground.$width - size.width) / 2;
+        origin.y = (self.modalBackground.$height + CGRectGetMaxY(modalLabel.frame) - size.height) / 2;
+        self.contentLayer.frame = (CGRect){.origin = origin, .size = size};
+        [self.modalBackground.layer addSublayer:self.contentLayer];
     }
 }
 
@@ -257,7 +270,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     button.backgroundColor = [UIColor colorWithWhite:0 alpha:.85];
 }
 - (void)buttonTouchEnded:(UIButton *)button {
-    button.backgroundColor = ModalBackgroundColor;
+    button.backgroundColor = self.backgroundColor;
 }
 
 - (void)yesButtonTapped:(UIButton *)button {
