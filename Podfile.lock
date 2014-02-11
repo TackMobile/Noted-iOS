@@ -15,13 +15,11 @@ PODS:
   - BlocksKit/UIKit (2.1.0):
     - BlocksKit/DynamicDelegate
   - FlurrySDK (4.3.1)
-  - UIImage+animatedGif (0.1.0)
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
   - BlocksKit (from `https://github.com/pandamonia/BlocksKit.git`, branch `next`)
   - FlurrySDK (~> 4.3)
-  - UIImage+animatedGif (~> 0.1.0)
   - UIView+FrameAdditions (= 0.0.1)
 
 EXTERNAL SOURCES:
@@ -32,7 +30,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   BlocksKit: 20086a023551c742d2278771e47c36e05f17b662
   FlurrySDK: 0e8c271b4a9785e390314d45cb27cbc891a94af4
-  UIImage+animatedGif: 4b46d38f434137f8b130b79f56904443af46d986
   UIView+FrameAdditions: 29a4d424803f1c674671792c874f7951d6a64f97
 
 COCOAPODS: 0.29.0
