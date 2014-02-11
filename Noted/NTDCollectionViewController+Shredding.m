@@ -75,6 +75,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             sliceImageView.layer.shadowPath = shadowPathRef;
             CGPathRelease(shadowPathRef);
             sliceImageView.layer.shadowOpacity = .5;
+            sliceImageView.layer.shadowRadius = 1.8;
             
             sliceImageView.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
             
@@ -111,23 +112,17 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             if (column.isDeleted) {
                 if ((self.twoFingerDeletionDirection == NTDDeletionDirectionRight && column.percentLeft >= percent)
                     || (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft && column.percentLeft <= percent)) {
-                    // begin to animate slices back in
                     // animate un-shredding of the column
                     for (UIImageView *slice in column.slices) {
                         slice.alpha = 1;
-                        
-                        // set the transform to normal
-                        //                        slice.layer.transform = CATransform3DIdentity;
                         slice.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
-                        slice.layer.shadowRadius = 3;
-                        
-                        // causes performance issues
-                        /*mask the shadow so it doesn't overlap other slices
-                         CAShapeLayer *sliceMask = [CAShapeLayer layer];
-                         CGRect sliceMaskRect = (CGRect){{-10, 0},{slice.bounds.size.width+10, slice.bounds.size.height}};
-                         sliceMask.path = CGPathCreateWithRect(sliceMaskRect, nil);
-                         slice.layer.mask = sliceMask;*/
-                        
+
+                        /* this doesn't actually animate and I'm not sure why. The shadow opacity simply snaps into place. */
+                        CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+                        shadowAnimation.toValue = @(0);
+                        shadowAnimation.duration = ShredAnimationDuration;
+                        [slice.layer addAnimation:shadowAnimation forKey:@"shadowAnimation"];
+                        [slice.layer setValue:shadowAnimation.toValue forKeyPath:shadowAnimation.keyPath];
                     }
                     
                     column.isDeleted = NO;
@@ -176,19 +171,10 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
                 
                 // animate shredding of the column
                 for (UIImageView *slice in column.slices) {
-                    // remove any mask and set up properties
-                    CGPathRef shadowPathRef = CGPathCreateWithRect(CGRectOffset(slice.bounds, 0, 0), nil);
-                    slice.layer.shadowPath = shadowPathRef;
-                    CGPathRelease(shadowPathRef);
-                    slice.layer.shadowRadius = (float)rand()/RAND_MAX * 3 + 3;
-                    slice.alpha = 0;
-                    
                     CATransform3D randomRotation = CATransform3DRotate(slice.layer.transform, (float)rand()/RAND_MAX*M_PI_2 - M_PI_4, 0, 0, 1);
                     CATransform3D randomTranslation = CATransform3DTranslate(randomRotation, direction * (float)rand()/RAND_MAX * -100, (float)rand()/RAND_MAX * 100 - 50, 0);
-                    
                     slice.layer.transform = randomTranslation;
-                    
-                    
+                    slice.alpha = 0;
                 }
                 
                 column.isDeleted = YES;
@@ -229,6 +215,16 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
             self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
+            
+            for (UIView *slice in columnForUseAsMaskAfterAnimation.slices) {
+                CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+                shadowAnimation.toValue = @(0.5);
+                shadowAnimation.duration = ShredAnimationDuration/2;
+                [slice.layer addAnimation:shadowAnimation forKey:@"shadowAnimation"];
+                [CATransaction setCompletionBlock:^{
+                    [slice.layer setValue:shadowAnimation.toValue forKeyPath:shadowAnimation.keyPath];
+                }];
+            }
         }
         
         if ([self shouldCompleteShredForPercent:percent]) {
