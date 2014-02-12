@@ -225,15 +225,14 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     
     // create launch image view
     UIImage *launchImage = (IS_TALL_IPHONE) ? [UIImage imageNamed:@"Default-568h"] : [UIImage imageNamed:@"Default"];
-    
     UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
-    
+    [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
+
     // set up properties
     [self.collectionView reloadData];
     self.collectionView.alwaysBounceVertical = YES;
     [self bindGestureRecognizers];
     [self reloadNotes];
-    [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
                           ^{
