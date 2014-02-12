@@ -89,8 +89,9 @@
     createdComponents.minute = 0;
     
     NSCalendar *cal = [NSCalendar currentCalendar];
+    NSLocale *locale = [NSLocale currentLocale];
     [cal setTimeZone:[NSTimeZone localTimeZone]];
-    [cal setLocale:[NSLocale currentLocale]];
+    [cal setLocale:locale];
     
     todayDate = [cal dateFromComponents:todayComponents];
     dateCreated = [cal dateFromComponents:createdComponents];
@@ -108,17 +109,17 @@
             localizedRelativeDateFormatter = [NSDateFormatter new];
             [localizedRelativeDateFormatter setTimeStyle:NSDateFormatterNoStyle];
             [localizedRelativeDateFormatter setDateStyle:NSDateFormatterMediumStyle];
-            [localizedRelativeDateFormatter setLocale:[NSLocale currentLocale] ];
+            [localizedRelativeDateFormatter setLocale:locale];
             [localizedRelativeDateFormatter setDoesRelativeDateFormatting:YES];
         }
         return [localizedRelativeDateFormatter stringFromDate:dateCreated];
-    } else if (days < 7) {
+    } else if (days < 7 && [@"en" isEqualToString:[locale objectForKey:NSLocaleLanguageCode]]) {
         return [NSString stringWithFormat:@"%d days ago", days];
     } else {
         static NSDateFormatter *sameYearDateFormatter, *differentYearDateFormatter;
         if (!sameYearDateFormatter) {
             sameYearDateFormatter = [NSDateFormatter new];
-            [sameYearDateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:[NSLocale currentLocale]]];
+            [sameYearDateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:locale]];
         }
         if (!differentYearDateFormatter) {
             differentYearDateFormatter = [NSDateFormatter new];
