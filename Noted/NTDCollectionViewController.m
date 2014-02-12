@@ -451,10 +451,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (swipedCardIndexPath == nil)
                 break;
             
-            if (fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold
-                || ABS(translation.x) > self.collectionView.frame.size.width/2)
-                shouldDelete = YES;
-                
+            BOOL velocityCrossesThreshold = fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold;
+            BOOL positionCrossesThreshold = ABS(translation.x) > self.collectionView.frame.size.width/2;
+            shouldDelete = velocityCrossesThreshold || positionCrossesThreshold;
+            
             self.collectionView.scrollEnabled = YES;            
             
             self.listLayout.swipedCardIndexPath = nil;
