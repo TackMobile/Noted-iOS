@@ -63,7 +63,9 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             sliceImageView.layer.shadowOffset = CGSizeZero;
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
                 sliceImageView.layer.allowsGroupOpacity = NO;
-            }             
+            }
+            sliceImageView.layer.shouldRasterize = YES;
+            
             CGRect cardRect = self.currentDeletionCell.bounds;
             CGRect contentFrame = CGRectMake(cropRect.origin.x / cardRect.size.width,
                                              cropRect.origin.y / cardRect.size.height,
@@ -120,6 +122,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 
                         /* this doesn't actually animate and I'm not sure why. The shadow opacity simply snaps into place. */
                         CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+                        shadowAnimation.fromValue = @(0.5);
                         shadowAnimation.toValue = @(0);
                         shadowAnimation.duration = ShredAnimationDuration;
                         [slice.layer addAnimation:shadowAnimation forKey:@"shadowAnimation"];
@@ -176,7 +179,13 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
                     CATransform3D randomTranslation = CATransform3DTranslate(randomRotation, direction * (float)rand()/RAND_MAX * -100, (float)rand()/RAND_MAX * 100 - 50, 0);
                     slice.layer.transform = randomTranslation;
                     slice.alpha = 0;
-                    slice.layer.shadowOpacity = 0;
+                    CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+                    shadowAnimation.fromValue = @(0.5);
+                    shadowAnimation.toValue = @(0);
+                    shadowAnimation.duration = ShredAnimationDuration;
+                    shadowAnimation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.85 :0.00 :1.00 :1.00];
+                    [slice.layer addAnimation:shadowAnimation forKey:@"shadowAnimation"];
+                    [slice.layer setValue:shadowAnimation.toValue forKeyPath:shadowAnimation.keyPath];
                 }
                 
                 column.isDeleted = YES;
@@ -220,12 +229,12 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             
             for (UIView *slice in columnForUseAsMaskAfterAnimation.slices) {
                 CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+                shadowAnimation.fromValue = @(0.15);
                 shadowAnimation.toValue = @(0.5);
-                shadowAnimation.duration = .1;
+                shadowAnimation.duration = .09;
+                shadowAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
                 [slice.layer addAnimation:shadowAnimation forKey:@"shadowAnimation"];
-                [CATransaction setCompletionBlock:^{
-                    [slice.layer setValue:shadowAnimation.toValue forKeyPath:shadowAnimation.keyPath];
-                }];
+                [slice.layer setValue:shadowAnimation.toValue forKeyPath:shadowAnimation.keyPath];
             }
         }
         

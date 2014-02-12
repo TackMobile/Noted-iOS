@@ -20,15 +20,14 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 
 -(void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-    if (motion == UIEventSubtypeMotionShake )
-    {
+    if (motion == UIEventSubtypeMotionShake) {
     }
 }
 
 
 -(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-    if (motion == UIEventSubtypeMotionShake)    {
+    if (motion == UIEventSubtypeMotionShake) {
         [self restoreDeletedNote];
     }
 }
