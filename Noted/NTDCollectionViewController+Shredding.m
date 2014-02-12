@@ -63,8 +63,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             sliceImageView.layer.shadowOffset = CGSizeZero;
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
                 sliceImageView.layer.allowsGroupOpacity = NO;
+                sliceImageView.layer.allowsEdgeAntialiasing = YES;
             }
-            sliceImageView.layer.shouldRasterize = YES;
             
             CGRect cardRect = self.currentDeletionCell.bounds;
             CGRect contentFrame = CGRectMake(cropRect.origin.x / cardRect.size.width,
@@ -276,7 +276,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         self.currentDeletionCell.layer.mask = nil;
         [self clearAllShreddedPieces];
         if (completionBlock) completionBlock();
-    }];    
+    }];
 }
 
 - (void) clearAllShreddedPieces {
