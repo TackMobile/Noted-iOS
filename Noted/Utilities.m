@@ -77,38 +77,14 @@
 
 +(NSString*)formatRelativeDate:(NSDate*)dateCreated {
     
-    // The folloing is good if we were updating consistiently
-    /*
-    NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setFormatterBehavior:NSDateFormatterBehavior10_4];
-    [df setDateFormat:@"EEE, dd MMM yy HH:mm:ss VVVV"];
-    NSDate *todayDate = [NSDate date];
-    double ti = [dateCreated timeIntervalSinceDate:todayDate];
-    ti = ti * -1;
-    if(ti < 1) {
-    	return @"a few seconds ago";
-    } else 	if (ti < 60) {
-    	return @"less than a minute ago";
-    } else if (ti < 3600) {
-    	int diff = round(ti / 60);
-    	return [NSString stringWithFormat:@"%d minutes ago", diff];
-    } else if (ti < 86400) {
-    	int diff = round(ti / 60 / 60);
-    	return[NSString stringWithFormat:@"%d hours ago", diff];
-    } else if (ti < 172800) {
-        return @"yesterday";
-    } else {
-    	int diff = round(ti / 60 / 60 / 24);
-    	return[NSString stringWithFormat:@"%d days ago", diff];
-    } */
-    
     NSDate *todayDate = [NSDate date];
     
     // include the year if it differs from this year
-    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:todayDate];
+    NSUInteger unitFlags = NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear;
+    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:unitFlags fromDate:todayDate];
     todayComponents.hour = 0;
     todayComponents.minute = 0;
-    NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:dateCreated];
+    NSDateComponents *createdComponents = [[NSCalendar currentCalendar] components:unitFlags fromDate:dateCreated];
     createdComponents.hour = 0;
     createdComponents.minute = 0;
     
@@ -127,24 +103,29 @@
     NSInteger days = [components day];
     
     if (days < 2) {
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
-        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        [dateFormatter setLocale:[NSLocale currentLocale] ];
-        [dateFormatter setDoesRelativeDateFormatting:YES];
-        return [dateFormatter stringFromDate:dateCreated];
+        static NSDateFormatter *localizedRelativeDateFormatter;
+        if (!localizedRelativeDateFormatter) {
+            localizedRelativeDateFormatter = [NSDateFormatter new];
+            [localizedRelativeDateFormatter setTimeStyle:NSDateFormatterNoStyle];
+            [localizedRelativeDateFormatter setDateStyle:NSDateFormatterMediumStyle];
+            [localizedRelativeDateFormatter setLocale:[NSLocale currentLocale] ];
+            [localizedRelativeDateFormatter setDoesRelativeDateFormatting:YES];
+        }
+        return [localizedRelativeDateFormatter stringFromDate:dateCreated];
     } else if (days < 7) {
         return [NSString stringWithFormat:@"%d days ago", days];
     } else {
-        // format the date
-        NSDateFormatter *dateFormatter = [NSDateFormatter new];
-        
-        if ([todayComponents year] == [createdComponents year]) {
-            [dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:[NSLocale currentLocale]]];
-        } else {
-            [dateFormatter setDateStyle:NSDateFormatterLongStyle];
+        static NSDateFormatter *sameYearDateFormatter, *differentYearDateFormatter;
+        if (!sameYearDateFormatter) {
+            sameYearDateFormatter = [NSDateFormatter new];
+            [sameYearDateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMd" options:0 locale:[NSLocale currentLocale]]];
         }
-        
+        if (!differentYearDateFormatter) {
+            differentYearDateFormatter = [NSDateFormatter new];
+            [differentYearDateFormatter setDateStyle:NSDateFormatterLongStyle];
+        }
+
+        NSDateFormatter *dateFormatter = ([todayComponents year] == [createdComponents year]) ? sameYearDateFormatter : differentYearDateFormatter;
         NSString *formattedDate = [dateFormatter stringFromDate:dateCreated];
 
         return formattedDate;
@@ -154,11 +135,6 @@
     // yesterday
     // x days ago (up to 6)
     // date (January 2nd) (December 25th 2013)
-    
-    // update days on app open and refresh
-    // 1.1.1
-    
-    
 }
 
 
