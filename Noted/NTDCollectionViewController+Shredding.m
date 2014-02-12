@@ -265,31 +265,18 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     [self cancelShredForVisibleNoteWithCompletionBlock:nil];
 }
 
-- (void) cancelShredForVisibleNoteWithCompletionBlock:(void(^)(void))completionBlock  {
-    
-    // make sure we have columns to delete
+- (void) cancelShredForVisibleNoteWithCompletionBlock:(void(^)(void))completionBlock
+{
     if (self.columnsForDeletion.count == 0)
         return;
     
-    float shredByPercent;
-    switch (self.twoFingerDeletionDirection) {
-        case NTDDeletionDirectionLeft:
-            shredByPercent = 1;
-            break;
-            
-        case NTDDeletionDirectionRight:
-        default:
-            shredByPercent = 0;
-            break;
-    }
-    
+    CGFloat shredByPercent = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? 0 : 1;
     [self shredVisibleNoteByPercent:shredByPercent completion:^{
         // remove slices from view
         self.currentDeletionCell.layer.mask = nil;
         [self clearAllShreddedPieces];
         if (completionBlock) completionBlock();
-    }];
-    
+    }];    
 }
 
 - (void) clearAllShreddedPieces {
