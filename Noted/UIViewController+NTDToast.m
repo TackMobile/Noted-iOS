@@ -15,7 +15,7 @@
     if ([NTDModalView isShowing]) return;
     
     UIFont *toastFont = [UIFont fontWithName:@"Avenir-Light" size:20];
-    CGSize messageSize = { .width = self.view.frame.size.width, .height = 60};
+    CGSize messageSize = { .width = self.view.frame.size.width - 50, .height = 80};
     
     // calculate the toast size
     CGRect toastRect = {
