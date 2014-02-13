@@ -441,9 +441,9 @@ BOOL safe_rename(const char *old, const char *new)
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
     
     [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
-        [note setTheme:[deletedNote theme]];
-        [note setLastModifiedDate:[deletedNote.lastModifiedDate copy]];
-        [note setText:[deletedNote.headline copy]];
+        [note setTheme:deletedNote.theme];
+        [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        [note setText:deletedNote.bodyText];
         
         handler(note);
     }];
