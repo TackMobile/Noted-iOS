@@ -18,17 +18,12 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 
 @implementation NTDCollectionViewController (ShakeToUndoDelete)
 
--(void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event
-{
-    if (motion == UIEventSubtypeMotionShake) {
-    }
-}
-
-
 -(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-    if (motion == UIEventSubtypeMotionShake) {
+    if (motion == UIEventSubtypeMotionShake && ![self.visibleCell.textView isFirstResponder]) {
         [self restoreDeletedNote];
+    } else {
+        [super motionEnded:motion withEvent:event];
     }
 }
 
