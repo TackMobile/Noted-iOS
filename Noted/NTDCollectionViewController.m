@@ -1267,7 +1267,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void) restoreDeletedNote {
     // moved this method here because it involves inserting into the notes array
     if (self.deletedNotesStack.count == 0) {
-        [self showToastWithMessage:@"Nothing to undo!"];
+        [self showToastWithMessage:@"There's nothing to restore!"];
     } else {
         NTDDeletedNotePlaceholder *restoredNote = [self.deletedNotesStack lastObject];
         [NTDNote restoreNote:restoredNote completionHandler:^(NTDNote *note) {
