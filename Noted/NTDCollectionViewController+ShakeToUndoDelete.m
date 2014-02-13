@@ -38,7 +38,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     BOOL hasShownModal = [[NSUserDefaults standardUserDefaults] boolForKey:NTDShakeToUndoDidShowModalKey];
     BOOL isShowing = [NTDModalView isShowing];
     if (!hasShownModal && !isWalkthroughActive && !isShowing)
-        [self performSelector:@selector(showShakeToUndoModal) withObject:nil afterDelay:NTDDefaultInitialModalDelay];
+        [self performSelector:@selector(showShakeToUndoModal) withObject:nil afterDelay:.25];
 }
 
 -(void)showShakeToUndoModal
