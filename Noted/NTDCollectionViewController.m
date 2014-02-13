@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *pinchedCell;
 
 @property (nonatomic, strong) NSMutableArray *deletedNotesStack;
+@property (nonatomic, copy) NTDVoidBlock undeleteCompletionBlock;
 
 @property (nonatomic, assign) NTDDeletionDirection oneFingerDeletionDirection;
 
@@ -1267,15 +1268,23 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void) restoreDeletedNote {
     // moved this method here because it involves inserting into the notes array
     if (self.deletedNotesStack.count == 0) {
-        [self showToastWithMessage:@"Nothing to undo!"];
+        [self showToastWithMessage:@"There's nothing to undo!"];
     } else {
         NTDDeletedNotePlaceholder *restoredNote = [self.deletedNotesStack lastObject];
         [NTDNote restoreNote:restoredNote completionHandler:^(NTDNote *note) {
-            NSUInteger newIndex = MIN(restoredNote.indexPath.item, self.notes.count);
-            [self.notes insertObject:note atIndex:newIndex];
-            restoredNote.indexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
-            [self.deletedNotesStack removeLastObject];
-            [self restoreCard:restoredNote];
+            NTDVoidBlock completionBlock = ^{
+                NSUInteger newIndex = MIN(restoredNote.indexPath.item, self.notes.count);
+                [self.notes insertObject:note atIndex:newIndex];
+                restoredNote.indexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
+                [self.deletedNotesStack removeLastObject];
+                [self restoreCard:restoredNote];
+            };
+            if ([self.visibleCell.textView isFirstResponder]) {
+                self.undeleteCompletionBlock = completionBlock;
+                [self.visibleCell.textView resignFirstResponder];
+            } else {
+                completionBlock();
+            }
         }];
     }
 }
@@ -1651,6 +1660,10 @@ static BOOL keyboardIsBeingShown;
                      animations:^{
                          self.visibleCell.textView.contentInset = self.visibleCell.textView.scrollIndicatorInsets = UIEdgeInsetsZero;
                      } completion:^(BOOL finished) {
+                         if (self.undeleteCompletionBlock) {
+                             self.undeleteCompletionBlock();
+                             self.undeleteCompletionBlock = nil;
+                         }
                      }];
 
     [self.visibleCell applyMaskWithScrolledOffset:0];
