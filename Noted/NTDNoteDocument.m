@@ -301,7 +301,7 @@ BOOL safe_rename(const char *old, const char *new)
             didSaveMetadata = NO;
             return;
         }
-        if (self.metadata.lastModifiedDate != nil)
+        if (strongSelf.metadata.lastModifiedDate != nil)
             strongSelf.metadata.lastModifiedDate = [NSDate date];
         [context save:outError];
         if (*outError) {
