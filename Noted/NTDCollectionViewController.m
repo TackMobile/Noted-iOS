@@ -1071,6 +1071,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (IBAction)showSettings:(id)sender
 {
+    if (self.visibleCell.layer.animationKeys != nil) return;
+    
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughTapOptionsStep];
     
     NTDCollectionViewCell *visibleCell = self.visibleCell;
