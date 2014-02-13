@@ -297,7 +297,9 @@ BOOL safe_rename(const char *old, const char *new)
     typeof(self) __weak weakSelf = self;
     [context performBlockAndWait:^{
         typeof(self) strongSelf = weakSelf;
-        if (!strongSelf) {
+        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate) {
+            [Flurry logEvent:@"Avoided crash"];
+            NSLog(@"Avoided metadata related crash.");
             didSaveMetadata = NO;
             return;
         }
