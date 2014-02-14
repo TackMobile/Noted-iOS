@@ -90,7 +90,8 @@ static NSDictionary *bodyFontSizes;
 }
 
 - (void)updateRelativeDateLabel:(NSNotification *)notification {
-    self.relativeTimeLabel.text = [Utilities formatRelativeDate:self.dateCreated];
+    if (self.dateCreated)
+        self.relativeTimeLabel.text = [Utilities formatRelativeDate:self.dateCreated];
 }
 
 - (void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {

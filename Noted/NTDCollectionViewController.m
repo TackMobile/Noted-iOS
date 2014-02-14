@@ -509,8 +509,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         CGPoint tapPoint = [tapGestureRecognizer locationInView:self.collectionView];
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:tapPoint];
         if (indexPath) {
-            [self didSelectItemAtIndexPath:indexPath];
-            
+            [self didSelectItemAtIndexPath:indexPath];            
         }
     }
 }
@@ -594,6 +593,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                         [self.deletedNotesStack addObject:[[NTDDeletedNotePlaceholder alloc] initWithNote:deletedNote]];
                         [deletedNote setText:@""];
                         [deletedNote setTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
+                        [deletedNote setLastModifiedDate:[NSDate date]];
                         
                         // forcing the controller to reload the notes, thus updating the lastModifiedDate of the deletedNote (which isnt actually being deleted)
                         NSMutableArray *stack = [self.deletedNotesStack mutableCopy];
@@ -603,8 +603,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                               ^{
                                                   self.deletedNotesStack = stack;
                                               });
-
-                        
                         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
                         [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
 
@@ -1745,7 +1743,7 @@ static BOOL keyboardIsBeingShown;
     }];
 }
 
-#pragma mark - Paging Layout Delegate
+#pragma mark - NTDPagingCollectionViewLayoutDelegate
 - (NSInteger)numberOfNotes {
     return self.notes.count;
 }
