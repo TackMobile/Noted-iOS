@@ -1259,6 +1259,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [note deleteWithCompletionHandler:nil];
     [self.collectionView performBatchUpdates:^{
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        if (indexPath.item == self.notes.count) {
+            [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
+        }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];
     }];
