@@ -20,7 +20,9 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 
 -(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-    if (motion == UIEventSubtypeMotionShake && ![self.visibleCell.textView isFirstResponder]) {
+    BOOL isWalkthroughActive = [[NTDWalkthrough sharedWalkthrough] isActive];
+    BOOL isUserEditing = [self.visibleCell.textView isFirstResponder];
+    if (motion == UIEventSubtypeMotionShake && !isUserEditing && !isWalkthroughActive) {
         [self restoreDeletedNote];
     } else {
         [super motionEnded:motion withEvent:event];
