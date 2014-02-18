@@ -15,11 +15,17 @@ PODS:
   - BlocksKit/UIKit (2.1.0):
     - BlocksKit/DynamicDelegate
   - FlurrySDK (4.3.2)
+  - Kiwi/ARC (2.2.3)
+  - Kiwi/NonARC (2.2.3)
+  - Kiwi/XCTest (2.2.3):
+    - Kiwi/ARC
+    - Kiwi/NonARC
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
   - BlocksKit (from `https://github.com/pandamonia/BlocksKit.git`, branch `next`)
   - FlurrySDK (~> 4.3)
+  - Kiwi/XCTest
   - UIView+FrameAdditions (= 0.0.1)
 
 EXTERNAL SOURCES:
@@ -30,6 +36,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   BlocksKit: 20086a023551c742d2278771e47c36e05f17b662
   FlurrySDK: 508afbd655fe2ff935d3e9543cb1c8aa432794de
+  Kiwi: 04c51e880831d291748ec702d42c4101f7eb95c9
   UIView+FrameAdditions: 29a4d424803f1c674671792c874f7951d6a64f97
 
 COCOAPODS: 0.29.0
