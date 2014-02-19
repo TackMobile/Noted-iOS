@@ -7,16 +7,34 @@
 //
 
 #import <Kiwi/Kiwi.h>
+#import "NTDNote.h"
+#import "NTDNoteDocument.h"
+#import "NTDTheme.h"
 
-SPEC_BEGIN(MathSpec)
+SPEC_BEGIN(NTDNoteSpec)
 
-describe(@"Math", ^{
-    it(@"is pretty cool", ^{
-        NSUInteger a = 16;
-        NSUInteger b = 26;
-        [[@(a+b) should] equal:@(42)];
-//        [[theValue(a + b) should] equal:theValue(42)];
+describe(@"NTDNoteDocument", ^{
+    it(@"should start empty", ^{
+        __block NSUInteger noteCount;
+        [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
+            noteCount = notes.count;
+        }];
+        [[expectFutureValue(theValue(noteCount)) shouldEventually] beZero];
+    });
+    
+    context(@"CRUD", ^{
+        __block NTDNote *note;
+        
+        it (@"should save properties when creating notes", ^{
+            NSString *noteText = @"ABC";
+            NTDTheme *theme = [NTDTheme themeForColorScheme:NTDColorSchemeKernal];
+            [NTDNote newNoteWithText:noteText theme:theme completionHandler:^(NTDNote *_note) {
+                note = _note;
+            }];
+            [[expectFutureValue(note) shouldEventually] beNonNil];
+            [[expectFutureValue(note.text) shouldEventually] equal:noteText];
+            [[expectFutureValue(note.theme) shouldEventually] equal:theme];
+        });
     });
 });
-
 SPEC_END
