@@ -10,5 +10,7 @@
 
 @interface NTDNoteDocument : UIDocument
 
-
+#if __NOTED_TESTS__
++ (BOOL)reset;
+#endif
 @end

@@ -20,8 +20,14 @@
 
 static NSString *const FileExtension = @"txt";
 static NSString *const DatabaseFilename = @".noted.metadata";
+#if __NOTED_TESTS__
+static const char *NotesDirectoryName = "Notes__Test";
+static const char *BackupDirectoryName = "NotesBackup__Test";
+#else
 static const char *NotesDirectoryName = "Notes";
 static const char *BackupDirectoryName = "NotesBackup";
+#endif
+
 static NTDCoreDataStore *sharedDatastore;
 static const NSUInteger HeadlineLength = 280;
 static NSUInteger filenameCounter = 1;
@@ -245,6 +251,16 @@ BOOL safe_rename(const char *old, const char *new)
     return ^(BOOL success) {
         if (handler) handler(success);
     };
+}
+
++ (BOOL)reset
+{
+    BOOL success = [NSFileManager.defaultManager removeItemAtURL:self.notesDirectoryURL error:nil];
+    success = success && [NSFileManager.defaultManager removeItemAtURL:self.backupDirectoryURL error:nil];
+    [sharedDatastore resetStore];
+    filenameCounter = 1;
+    [self initialize];
+    return success;
 }
 
 #pragma mark - UIDocument

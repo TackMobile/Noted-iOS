@@ -8,4 +8,6 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
     #import "Constants.h"
+
+#define __NOTED_TESTS__ 1
 #endif
