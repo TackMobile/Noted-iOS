@@ -20,9 +20,6 @@ describe(@"NTDNoteDocument", ^{
     beforeEach(^{
         [NTDNoteDocument reset];
     });
-    afterAll(^{
-        [NTDNoteDocument reset];
-    });
 
     it(@"should start empty", ^{
         __block NSUInteger noteCount;
@@ -32,31 +29,41 @@ describe(@"NTDNoteDocument", ^{
         [[expectFutureValue(theValue(noteCount)) shouldEventually] beZero];
     });
     
-    context(@"CRUD", ^{
+    it (@"should save properties when creating notes", ^{
         __block NTDNote *_note;
-        
-        it (@"should save properties when creating notes", ^{
-            NSString *noteText = @"ABC";
-            NTDTheme *theme = [NTDTheme themeForColorScheme:NTDColorSchemeKernal];
-            [NTDNote newNoteWithText:noteText theme:theme completionHandler:^(NTDNote *note) {
-                _note = note;
+        NSString *noteText = @"ABC";
+        NTDTheme *theme = [NTDTheme themeForColorScheme:NTDColorSchemeKernal];
+        [NTDNote newNoteWithText:noteText theme:theme completionHandler:^(NTDNote *note) {
+            _note = note;
+        }];
+        [[expectFutureValue(_note) shouldEventually] beNonNil];
+        [[expectFutureValue(_note.text) shouldEventually] equal:noteText];
+        [[expectFutureValue(_note.theme) shouldEventually] equal:theme];
+    });
+    
+    it (@"should work fine with large strings", ^{
+        __block NTDNote *_note;
+        NSUInteger capacity = 10000;
+        NSMutableString *noteText = [NSMutableString stringWithCapacity:capacity];
+        NSString *dummyText = @"ABCDEFGHI\n";
+        for (int i = 0; i < capacity/dummyText.length; i++)
+            [noteText appendString:dummyText];
+        [NTDNote newNoteWithText:noteText theme:DefaultTheme completionHandler:^(NTDNote *note) {
+            _note = note;
+        }];
+        [[expectFutureValue(_note.text) shouldEventually] equal:noteText];
+    });
+    
+    it (@"should remove files from the filesystem upon deletion", ^{
+        __block BOOL didDelete = NO;
+        [NTDNote newNoteWithText:@"foo" theme:DefaultTheme completionHandler:^(NTDNote *note) {
+            NSURL *fileURL = note.fileURL;
+            [note deleteWithCompletionHandler:^(BOOL success) {
+                didDelete = ![[NSFileManager defaultManager] fileExistsAtPath:[fileURL path]];
+                NSLog(@"foo");
             }];
-            [[expectFutureValue(_note) shouldEventually] beNonNil];
-            [[expectFutureValue(_note.text) shouldEventually] equal:noteText];
-            [[expectFutureValue(_note.theme) shouldEventually] equal:theme];
-        });
-        
-        it (@"should work fine with large strings", ^{
-            NSUInteger capacity = 10000;
-            NSMutableString *noteText = [NSMutableString stringWithCapacity:capacity];
-            NSString *dummyText = @"ABCDEFGHI\n";
-            for (int i = 0; i < capacity/dummyText.length; i++)
-                [noteText appendString:dummyText];
-            [NTDNote newNoteWithText:noteText theme:DefaultTheme completionHandler:^(NTDNote *note) {
-                _note = note;
-            }];
-            [[expectFutureValue(_note.text) shouldEventually] equal:noteText];
-        });
+        }];
+        [[expectFutureValue(@(didDelete)) shouldEventuallyBeforeTimingOutAfter(3.0)] beTrue];
     });
 });
 SPEC_END
