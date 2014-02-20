@@ -63,7 +63,31 @@ describe(@"NTDNoteDocument", ^{
                 NSLog(@"foo");
             }];
         }];
-        [[expectFutureValue(@(didDelete)) shouldEventuallyBeforeTimingOutAfter(3.0)] beTrue];
+        [[expectFutureValue(@(didDelete)) shouldEventuallyBeforeTimingOutAfter(5.0)] beTrue];
     });
+    
+    it (@"will block on deletion if there's an extant refrence to that filesystem", ^{
+        __block NTDNote *_note;
+        __block BOOL didDelete = NO;
+        
+        NSString *noteText = @"ABC";
+        NTDTheme *theme = [NTDTheme themeForColorScheme:NTDColorSchemeKernal];
+        [NTDNote newNoteWithText:noteText theme:theme completionHandler:^(NTDNote *note) {
+            _note = note;
+            [NTDNoteDocument reset];
+            
+            [NTDNote newNoteWithText:@"foo" theme:DefaultTheme completionHandler:^(NTDNote *note) {
+                NSURL *fileURL = note.fileURL;
+                [note deleteWithCompletionHandler:^(BOOL success) {
+                    didDelete = ![[NSFileManager defaultManager] fileExistsAtPath:[fileURL path]];
+                    NSLog(@"foo");
+                }];
+            }];
+        }];
+
+        
+        [[expectFutureValue(@(didDelete)) shouldNotEventuallyBeforeTimingOutAfter(5.0)] beTrue];
+    });
+
 });
 SPEC_END
