@@ -11,7 +11,7 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
-#import <BlocksKit/BlocksKit.h>
+#import <BlocksKit/BlocksKit+UIKit.h>
 #import "NTDOptionsViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
@@ -214,17 +214,17 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
     // Dropbox
     self.toggleDropboxLabel.userInteractionEnabled = YES;
-    self.toggleDropboxLabel.onTouchDownBlock = ^(NSSet *touches, UIEvent *event) {
+    [self.toggleDropboxLabel bk_whenTapped:^{
         NSString *msg = @"Would you like to enable Dropbox?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initwithMessage:msg handler:^(BOOL userClickedYes) {
-            if (userClickedYes) {
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
                 [self.delegate dismissOptions];
                 [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];
         [modalView show];
-    };
+    }];
     [self reset];
 }
 

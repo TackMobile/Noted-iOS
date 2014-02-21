@@ -25,6 +25,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 {
     if (self = [super init]) {
         self.backgroundColor = ModalBackgroundColor;
+        self.position = NTDWalkthroughModalPositionCenter;
     }
     return self;
 }
@@ -52,6 +53,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
         self.buttonTitles = buttonTitles;
         self.contentLayer = layer;
         self.backgroundColor = backgroundColor;
+        if (!backgroundColor) self.backgroundColor = ModalBackgroundColor;
     }
     return self;
 }
@@ -314,6 +316,12 @@ static BOOL isShowing;
 
 -(void)dismiss
 {
+    [self dismissWithCompletionHandler:nil];
+}
+
+-(void)dismissWithCompletionHandler:(void(^)())handler
+{
+
     [UIView animateWithDuration:0.1
                           delay:0
                         options:UIViewAnimationOptionBeginFromCurrentState
@@ -323,6 +331,7 @@ static BOOL isShowing;
                      } completion:^(BOOL finished) {
                          [self.superview removeFromSuperview];
                          isShowing = NO;
+                         if (handler) handler();
                      }];
 }
 

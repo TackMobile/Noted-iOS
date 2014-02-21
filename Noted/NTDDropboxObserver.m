@@ -81,7 +81,7 @@
             }
             for (DBFileInfo *fileinfo in updatedFiles) {
                 NSLog(@"Found new updated file: %@", fileinfo.path);
-                DBFileInfo *fileinfoWithMatchingPath = [files match:^BOOL(DBFileInfo *oldFileInfo) {
+                DBFileInfo *fileinfoWithMatchingPath = [files bk_match:^BOOL(DBFileInfo *oldFileInfo) {
                     return ([fileinfo.path isEqual:oldFileInfo.path]);
                 }];
                 NTDDropboxNote *note = self.fileinfoToNoteMap[fileinfoWithMatchingPath];
@@ -127,7 +127,7 @@
         }
         /* If our original array doesn't contain this new object, either it's path is different or another property is different.
          * If the path has remained the same, let's consider that an update, else it's an insert. */
-        DBFileInfo *fileinfoWithMatchingPath = [oldArray match:^BOOL(DBFileInfo *oldFileInfo) {
+        DBFileInfo *fileinfoWithMatchingPath = [oldArray bk_match:^BOOL(DBFileInfo *oldFileInfo) {
             return ([newFileInfo.path isEqual:oldFileInfo.path]);
         }];
         
