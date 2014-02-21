@@ -1,4 +1,4 @@
-FRAMEWORK_SEARCH_PATHS = "$(PODS_ROOT)/Dropbox-Sync-API-SDK/dropbox-ios-sync-sdk-2.0.3"
+FRAMEWORK_SEARCH_PATHS = "$(PODS_ROOT)/Dropbox-Sync-API-SDK/dropbox-ios-sync-sdk-2.1.0"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers" "${PODS_ROOT}/Headers/BlocksKit" "${PODS_ROOT}/Headers/Dropbox-Sync-API-SDK" "${PODS_ROOT}/Headers/FlurrySDK" "${PODS_ROOT}/Headers/Kiwi" "${PODS_ROOT}/Headers/UIView+FrameAdditions"
 LIBRARY_SEARCH_PATHS = "$(PODS_ROOT)/FlurrySDK/Flurry"
