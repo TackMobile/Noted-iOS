@@ -90,7 +90,20 @@
                 if (note) {
                     [self.fileinfoToNoteMap removeObjectForKey:fileinfoWithMatchingPath];
                     self.fileinfoToNoteMap[fileinfo] = note;
-                    [notificationCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+                    DBFileStatus *newerStatus = [[note valueForKey:@"file"] newerStatus];
+                    if (newerStatus.cached)
+                        [notificationCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+                    else {
+                        DBFile *file = [note valueForKey:@"file"];
+                        __weak typeof(file) weakFile = file;
+                        NSObject *observer = [NSObject new];
+                        [file addObserver:observer block:^{
+                            if (weakFile.newerStatus.cached) {
+                                [notificationCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+                                [weakFile removeObserver:observer];
+                            }
+                        }];
+                    }
                 }
             }
             for (DBFileInfo *fileinfo in deletedFiles) {
