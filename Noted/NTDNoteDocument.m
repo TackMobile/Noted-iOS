@@ -600,6 +600,11 @@ BOOL safe_rename(const char *old, const char *new)
     }];
 }
 
+- (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
+
 - (NSString *)filename
 {
     return self.metadata.filename;

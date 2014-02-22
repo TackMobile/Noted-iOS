@@ -196,6 +196,16 @@ static DBDatastore *datastore;
     });
 }
 
+- (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    DBError __autoreleasing *error;
+    BOOL didUpdate = [self.file update:&error];
+    NSString *text = didUpdate ? [self.file readString:&error] : nil;
+    if (text) { self.bodyText = text; NSLog(@"Updating %p with %@", self, text); }
+    if (error) [NTDNote logError:error withMessage:@"Couldn't update file or read text after updating."];
+    handler(didUpdate);
+}
+
 - (NSURL *)fileURL
 {
     //TODO does this even work?

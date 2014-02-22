@@ -90,7 +90,7 @@
                 if (note) {
                     [self.fileinfoToNoteMap removeObjectForKey:fileinfoWithMatchingPath];
                     self.fileinfoToNoteMap[fileinfo] = note;
-                    [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];
+                    [notificationCenter postNotificationName:NTDNoteWasChangedNotification object:note];
                 }
             }
             for (DBFileInfo *fileinfo in deletedFiles) {

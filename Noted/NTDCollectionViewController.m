@@ -154,6 +154,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(toggledStatusBar:)
                                                      name:NTDDidToggleStatusBarNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(noteWasUpdated:)
+                                                     name:NTDNoteWasChangedNotification
+                                                   object:nil];
 
 //        [[NSNotificationCenter defaultCenter] addObserver:self
 //                                                 selector:@selector(keyboardFrameChanged:)
@@ -1467,6 +1471,26 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [visitedPaths addObject:indexPath];
 //        NSLog(@"%s: opening note #%d\n", __FUNCTION__, indexPath.item);
         [note openWithCompletionHandler:NULL];
+    }
+}
+
+#pragma mark NTDNote
+- (void)noteWasUpdated:(NSNotification *)notification
+{
+    NTDNote *note = notification.object;
+    NSUInteger index = [self.notes indexOfObject:note];
+    NSAssert(index != NSNotFound, @"Can't find note!");
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+    if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) { /* this isn't selective enough. in paging layout we should be visible. */
+        NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+        if (cell) {
+            [note updateWithCompletionHandler:^(BOOL success) {
+                cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
+                cell.dateCreated = note.lastModifiedDate;
+                cell.textView.text = note.text;
+                [cell applyTheme:note.theme];
+            }];
+        }
     }
 }
 

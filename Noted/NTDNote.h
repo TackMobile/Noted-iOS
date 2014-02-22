@@ -38,6 +38,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 - (void)closeWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 - (void)deleteWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
+- (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
 - (NSURL *)fileURL;
 - (NSString *)filename;
