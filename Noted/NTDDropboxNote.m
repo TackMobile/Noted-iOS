@@ -7,6 +7,7 @@
 //
 
 #import <Dropbox/Dropbox.h>
+#import <BlocksKit/BlocksKit.h>
 #import "NTDDropboxManager.h"
 #import "NTDDropboxNote.h"
 #import "NTDNote+ImplUtils.h"
@@ -296,6 +297,12 @@ static const NSString *kFilenameKey = @"filename";
     NSArray *results = [table query:@{kFilenameKey : self.filename} error:nil];
     if (results && results.count > 0) {
         self.metadata = results[0];
+        if (results.count > 1) {
+            NSLog(@"Multiple records found for %@", self.filename);
+            [results enumerateObjectsUsingBlock:^(DBRecord *obj, NSUInteger idx, BOOL *stop) {
+                NSLog(@"Record #%d: %@", idx, [obj fields]);
+            }];
+        }
     } else {
         self.metadata = [table insert:@{kFilenameKey : self.filename,
                                         kHeadlineKey : [NTDNote headlineForString:self.bodyText],
