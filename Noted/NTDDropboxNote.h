@@ -14,5 +14,5 @@
 + (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
 
 - (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
-+ (void)clearExistingMetadata;
++ (void)clearExistingMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock;
 @end

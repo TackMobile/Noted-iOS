@@ -318,20 +318,41 @@ static const NSString *kFilenameKey = @"filename";
     self.headline = note.headline;
 }
 
-+ (void)clearExistingMetadata
++ (void)clearExistingMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
     DBDatastore *datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                   error:nil];
-    if (!datastore) return;
+    if (!datastore) {
+        NSLog(@"Couldn't open datastore!");
+        completionBlock();
+        return;
+    }
     
-    DBTable *table = [datastore getTable:kMetadataTableName];
-    for (DBRecord *record in [table query:nil error:nil])
-        [record deleteRecord];
-
-    table = [datastore getTable:@"noted_metadata"];
-    for (DBRecord *record in [table query:nil error:nil])
-        [record deleteRecord];
-
-    [datastore sync:nil];
+    DBObserver purgeBlock = ^{
+        DBTable *table = [datastore getTable:kMetadataTableName];
+        for (DBRecord *record in [table query:nil error:nil])
+            [record deleteRecord];
+        [datastore sync:nil];
+    };
+    
+    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+        purgeBlock();
+        completionBlock();
+    } else {
+        __block NSObject *observer = [NSObject new];
+        __weak DBDatastore *weakDatastore = datastore;
+        [datastore addObserver:observer block:^{
+            if (weakDatastore.status & DBDatastoreIncoming) {
+                [weakDatastore sync:nil];
+                return;
+            }
+            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+                purgeBlock();
+                [weakDatastore removeObserver:observer];
+                observer = nil;
+                completionBlock();
+            }
+        }];
+    }
 }
 @end

@@ -47,10 +47,14 @@ static NTDModalView *modalView;
         modalView.message = @"Syncing. Hold up a second...";
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
-        [DBFilesystem setSharedFilesystem:[[DBFilesystem alloc] initWithAccount:account]];
-        __weak DBFilesystem *filesystem = [DBFilesystem sharedFilesystem];
+        
+        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
+        [DBFilesystem setSharedFilesystem:filesystem];
         [filesystem addObserver:self block:^{
-            if (filesystem.completedFirstSync) [self importExistingFiles];
+            if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
+                [self importExistingFiles];
+                [[DBFilesystem sharedFilesystem] removeObserver:self];
+            }
         }];
     }
     return success;
@@ -83,38 +87,39 @@ static NTDModalView *modalView;
     [controller returnToListLayout];
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [NTDDropboxNote clearExistingMetadata];
-            for (NTDNote *note in notes) {
-                DBError __autoreleasing *error;
-                DBPath *path = [[DBPath root] childPath:note.filename];
-                DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
-                if (error) {
-                    NSString *errorMsg = [NSString stringWithFormat:@"Error creating file named %@: %@", note.filename, error];
-                    [Flurry logError:kDropboxError message:errorMsg error:error];
-                    continue;
+            [NTDDropboxNote clearExistingMetadataWithCompletionBlock:^{
+                for (NTDNote *note in notes) {
+                    DBError __autoreleasing *error;
+                    DBPath *path = [[DBPath root] childPath:note.filename];
+                    DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
+                    if (error) {
+                        NSString *errorMsg = [NSString stringWithFormat:@"Error creating file named %@: %@", note.filename, error];
+                        [Flurry logError:kDropboxError message:errorMsg error:error];
+                        continue;
+                    }
+                    [file writeContentsOfFile:note.fileURL.path shouldSteal:NO error:&error];
+                    if (error) {
+                        NSString *errorMsg = [NSString stringWithFormat:@"Error copying contents of file named %@: %@", note.filename, error];
+                        [Flurry logError:kDropboxError message:errorMsg error:error];
+                        continue;
+                    }
+                    NTDDropboxNote *dropboxNote = [[NTDDropboxNote alloc] init];
+                    [dropboxNote copyFromNote:note file:file];
                 }
-                [file writeContentsOfFile:note.fileURL.path shouldSteal:NO error:&error];
-                if (error) {
-                    NSString *errorMsg = [NSString stringWithFormat:@"Error copying contents of file named %@: %@", note.filename, error];
-                    [Flurry logError:kDropboxError message:errorMsg error:error];
-                    continue;
-                }
-                NTDDropboxNote *dropboxNote = [[NTDDropboxNote alloc] init];
-                [dropboxNote copyFromNote:note file:file];
-            }
 
-            didImportExistingFiles = YES;
-            [NTDNote refreshStoragePreferences];
-            [modalView dismissWithCompletionHandler:^{
-                modalView = [[NTDModalView alloc] init];
-                modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/TakeNoted” folder of your Dropbox.";
-                modalView.type = NTDWalkthroughModalTypeDismiss;
-                modalView.promptHandler = ^(BOOL userClickedYes) {
-                    [controller reloadNotes];
-                    [modalView dismiss];
-                    modalView = nil;
-                };
-                [modalView show];
+                didImportExistingFiles = YES;
+                [NTDNote refreshStoragePreferences];
+                [modalView dismissWithCompletionHandler:^{
+                    modalView = [[NTDModalView alloc] init];
+                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/TakeNoted” folder of your Dropbox.";
+                    modalView.type = NTDWalkthroughModalTypeDismiss;
+                    modalView.promptHandler = ^(BOOL userClickedYes) {
+                        [controller reloadNotes];
+                        [modalView dismiss];
+                        modalView = nil;
+                    };
+                    [modalView show];
+                }];
             }];
         });
     }];
