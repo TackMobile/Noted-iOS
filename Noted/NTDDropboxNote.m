@@ -10,9 +10,10 @@
 #import <BlocksKit/BlocksKit.h>
 #import "NTDDropboxManager.h"
 #import "NTDDropboxNote.h"
+#import "NTDDropboxObserver.h"
 #import "NTDNote+ImplUtils.h"
 #import "NTDTheme.h"
-#import "NTDDropboxObserver.h"
+#import "NTDDeletedNotePlaceholder.h"
 
 static dispatch_queue_t background_dispatch_queue, main_dispatch_queue;
 static NSUInteger filenameCounter = 1;
@@ -89,6 +90,27 @@ static DBDatastore *datastore;
     return path;
 }
 
++ (DBPath *)pathWithIndexAsBase:(NSUInteger)index
+{
+    DBFileInfo *fileinfo;
+    DBPath *path;
+    do
+    {
+        NSString *basename = [NSString stringWithFormat:@"Note %d", index];
+        NSString *filename = [basename stringByAppendingPathExtension:NTDNoteFileExtension];
+        path = [[self rootPath] childPath:filename];
+        fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
+        index++;
+    }
+    while (fileinfo);
+    
+    // if our new index exceeds our counter, update it
+    if (index>filenameCounter)
+        filenameCounter=index;
+
+    return path;
+}
+
 #pragma mark - NTDNote
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler
 {
@@ -131,11 +153,15 @@ static DBDatastore *datastore;
     });
 }
 
-
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler
 {
+    DBPath *path = [self pathForNewNote];
+    [self newNoteAtPath:path completionHandler:handler];
+}
+
++ (void)newNoteAtPath:(DBPath *)path completionHandler:(void(^)(NTDNote *note))handler
+{
     dispatch_async(background_dispatch_queue, ^{
-        DBPath *path = [self pathForNewNote];
         NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
         DBError __autoreleasing *error;
         note.file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
@@ -147,6 +173,19 @@ static DBDatastore *datastore;
             handler((NTDNote *)note);
         });
     });
+}
+
++ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
+    //TODO should we wait for the underlying file (+metadata?) to be deleted?
+    NSUInteger fileIndex = [NTDNote indexFromFilename:deletedNote.filename];
+    DBPath *path =  [self pathWithIndexAsBase:fileIndex];
+    [self newNoteAtPath:path completionHandler:^(NTDNote *note) {
+        [note setTheme:deletedNote.theme];
+        [note setText:deletedNote.bodyText];
+        NTDDropboxNote *dropboxNote = (NTDDropboxNote *)note;
+        dropboxNote.headline = deletedNote.headline;
+        handler(note);
+    }];
 }
 
 //+ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
@@ -231,6 +270,11 @@ static DBDatastore *datastore;
 - (NSDate *)lastModifiedDate
 {
     return self.fileinfo.modifiedTime;
+}
+
+- (void)setLastModifiedDate:(NSDate *)date
+{
+    @throw @"Nope";
 }
 
 - (NTDNoteFileState)fileState
