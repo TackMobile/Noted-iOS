@@ -23,7 +23,6 @@
     if (self = [super init]) {
         self.filename = note.filename;
         self.headline = note.headline;
-        self.bodyText = note.text;
         self.lastModifiedDate = note.lastModifiedDate;
         self.theme = note.theme;
         
@@ -31,6 +30,12 @@
                                                  selector:@selector(flushSavedColumns:)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
+
+        /* In theory, this should run before (and not concurrently with) the deletion that will happen
+         * after our init method returns */
+        [note openWithCompletionHandler:^(BOOL success) {
+           if (success) self.bodyText = note.text;
+        }];
     }
     return self;
 }
