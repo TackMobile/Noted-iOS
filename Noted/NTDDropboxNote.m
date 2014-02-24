@@ -130,9 +130,11 @@ static DBDatastore *datastore;
         if (!isOK) {
             NSLog(@"Couldn't observe path: %@", [self rootPath].stringValue);
         }
-        datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
-                                                      error:&error];
-        if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."];
+        if (!datastore) {
+            datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+                                                          error:&error];
+            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."];
+        }
         
         NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[fileinfoArray count]];
         for (DBFileInfo *fileinfo in fileinfoArray) {
