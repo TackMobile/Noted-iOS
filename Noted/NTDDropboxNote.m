@@ -24,7 +24,7 @@ static DBDatastore *datastore;
 @property (nonatomic, strong) DBFileInfo *fileinfo;
 @property (nonatomic, strong) DBRecord *metadata;
 @property (nonatomic, strong) NSString *bodyText;
-
+@property (nonatomic, strong) dispatch_queue_t serial_queue;
 @end
 
 @implementation NTDDropboxNote
@@ -40,6 +40,14 @@ static DBDatastore *datastore;
     NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
     note.fileinfo = fileinfo;
     return note;
+}
+
+-(id)init
+{
+    if (self = [super init]) {
+        self.serial_queue = dispatch_queue_create("NTDDropboxNote Serial Queue", DISPATCH_QUEUE_SERIAL);
+    }
+    return self;
 }
 
 #pragma mark - Properties
@@ -147,14 +155,14 @@ static DBDatastore *datastore;
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler = [NTDNote handlerDispatchedToMainQueue:handler];
-    dispatch_async(background_dispatch_queue, ^{
+    dispatch_async(self.serial_queue, ^{
         DBError __autoreleasing *error;
         BOOL success = YES;
         
         /* open file */
         if (self.fileState != NTDNoteFileStateOpened) {
             self.file = [[DBFilesystem sharedFilesystem] openFile:self.fileinfo.path error:&error];
-            if (error) [NTDNote logError:error withMessage:@"Couldn't open file!"];
+            if (error) [NTDNote logError:error withMessage:@"Couldn't open file! %@", self.fileinfo.path];
             success = (error == nil);
         }
         
@@ -172,7 +180,7 @@ static DBDatastore *datastore;
 - (void)closeWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler = [NTDNote handlerDispatchedToMainQueue:handler];
-    dispatch_async(background_dispatch_queue, ^{
+    dispatch_async(self.serial_queue, ^{
         //TODO force save
         [self.file close];
         self.file = nil;
@@ -183,7 +191,7 @@ static DBDatastore *datastore;
 - (void)deleteWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler = [NTDNote handlerDispatchedToMainQueue:handler];
-    dispatch_async(background_dispatch_queue, ^{
+    dispatch_async(self.serial_queue, ^{
         DBError __autoreleasing *error;
         BOOL success = [[DBFilesystem sharedFilesystem] deletePath:self.fileinfo.path error:&error];
         if (error)
@@ -227,10 +235,10 @@ static DBDatastore *datastore;
 
 - (NTDNoteFileState)fileState
 {
-    if (!self.file)
-        return NTDNoteFileStateClosed;
-    else
+    if (self.file)
         return NTDNoteFileStateOpened;
+    else
+        return NTDNoteFileStateClosed;
 }
 
 #pragma mark Datastore-backed properties
@@ -293,7 +301,7 @@ static const NSString *kFilenameKey = @"filename";
 -(void)refreshMetadata
 {
     DBTable *table = [datastore getTable:kMetadataTableName];
-    if (!table) return;
+    if (!table) { NSLog(@"Can't refresh metadata!"); return; }
     NSArray *results = [table query:@{kFilenameKey : self.filename} error:nil];
     if (results && results.count > 0) {
         self.metadata = results[0];
@@ -320,7 +328,7 @@ static const NSString *kFilenameKey = @"filename";
 
 + (void)clearExistingMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
-    DBDatastore *datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+    datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                   error:nil];
     if (!datastore) {
         NSLog(@"Couldn't open datastore!");
