@@ -1499,8 +1499,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     NTDNote *note = notification.object;
     NSIndexPath *indexPath = [self indexPathForNote:note];
+    [self.notes removeObject:note];
     if (indexPath) {
-        [self deleteCardAtIndexPath:indexPath];
+         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } else {
         NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }
