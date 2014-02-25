@@ -196,6 +196,10 @@ static DBDatastore *datastore;
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    if (self.fileState == NTDNoteFileStateOpened) {
+        handler(YES);
+        return;
+    }
     dispatch_async(self.serial_queue, ^{
         DBError __autoreleasing *error;
         BOOL success = YES;
@@ -210,7 +214,10 @@ static DBDatastore *datastore;
         /* read text from file */
         if (success) {
             self.bodyText = [self.file readString:&error];
-            if (error) [NTDNote logError:error withMessage:@"Couldn't read text from file!"]; success = NO;
+            if (error) {
+                [NTDNote logError:error withMessage:@"Couldn't read text from file!"];
+                success = NO;
+            }
         }
         
         /* return results */

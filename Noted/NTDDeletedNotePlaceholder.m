@@ -34,7 +34,12 @@
         /* In theory, this should run before (and not concurrently with) the deletion that will happen
          * after our init method returns */
         [note openWithCompletionHandler:^(BOOL success) {
-           if (success) self.bodyText = note.text;
+            if (success) {
+                self.bodyText = note.text;
+                self.headline = note.headline;
+            } else {
+                NSLog(@"Unable to open note!");
+            }
         }];
     }
     return self;
