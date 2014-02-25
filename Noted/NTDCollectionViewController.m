@@ -158,16 +158,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(noteWasUpdated:)
                                                      name:NTDNoteWasChangedNotification
                                                    object:nil];
-
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(keyboardFrameChanged:)
-//                                                     name:UIKeyboardWillChangeFrameNotification
-//                                                   object:nil];
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(keyboardFrameChanged:)
-//                                                     name:UIKeyboardDidChangeFrameNotification
-//                                                   object:nil];
-
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(noteWasDeleted:)
+                                                     name:NTDNoteWasDeletedNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -1294,6 +1288,15 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     return self.notes[indexPath.item];
 }
 
+- (NSIndexPath *)indexPathForNote:(NTDNote *)note
+{
+    NSUInteger index = [self.notes indexOfObject:note];
+    NSAssert(index != NSNotFound, @"Can't find note!");
+    if (index == NSNotFound) return nil;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+    return indexPath;
+}
+
 - (void)setBodyForCell:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     /* We take `cell` as a parameter because `-[UICollectionView cellForItemAtIndexPath:]`
@@ -1478,9 +1481,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)noteWasUpdated:(NSNotification *)notification
 {
     NTDNote *note = notification.object;
-    NSUInteger index = [self.notes indexOfObject:note];
-    NSAssert(index != NSNotFound, @"Can't find note!");
-    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+    NSIndexPath *indexPath = [self indexPathForNote:note];
     if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) { /* this isn't selective enough. in paging layout we should be visible. */
         NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
         if (cell) {
@@ -1491,6 +1492,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 [cell applyTheme:note.theme];
             }];
         }
+    }
+}
+
+- (void)noteWasDeleted:(NSNotification *)notification
+{
+    NTDNote *note = notification.object;
+    NSIndexPath *indexPath = [self indexPathForNote:note];
+    if (indexPath) {
+        [self deleteCardAtIndexPath:indexPath];
+    } else {
+        NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }
 }
 

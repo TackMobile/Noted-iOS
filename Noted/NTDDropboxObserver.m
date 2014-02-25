@@ -112,6 +112,7 @@
                 NTDDropboxNote *note = self.fileinfoToNoteMap[fileinfo];
                 if (note) {
                     [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];
+                    [self.fileinfoToNoteMap removeObjectForKey:fileinfo];
                 }
                 
             }
