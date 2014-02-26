@@ -47,8 +47,17 @@ static DBDatastore *datastore;
 {
     if (self = [super init]) {
         self.serial_queue = dispatch_queue_create("NTDDropboxNote Serial Queue", DISPATCH_QUEUE_SERIAL);
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(noteWasDeleted:)
+                                                   name:NTDNoteWasDeletedNotification
+                                                 object:self];
     }
     return self;
+}
+
+-(void)dealloc
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 #pragma mark - Properties
@@ -109,6 +118,14 @@ static DBDatastore *datastore;
         filenameCounter=index;
 
     return path;
+}
+
+- (void)wasDeleted
+{
+    //TODO think about what else needs to be cleared here.
+    [self.metadata deleteRecord];
+    [datastore sync:nil];
+    self.file = nil;
 }
 
 #pragma mark - NTDNote
@@ -245,9 +262,7 @@ static DBDatastore *datastore;
         if (error)
             [NTDNote logError:error withMessage:@"Couldn't delete file!"];
         else {
-            //TODO think about what else needs to be cleared here.
-            [self.metadata deleteRecord];
-            self.file = nil;
+            [self wasDeleted];
         }
         handler(success);
     });
@@ -415,5 +430,11 @@ static const NSString *kFilenameKey = @"filename";
             }
         }];
     }
+}
+
+#pragma mark - Notifications
+- (void)noteWasDeleted:(NSNotification *)notification
+{
+    [self wasDeleted];
 }
 @end
