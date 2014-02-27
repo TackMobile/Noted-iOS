@@ -76,6 +76,7 @@
             for (DBFileInfo *fileinfo in insertedFiles) {
                 [files addObject:fileinfo];
                 NTDDropboxNote *note = [NTDDropboxNote noteFromFileInfo:fileinfo];
+                self.fileinfoToNoteMap[fileinfo] = note;
                 [notificationCenter postNotificationName:NTDNoteWasAddedNotification object:note];
                 NSLog(@"Found new inserted file: %@", fileinfo.path);
             }
