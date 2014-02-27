@@ -16,6 +16,7 @@ static const NSUInteger HeadlineLength = 280;
 
 + (void)logError:(NSError *)error withMessage:(NSString *)message, ...;
 + (NSUInteger)indexFromFilename:(NSString *)filename;
++ (NSInteger)indexForNote_:(NTDNote *)note amongNotes:(NSArray *)notes;
 + (NTDNoteComparator)comparatorUsingFilenames;
 + (NTDNoteDefaultCompletionHandler)handlerDispatchedToMainQueue:(NTDNoteDefaultCompletionHandler)handler;
 + (NSString *)headlineForString:(NSString *)text;

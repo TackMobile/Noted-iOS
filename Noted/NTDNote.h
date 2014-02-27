@@ -34,6 +34,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 + (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler;
 
 + (void)refreshStoragePreferences;
++ (NSInteger)indexForNote:(NTDNote *)note amongNotes:(NSArray *)notes;
 
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 - (void)closeWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;

@@ -10,6 +10,7 @@
 #import "NTDNoteDocument.h"
 #import "NTDDropboxManager.h"
 #import "NTDDropboxNote.h"
+#import "NTDNote+ImplUtils.h"
 
 static Class PrivateImplentingClass;
 
@@ -101,5 +102,10 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
         PrivateImplentingClass = [NTDDropboxNote class];
     else
         PrivateImplentingClass = [NTDNoteDocument class];
+}
+
++ (NSInteger)indexForNote:(NTDNote *)note amongNotes:(NSArray *)notes
+{
+    return [self indexForNote_:note amongNotes:notes];
 }
 @end

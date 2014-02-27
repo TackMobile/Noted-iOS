@@ -66,6 +66,28 @@
     };
 }
 
++ (NSInteger)indexForNote_:(NTDNote *)note amongNotes:(NSArray *)notes
+{
+    NTDNoteComparator dateComparator = ^NSComparisonResult(NTDNote *note1, NTDNote *note2) {
+        return [note1.lastModifiedDate compare:note2.lastModifiedDate];
+    };
+    NTDNoteComparator comparatorUsingFilenamesAndDates = ^NSComparisonResult(NTDNote *note1, NTDNote *note2) {
+        NSComparisonResult result = [self comparatorUsingFilenames](note1, note2);
+        if (result == (NSComparisonResult)NSOrderedSame)
+            return dateComparator(note1, note2);
+        else
+            return result;
+    };
+    for (NSInteger i = 0; i < notes.count; i++) {
+        NSComparisonResult result = comparatorUsingFilenamesAndDates(note, notes[i]);
+        if (result == (NSComparisonResult)NSOrderedAscending)
+            continue;
+        else
+            return i;
+    }
+    return notes.count;
+}
+
 + (NTDNoteDefaultCompletionHandler)handlerDispatchedToMainQueue:(NTDNoteDefaultCompletionHandler)handler
 {
     return ^(BOOL success) {
