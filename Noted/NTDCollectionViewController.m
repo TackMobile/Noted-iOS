@@ -1507,6 +1507,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }
+    if (self.notes.count == 0) {
+        [NTDNote newNoteWithText:@"" theme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite] completionHandler:^(NTDNote *note) {
+            [self.notes addObject:note];
+            [self.collectionView reloadData];
+            self.pagingLayout.activeCardIndex = 0;
+            [self updateLayout:self.pagingLayout animated:NO];
+        }];
+    }
 }
 
 #pragma mark - UIGestureRecognizerDelegate
