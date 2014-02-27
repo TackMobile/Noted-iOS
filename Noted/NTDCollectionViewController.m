@@ -1331,6 +1331,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self addDefaultNotesIfNecessary];
         } else if (self.notes.count == 1) {
             self.pagingLayout.activeCardIndex = 0;
+            [self.collectionView reloadData]; /* fixes an EXC_BAD_ACCESS crash when using Dropbox. No clue why. */
             [self updateLayout:self.pagingLayout animated:NO];
         } else {
             [self.collectionView reloadData];
