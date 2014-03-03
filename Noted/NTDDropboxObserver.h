@@ -8,12 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@class NTDDropboxNote, DBPath;
+@class NTDDropboxNote, DBPath, DBDatastore;
 @interface NTDDropboxObserver : NSObject
 
 + (instancetype)sharedObserver;
 - (BOOL)observeNote:(NTDDropboxNote *)note;
 - (BOOL)observeRootPath:(DBPath *)path;
+- (void)observeDatastore:(DBDatastore *)datastore;
 - (void)stopObserving:(id)observed;
 - (void)removeAllObservers;
 

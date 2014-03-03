@@ -16,6 +16,7 @@
 @property (nonatomic, strong) DBFile *file;
 @property (nonatomic, strong) DBFileInfo *fileinfo;
 @property (nonatomic, strong) DBRecord *metadata;
+@property (nonatomic, strong, readonly) NSString *filename;
 
 + (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
 

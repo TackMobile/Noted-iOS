@@ -72,6 +72,13 @@ static DBDatastore *datastore;
     }
 }
 
+-(void)setMetadata:(DBRecord *)metadata
+{
+    if (![_metadata isEqual:metadata])
+        [_metadata deleteRecord];
+    _metadata = metadata;
+}
+
 #pragma mark - Helpers
 + (DBPath *)rootPath
 {
