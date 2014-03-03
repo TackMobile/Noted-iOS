@@ -153,8 +153,10 @@ static DBDatastore *datastore;
         if (!datastore) {
             datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                           error:&error];
-            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."];
+            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; /* TODO this should fail */
+            [[NTDDropboxObserver sharedObserver] observeDatastore:datastore];
         }
+        [datastore sync:nil];
         
         NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[fileinfoArray count]];
         for (DBFileInfo *fileinfo in fileinfoArray) {

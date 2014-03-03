@@ -1503,6 +1503,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 [cell applyTheme:note.theme];
             }];
         }
+    } else {
+        // If we don't have to do a full update, we at least need to re-render the note.
+        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
     }
 }
 

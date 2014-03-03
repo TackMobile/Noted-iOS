@@ -173,14 +173,15 @@
 {
     __weak DBDatastore *weakDatastore = datastore;
     [datastore addObserver:self block:^{
+        LogDatastoreStatusDebug(weakDatastore);
         if (!(weakDatastore.status & DBDatastoreIncoming))
             return;
         NSDictionary *syncResults = [weakDatastore sync:nil];
         NSSet *changedRecords = syncResults[@"metadata"];
-        NSAssert(changedRecords.count == 1, @"Shouldn't have more than one table!");
         for (DBRecord *changedRecord in changedRecords) {
+            NSLog(@"Incoming Record #%@. Fields: %@", changedRecord.recordId, changedRecord.fields);
             // There are three cases we need to deal with. Insertion, Modification and Deletion.
-            NTDDropboxNote *note = self.fileinfoToNoteMap[changedRecord[@"filename"]];
+            NTDDropboxNote *note = self.filenameToNoteMap[changedRecord[@"filename"]];
 
             /* Deletion
              * --------
@@ -208,7 +209,8 @@
                 self.filenameToRecordMap[changedRecord[@"filename"]] = changedRecord;
             
             // If this incoming record shares the same filename with an existing record, assume that we're in case B and overwrite local metadata.
-            if (note && note.metadata.recordId != changedRecord.recordId) {
+            if (note && ![note.metadata.recordId isEqualToString:changedRecord.recordId]) {
+                NSLog(@"Record ID collision: Incoming (%@), Existing (%@)", changedRecord.recordId, note.metadata.recordId);
                 [note.metadata deleteRecord];
                 note.metadata = changedRecord;
             }
@@ -231,5 +233,18 @@
         }
         
     }];
+}
+
+void LogDatastoreStatusDebug(DBDatastore *datastore)
+{
+    NSMutableArray *states = [NSMutableArray new];
+    DBDatastoreStatus status = datastore.status;
+    if (status & DBDatastoreOutgoing) [states addObject:@"Outgoing"];
+    if (status & DBDatastoreIncoming) [states addObject:@"Incoming"];
+    if (status & DBDatastoreUploading) [states addObject:@"Uploading"];
+    if (status & DBDatastoreDownloading) [states addObject:@"Downloading"];
+    if (status & DBDatastoreConnected) [states addObject:@"Connected"];
+    NSString *state = [states componentsJoinedByString:@" | "];
+    NSLog(@"%@ %@", datastore, state);
 }
 @end
