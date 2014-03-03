@@ -13,7 +13,7 @@
 #import "NTDNote.h"
 
 @interface NTDDropboxObserver()
-@property (nonatomic, strong) NSMutableDictionary *fileToPathMap, *fileinfoToNoteMap;
+@property (nonatomic, strong) NSMutableDictionary *fileToPathMap, *fileinfoToNoteMap, *recordIdNoteMap;
 @end
 
 @implementation NTDDropboxObserver
@@ -31,10 +31,16 @@
 -(id)init
 {
     if (self == [super init]) {
-        self.fileToPathMap = [NSMutableDictionary dictionary];
-        self.fileinfoToNoteMap = [NSMutableDictionary dictionary];
+        [self clearMaps];
     }
     return self;
+}
+
+-(void)clearMaps
+{
+    self.fileToPathMap = [NSMutableDictionary dictionary];
+    self.fileinfoToNoteMap = [NSMutableDictionary dictionary];
+    self.recordIdNoteMap = [NSMutableDictionary dictionary];
 }
 
 -(void)stopObserving:(id)observed
@@ -50,7 +56,7 @@
     
     [[DBFilesystem sharedFilesystem] removeObserver:self];
     
-    self.fileToPathMap = [NSMutableDictionary dictionary];
+    [self clearMaps];
 }
 
 -(BOOL)observeRootPath:(DBPath *)path
@@ -91,11 +97,11 @@
                 if (note) {
                     [self.fileinfoToNoteMap removeObjectForKey:fileinfoWithMatchingPath];
                     self.fileinfoToNoteMap[fileinfo] = note;
-                    DBFileStatus *newerStatus = [[note valueForKey:@"file"] newerStatus];
+                    DBFileStatus *newerStatus = note.file.newerStatus;
                     if (newerStatus.cached)
                         [notificationCenter postNotificationName:NTDNoteWasChangedNotification object:note];
                     else {
-                        DBFile *file = [note valueForKey:@"file"];
+                        DBFile *file = note.file;
                         __weak typeof(file) weakFile = file;
                         NSObject *observer = [NSObject new];
                         [file addObserver:observer block:^{
@@ -124,7 +130,8 @@
 
 -(BOOL)observeNote:(NTDDropboxNote *)note
 {
-    self.fileinfoToNoteMap[[note valueForKey:@"fileinfo"]] = note;
+    self.fileinfoToNoteMap[note.fileinfo] = note;
+    self.recordIdNoteMap[note.metadata.recordId] = note;
     return YES;
 }
 

@@ -8,8 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class NTDNote, DBFile, DBFileInfo;
+@class NTDNote, DBFile, DBFileInfo, DBRecord;
 @interface NTDDropboxNote : NSObject
+
+/* These properties and methods are only to be used by other Dropbox-related classes
+ * and NOT the application at large. */
+@property (nonatomic, strong) DBFile *file;
+@property (nonatomic, strong) DBFileInfo *fileinfo;
+@property (nonatomic, strong) DBRecord *metadata;
 
 + (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
 

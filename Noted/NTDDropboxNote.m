@@ -20,10 +20,6 @@ static NSUInteger filenameCounter = 1;
 static DBDatastore *datastore;
 
 @interface NTDDropboxNote ()
-
-@property (nonatomic, strong) DBFile *file;
-@property (nonatomic, strong) DBFileInfo *fileinfo;
-@property (nonatomic, strong) DBRecord *metadata;
 @property (nonatomic, strong) NSString *bodyText;
 @property (nonatomic, strong) dispatch_queue_t serial_queue;
 @end
