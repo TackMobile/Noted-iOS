@@ -132,6 +132,7 @@
                 if (note) {
                     [notificationCenter postNotificationName:NTDNoteWasDeletedNotification object:note];
                     [self.fileinfoToNoteMap removeObjectForKey:fileinfo];
+                    [self.filenameToNoteMap removeObjectForKey:note.filename];
                 }
                 
             }
@@ -189,8 +190,11 @@
              * Since deletion of a metadata record corresponds with deletion of a note, we can simply wait
              * for -observeRootPath: to observe the note deletion.
              */
-            if (changedRecord.isDeleted)
+            if (changedRecord.isDeleted) {
+                NSString *filename = changedRecord[@"filename"];
+                if (filename) [self.filenameToRecordMap removeObjectForKey:filename];
                 continue;
+            }
             
             /* Insertion
              * ---------
