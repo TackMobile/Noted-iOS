@@ -1536,12 +1536,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         NSLog(@"Received a 'note added' notification, but we already have the note. %@", note);
         return;
     } else {
-        NSInteger i = [NTDNote indexForNote:note amongNotes:self.notes];
-        NSLog(@"New note %@ should be placed at index %d", note.filename, i);
-        [self.notes insertObject:note atIndex:i];
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-        [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
-    }    
+        [note openWithCompletionHandler:^(BOOL success) {
+            NSInteger i = [NTDNote indexForNote:note amongNotes:self.notes];
+            NSLog(@"New note %@ should be placed at index %d", note.filename, i);
+            [self.notes insertObject:note atIndex:i];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+            [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
+        }];
+    }
 }
 
 #pragma mark - UIGestureRecognizerDelegate

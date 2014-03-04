@@ -80,7 +80,7 @@
     };
     for (NSInteger i = 0; i < notes.count; i++) {
         NSComparisonResult result = comparatorUsingFilenamesAndDates(note, notes[i]);
-        if (result == (NSComparisonResult)NSOrderedAscending)
+        if (result == (NSComparisonResult)NSOrderedDescending)
             continue;
         else
             return i;
