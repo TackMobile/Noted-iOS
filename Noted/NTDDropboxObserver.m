@@ -14,6 +14,7 @@
 
 @interface NTDDropboxObserver()
 @property (nonatomic, strong) NSMutableDictionary *fileToPathMap, *fileinfoToNoteMap, *filenameToNoteMap, *filenameToRecordMap;
+@property (nonatomic, strong) dispatch_queue_t serial_queue;
 @end
 
 @implementation NTDDropboxObserver
@@ -32,6 +33,7 @@
 {
     if (self == [super init]) {
         [self clearMaps];
+        self.serial_queue = dispatch_queue_create("NTDDropboxObserver Serial Queue", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -77,7 +79,7 @@
         return NO;
     }
 
-    return [filesystem addObserver:self forPathAndChildren:path block:^{
+    DBObserver observerBlock = ^{
         __autoreleasing DBError *error;
         NSArray *newFiles = [[DBFilesystem sharedFilesystem] listFolder:path error:&error];
         if (error || !files) {
@@ -137,7 +139,9 @@
                 
             }
         }];
-        
+    };
+    return [filesystem addObserver:self forPathAndChildren:path block:^{
+        dispatch_async(self.serial_queue, observerBlock);
     }];
 }
 
@@ -173,7 +177,7 @@
 - (void)observeDatastore:(DBDatastore *)datastore
 {
     __weak DBDatastore *weakDatastore = datastore;
-    [datastore addObserver:self block:^{
+    DBObserver observerBlock = ^{
         LogDatastoreStatusDebug(weakDatastore);
         if (!(weakDatastore.status & DBDatastoreIncoming))
             return;
@@ -233,9 +237,10 @@
             if (note) {
                 [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
             }
-            
         }
-        
+    };
+    [datastore addObserver:self block:^{
+        dispatch_async(self.serial_queue, observerBlock);
     }];
 }
 
