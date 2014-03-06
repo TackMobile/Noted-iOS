@@ -437,6 +437,38 @@ static const NSString *kFilenameKey = @"filename";
     }
 }
 
++ (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
+{
+    if (!datastore) {
+        datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+                                                      error:nil];
+    }
+    if (!datastore) {
+        NSLog(@"Couldn't open datastore!");
+        completionBlock();
+        return;
+    }
+    
+    
+    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+        completionBlock();
+    } else {
+        __block NSObject *observer = [NSObject new];
+        __weak DBDatastore *weakDatastore = datastore;
+        [datastore addObserver:observer block:^{
+            if (weakDatastore.status & DBDatastoreIncoming) {
+                [weakDatastore sync:nil];
+                return;
+            }
+            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+                [weakDatastore removeObserver:observer];
+                observer = nil;
+                completionBlock();
+            }
+        }];
+    }
+}
+
 #pragma mark - Notifications
 - (void)noteWasDeleted:(NSNotification *)notification
 {

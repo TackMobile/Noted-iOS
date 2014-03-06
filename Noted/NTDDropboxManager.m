@@ -41,7 +41,6 @@ static NTDModalView *modalView;
 {
     DBAccount *account = [[DBAccountManager sharedManager] handleOpenURL:url];
     BOOL success = (account != nil);
-    [self setDropboxEnabled:success];
     if (success) {
         modalView = [[NTDModalView alloc] init];
         modalView.message = @"Syncing. Hold up a second...";
@@ -53,6 +52,7 @@ static NTDModalView *modalView;
         [filesystem addObserver:self block:^{
             if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
                 [self importExistingFiles];
+                [self setDropboxEnabled:YES];
                 [[DBFilesystem sharedFilesystem] removeObserver:self];
             }
         }];
@@ -87,10 +87,17 @@ static NTDModalView *modalView;
     [controller returnToListLayout];
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [NTDDropboxNote clearExistingMetadataWithCompletionBlock:^{
+            [NTDDropboxNote syncMetadataWithCompletionBlock:^{
                 for (NTDNote *note in notes) {
                     DBError __autoreleasing *error;
-                    DBPath *path = [[DBPath root] childPath:note.filename];
+                    NSString *filename = note.filename;
+                    DBFileInfo *fileinfo;
+                    DBPath *path;
+                    do {
+                        path = [[DBPath root] childPath:filename];
+                        fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
+                    } while (fileinfo && (filename = IncrementIndexOfFilename(filename)));
+                    
                     DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
                     if (error) {
                         NSString *errorMsg = [NSString stringWithFormat:@"Error creating file named %@: %@", note.filename, error];
@@ -123,5 +130,25 @@ static NTDModalView *modalView;
             }];
         });
     }];
+}
+
+#pragma mark - Helpers
+static NSString *IncrementIndexOfFilename(NSString *path)
+{
+    NSRegularExpression *matcher = [NSRegularExpression regularExpressionWithPattern:@".*([0-9])+.*"
+                                                                             options:0
+                                                                               error:nil];
+    NSString *filename = [path stringByDeletingPathExtension], *incrementedFilename;
+    NSRange filenameRange = NSMakeRange(0, filename.length);
+    NSTextCheckingResult *textCheckingResult = [matcher firstMatchInString:filename options:0 range:filenameRange];
+    NSRange textCheckingResultRange = [textCheckingResult rangeAtIndex:1];
+    if (textCheckingResultRange.location == NSNotFound) {
+        incrementedFilename = [filename stringByAppendingString:@"-1"];
+    } else {
+        NSInteger index = [[filename substringWithRange:textCheckingResultRange] integerValue];
+        index++;
+        incrementedFilename = [filename stringByReplacingCharactersInRange:textCheckingResultRange withString:[@(index) stringValue]];
+    }
+    return [incrementedFilename stringByAppendingPathExtension:[path pathExtension]];
 }
 @end
