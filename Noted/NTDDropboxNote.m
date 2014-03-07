@@ -79,6 +79,15 @@ static DBDatastore *datastore;
     _metadata = metadata;
 }
 
+-(void)setBodyText:(NSString *)bodyText
+{
+    if (![_bodyText isEqualToString:bodyText]) {
+        _bodyText = bodyText;
+        NSString *newHeadline = [NTDNote headlineForString:bodyText];
+        [self setHeadline:newHeadline];
+    }
+}
+
 #pragma mark - Helpers
 + (DBPath *)rootPath
 {
@@ -156,7 +165,6 @@ static DBDatastore *datastore;
             if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; /* TODO this should fail */
             [[NTDDropboxObserver sharedObserver] observeDatastore:datastore];
         }
-        [datastore sync:nil];
         
         NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[fileinfoArray count]];
         for (DBFileInfo *fileinfo in fileinfoArray) {
@@ -166,7 +174,7 @@ static DBDatastore *datastore;
             [[NTDDropboxObserver sharedObserver] observeNote:note];
             filenameCounter = MAX(filenameCounter, [NTDNote indexFromFilename:note.filename]);
         }
-        
+        [datastore sync:nil]; /* Upload any newly created metadata objects. */
         [notes sortUsingComparator:[NTDNote comparatorUsingFilenames]];
         
         if (error) [NTDNote logError:error withMessage:@"Couldn't open datastore for metadata!"];
@@ -192,7 +200,7 @@ static DBDatastore *datastore;
         if (error) {
             [NTDNote logError:error withMessage:@"Couldn't create file!"];
             note = nil;
-        };
+        }
         dispatch_async(main_dispatch_queue, ^{
             handler((NTDNote *)note);
         });
@@ -367,8 +375,6 @@ static const NSString *kFilenameKey = @"filename";
         return;
     }
     self.bodyText = text;
-    NSString *newHeadline = [NTDNote headlineForString:text];
-    [self setHeadline:newHeadline];
 }
 
 -(void)refreshMetadata
@@ -388,6 +394,14 @@ static const NSString *kFilenameKey = @"filename";
         self.metadata = [table insert:@{kFilenameKey : self.filename,
                                         kHeadlineKey : [NTDNote headlineForString:self.bodyText],
                                         kThemeKey    : @(NTDColorSchemeWhite)}];
+        if (self.fileState != NTDNoteFileStateOpened) {
+            /* This implies that we need to open the file in order to eventually get the correct headline. */
+            [self openWithCompletionHandler:^(BOOL success) {
+                if (success)  {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NTDNoteWasChangedNotification object:self];
+                }
+            }];
+        }
     }
 }
 
