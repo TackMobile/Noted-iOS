@@ -11,6 +11,7 @@
 #import "NTDDropboxManager.h"
 #import "NTDDropboxNote.h"
 #import "NTDNote+ImplUtils.h"
+#import "NTDInMemoryNote.h"
 
 static Class PrivateImplentingClass;
 
@@ -86,14 +87,22 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     recursiveBlock();
 }
 
+static Class BackupImplementingClass;
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    [PrivateImplentingClass backupNotesWithCompletionHandler:handler];
+    BackupImplementingClass = PrivateImplentingClass;
+    PrivateImplentingClass = [NTDInMemoryNote class];
+    handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    handler(YES);
 }
 
 + (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    [PrivateImplentingClass restoreNotesFromBackupWithCompletionHandler:handler];
+    [NTDInMemoryNote reset];
+    PrivateImplentingClass = BackupImplementingClass;
+    BackupImplementingClass = Nil;
+    handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    handler(YES);
 }
 
 + (void)refreshStoragePreferences
