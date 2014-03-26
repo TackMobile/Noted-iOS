@@ -127,62 +127,6 @@ static NSUInteger filenameCounter = 1;
     }    
 }
 
-BOOL safe_rename(const char *old, const char *new)
-{
-    // http://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
-    int old_fd, new_fd, error;
-    
-    old_fd = open(old, O_RDONLY);
-    if (-1 == old_fd) return NO;
-    
-    error = rename(old, new);
-    if (-1 == error) return NO;
-    
-    new_fd = open(new, O_RDONLY);
-    if (-1 == new_fd) return NO;
-    
-    error = fsync(old_fd); /* Not sure what to do if we fail here so let's punt for now. */
-    error = fsync(new_fd);
-    
-    return YES;
-}
-
-+ (BOOL)safelyMoveItemAtURL:(NSURL *)oldURL toURL:(NSURL *)newURL
-{
-    const char *oldpath = [[oldURL path] cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *newpath = [[newURL path] cStringUsingEncoding:NSUTF8StringEncoding];
-    BOOL success = safe_rename(oldpath, newpath);
-    if (!success) {
-        NSString *errorMsg = [NSString stringWithFormat:@"safe_rename failed. errno = %d", errno];
-        NSLog(@"%@", errorMsg);
-        [Flurry logError:@"safe_rename() failure" message:errorMsg error:nil];
-    }
-    return success;
-}
-
-+ (BOOL)restoreFromBackup
-{
-    if ([NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]]) {
-        // delete current notes directory
-        NSError __autoreleasing *error;
-        [NSFileManager.defaultManager removeItemAtURL:[self notesDirectoryURL] error:&error];
-        if (error) {
-            NSLog(@"Couldn't delete current notes directory: %@", error);
-            [Flurry logError:@"Couldn't delete current notes directory" message:[error localizedDescription] error:error];
-            return NO;
-        }
-        
-        // restore from backup
-        BOOL didRestore = [self safelyMoveItemAtURL:[self backupDirectoryURL] toURL:[self notesDirectoryURL]];
-        if (!didRestore) {
-            NSLog(@"Couldn't restore from backup?!");
-            return NO;
-        }
-        return YES;
-    }
-    return NO;
-}
-
 + (BOOL)createNotesDirectory
 {
     NSError __autoreleasing *error;
@@ -403,10 +347,6 @@ BOOL safe_rename(const char *old, const char *new)
 + (void)initialize
 {
     [self createNotesDirectory];
-    if ([self restoreFromBackup]) {
-        NSLog(@"Successfully restored from backup.");
-        [Flurry logError:@"Restored from Backup" message:nil error:nil];
-    }
     NSURL *databaseURL = [[self notesDirectoryURL] URLByAppendingPathComponent:DatabaseFilename];
     sharedDatastore = [NTDCoreDataStore datastoreWithURL:databaseURL];
 }
@@ -483,73 +423,6 @@ BOOL safe_rename(const char *old, const char *new)
               handler(nil);
           };
       }];
-}
-
-+ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
-{
-    handler = [self handlerDispatchedToMainQueue:handler];
-    
-    // lock PSC
-    [[sharedDatastore persistentStoreCoordinator] lock];
-
-    // move current notes directory to backup
-    NSAssert(![NSFileManager.defaultManager fileExistsAtPath:[[self backupDirectoryURL] path]],
-             @"Backup should have been restored on app launch. Are you trying to do a backup while doing a backup?");
-    BOOL didBackup = [self safelyMoveItemAtURL:[self notesDirectoryURL] toURL:[self backupDirectoryURL]];
-    
-    // unlock PSC
-    [[sharedDatastore persistentStoreCoordinator] unlock];
-    
-    // quit if file operations failed
-    if (!didBackup || ![self createNotesDirectory]) {
-        handler(NO);
-        return;
-    }
-    
-    // reset PSC
-    [sharedDatastore resetStore];
-
-    handler(YES);
-}
-
-+ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
-{
-    handler = [self handlerDispatchedToMainQueue:handler];
-    
-//    // delete store
-//    NSFileManager *fileManager = [NSFileManager defaultManager];
-//    NSError __autoreleasing *error;
-//
-//    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
-//    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
-//    [fileManager removeItemAtURL:[mainStore URL] error:&error];
-//    if (error) {
-//        NSLog(@"Couldn't delete persistent store: %@", error);
-//        handler(NO);
-//        return;
-//    }
-    
-    // nil PSC
-    [[sharedDatastore persistentStoreCoordinator] unlock];
-    [sharedDatastore resetStore];
-
-    // lock PSC
-    [[sharedDatastore persistentStoreCoordinator] lock];
-    
-    BOOL didRestore = [self restoreFromBackup];
-    
-    // unlock PSC
-    [[sharedDatastore persistentStoreCoordinator] unlock];
-
-    if (!didRestore) {
-        handler(NO);
-        return;
-    }
-
-    // reset PSC
-    [sharedDatastore resetStore];
-
-    handler(YES);
 }
 
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
