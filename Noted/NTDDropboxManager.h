@@ -15,4 +15,5 @@
 +(BOOL)handleOpenURL:(NSURL *)url;
 +(BOOL)isDropboxEnabled;
 +(BOOL)isDropboxLinked;
+
 @end
