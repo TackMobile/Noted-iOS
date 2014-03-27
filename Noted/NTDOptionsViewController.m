@@ -76,7 +76,6 @@ typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
     NTDAboutOptionsVisitTag,
     NTDAboutOptionsFollowTag,
     NTDAboutOptionsFeedbackTag,
-    NTDAboutOptionsSupportTag,
     NTDAboutOptionsWalkthroughTag
 };
 
@@ -383,13 +382,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         case NTDAboutOptionsFeedbackTag:
         {
             NSURL *url = [NSURL URLWithString:@"mailto:noted@tackmobile.com?subject=Noted%20Feedback"];
-            [[UIApplication sharedApplication] openURL:url];
-            break;
-        }
-        
-        case NTDAboutOptionsSupportTag:
-        {
-            NSURL *url = [NSURL URLWithString:@"http://takenoted.com/support.html"];
             [[UIApplication sharedApplication] openURL:url];
             break;
         }
