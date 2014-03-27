@@ -30,6 +30,8 @@ static DBDatastore *datastore;
 {
     background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     main_dispatch_queue = dispatch_get_main_queue();
+    notesToSaveSet = [NSMutableSet new];
+    autosaveTaskIdentifier = UIBackgroundTaskInvalid;
 }
 
 +(instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo
@@ -366,15 +368,8 @@ static const NSString *kFilenameKey = @"filename";
 - (void)setText:(NSString *)text
 {
     if ([self.bodyText isEqualToString:text]) return;
-
-    //TODO autosave intelligently
-    DBError __autoreleasing *error;
-    [self.file writeString:text error:&error];
-    if (error) {
-        [NTDNote logError:error withMessage:@"Couldn't save file!"];
-        return;
-    }
     self.bodyText = text;
+    [NTDDropboxNote saveNoteLater:self];
 }
 
 -(void)refreshMetadata
@@ -487,5 +482,38 @@ static const NSString *kFilenameKey = @"filename";
 - (void)noteWasDeleted:(NSNotification *)notification
 {
     [self wasDeleted];
+}
+
+#pragma mark - Autosave
+static const NSTimeInterval AutosaveDelay = 3.0;
+static NSMutableSet *notesToSaveSet;
+static UIBackgroundTaskIdentifier autosaveTaskIdentifier;
+
++ (void)saveNoteLater:(NTDDropboxNote *)note
+{
+    [notesToSaveSet addObject:note];
+    [self cancelPreviousPerformRequestsWithTarget:self selector:@selector(savePendingNotes) object:nil];
+    [self performSelector:@selector(savePendingNotes) withObject:nil afterDelay:AutosaveDelay];
+    
+    if (autosaveTaskIdentifier == UIBackgroundTaskInvalid) {
+        autosaveTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithName:@"NTDDropbox Note Autosave Handler" expirationHandler:^{
+            [NTDDropboxNote savePendingNotes];
+            [[UIApplication sharedApplication] endBackgroundTask:autosaveTaskIdentifier];
+            autosaveTaskIdentifier = UIBackgroundTaskInvalid;
+        }];
+    }
+}
+
++ (void)savePendingNotes
+{
+    for (NTDDropboxNote *note in notesToSaveSet) {
+        DBError __autoreleasing *error;
+        [note.file writeString:note.bodyText error:&error];
+        if (error) {
+            [NTDNote logError:error withMessage:@"Couldn't save file!"];
+            continue;
+        }
+    }
+    [notesToSaveSet removeAllObjects];
 }
 @end
