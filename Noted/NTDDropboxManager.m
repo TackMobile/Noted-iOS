@@ -20,7 +20,7 @@ static NTDModalView *modalView;
 
 +(void)initialize
 {
-    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
+    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"u5zcbahg8gzjmkt" secret:@"aw0ifyqv1wozi5a"];
     [DBAccountManager setSharedManager:accountManager];
 }
 
@@ -118,7 +118,7 @@ static NTDModalView *modalView;
                 [NTDNote refreshStoragePreferences];
                 [modalView dismissWithCompletionHandler:^{
                     modalView = [[NTDModalView alloc] init];
-                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/TakeNoted” folder of your Dropbox.";
+                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/Noted Sync” folder of your Dropbox.";
                     modalView.type = NTDWalkthroughModalTypeDismiss;
                     modalView.promptHandler = ^(BOOL userClickedYes) {
                         [controller reloadNotes];
