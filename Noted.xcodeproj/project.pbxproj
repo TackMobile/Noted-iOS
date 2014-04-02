@@ -25,6 +25,7 @@
 		379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97D71678EE650051218D /* menu-icon-grey@2x.png */; };
 		379E97DD1678EE710051218D /* menu-icon-white.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DB1678EE710051218D /* menu-icon-white.png */; };
 		379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 379E97DC1678EE710051218D /* menu-icon-white@2x.png */; };
+		3F09B0D618ECBE2100F2C1E8 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F09B0D518ECBE2100F2C1E8 /* StoreKit.framework */; };
 		3F19D1F418E3850600519A23 /* NTDInMemoryNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F19D1F318E3850600519A23 /* NTDInMemoryNote.m */; };
 		3F19D1F518E3850600519A23 /* NTDInMemoryNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F19D1F318E3850600519A23 /* NTDInMemoryNote.m */; };
 		3F1FF28A17A048BD00213F2F /* NTDWalkthrough.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF28917A048BD00213F2F /* NTDWalkthrough.m */; };
@@ -127,6 +128,7 @@
 		379E97D71678EE650051218D /* menu-icon-grey@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-grey@2x.png"; sourceTree = "<group>"; };
 		379E97DB1678EE710051218D /* menu-icon-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white.png"; sourceTree = "<group>"; };
 		379E97DC1678EE710051218D /* menu-icon-white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-icon-white@2x.png"; sourceTree = "<group>"; };
+		3F09B0D518ECBE2100F2C1E8 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		3F19D1F218E3850600519A23 /* NTDInMemoryNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDInMemoryNote.h; sourceTree = "<group>"; };
 		3F19D1F318E3850600519A23 /* NTDInMemoryNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDInMemoryNote.m; sourceTree = "<group>"; };
 		3F1FF28817A048BD00213F2F /* NTDWalkthrough.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDWalkthrough.h; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F4E225018A99CCF00EEC7E8 /* CoreMedia.framework in Frameworks */,
+				3F09B0D618ECBE2100F2C1E8 /* StoreKit.framework in Frameworks */,
 				3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */,
 				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
 				CFAF5CC1178E04ED00187C79 /* CFNetwork.framework in Frameworks */,
@@ -323,6 +326,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3F09B0D518ECBE2100F2C1E8 /* StoreKit.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
 				CF29671517B2F9B100994446 /* Crashlytics.framework */,
@@ -606,6 +610,11 @@
 				TargetAttributes = {
 					29FC490E156EE0CD0007BBAD = {
 						DevelopmentTeam = 9B83N8S7VW;
+						SystemCapabilities = {
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+						};
 					};
 					3F7370FE18AECD5F0092694E = {
 						TestTargetID = 29FC490E156EE0CD0007BBAD;
@@ -889,6 +898,8 @@
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
@@ -904,6 +915,7 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -913,6 +925,8 @@
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
@@ -927,6 +941,7 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1076,6 +1091,8 @@
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
@@ -1091,6 +1108,7 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Ad Hoc";
