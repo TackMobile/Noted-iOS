@@ -223,7 +223,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // tap while viewing options
     tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardTapWhileViewingOptions:)];
     tapGestureRecognizer.enabled = NO;
-    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
+//    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // create launch image view
@@ -855,8 +855,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (void)handleCardTapWhileViewingOptions:(UITapGestureRecognizer *)tapGestureRecognizer
 {
-    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded)
-        [self closeOptionsWithVelocity:.2];
+    if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        // bugfix for recognizing taps inside the options section
+        CGPoint tapLoc = [tapGestureRecognizer locationInView:self.view];
+        BOOL touchIsInsideOptions = tapLoc.x < self.pagingLayout.currentOptionsOffset;
+        if (!touchIsInsideOptions)
+            [self closeOptionsWithVelocity:.2];
+    }
 }
 
 - (IBAction)squeezeLastNote:(UIPinchGestureRecognizer *)pinchGestureRecognizer {
@@ -1090,6 +1095,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     /* Don't let user interact with anything but our options. */
     visibleCell.textView.editable = NO;
     self.panCardWhileViewingOptionsGestureRecognizer.enabled = YES;
+
+    [self.visibleCell addGestureRecognizer:self.tapCardWhileViewingOptionsGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer.enabled = YES;
     
     self.twoFingerPanGestureRecognizer.enabled = NO;

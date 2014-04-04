@@ -80,6 +80,7 @@
 		B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */; };
 		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
+		C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */; };
 		CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */ = {isa = PBXBuildFile; fileRef = CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
@@ -200,6 +201,8 @@
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
 		B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.xcconfig"; path = "Pods/Pods-NotedTests.xcconfig"; sourceTree = "<group>"; };
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
+		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
@@ -523,6 +526,8 @@
 				CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */,
 				B5D5F23F17188840008C60EE /* NTDCollectionViewController.h */,
 				B5D5F24017188840008C60EE /* NTDCollectionViewController.m */,
+				C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */,
+				C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -741,6 +746,7 @@
 			files = (
 				29FC4920156EE0CD0007BBAD /* main.m in Sources */,
 				29FC4924156EE0CD0007BBAD /* AppDelegate.m in Sources */,
+				C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
 				3FC8309718623E61001C141C /* NTDDropboxNote.m in Sources */,

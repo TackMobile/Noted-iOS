@@ -13,6 +13,7 @@
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
 #import "NTDOptionsViewController.h"
+#import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
 #import "NTDModalView.h"
@@ -33,7 +34,12 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *shareOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
+
 @property (weak, nonatomic) IBOutlet UILabel *toggleDropboxLabel;
+@property (weak, nonatomic) IBOutlet UILabel *chooseThemeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *restorePurchasesLabel;
+
+@property (strong, nonatomic) IBOutlet NTDThemesTableViewController *themesTableViewController;
 
 @end
 
@@ -225,6 +231,25 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         }];
         [modalView show];
     }];
+    
+    // Themes
+    self.chooseThemeLabel.userInteractionEnabled = YES;
+    [self.chooseThemeLabel bk_whenTapped:^{
+        NSString *msg = @"Choose theme.";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:nil dismissalHandler:nil];
+        [modalView show];
+        [modalView dismiss];
+        [self themesTapped];
+    }];
+    
+    // Purchases
+    self.restorePurchasesLabel.userInteractionEnabled = YES;
+    [self.restorePurchasesLabel bk_whenTapped:^{
+        NSString *msg = @"Restore Purchases.";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:nil dismissalHandler:nil];
+        [modalView show];
+        [modalView dismiss];
+    }];
     [self reset];
 }
 
@@ -402,6 +427,17 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
 }
 
+- (void)themesTapped {
+    [self.view insertSubview:self.themesTableViewController.view belowSubview:self.doneButton];
+    [self.themesTableViewController.view setUserInteractionEnabled:YES];
+    
+    [UIView animateWithDuration:.2 animations:^{
+        self.themesTableViewController.view.$x=0;
+        [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width];
+        [self.themesTableViewController.tableView reloadData];
+    }];
+}
+
 #pragma mark - Sharing Actions
 - (NSString *)sharingText
 {
@@ -550,10 +586,17 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         .origin.y = mySize.height,
         .size = self.doneButton.frame.size
     };
+    CGRect themesFrame = {
+        .origin.x = mySize.width,
+        .origin.y = CompressedColorHeight,
+        .size.width = mySize.width,
+        .size.height = mySize.height - doneFrame.size.height - CompressedColorHeight
+    };
     
     self.colors.frame = colorsFrame;
     self.options.frame = optionsFrame;
     self.doneButton.frame = doneFrame;
+    self.themesTableViewController.view.frame = themesFrame;
     
     [self.options.subviews enumerateObjectsUsingBlock:^(UIView *optionView, NSUInteger idx, BOOL *stop) {
         // make sure title labels are at full alpha
