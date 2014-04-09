@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+FOUNDATION_EXPORT NSString *const NTDDidChangeThemeNotification;
+
 typedef NS_ENUM(int16_t, NTDColorScheme) {
     NTDColorSchemeWhite = 0,
     NTDColorSchemeSky,
@@ -18,12 +20,25 @@ typedef NS_ENUM(int16_t, NTDColorScheme) {
     NTDNumberOfColorSchemes
 };
 
+typedef NS_ENUM(int16_t, NTDThemeName) {
+    NTDThemeDefault = 0,
+    NTDThemeMono,
+    NTDThemePrimary,
+    NTDThemeEarthy,
+    NTDNumberOfThemes
+};
+
 @interface NTDTheme : NSObject
 
 @property (nonatomic, readonly) UIColor *backgroundColor, *subheaderColor, *textColor;
 @property (nonatomic, readonly) UIColor *borderColor, *caretColor;
 @property (nonatomic, readonly) UIImage *optionsButtonImage;
 @property (nonatomic, assign) NTDColorScheme colorScheme;
+
++ (void)setThemeToActive:(NTDThemeName)theme;
++ (int) activeThemeIndex;
+
++ (UIColor *)backgroundColorForThemeName:(NTDThemeName)themeName colorScheme:(NTDColorScheme)colorScheme;
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
 + (NTDTheme *)randomTheme;

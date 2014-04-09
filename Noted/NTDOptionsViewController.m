@@ -93,6 +93,7 @@ typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
 @property (nonatomic) CGFloat initialSidebarWidth;
 
 @property (nonatomic) BOOL optionIsExpanded;
+@property (nonatomic) BOOL themesAreExpanded;
 
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 @property (nonatomic, strong) MFMessageComposeViewController *messageViewController;
@@ -181,6 +182,14 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         color.backgroundColor = [[NTDTheme themeForColorScheme:color.tag] backgroundColor];
     }
     
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:NTDDidChangeThemeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        for (UIView *color in self.colors.subviews) {
+            color.backgroundColor = [[NTDTheme themeForColorScheme:color.tag] backgroundColor];
+        }
+        [self.delegate didChangeNoteTheme];
+    }];
+    
     // options
     for (UIView *choice in self.aboutOptionsView.subviews) {
         
@@ -235,10 +244,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // Themes
     self.chooseThemeLabel.userInteractionEnabled = YES;
     [self.chooseThemeLabel bk_whenTapped:^{
-        NSString *msg = @"Choose theme.";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:nil dismissalHandler:nil];
-        [modalView show];
-        [modalView dismiss];
         [self themesTapped];
     }];
     
@@ -329,7 +334,18 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void) doneTapped:(UIButton *)sender
 {
-    if (self.optionIsExpanded) {
+    if (self.themesAreExpanded) {
+        self.themesTableViewController.view.userInteractionEnabled = NO;
+        
+        [UIView animateWithDuration:ExpandMenuAnimationDuration
+                         animations:^{
+                             self.themesTableViewController.view.$x = self.view.frame.size.width;
+                             [self expandOptionWithTag:NTDOptionsSettingsTag];
+                         } completion:^(BOOL finished) {
+                             self.optionIsExpanded = YES;
+                             self.themesAreExpanded = NO;
+                         }];
+    } else if (self.optionIsExpanded) {
         [self.delegate changeOptionsViewWidth:[self.delegate initialOptionsViewWidth]];
         
         [UIView animateWithDuration:ExpandMenuAnimationDuration
@@ -428,13 +444,15 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)themesTapped {
-    [self.view insertSubview:self.themesTableViewController.view belowSubview:self.doneButton];
-    [self.themesTableViewController.view setUserInteractionEnabled:YES];
+    if (self.themesTableViewController.view.superview == nil)
+        [self.view addSubview:self.themesTableViewController.view];
+    
+    self.themesTableViewController.view.userInteractionEnabled = YES;
+    self.themesAreExpanded = YES;
     
     [UIView animateWithDuration:.2 animations:^{
         self.themesTableViewController.view.$x=0;
-        [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width];
-        [self.themesTableViewController.tableView reloadData];
+        [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
     }];
 }
 

@@ -13,14 +13,13 @@
 
 @implementation NTDThemePreview
 
-- (id) initWithTheme:(NTDTheme *)theme {
+- (id) initWithThemeName:(NSInteger)themeName {
     self = [super init];
     if (self) {
-        self.theme = theme;
+        self.theme = themeName;
         for (int i=0; i<NTDNumberOfColorSchemes; i++) {
             UIView *theView = [UIView new];
-            theme.colorScheme = i;
-            theView.backgroundColor = self.theme.backgroundColor;
+            theView.backgroundColor = [NTDTheme backgroundColorForThemeName:themeName colorScheme:i];
             [self addSubview:theView];
         }
     }
@@ -52,7 +51,8 @@
 @implementation NTDThemesTableViewController
 
 static NSString * const ThemeCellReuseIdentifier = @"ThemeCell";
-static const int HeaderHeight = 40;
+static NSArray *themeNames;
+static const int HeaderHeight = 38;
 static const int RowHeight = 60;
 
 #pragma mark - View Lifecycle
@@ -61,6 +61,8 @@ static const int RowHeight = 60;
     if (self) {
         [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:ThemeCellReuseIdentifier];
         self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        
+        themeNames = @[@"Original", @"Monochrome", @"Primary", @"Earthy"];
     }
     return self;
 }
@@ -71,7 +73,7 @@ static const int RowHeight = 60;
     self.clearsSelectionOnViewWillAppear = YES;
     
     // TESTING
-    self.selectedThemeIndex = 3;
+    self.selectedThemeIndex = [NTDTheme activeThemeIndex];
     
 }
 
@@ -86,7 +88,7 @@ static const int RowHeight = 60;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 10;
+    return NTDNumberOfThemes;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -101,14 +103,14 @@ static const int RowHeight = 60;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     // configure the theme's color box
-    NTDThemePreview *themePreview = [[NTDThemePreview alloc] initWithTheme:[NTDTheme themeForColorScheme:0]];
+    NTDThemePreview *themePreview = [[NTDThemePreview alloc] initWithThemeName:indexPath.item];
     themePreview.frame = CGRectMake(15, 10, 40, 40);
     
     // configure the theme's title
     UILabel *themeTitle = [[UILabel alloc] initWithFrame:CGRectMake(65, 10, cell.frame.size.width-60, 40)];
     themeTitle.textColor = [UIColor whiteColor];
     themeTitle.font = [UIFont fontWithName:@"Avenir-Light" size:16];
-    themeTitle.text = [NSString stringWithFormat:@"Theme title %ld", indexPath.item];
+    themeTitle.text = [themeNames objectAtIndex:indexPath.item];
     
     // decide if the theme is currently active
     if (indexPath.item == self.selectedThemeIndex) {
@@ -175,6 +177,7 @@ static const int RowHeight = 60;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     self.selectedThemeIndex = indexPath.item;
+    [NTDTheme setThemeToActive:indexPath.item];
     [self.tableView reloadData];
 }
 

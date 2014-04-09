@@ -11,9 +11,9 @@
 
 @interface NTDThemePreview : UIView
 
-@property (nonatomic, strong) NTDTheme *theme;
+@property (nonatomic) NSInteger theme;
 
-- (id) initWithTheme:(NTDTheme *)theme;
+- (id) initWithThemeName:(NSInteger)themeName;
 
 @end
 
