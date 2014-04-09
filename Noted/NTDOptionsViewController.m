@@ -82,7 +82,6 @@ typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
     NTDAboutOptionsVisitTag,
     NTDAboutOptionsFollowTag,
     NTDAboutOptionsFeedbackTag,
-    NTDAboutOptionsSupportTag,
     NTDAboutOptionsWalkthroughTag
 };
 
@@ -428,12 +427,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             break;
         }
         
-        case NTDAboutOptionsSupportTag:
-        {
-            NSURL *url = [NSURL URLWithString:@"http://takenoted.com/support.html"];
-            [[UIApplication sharedApplication] openURL:url];
-            break;
-        }
+//        case NTDAboutOptionsSupportTag:
+//        {
+//            NSURL *url = [NSURL URLWithString:@"http://takenoted.com/support.html"];
+//            [[UIApplication sharedApplication] openURL:url];
+//            break;
+//        }
             
         case NTDAboutOptionsWalkthroughTag:
             [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
