@@ -31,30 +31,30 @@ static NSArray *backgroundColors, *caretColors, *themes;
                                         nil];
     
     NSArray *monoBackgroundColors = [[NSArray alloc] initWithObjects:
-                                    [UIColor colorWithHexString:@"FFFFFF"],
-                                    [UIColor colorWithHexString:@"DDDDDD"],
+                                    [UIColor colorWithHexString:@"F5D9A0"],
+                                    [UIColor colorWithHexString:@"F29D89"],
                                     [UIColor colorWithHexString:@"BBBBBB"],
-                                    [UIColor colorWithHexString:@"999999"],
-                                    [UIColor colorWithHexString:@"777777"],
-                                    [UIColor colorWithHexString:@"666666"],
+                                    [UIColor colorWithHexString:@"DB456B"],
+                                    [UIColor colorWithHexString:@"8A447E"],
+                                    [UIColor colorWithHexString:@"300040"],
                                     nil];
     
     NSArray *primaryBackgroundColors = [[NSArray alloc] initWithObjects:
-                                     [UIColor colorWithHexString:@"FF0000"],
-                                     [UIColor colorWithHexString:@"00FF00"],
-                                     [UIColor colorWithHexString:@"0000FF"],
-                                     [UIColor colorWithHexString:@"FFFF00"],
-                                     [UIColor colorWithHexString:@"00FFFF"],
-                                     [UIColor colorWithHexString:@"FF00FF"],
+                                     [UIColor colorWithHexString:@"1A5D65"],
+                                     [UIColor colorWithHexString:@"339966"],
+                                     [UIColor colorWithHexString:@"86C486"],
+                                     [UIColor colorWithHexString:@"D2DB9A"],
+                                     [UIColor colorWithHexString:@"F9D980"],
+                                     [UIColor colorWithHexString:@"3C8E77"],
                                      nil];
     
     NSArray *earthyBackgroundColors = [[NSArray alloc] initWithObjects:
-                                     [UIColor colorWithHexString:@"800000"],
-                                     [UIColor colorWithHexString:@"CC6600"],
-                                     [UIColor colorWithHexString:@"663300"],
-                                     [UIColor colorWithHexString:@"A38566"],
-                                     [UIColor colorWithHexString:@"669900"],
-                                     [UIColor colorWithHexString:@"333300"],
+                                     [UIColor colorWithHexString:@"F1511F"],
+                                     [UIColor colorWithHexString:@"FFA52A"],
+                                     [UIColor colorWithHexString:@"FFD92D"],
+                                     [UIColor colorWithHexString:@"48B6FF"],
+                                     [UIColor colorWithHexString:@"2D85D3"],
+                                     [UIColor colorWithHexString:@"FFA52A"],
                                      nil];
 
     
