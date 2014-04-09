@@ -9,14 +9,53 @@
 #import "NTDThemesTableViewController.h"
 #import <UIView+FrameAdditions.h>
 
-@interface NTDThemesTableViewController ()
+#pragma mark - NTDThemePreview
 
+@implementation NTDThemePreview
+
+- (id) initWithTheme:(NTDTheme *)theme {
+    self = [super init];
+    if (self) {
+        self.theme = theme;
+        for (int i=0; i<NTDNumberOfColorSchemes; i++) {
+            UIView *theView = [UIView new];
+            theme.colorScheme = i;
+            theView.backgroundColor = self.theme.backgroundColor;
+            [self addSubview:theView];
+        }
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    float colorHeight = (self.frame.size.height - (NTDNumberOfColorSchemes-1))/NTDNumberOfColorSchemes;
+    for (int i=0; i<[[self subviews] count]; i++) {
+        CGRect colorFrame = {
+            .origin.x = 0,
+            .origin.y = colorHeight*i + i,
+            .size.height = colorHeight,
+            .size.width = self.frame.size.width
+        };
+        UIView *theColor = [[self subviews] objectAtIndex:i];
+        [theColor setFrame:colorFrame];
+    }
+}
+
+@end
+
+#pragma mark - NTDThemeTableViewController
+
+@interface NTDThemesTableViewController ()
+@property (nonatomic) NSInteger selectedThemeIndex;
 @end
 
 @implementation NTDThemesTableViewController
 
 static NSString * const ThemeCellReuseIdentifier = @"ThemeCell";
+static const int HeaderHeight = 40;
+static const int RowHeight = 60;
 
+#pragma mark - View Lifecycle
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
@@ -29,21 +68,14 @@ static NSString * const ThemeCellReuseIdentifier = @"ThemeCell";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.clearsSelectionOnViewWillAppear = YES;
     
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
+    // TESTING
+    self.selectedThemeIndex = 3;
     
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-#pragma mark - Table view data source
+#pragma mark - TableView Data Source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -59,100 +91,91 @@ static NSString * const ThemeCellReuseIdentifier = @"ThemeCell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ThemeCellReuseIdentifier forIndexPath:indexPath];
-    
+    UITableViewCell *cell = [UITableViewCell new];
     [self configureCell:cell indexPath:indexPath];
-    
     return cell;
 }
 
 - (UITableViewCell *)configureCell:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath {
     cell.backgroundColor = [UIColor blackColor];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    UIView *themePreview = [[UIView alloc] initWithFrame:CGRectMake(10, 10, 40, 40)];
-    themePreview.backgroundColor = [UIColor whiteColor];
-    [cell addSubview:themePreview];
+    // configure the theme's color box
+    NTDThemePreview *themePreview = [[NTDThemePreview alloc] initWithTheme:[NTDTheme themeForColorScheme:0]];
+    themePreview.frame = CGRectMake(15, 10, 40, 40);
     
-    UILabel *themeTitle = [[UILabel alloc] initWithFrame:CGRectMake(60, 10, cell.frame.size.width-60, 40)];
+    // configure the theme's title
+    UILabel *themeTitle = [[UILabel alloc] initWithFrame:CGRectMake(65, 10, cell.frame.size.width-60, 40)];
     themeTitle.textColor = [UIColor whiteColor];
     themeTitle.font = [UIFont fontWithName:@"Avenir-Light" size:16];
-    [cell addSubview:themeTitle];
+    themeTitle.text = [NSString stringWithFormat:@"Theme title %ld", indexPath.item];
     
-    themeTitle.text = @"Theme title";
+    // decide if the theme is currently active
+    if (indexPath.item == self.selectedThemeIndex) {
+        cell.backgroundColor = [UIColor darkGrayColor];
+        themeTitle.font = [UIFont fontWithName:@"Avenir" size:16];
+    }
+    
+    // add in the subviews
+    [cell.contentView addSubview:themePreview];
+    [cell.contentView addSubview:themeTitle];
     
     return cell;
 }
 
+#pragma mark - TableViewDelegate
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 60;
+    return RowHeight;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return @"THEMES";
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return HeaderHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 1/[[UIScreen mainScreen] scale]; // used for small border at bottom of tableview
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UIView *headerView = [[UIView alloc] init];
+    headerView.backgroundColor = [UIColor blackColor];
+    
+    // configure the 1px seperator that belongs under the header view
+    CGRect seperatorFrame = {
+        .origin.y = HeaderHeight,
+        .size.width = self.view.frame.size.width,
+        .size.height = 1/[[UIScreen mainScreen] scale]
+    };
+    UIView *seperatorView = [[UIView alloc] initWithFrame:seperatorFrame];
+    seperatorView.backgroundColor = [UIColor darkGrayColor];
+    
+    // configure the header's text
+    UILabel *headerLabel = [[UILabel alloc] init];
+    headerLabel.textColor = [UIColor whiteColor];
+    headerLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
+    headerLabel.text = @"Themes";
+    headerLabel.alpha = .7;
+    headerLabel.$size =  [headerLabel.text sizeWithFont:headerLabel.font];
+    headerLabel.$x = 15;
+    headerLabel.$y = 9;
+    
+    // add the seperator and label to the header
+    [headerView addSubview:seperatorView];
+    [headerView addSubview:headerLabel];
+    
+    return headerView;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    UIView *footerView = [[UIView alloc] init];
+    footerView.backgroundColor = [UIColor darkGrayColor];
+    return footerView;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"selecting");
+    self.selectedThemeIndex = indexPath.item;
+    [self.tableView reloadData];
 }
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-//    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 30)];
-//    UILabel *headerLabel = [[UILabel alloc] init];
-//    
-//    headerLabel.textColor = [UIColor whiteColor];
-//    headerLabel.font = [UIFont fontWithName:@"Avenir Light" size:16];
-//    [headerLabel sizeToFit];
-//    
-//    [headerView addSubview:headerLabel];
-//    return headerView;
-//}
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

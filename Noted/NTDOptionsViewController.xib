@@ -359,7 +359,7 @@
             </subviews>
         </view>
         <tableViewController id="Lif-Ay-63o" customClass="NTDThemesTableViewController">
-            <tableView key="view" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" canCancelContentTouches="NO" style="plain" rowHeight="53" sectionHeaderHeight="22" sectionFooterHeight="22" id="Xxm-c4-izZ">
+            <tableView key="view" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" rowHeight="53" sectionHeaderHeight="22" sectionFooterHeight="22" id="Xxm-c4-izZ">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="400"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>

@@ -7,7 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NTDTheme.h"
+
+@interface NTDThemePreview : UIView
+
+@property (nonatomic, strong) NTDTheme *theme;
+
+- (id) initWithTheme:(NTDTheme *)theme;
+
+@end
 
 @interface NTDThemesTableViewController : UITableViewController
+
+//@property (nonatomic, strong) activeTheme
 
 @end
