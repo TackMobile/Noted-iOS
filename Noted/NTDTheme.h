@@ -21,10 +21,13 @@ typedef NS_ENUM(int16_t, NTDColorScheme) {
 };
 
 typedef NS_ENUM(int16_t, NTDThemeName) {
-    NTDThemeDefault = 0,
-    NTDThemeMono,
-    NTDThemePrimary,
-    NTDThemeEarthy,
+    NTDThemeNoted = 0,
+    NTDThemeTurbo,
+    NTDThemeSunGlow,
+    NTDThemeField,
+    NTDThemeIceCream,
+    NTDThemeCandyCrush,
+    NTDThemeViolets,
     NTDNumberOfThemes
 };
 
@@ -42,6 +45,7 @@ typedef NS_ENUM(int16_t, NTDThemeName) {
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
 + (NTDTheme *)randomTheme;
++ (NSArray *)themeNames;
 - (BOOL)isDarkColorScheme;
 - (NSString *)themeName;
 @end

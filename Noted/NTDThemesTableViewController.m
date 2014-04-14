@@ -65,7 +65,7 @@ static const int RowHeight = 60;
         [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:NTDThemeCellReuseIdentifier];
         self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
         
-        themeNames = @[@"Original", @"Flowery", @"Fields", @"Ocean"];
+        themeNames = [NTDTheme themeNames];
     }
     return self;
 }

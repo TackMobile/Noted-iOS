@@ -19,6 +19,8 @@ NSString *const NTDDidChangeThemeNotification = @"didChangeTheme";
 
 static NSArray *backgroundColors, *caretColors, *themes;
 
+static BOOL TESTING_THEMES = YES;
+
 + (void)initialize
 {
     NSArray *defaultBackgroundColors = [[NSArray alloc] initWithObjects:
@@ -30,32 +32,59 @@ static NSArray *backgroundColors, *caretColors, *themes;
                                         [UIColor colorWithHexString:@"1A9FEB"],
                                         nil];
     
-    NSArray *monoBackgroundColors = [[NSArray alloc] initWithObjects:
+    NSArray *aBackgroundColors = [[NSArray alloc] initWithObjects:
+                                    [UIColor colorWithHexString:@"405C78"],
+                                    [UIColor colorWithHexString:@"5C7C9A"],
                                     [UIColor colorWithHexString:@"F5D9A0"],
-                                    [UIColor colorWithHexString:@"F29D89"],
-                                    [UIColor colorWithHexString:@"BBBBBB"],
-                                    [UIColor colorWithHexString:@"DB456B"],
-                                    [UIColor colorWithHexString:@"8A447E"],
-                                    [UIColor colorWithHexString:@"300040"],
+                                    [UIColor colorWithHexString:@"C7C8C8"],
+                                    [UIColor colorWithHexString:@"807E7E"],
+                                    [UIColor colorWithHexString:@"FF5F3F"],
                                     nil];
     
-    NSArray *primaryBackgroundColors = [[NSArray alloc] initWithObjects:
+    NSArray *bBackgroundColors = [[NSArray alloc] initWithObjects:
+                                        [UIColor colorWithHexString:@"EF4B4E"],
+                                        [UIColor colorWithHexString:@"FFC926"],
+                                        [UIColor colorWithHexString:@"F2E4BF"],
+                                        [UIColor colorWithHexString:@"51BFB4"],
+                                        [UIColor colorWithHexString:@"AAD9D4"],
+                                        [UIColor colorWithHexString:@"AAD9D4"],
+                                        nil];
+    
+    NSArray *cBackgroundColors = [[NSArray alloc] initWithObjects:
                                      [UIColor colorWithHexString:@"1A5D65"],
                                      [UIColor colorWithHexString:@"339966"],
                                      [UIColor colorWithHexString:@"86C486"],
                                      [UIColor colorWithHexString:@"D2DB9A"],
                                      [UIColor colorWithHexString:@"F9D980"],
-                                     [UIColor colorWithHexString:@"3C8E77"],
+                                     [UIColor colorWithHexString:@"F9D980"],
                                      nil];
     
-    NSArray *earthyBackgroundColors = [[NSArray alloc] initWithObjects:
-                                     [UIColor colorWithHexString:@"F1511F"],
-                                     [UIColor colorWithHexString:@"FFA52A"],
-                                     [UIColor colorWithHexString:@"FFD92D"],
-                                     [UIColor colorWithHexString:@"48B6FF"],
-                                     [UIColor colorWithHexString:@"2D85D3"],
-                                     [UIColor colorWithHexString:@"FFA52A"],
-                                     nil];
+    NSArray *dBackgroundColors = [[NSArray alloc] initWithObjects:
+                                  [UIColor colorWithHexString:@"EF6766"],
+                                  [UIColor colorWithHexString:@"F28D70"],
+                                  [UIColor colorWithHexString:@"F1DF81"],
+                                  [UIColor colorWithHexString:@"8CBD9C"],
+                                  [UIColor colorWithHexString:@"4B6D8A"],
+                                  [UIColor colorWithHexString:@"4B6D8A"],
+                                  nil];
+    
+    NSArray *eBackgroundColors = [[NSArray alloc] initWithObjects:
+                                  [UIColor colorWithHexString:@"F1511F"],
+                                  [UIColor colorWithHexString:@"FFA52A"],
+                                  [UIColor colorWithHexString:@"FFD92D"],
+                                  [UIColor colorWithHexString:@"48B6FF"],
+                                  [UIColor colorWithHexString:@"2D85D3"],
+                                  [UIColor colorWithHexString:@"2D85D3"],
+                                  nil];
+    
+    NSArray *fBackgroundColors = [[NSArray alloc] initWithObjects:
+                                  [UIColor colorWithHexString:@"220F37"],
+                                  [UIColor colorWithHexString:@"39214E"],
+                                  [UIColor colorWithHexString:@"583279"],
+                                  [UIColor colorWithHexString:@"8E378F"],
+                                  [UIColor colorWithHexString:@"CC3D81"],
+                                  [UIColor colorWithHexString:@"CC3D81"],
+                                  nil];
 
     
     NSArray *defaultCaretColors = [[NSArray alloc] initWithObjects:
@@ -67,36 +96,10 @@ static NSArray *backgroundColors, *caretColors, *themes;
                                    [UIColor colorWithHexString:@"00639C"],
                                    nil];
     
-    NSArray *monoCaretColors = [[NSArray alloc] initWithObjects:
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                nil];
-    NSArray *primaryCaretColors = [[NSArray alloc] initWithObjects:
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                nil];
-    
-    NSArray *earthyCaretColors = [[NSArray alloc] initWithObjects:
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"999999"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                [UIColor colorWithHexString:@"FFFFFF"],
-                                nil];
-    
     backgroundColors = [[NSArray alloc] initWithObjects:
-                        defaultBackgroundColors, monoBackgroundColors, primaryBackgroundColors, earthyBackgroundColors, nil];
+                        defaultBackgroundColors, aBackgroundColors, bBackgroundColors, cBackgroundColors, dBackgroundColors, eBackgroundColors, fBackgroundColors, nil];
     caretColors = [[NSArray alloc] initWithObjects:
-                   defaultCaretColors, monoCaretColors, primaryCaretColors, earthyCaretColors, nil];
+                   defaultCaretColors, defaultCaretColors, defaultCaretColors, defaultCaretColors, nil];
 
 }
 
@@ -117,6 +120,10 @@ static NSArray *backgroundColors, *caretColors, *themes;
 + (NTDTheme *)randomTheme
 {
     return [self themeForColorScheme:arc4random_uniform(NTDNumberOfColorSchemes)];
+}
+
++ (NSArray *)themeNames {
+    return @[@"Noted", @"Turbo", @"Sun Glow", @"Field", @"Ice Cream", @"Candy Crush", @"Violets"];
 }
 
 - (id) init {
@@ -152,6 +159,13 @@ static NSArray *backgroundColors, *caretColors, *themes;
 
 - (UIColor *)caretColor
 {
+    if (TESTING_THEMES) {
+        float white = 0;
+        if ([self isDarkColorScheme])
+            white = 1;
+        
+        return [UIColor colorWithWhite:white alpha:.5];
+    }
     return caretColors[self.activeThemeIndex][self.colorScheme];
 }
 
@@ -160,15 +174,15 @@ static NSArray *backgroundColors, *caretColors, *themes;
     if ([self isDarkColorScheme])
         return [UIColor whiteColor];
     else
-        return [UIColor colorWithHexString:@"333333"];
+        return [UIColor colorWithWhite:0 alpha:.8];
 }
 
 - (UIColor *)subheaderColor
 {
     if ([self isDarkColorScheme])
-        return [UIColor colorWithWhite:1.0 alpha:0.5];
+        return [UIColor colorWithWhite:1.0 alpha:0.6];
     else
-        return [UIColor colorWithWhite:0.2 alpha:0.5];
+        return [UIColor colorWithWhite:0 alpha:0.5];
 }
 
 - (UIColor *)borderColor
@@ -186,6 +200,11 @@ static NSArray *backgroundColors, *caretColors, *themes;
 
 - (BOOL)isDarkColorScheme
 {
+    if (TESTING_THEMES) {
+        CGFloat red, green, blue, alpha;
+        [self.backgroundColor getRed:&red green:&green blue:&blue alpha:&alpha];
+        return (red+green+blue)<(3/2);
+    }
     return (NTDColorSchemeTack == self.colorScheme || NTDColorSchemeShadow == self.colorScheme);
 }
 
