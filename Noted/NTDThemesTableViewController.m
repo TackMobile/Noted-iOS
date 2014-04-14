@@ -7,6 +7,7 @@
 //
 
 #import "NTDThemesTableViewController.h"
+#import "NTDModalView.h"
 #import <UIView+FrameAdditions.h>
 
 #pragma mark - NTDThemePreview
@@ -46,11 +47,13 @@
 
 @interface NTDThemesTableViewController ()
 @property (nonatomic) NSInteger selectedThemeIndex;
+@property (nonatomic, strong) __block NTDModalView *modalView;
 @end
 
 @implementation NTDThemesTableViewController
 
-static NSString * const ThemeCellReuseIdentifier = @"ThemeCell";
+static NSString * const NTDThemeCellReuseIdentifier = @"ThemeCell";
+static NSString * const NTDDidPurchaseThemesKey = @"DidPurchaseThemes";
 static NSArray *themeNames;
 static const int HeaderHeight = 38;
 static const int RowHeight = 60;
@@ -59,7 +62,7 @@ static const int RowHeight = 60;
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:ThemeCellReuseIdentifier];
+        [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:NTDThemeCellReuseIdentifier];
         self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
         
         themeNames = @[@"Original", @"Flowery", @"Fields", @"Ocean"];
@@ -72,9 +75,33 @@ static const int RowHeight = 60;
     [super viewDidLoad];
     self.clearsSelectionOnViewWillAppear = YES;
     
-    // TESTING
     self.selectedThemeIndex = [NTDTheme activeThemeIndex];
-    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    self.tableView.userInteractionEnabled = NO;
+    if ([self didPurchaseThemes]) {
+        self.tableView.userInteractionEnabled = YES;
+    } else {
+        NSString *msg = @"Get more themes for your notes to customize Noted.";
+        self.modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:[UIColor blackColor] buttons:@[@"Purchase", @"Restore"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                if ([self.delegate respondsToSelector:@selector(dismissThemesTableView)])
+                    [self.delegate dismissThemesTableView];
+            }
+            [self.modalView dismiss];
+            self.tableView.userInteractionEnabled = YES;
+            
+        }];
+        UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+        [self.modalView showWithEdgeInsets:modalInsets];
+        
+        CGRect modalBorderRect = CGRectInset(self.modalView.bounds, -1, -1);
+        UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
+        modalBorder.backgroundColor = [UIColor darkGrayColor];
+        [self.modalView insertSubview:modalBorder atIndex:0];
+    }
 }
 
 #pragma mark - TableView Data Source
@@ -179,6 +206,18 @@ static const int RowHeight = 60;
     self.selectedThemeIndex = indexPath.item;
     [NTDTheme setThemeToActive:indexPath.item];
     [self.tableView reloadData];
+}
+
+- (BOOL)didPurchaseThemes {
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey]) {
+        return [[[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey] boolValue];
+    }
+    return NO;
+}
+
+- (void)dismissModalIfShowing {
+    if (self.modalView != nil)
+        [self.modalView dismiss];
 }
 
 @end

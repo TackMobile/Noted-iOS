@@ -9,6 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "NTDTheme.h"
 
+@protocol NTDThemesTableViewControllerDelegate <NSObject>
+
+- (void) dismissThemesTableView;
+
+@end
+
 @interface NTDThemePreview : UIView
 
 @property (nonatomic) NSInteger theme;
@@ -18,6 +24,9 @@
 @end
 
 @interface NTDThemesTableViewController : UITableViewController
+@property (nonatomic, strong) id<NTDThemesTableViewControllerDelegate> delegate;
+
+-(void)dismissModalIfShowing;
 
 //@property (nonatomic, strong) activeTheme
 

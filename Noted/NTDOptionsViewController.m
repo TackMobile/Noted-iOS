@@ -304,6 +304,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
     self.shareOptionsView.$height = shareOptionsHeight+1;
 }
+#pragma mark - NTDThemeTableViewDelegate
+
+- (void)dismissThemesTableView {
+    [self doneTapped:nil];
+}
 
 #pragma mark -  Gesture Recognition
 
@@ -337,7 +342,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void) doneTapped:(UIButton *)sender
 {
     if (self.themesAreExpanded) {
-        self.themesTableViewController.view.userInteractionEnabled = NO;
+        [self.themesTableViewController dismissModalIfShowing];
         
         [UIView animateWithDuration:ExpandMenuAnimationDuration
                          animations:^{
@@ -346,6 +351,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                          } completion:^(BOOL finished) {
                              self.optionIsExpanded = YES;
                              self.themesAreExpanded = NO;
+                             [self.themesTableViewController.view removeFromSuperview];
                          }];
     } else if (self.optionIsExpanded) {
         [self.delegate changeOptionsViewWidth:[self.delegate initialOptionsViewWidth]];
@@ -353,7 +359,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         [UIView animateWithDuration:ExpandMenuAnimationDuration
                          animations:^{
                              [self reset];
-                             
                          }];
     }
 }
@@ -449,7 +454,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     if (self.themesTableViewController.view.superview == nil)
         [self.view addSubview:self.themesTableViewController.view];
     
-    self.themesTableViewController.view.userInteractionEnabled = YES;
     self.themesAreExpanded = YES;
     
     [UIView animateWithDuration:.2 animations:^{
@@ -617,6 +621,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.options.frame = optionsFrame;
     self.doneButton.frame = doneFrame;
     self.themesTableViewController.view.frame = themesFrame;
+    
+    [self.themesTableViewController dismissModalIfShowing];
+    [self.themesTableViewController.view removeFromSuperview];
     
     [self.options.subviews enumerateObjectsUsingBlock:^(UIView *optionView, NSUInteger idx, BOOL *stop) {
         // make sure title labels are at full alpha
