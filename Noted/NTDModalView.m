@@ -307,8 +307,26 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 static BOOL isShowing;
 -(void)show
 {
+    [self showWithEdgeInsets:UIEdgeInsetsZero];
+}
+
+- (void) showWithEdgeInsets:(UIEdgeInsets)insets {
     UIView *view = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
-    UIView *touchBlockingView = [[UIView alloc] initWithFrame:view.frame];
+    
+    CGRect touchBlockingFrame = {
+        .origin.x = view.frame.origin.x + insets.left,
+        .origin.y = view.frame.origin.y + insets.top,
+        .size.width = view.frame.size.width - insets.left - insets.right,
+        .size.height = view.frame.size.height - insets.top - insets.bottom
+    };
+    
+    CGRect modalFrame = self.frame;
+    modalFrame.origin.x = (touchBlockingFrame.size.width - modalFrame.size.width)/2;
+    modalFrame.origin.y = (touchBlockingFrame.size.height - modalFrame.size.height)/2;
+    
+    self.frame = modalFrame;
+    
+    UIView *touchBlockingView = [[UIView alloc] initWithFrame:touchBlockingFrame];
     [touchBlockingView addSubview:self];
     [view addSubview:touchBlockingView];
     isShowing = YES;
