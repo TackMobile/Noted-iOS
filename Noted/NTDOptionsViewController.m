@@ -21,7 +21,7 @@
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 
-@interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, NTDThemesTableViewControllerDelegate>
 
 // colors
 @property (weak, nonatomic) IBOutlet NTDColorPicker *colors;
@@ -35,9 +35,10 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
 
+@property (weak, nonatomic) IBOutlet UIView *toggleDropboxView;
 @property (weak, nonatomic) IBOutlet UILabel *toggleDropboxLabel;
-@property (weak, nonatomic) IBOutlet UILabel *chooseThemeLabel;
-@property (weak, nonatomic) IBOutlet UILabel *restorePurchasesLabel;
+@property (weak, nonatomic) IBOutlet UIView *chooseThemeView;
+@property (weak, nonatomic) IBOutlet UIView *restorePurchasesView;
 
 @property (strong, nonatomic) IBOutlet NTDThemesTableViewController *themesTableViewController;
 
@@ -228,8 +229,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
-    self.toggleDropboxLabel.userInteractionEnabled = YES;
-    [self.toggleDropboxLabel bk_whenTapped:^{
+    self.toggleDropboxView.userInteractionEnabled = YES;
+    [self.toggleDropboxView bk_whenTapped:^{
         NSString *msg = @"Would you like to enable Dropbox?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
@@ -242,14 +243,15 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }];
     
     // Themes
-    self.chooseThemeLabel.userInteractionEnabled = YES;
-    [self.chooseThemeLabel bk_whenTapped:^{
+    self.chooseThemeView.userInteractionEnabled = YES;
+    [self.chooseThemeView bk_whenTapped:^{
         [self themesTapped];
     }];
+    self.themesTableViewController.delegate = self;
     
     // Purchases
-    self.restorePurchasesLabel.userInteractionEnabled = YES;
-    [self.restorePurchasesLabel bk_whenTapped:^{
+    self.restorePurchasesView.userInteractionEnabled = YES;
+    [self.restorePurchasesView bk_whenTapped:^{
         NSString *msg = @"Restore Purchases.";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:nil dismissalHandler:nil];
         [modalView show];
