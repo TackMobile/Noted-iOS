@@ -16,6 +16,7 @@
 @implementation NTDTheme
 NSString *const NTDActiveThemeIndexKey = @"activeThemeIndex";
 NSString *const NTDDidChangeThemeNotification = @"didChangeTheme";
+static NSString *const NTDDidPurchaseThemesKey = @"DidPurchaseThemes";
 
 static NSArray *backgroundColors, *caretColors, *themes;
 
@@ -245,5 +246,23 @@ static BOOL TESTING_THEMES = YES;
     [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:theme] forKey:NTDActiveThemeIndexKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [[NSNotificationCenter defaultCenter] postNotificationName:NTDDidChangeThemeNotification object:nil];
+}
+
+#pragma mark - Purchases
+
++ (BOOL)didPurchaseThemes {
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey]) {
+        return [[[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey] boolValue];
+    }
+    return NO;
+}
+
++ (void)setPurchasedThemes:(BOOL)purchased {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDidPurchaseThemesKey];
+}
+
++ (void)restorePurchases {
+    // temporary reset of purchase
+    [self setPurchasedThemes:NO];
 }
 @end

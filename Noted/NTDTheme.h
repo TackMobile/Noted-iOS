@@ -45,7 +45,12 @@ typedef NS_ENUM(int16_t, NTDThemeName) {
 
 + (NTDTheme *)themeForColorScheme:(NTDColorScheme)scheme;
 + (NTDTheme *)randomTheme;
-+ (NSArray *)themeNames;
 - (BOOL)isDarkColorScheme;
+
 - (NSString *)themeName;
++ (NSArray *)themeNames;
++ (BOOL)didPurchaseThemes;
++ (void)setPurchasedThemes:(BOOL)purchased;
++ (void)restorePurchases;
+
 @end
