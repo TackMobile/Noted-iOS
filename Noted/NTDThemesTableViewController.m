@@ -80,24 +80,39 @@ static const int RowHeight = 60;
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self promptToPurchaseThemes];
+}
+
+- (void) promptToPurchaseThemes {
     self.tableView.userInteractionEnabled = NO;
-    if ([self didPurchaseThemes]) {
+    if ([NTDTheme didPurchaseThemes]) {
         self.tableView.userInteractionEnabled = YES;
     } else {
         NSString *msg = @"Get more themes for your notes to customize Noted.";
-        self.modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:[UIColor blackColor] buttons:@[@"Purchase", @"Restore"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                if ([self.delegate respondsToSelector:@selector(dismissThemesTableView)])
-                    [self.delegate dismissThemesTableView];
-            }
-            [self.modalView dismiss];
-            self.tableView.userInteractionEnabled = YES;
+        self.modalView = [[NTDModalView alloc]
+                          initWithMessage:msg
+                          layer:nil
+                          backgroundColor:[UIColor blackColor]
+                          buttons:@[@"Purchase", @"Restore"]
+                          dismissalHandler:^(NSUInteger index) {
+                              switch (index) {
+                                  case 0:
+                                      [NTDTheme setPurchasedThemes:YES];
+                                      break;
+                                  case 1:
+                                      [NTDTheme restorePurchases];
+                                  default:
+                                      break;
+                              }
+                              [self.modalView dismiss];
+                              [self promptToPurchaseThemes];
+                          }];
             
-        }];
         UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
         [self.modalView showWithEdgeInsets:modalInsets];
         
-        CGRect modalBorderRect = CGRectInset(self.modalView.bounds, -1, -1);
+        float borderWidth = 1/[[UIScreen mainScreen] scale];
+        CGRect modalBorderRect = CGRectInset(self.modalView.bounds, -borderWidth, -borderWidth);
         UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
         modalBorder.backgroundColor = [UIColor darkGrayColor];
         [self.modalView insertSubview:modalBorder atIndex:0];
@@ -206,13 +221,6 @@ static const int RowHeight = 60;
     self.selectedThemeIndex = indexPath.item;
     [NTDTheme setThemeToActive:indexPath.item];
     [self.tableView reloadData];
-}
-
-- (BOOL)didPurchaseThemes {
-    if ([[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey]) {
-        return [[[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey] boolValue];
-    }
-    return NO;
 }
 
 - (void)dismissModalIfShowing {

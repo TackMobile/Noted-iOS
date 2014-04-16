@@ -252,10 +252,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // Purchases
     self.restorePurchasesView.userInteractionEnabled = YES;
     [self.restorePurchasesView bk_whenTapped:^{
-        NSString *msg = @"Restore Purchases.";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:nil dismissalHandler:nil];
+        NSString *msg = @"Restored Purchases.";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
         [modalView show];
-        [modalView dismiss];
+        [NTDTheme restorePurchases];
     }];
     [self reset];
 }
@@ -343,6 +343,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 {
     if (self.themesAreExpanded) {
         [self.themesTableViewController dismissModalIfShowing];
+        [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
         
         [UIView animateWithDuration:ExpandMenuAnimationDuration
                          animations:^{
@@ -455,7 +456,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         [self.view addSubview:self.themesTableViewController.view];
     
     self.themesAreExpanded = YES;
-    
+    [self.doneButton setTitle:@"< Settings" forState:UIControlStateNormal];
     [UIView animateWithDuration:.2 animations:^{
         self.themesTableViewController.view.$x=0;
         [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
@@ -621,6 +622,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.options.frame = optionsFrame;
     self.doneButton.frame = doneFrame;
     self.themesTableViewController.view.frame = themesFrame;
+    [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
+    self.themesAreExpanded = NO;
     
     [self.themesTableViewController dismissModalIfShowing];
     [self.themesTableViewController.view removeFromSuperview];
