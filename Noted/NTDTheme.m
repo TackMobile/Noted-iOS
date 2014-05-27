@@ -8,6 +8,7 @@
 
 #import "NTDTheme.h"
 #import "UIColor+Utils.h"
+#import <IAPHelper/IAPShare.h>
 
 @interface NTDTheme ()
 @property (nonatomic) NSInteger activeThemeIndex;
@@ -15,8 +16,8 @@
 
 @implementation NTDTheme
 NSString *const NTDActiveThemeIndexKey = @"activeThemeIndex";
-NSString *const NTDDidChangeThemeNotification = @"didChangeTheme";
-static NSString *const NTDDidPurchaseThemesKey = @"DidPurchaseThemes";
+NSString *const NTDDidChangeThemeNotification = @"DidChangeThemeNotification";
+NSString *const NTDNoteThemesProductID = @"com.tackmobile.noted.themes";
 
 static NSArray *backgroundColors, *caretColors, *themes;
 
@@ -251,18 +252,16 @@ static BOOL TESTING_THEMES = YES;
 #pragma mark - Purchases
 
 + (BOOL)didPurchaseThemes {
-    if ([[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey]) {
-        return [[[NSUserDefaults standardUserDefaults] valueForKey:NTDDidPurchaseThemesKey] boolValue];
-    }
-    return NO;
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:NTDNoteThemesProductID] boolValue];
 }
 
 + (void)setPurchasedThemes:(BOOL)purchased {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDidPurchaseThemesKey];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDNoteThemesProductID];
 }
 
 + (void)restorePurchases {
     // temporary reset of purchase
     [self setPurchasedThemes:NO];
+    
 }
 @end

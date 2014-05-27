@@ -12,6 +12,7 @@
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
+#import <IAPHelper/IAPShare.h>
 #import "NTDOptionsViewController.h"
 #import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
@@ -252,10 +253,30 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // Purchases
     self.restorePurchasesView.userInteractionEnabled = YES;
     [self.restorePurchasesView bk_whenTapped:^{
-        NSString *msg = @"Restored Purchases.";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
-        [modalView show];
-        [NTDTheme restorePurchases];
+        
+        [[IAPShare sharedHelper].iap restoreProductsWithCompletion:^(SKPaymentQueue *payment, NSError *error) {
+            if (payment.transactions.count > 0) {
+                for (SKPaymentTransaction *transaction in payment.transactions)
+                {
+                    NSString *purchasedID = transaction.payment.productIdentifier;
+                    if([purchasedID isEqualToString:NTDNoteThemesProductID])
+                    {
+                        [NTDTheme setPurchasedThemes:YES];
+                    } else if ([purchasedID isEqualToString:@"com.tackmobile.noted.dropbox"]){
+                        // enable dropbox
+                    }
+                }
+                NSString *msg = @"Restored Purchases.";
+                __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
+                [modalView show];
+            } else {
+                NSString *msg = @"No Purchases Found.";
+                __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
+                [modalView show];
+            }
+
+        }];
+        
     }];
     [self reset];
 }

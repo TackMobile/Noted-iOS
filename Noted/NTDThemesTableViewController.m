@@ -8,7 +8,9 @@
 
 #import "NTDThemesTableViewController.h"
 #import "NTDModalView.h"
+#import "NTDTheme.h"
 #import <UIView+FrameAdditions.h>
+#import <IAPHelper/IAPShare.h>
 
 #pragma mark - NTDThemePreview
 
@@ -74,49 +76,14 @@ static const int RowHeight = 60;
 {
     [super viewDidLoad];
     self.clearsSelectionOnViewWillAppear = YES;
-    
-    self.selectedThemeIndex = [NTDTheme activeThemeIndex];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    self.selectedThemeIndex = [NTDTheme activeThemeIndex];
+    self.tableView.userInteractionEnabled = [NTDTheme didPurchaseThemes];
     [super viewWillAppear:animated];
-    [self promptToPurchaseThemes];
-}
-
-- (void) promptToPurchaseThemes {
-    self.tableView.userInteractionEnabled = NO;
-    if ([NTDTheme didPurchaseThemes]) {
-        self.tableView.userInteractionEnabled = YES;
-    } else {
-        NSString *msg = @"Get more themes for your notes to customize Noted.";
-        self.modalView = [[NTDModalView alloc]
-                          initWithMessage:msg
-                          layer:nil
-                          backgroundColor:[UIColor blackColor]
-                          buttons:@[@"Purchase", @"Restore"]
-                          dismissalHandler:^(NSUInteger index) {
-                              switch (index) {
-                                  case 0:
-                                      [NTDTheme setPurchasedThemes:YES];
-                                      break;
-                                  case 1:
-                                      [NTDTheme restorePurchases];
-                                  default:
-                                      break;
-                              }
-                              [self.modalView dismiss];
-                              [self promptToPurchaseThemes];
-                          }];
-            
-        UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
-        [self.modalView showWithEdgeInsets:modalInsets];
-        
-        float borderWidth = 1/[[UIScreen mainScreen] scale];
-        CGRect modalBorderRect = CGRectInset(self.modalView.bounds, -borderWidth, -borderWidth);
-        UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
-        modalBorder.backgroundColor = [UIColor darkGrayColor];
-        [self.modalView insertSubview:modalBorder atIndex:0];
-    }
+    if (![NTDTheme didPurchaseThemes])
+        [self promptToPurchaseThemes];
 }
 
 #pragma mark - TableView Data Source
@@ -221,6 +188,136 @@ static const int RowHeight = 60;
     self.selectedThemeIndex = indexPath.item;
     [NTDTheme setThemeToActive:indexPath.item];
     [self.tableView reloadData];
+}
+
+#pragma mark - User flow
+
+- (void) promptToPurchaseThemes {
+    
+    NSString *msg = @"Get more themes for your notes to customize Noted.";
+    self.modalView = [[NTDModalView alloc]
+                      initWithMessage:msg
+                      layer:nil
+                      backgroundColor:[UIColor blackColor]
+                      buttons:@[@"$0.99"]
+                      dismissalHandler:^(NSUInteger index) {
+                          switch (index) {
+                              case 0:
+                                  [self purchaseThemesButtonPressed];
+                                  break;
+                              default:
+                                  break;
+                          }
+                      }];
+    
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    [self.modalView showWithEdgeInsets:modalInsets];
+    [self addBorderToActiveModal];
+}
+
+- (void) purchaseThemesButtonPressed {
+    [self showWaitingModal];
+    
+    //initate the purchase request
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
+     {
+         if(response > 0 ) {
+             // purchase themes
+             SKProduct* product =[[IAPShare sharedHelper].iap.products objectAtIndex:1];
+             
+             IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                 if (transaction.error) {
+                     NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                     [self purchaseThemesFailure];
+                 } else {
+                     switch (transaction.transactionState) {
+                         case SKPaymentTransactionStatePurchased:
+                         {
+                             // check the receipt
+                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                       AndSharedSecret:@"TackSecret"
+                                                          onCompletion:^(NSString *response, NSError *error) {
+                                                              NSDictionary *reciept = [IAPShare toJSON:response];
+                                                              if ([reciept[@"status"] integerValue] == 0) {
+                                                                  NSString *pID = transaction.payment.productIdentifier;
+                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                  NSLog(@"Success: %@",response);
+                                                                  NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                  [self purchaseThemesSuccess];
+                                                              } else {
+                                                                  NSLog(@"Reciept Invalid");
+                                                                  [self purchaseThemesFailure];
+                                                              }
+                                                          }];
+                             break;
+                         }
+                             
+                         default:
+                         {
+                             NSLog(@"Purchase Failed");
+                             [self purchaseThemesFailure];
+                             break;
+                         }
+                     }
+                 }
+             };
+             
+             // attempt to buy the product
+             [[IAPShare sharedHelper].iap buyProduct:product
+                                        onCompletion:buyProductCompleteResponceBlock];
+         }
+     }];
+}
+
+- (void)purchaseThemesSuccess {
+    [self dismissModalIfShowing];
+    
+    NSString *msg = @"Thanks for purchasing themes. Now check out your new fancy colors...";
+    self.modalView = [[NTDModalView alloc]
+                      initWithMessage:msg
+                      layer:nil
+                      backgroundColor:[UIColor blackColor]
+                      buttons:@[@"Dismiss"]
+                      dismissalHandler:^(NSUInteger index) {
+                          self.tableView.userInteractionEnabled = YES;
+                          [NTDTheme setPurchasedThemes:YES];
+                      }];
+    
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    [self.modalView showWithEdgeInsets:modalInsets];
+    [self addBorderToActiveModal];
+
+}
+
+- (void)purchaseThemesFailure {
+    [self dismissModalIfShowing];
+    [self promptToPurchaseThemes];
+}
+
+- (void) showWaitingModal {
+    // display a "waiting" modal which replaces the old one
+    NSString *msg = @"Waiting for response from the App Store";
+    self.modalView = [[NTDModalView alloc]
+                      initWithMessage:msg
+                      layer:nil
+                      backgroundColor:[UIColor blackColor]
+                      buttons:@[@"..."]
+                      dismissalHandler:^(NSUInteger index) {
+                          [self showWaitingModal];
+                      }];
+    
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    [self.modalView showWithEdgeInsets:modalInsets];
+    [self addBorderToActiveModal];
+}
+
+- (void)addBorderToActiveModal {
+    // add a gray border (special to this view, because it is all black)
+    float borderWidth = 1/[[UIScreen mainScreen] scale];
+    CGRect modalBorderRect = CGRectInset(self.modalView.bounds, -borderWidth, -borderWidth);
+    UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
+    modalBorder.backgroundColor = [UIColor darkGrayColor];
+    [self.modalView insertSubview:modalBorder atIndex:0];
 }
 
 - (void)dismissModalIfShowing {
