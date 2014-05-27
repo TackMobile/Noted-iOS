@@ -13,6 +13,7 @@
                 <outlet property="doneButton" destination="668" id="674"/>
                 <outlet property="options" destination="153" id="1090"/>
                 <outlet property="restorePurchasesView" destination="oO8-M3-DWQ" id="Pxj-8E-5ws"/>
+                <outlet property="selectedThemePreview" destination="W1K-Gs-pyB" id="all-ey-ufU"/>
                 <outlet property="settingsOptionsView" destination="442" id="678"/>
                 <outlet property="shareOptionsView" destination="357" id="683"/>
                 <outlet property="themesTableViewController" destination="Lif-Ay-63o" id="19W-on-6gi"/>
@@ -123,7 +124,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="485">
-                            <rect key="frame" x="138" y="23" width="52" height="24"/>
+                            <rect key="frame" x="148" y="23" width="40" height="24"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="15"/>
                             <state key="normal" title="OFF">
@@ -148,6 +149,11 @@
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
+                        <view contentMode="scaleToFill" id="W1K-Gs-pyB" customClass="NTDThemePreview">
+                            <rect key="frame" x="148" y="7" width="40" height="40"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        </view>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </view>

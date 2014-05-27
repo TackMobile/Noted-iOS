@@ -833,7 +833,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_DISPLAY_NAME_SUFFIX = " α";
-				BUNDLE_ID_SUFFIX = .dev;
+				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;

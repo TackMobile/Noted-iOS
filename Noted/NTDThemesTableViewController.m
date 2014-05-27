@@ -19,14 +19,24 @@
 - (id) initWithThemeName:(NSInteger)themeName {
     self = [super init];
     if (self) {
-        self.theme = themeName;
-        for (int i=0; i<NTDNumberOfColorSchemes; i++) {
-            UIView *theView = [UIView new];
-            theView.backgroundColor = [NTDTheme backgroundColorForThemeName:themeName colorScheme:i];
-            [self addSubview:theView];
-        }
+        [self setThemeName:themeName];
     }
     return self;
+}
+
+- (void) setThemeName:(NSInteger)themeName {
+    for (UIView *view in self.subviews)
+        [view removeFromSuperview];
+    
+    self.backgroundColor = [UIColor clearColor];
+    self.theme = themeName;
+    for (int i=0; i<NTDNumberOfColorSchemes; i++) {
+        UIView *theView = [UIView new];
+        theView.backgroundColor = [NTDTheme backgroundColorForThemeName:themeName colorScheme:i];
+        [self addSubview:theView];
+    }
+    [self layoutIfNeeded];
+
 }
 
 - (void)layoutSubviews {

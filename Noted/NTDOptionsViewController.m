@@ -39,6 +39,7 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *toggleDropboxView;
 @property (weak, nonatomic) IBOutlet UILabel *toggleDropboxLabel;
 @property (weak, nonatomic) IBOutlet UIView *chooseThemeView;
+@property (weak, nonatomic) IBOutlet NTDThemePreview *selectedThemePreview;
 @property (weak, nonatomic) IBOutlet UIView *restorePurchasesView;
 
 @property (strong, nonatomic) IBOutlet NTDThemesTableViewController *themesTableViewController;
@@ -329,6 +330,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void)dismissThemesTableView {
     [self doneTapped:nil];
+
 }
 
 #pragma mark -  Gesture Recognition
@@ -363,6 +365,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void) doneTapped:(UIButton *)sender
 {
     if (self.themesAreExpanded) {
+        [self.selectedThemePreview setThemeName:[NTDTheme activeThemeIndex]];
         [self.themesTableViewController dismissModalIfShowing];
         [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
         
@@ -648,6 +651,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     
     [self.themesTableViewController dismissModalIfShowing];
     [self.themesTableViewController.view removeFromSuperview];
+    
+    [self.selectedThemePreview setThemeName:[NTDTheme activeThemeIndex]];
     
     [self.options.subviews enumerateObjectsUsingBlock:^(UIView *optionView, NSUInteger idx, BOOL *stop) {
         // make sure title labels are at full alpha

@@ -20,6 +20,7 @@
 @property (nonatomic) NSInteger theme;
 
 - (id) initWithThemeName:(NSInteger)themeName;
+- (void) setThemeName:(NSInteger)themeName;
 
 @end
 
