@@ -90,10 +90,7 @@ static const int RowHeight = 60;
 
 - (void)viewWillAppear:(BOOL)animated {
     self.selectedThemeIndex = [NTDTheme activeThemeIndex];
-    self.tableView.userInteractionEnabled = [NTDTheme didPurchaseThemes];
     [super viewWillAppear:animated];
-    if (![NTDTheme didPurchaseThemes])
-        [self promptToPurchaseThemes];
 }
 
 #pragma mark - TableView Data Source
@@ -195,9 +192,13 @@ static const int RowHeight = 60;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    self.selectedThemeIndex = indexPath.item;
-    [NTDTheme setThemeToActive:indexPath.item];
-    [self.tableView reloadData];
+    if ([NTDTheme didPurchaseThemes]) {
+        self.selectedThemeIndex = indexPath.item;
+        [NTDTheme setThemeToActive:indexPath.item];
+        [self.tableView reloadData];
+    } else {
+        [self promptToPurchaseThemes];
+    }
 }
 
 #pragma mark - User flow
@@ -289,7 +290,6 @@ static const int RowHeight = 60;
                       backgroundColor:[UIColor blackColor]
                       buttons:@[@"Dismiss"]
                       dismissalHandler:^(NSUInteger index) {
-                          self.tableView.userInteractionEnabled = YES;
                           [NTDTheme setPurchasedThemes:YES];
                       }];
     
