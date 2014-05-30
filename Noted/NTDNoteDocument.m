@@ -424,22 +424,31 @@ BOOL safe_rename(const char *old, const char *new)
     }
 
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
+    
+    // for 2.0 migration: we need to assign sequential dateCreated dates for already created notes...
+    NSTimeInterval fakeTimeOffset = 0;
     for (NTDNoteMetadata *metadata in results) {
+        if (![metadata dateCreated]) {
+            metadata.dateCreated = [NSDate dateWithTimeIntervalSinceNow:fakeTimeOffset];
+            // subtract a second from the next date
+            fakeTimeOffset -= 1;
+        }
         [notes addObject:[self documentFromMetadata:metadata]];
         filenameCounter = MAX(filenameCounter, [self indexFromFilename:metadata.filename]);
     }
 
     [notes sortUsingComparator:^NSComparisonResult(NTDNoteMetadata *metadata1, NTDNoteMetadata *metadata2) {
-        NSUInteger i = [self indexFromFilename:metadata1.filename];
-        NSUInteger j = [self indexFromFilename:metadata2.filename];
-        
-        if (i > j) {
-            return (NSComparisonResult)NSOrderedAscending;
-        } else if (i < j) {
-            return (NSComparisonResult)NSOrderedDescending;
-        } else {
-            return (NSComparisonResult)NSOrderedSame;
-        }
+        return [metadata2.dateCreated compare:metadata1.dateCreated];
+//        NSUInteger i = [self indexFromFilename:metadata1.filename];
+//        NSUInteger j = [self indexFromFilename:metadata2.filename];
+//        
+//        if (i > j) {
+//            return (NSComparisonResult)NSOrderedAscending;
+//        } else if (i < j) {
+//            return (NSComparisonResult)NSOrderedDescending;
+//        } else {
+//            return (NSComparisonResult)NSOrderedSame;
+//        }
     }];
 
     [self removeFilesWithNoMetadata:notes];
@@ -470,6 +479,7 @@ BOOL safe_rename(const char *old, const char *new)
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
     document.metadata.lastModifiedDate = [NSDate date];
+    document.metadata.dateCreated = [NSDate date];
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
@@ -614,6 +624,11 @@ BOOL safe_rename(const char *old, const char *new)
 - (NSDate *)lastModifiedDate
 {
     return self.metadata.lastModifiedDate;
+}
+
+- (NSDate *)dateCreated
+{
+    return self.metadata.dateCreated;
 }
 
 - (NTDNoteFileState)fileState

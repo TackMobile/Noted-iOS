@@ -16,5 +16,6 @@
 @property (nonatomic) NTDColorScheme colorScheme;
 @property (nonatomic, retain) NSString * headline;
 @property (nonatomic, retain) NSDate *lastModifiedDate;
+@property (nonatomic, retain) NSDate *dateCreated;
 
 @end

@@ -41,6 +41,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (NSString *)filename;
 - (NSString *)headline;
 - (NSDate *)lastModifiedDate;
+- (NSDate *)dateCreated;
 - (NTDNoteFileState)fileState;
 
 - (NTDTheme *)theme;

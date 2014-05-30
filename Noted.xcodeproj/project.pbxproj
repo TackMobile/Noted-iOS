@@ -188,6 +188,7 @@
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
 		B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.xcconfig"; path = "Pods/Pods-NotedTests.xcconfig"; sourceTree = "<group>"; };
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5BF26A31937E11A00468B03 /* NTDNoteMetadata 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "NTDNoteMetadata 2.xcdatamodel"; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
@@ -786,7 +787,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_DISPLAY_NAME_SUFFIX = " α";
-				BUNDLE_ID_SUFFIX = .dev;
+				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -805,7 +806,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
-				PROVISIONING_PROFILE = "2147D392-9ABC-4D06-AC26-B8695D2BE38C";
+				PROVISIONING_PROFILE = "65DA7C89-416F-4D21-9060-9D3FE27BB88C";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1001,7 +1002,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_DISPLAY_NAME_SUFFIX = " ß";
-				BUNDLE_ID_SUFFIX = .dev;
+				BUNDLE_ID_SUFFIX = "";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -1085,6 +1086,7 @@
 		3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				C5BF26A31937E11A00468B03 /* NTDNoteMetadata 2.xcdatamodel */,
 				3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */,
 			);
 			currentVersion = 3F9D3F161790BC8700EA183D /* NTDNoteMetadata.xcdatamodel */;

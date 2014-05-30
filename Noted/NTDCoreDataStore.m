@@ -22,17 +22,6 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
-//#pragma mark - Singleton
-//+ (NTDCoreDataStore *) sharedStore
-//{
-//    static NTDCoreDataStore *sharedInstance = nil;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        sharedInstance = [[NTDCoreDataStore alloc] init];
-//    });
-//    return sharedInstance;
-//}
-
 + (NTDCoreDataStore *)datastoreWithURL:(NSURL *)dbURL
 {
     NTDCoreDataStore *store = [NTDCoreDataStore new];
