@@ -23,7 +23,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.tackmobile.noted${BUNDLE_ID_SUFFIX}</string>
+	<string>com.tackmobile.noted.dev</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -31,11 +31,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2</string>
+	<string>1.2.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>b8</string>
+	<string>b2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
