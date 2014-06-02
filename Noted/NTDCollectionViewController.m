@@ -939,10 +939,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                       animated:NO];
             
             if (!self.listLayout.pinchStartedInListLayout) {
-                CGFloat returnCardToContentOffset = CLAMP(0,
-                                                          (visibleCardIndexPath.row * self.listLayout.cardOffset) - self.collectionView.frame.size.height/3,
+                CGFloat returnCardToContentOffset = CLAMP((visibleCardIndexPath.row * self.listLayout.cardOffset) - self.collectionView.frame.size.height/3,
+                                                          0,
                                                           self.collectionView.contentSize.height - self.collectionView.frame.size.height);
-                
                 [self.collectionView setContentOffset:CGPointMake(0, returnCardToContentOffset) animated:NO];
                 self.collectionView.scrollEnabled = NO;
             }
