@@ -53,7 +53,6 @@
 		3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959402189B0E4700C86F93 /* Icon.dev.png */; };
 		3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959403189B0E4700C86F93 /* Icon@2x.dev.png */; };
 		3F98D5CA17E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */; };
-		3F98D5CD17EA53B500693202 /* NTDTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D5CC17EA53B500693202 /* NTDTextView.m */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
 		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
 		3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */; };
@@ -84,6 +83,7 @@
 		C55C409B193E64F500F1F5F0 /* arrow-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4099193E64F500F1F5F0 /* arrow-icon.png */; };
 		C55C409C193E64F500F1F5F0 /* arrow-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C409A193E64F500F1F5F0 /* arrow-icon@2x.png */; };
 		C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */; };
+		C51D44F41937A4C400B16C87 /* NTDScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */; };
 		CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */ = {isa = PBXBuildFile; fileRef = CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
 		CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */; };
@@ -156,8 +156,6 @@
 		3F959403189B0E4700C86F93 /* Icon@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.dev.png"; sourceTree = "<group>"; };
 		3F98D5C817E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionView+NTDFixDisappearingCellBug.h"; sourceTree = "<group>"; };
 		3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionView+NTDFixDisappearingCellBug.m"; sourceTree = "<group>"; };
-		3F98D5CB17EA53B500693202 /* NTDTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTextView.h; sourceTree = "<group>"; };
-		3F98D5CC17EA53B500693202 /* NTDTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDTextView.m; sourceTree = "<group>"; };
 		3F9D3F0E1790925100EA183D /* NTDNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNote.h; sourceTree = "<group>"; };
 		3F9D3F0F1790925100EA183D /* NTDNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNote.m; sourceTree = "<group>"; };
 		3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteDocument.h; sourceTree = "<group>"; };
@@ -209,6 +207,8 @@
 		C55C409A193E64F500F1F5F0 /* arrow-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow-icon@2x.png"; sourceTree = "<group>"; };
 		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
 		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
+		C51D44F21937A4C400B16C87 /* NTDScrollingTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDScrollingTextView.h; sourceTree = "<group>"; };
+		C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDScrollingTextView.m; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
@@ -300,6 +300,8 @@
 				298F8D1C15780FA2004D11A4 /* Utilities.m */,
 				F3F55799177E05650003E152 /* UIDeviceHardware.h */,
 				F3F5579A177E05650003E152 /* UIDeviceHardware.m */,
+				C51D44F21937A4C400B16C87 /* NTDScrollingTextView.h */,
+				C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */,
 			);
 			name = Helpers;
 			path = ..;
@@ -516,8 +518,6 @@
 			isa = PBXGroup;
 			children = (
 				3F73F7E717975FB500EEE802 /* Layout */,
-				3F98D5CB17EA53B500693202 /* NTDTextView.h */,
-				3F98D5CC17EA53B500693202 /* NTDTextView.m */,
 				3FC8308D1861FB50001C141C /* NTDModalView.h */,
 				3FC8308E1861FB50001C141C /* NTDModalView.m */,
 				B5D5F23C17188840008C60EE /* NTDCollectionViewCell.h */,
@@ -786,10 +786,10 @@
 				CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */,
 				3F1FF28A17A048BD00213F2F /* NTDWalkthrough.m in Sources */,
 				3F1FF28D17A06A6500213F2F /* NTDWalkthroughViewController.m in Sources */,
-				3F98D5CD17EA53B500693202 /* NTDTextView.m in Sources */,
 				3F1FF29617A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m in Sources */,
 				3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */,
 				3FC8308F1861FB50001C141C /* NTDModalView.m in Sources */,
+				C51D44F41937A4C400B16C87 /* NTDScrollingTextView.m in Sources */,
 				3F98D5CA17E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m in Sources */,
 				3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */,
 				3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */,
@@ -1099,6 +1099,11 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+					"COCOAPODS=1",
+				);
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
