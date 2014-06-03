@@ -228,8 +228,7 @@ static const int RowHeight = 60;
                           }
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    [self.modalView showWithEdgeInsets:modalInsets];
+    [self.modalView show];
     [self addBorderToActiveModal];
 }
 
@@ -299,8 +298,7 @@ static const int RowHeight = 60;
                           [NTDTheme setPurchasedThemes:YES];
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    [self.modalView showWithEdgeInsets:modalInsets];
+    [self.modalView show];
     [self addBorderToActiveModal];
 
 }
@@ -322,8 +320,7 @@ static const int RowHeight = 60;
                           [self showWaitingModal];
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    [self.modalView showWithEdgeInsets:modalInsets];
+    [self.modalView show];
     [self addBorderToActiveModal];
 }
 

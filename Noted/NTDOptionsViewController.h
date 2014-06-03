@@ -20,6 +20,7 @@ FOUNDATION_EXPORT NSString *const NTDDidToggleStatusBarNotification;
 - (void)changeOptionsViewWidth:(CGFloat)width;
 - (CGFloat)initialOptionsViewWidth;
 - (void)didChangeNoteTheme;
+- (void)didChangeNoteThemes;
 - (void)dismissOptions;
 @end
 
