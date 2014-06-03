@@ -19,7 +19,7 @@ NSString *const NTDActiveThemeIndexKey = @"activeThemeIndex";
 NSString *const NTDDidChangeThemeNotification = @"DidChangeThemeNotification";
 NSString *const NTDNoteThemesProductID = @"com.tackmobile.noted.themes";
 
-static NSArray *backgroundColors, *textColors, *themes;
+static NSArray *backgroundColors, *textColors, *caretColors, *themes;
 
 + (void)initialize
 {
@@ -39,6 +39,14 @@ static NSArray *backgroundColors, *textColors, *themes;
                                   [UIColor blackColor],
                                   [UIColor whiteColor],
                                   [UIColor whiteColor], nil];
+    
+    NSArray *defaultCaretColors = [[NSArray alloc] initWithObjects:
+                                   [UIColor blackColor],
+                                   [UIColor blackColor],
+                                   [UIColor blackColor],
+                                   [UIColor blackColor],
+                                   [UIColor whiteColor],
+                                   [UIColor whiteColor], nil];
     // setting sun
     NSArray *aBackgroundColors = [[NSArray alloc] initWithObjects:
                                     [UIColor colorWithRed:0.96 green:0.85 blue:0.64 alpha:1],
@@ -56,6 +64,13 @@ static NSArray *backgroundColors, *textColors, *themes;
                                 [UIColor whiteColor],
                                 [UIColor whiteColor],
                                 nil];
+    NSArray *aCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.91 green:0.59 blue:0 alpha:1],
+                              [UIColor colorWithRed:0.89 green:0.34 blue:0.19 alpha:1],
+                              [UIColor colorWithRed:0.64 green:0 blue:0.16 alpha:1],
+                              [UIColor colorWithRed:0.36 green:0.11 blue:0.31 alpha:1],
+                              [UIColor colorWithRed:0.55 green:0.31 blue:0.64 alpha:1],
+                              [UIColor colorWithRed:0.44 green:0.4 blue:0.78 alpha:1], nil];
     
     // turbo charge
     NSArray *bBackgroundColors = [[NSArray alloc] initWithObjects:
@@ -74,6 +89,15 @@ static NSArray *backgroundColors, *textColors, *themes;
                             [UIColor whiteColor],
                             [UIColor whiteColor],
                             nil];
+    NSArray *bCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.39 green:0.56 blue:0.74 alpha:1],
+                              [UIColor colorWithRed:0.45 green:0.62 blue:0.77 alpha:1],
+                              [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1],
+                              [UIColor colorWithRed:0.55 green:0.58 blue:0.58 alpha:1],
+                             [UIColor colorWithRed:0.67 green:0.67 blue:0.67 alpha:1],
+                              [UIColor colorWithRed:0.76 green:0.16 blue:0.04 alpha:1],
+                              nil];
+
     // candy coat
     NSArray *cBackgroundColors = [[NSArray alloc] initWithObjects:
                                      [UIColor colorWithRed:0.93 green:0.32 blue:0.17 alpha:1],
@@ -91,6 +115,16 @@ static NSArray *backgroundColors, *textColors, *themes;
                             [UIColor whiteColor],
                             [UIColor whiteColor],
                             nil];
+    
+    NSArray *cCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.76 green:0.16 blue:0.04 alpha:1],
+                              [UIColor colorWithRed:0.82 green:0.44 blue:0 alpha:1],
+                              [UIColor colorWithRed:0.82 green:0.65 blue:0 alpha:1],
+                             [UIColor colorWithRed:0.11 green:0.45 blue:0 alpha:1],
+                              [UIColor colorWithRed:0 green:0.51 blue:0.84 alpha:1],
+                             [UIColor colorWithRed:0.04 green:0.31 blue:0.55 alpha:1],
+                              nil];
+
     // open field
     NSArray *dBackgroundColors = [[NSArray alloc] initWithObjects:
                                   [UIColor colorWithRed:0.13 green:0.36 blue:0.39 alpha:1],
@@ -108,6 +142,15 @@ static NSArray *backgroundColors, *textColors, *themes;
                             [UIColor blackColor],
                             [UIColor blackColor],
                             nil];
+    NSArray *dCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.16 green:0.54 blue:0.58 alpha:1],
+                              [UIColor colorWithRed:0.31 green:0.71 blue:0.6 alpha:1],
+                              [UIColor colorWithRed:0.26 green:0.58 blue:0.26 alpha:1],
+                             [UIColor colorWithRed:0.57 green:0.62 blue:0.22 alpha:1],
+                              [UIColor colorWithRed:0.79 green:0.58 blue:0.04 alpha:1],
+                             [UIColor colorWithRed:0.84 green:0.5 blue:0.05 alpha:1],
+                              nil];
+
     // coral punch
     NSArray *eBackgroundColors = [[NSArray alloc] initWithObjects:
                                   [UIColor colorWithRed:0.93 green:0.3 blue:0.32 alpha:1],
@@ -125,6 +168,16 @@ static NSArray *backgroundColors, *textColors, *themes;
                             [UIColor blackColor],
                             [UIColor blackColor],
                             nil];
+    
+    NSArray *eCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.78 green:0.05 blue:0.07 alpha:1],
+                              [UIColor colorWithRed:0.78 green:0.58 blue:0 alpha:1],
+                              [UIColor colorWithRed:0.83 green:0.67 blue:0.27 alpha:1],
+                              [UIColor colorWithRed:0.16 green:0.56 blue:0.52 alpha:1],
+                             [UIColor colorWithRed:0.29 green:0.69 blue:0.65 alpha:1],
+                             [UIColor colorWithRed:0.73 green:0.73 blue:0.73 alpha:1],
+                              nil];
+
     // violet grove
     NSArray *fBackgroundColors = [[NSArray alloc] initWithObjects:
                                   [UIColor colorWithRed:0.13 green:0.07 blue:0.21 alpha:1],
@@ -142,9 +195,20 @@ static NSArray *backgroundColors, *textColors, *themes;
                             [UIColor whiteColor],
                             [UIColor whiteColor],
                             nil];
+    NSArray *fCaretColors = [[NSArray alloc] initWithObjects:
+                              [UIColor colorWithRed:0.45 green:0.17 blue:0.76 alpha:1],
+                              [UIColor colorWithRed:0.44 green:0.22 blue:0.64 alpha:1],
+                              [UIColor colorWithRed:0.54 green:0.29 blue:0.76 alpha:1],
+                             [UIColor colorWithRed:0.79 green:0.33 blue:0.79 alpha:1],
+                              [UIColor colorWithRed:0.62 green:0.13 blue:0.36 alpha:1],
+                             [UIColor colorWithRed:0.79 green:0.09 blue:0.43 alpha:1],
+                            nil];
+
 
     backgroundColors = [[NSArray alloc] initWithObjects:
                         defaultBackgroundColors, aBackgroundColors, bBackgroundColors, cBackgroundColors, dBackgroundColors, eBackgroundColors, fBackgroundColors, nil];
+    caretColors = [[NSArray alloc] initWithObjects:
+                    defaultCaretColors, aCaretColors, bCaretColors, cCaretColors, dCaretColors, eCaretColors, fCaretColors, nil];
     textColors = [[NSArray alloc] initWithObjects:defaultTextColors, aTextColors, bTextColors, cTextColors, dTextColors, eTextColors, fTextColors, nil];
 
 }
@@ -205,7 +269,7 @@ static NSArray *backgroundColors, *textColors, *themes;
 
 - (UIColor *)caretColor
 {
-    return [self subheaderColor];
+    return caretColors[self.activeThemeIndex][self.colorScheme];
 }
 
 - (UIColor *)textColor
