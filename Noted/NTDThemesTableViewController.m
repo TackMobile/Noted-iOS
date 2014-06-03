@@ -130,7 +130,7 @@ static const int RowHeight = 60;
     
     // decide if the theme is currently active
     if (indexPath.item == self.selectedThemeIndex) {
-        cell.backgroundColor = [UIColor darkGrayColor];
+        cell.backgroundColor = [UIColor colorWithWhite:.15 alpha:1];
         themeTitle.font = [UIFont fontWithName:@"Avenir" size:16];
     }
     
