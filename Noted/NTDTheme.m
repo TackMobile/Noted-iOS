@@ -21,8 +21,6 @@ NSString *const NTDNoteThemesProductID = @"com.tackmobile.noted.themes";
 
 static NSArray *backgroundColors, *textColors, *themes;
 
-static BOOL TESTING_THEMES = YES;
-
 + (void)initialize
 {
     NSArray *defaultBackgroundColors = [[NSArray alloc] initWithObjects:
@@ -207,14 +205,7 @@ static BOOL TESTING_THEMES = YES;
 
 - (UIColor *)caretColor
 {
-    float hue, sat, brightness, alpha;
-    
-    UIColor *backgroundColor = backgroundColors[self.activeThemeIndex][self.colorScheme];
-    [backgroundColor getHue:&hue saturation:&sat brightness:&brightness alpha:&alpha];
-    
-    brightness = brightness > .5 ? brightness-.2 : brightness + .2;
-    
-    return [UIColor colorWithHue:hue saturation:sat brightness:brightness alpha:alpha];
+    return [self subheaderColor];
 }
 
 - (UIColor *)textColor
