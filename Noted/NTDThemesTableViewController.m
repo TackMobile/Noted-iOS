@@ -210,18 +210,25 @@ static const int RowHeight = 60;
                       initWithMessage:msg
                       layer:nil
                       backgroundColor:[UIColor blackColor]
-                      buttons:@[@"$0.99"]
+                      buttons:@[@"$0.99", @"Cancel"]
                       dismissalHandler:^(NSUInteger index) {
                           switch (index) {
                               case 0:
                                   [self purchaseThemesButtonPressed];
+                                  break;
+                              case 1:
+                              {
+                                  if ([self.delegate respondsToSelector:@selector(dismissThemesTableView)]) {
+                                      [self dismissModalIfShowing];
+                                  }
+                              }
                                   break;
                               default:
                                   break;
                           }
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [self.modalView showWithEdgeInsets:modalInsets];
     [self addBorderToActiveModal];
 }
@@ -246,7 +253,6 @@ static const int RowHeight = 60;
                          {
                              // check the receipt
                              [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
-                                                       AndSharedSecret:@"TackSecret"
                                                           onCompletion:^(NSString *response, NSError *error) {
                                                               NSDictionary *reciept = [IAPShare toJSON:response];
                                                               if ([reciept[@"status"] integerValue] == 0) {
@@ -293,7 +299,7 @@ static const int RowHeight = 60;
                           [NTDTheme setPurchasedThemes:YES];
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [self.modalView showWithEdgeInsets:modalInsets];
     [self addBorderToActiveModal];
 
@@ -316,7 +322,7 @@ static const int RowHeight = 60;
                           [self showWaitingModal];
                       }];
     
-    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 65, 35);
+    UIEdgeInsets modalInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [self.modalView showWithEdgeInsets:modalInsets];
     [self addBorderToActiveModal];
 }
@@ -328,6 +334,9 @@ static const int RowHeight = 60;
     UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
     modalBorder.backgroundColor = [UIColor darkGrayColor];
     [self.modalView insertSubview:modalBorder atIndex:0];
+    [UIView animateWithDuration:.2 animations:^{
+        self.modalView.superview.backgroundColor = [UIColor colorWithWhite:0 alpha:.5];
+    }];
 }
 
 - (void)dismissModalIfShowing {

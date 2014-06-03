@@ -23,7 +23,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.tackmobile.noted${BUNDLE_NAME_SUFFIX}</string>
+	<string>com.tackmobile.noted${BUNDLE_ID_SUFFIX}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
