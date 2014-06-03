@@ -333,7 +333,7 @@ static NSArray *backgroundColors, *textColors, *caretColors, *themes;
     return savedThemeIndex;
 }
 
-- (int) activeThemeIndex {
+- (NSInteger) activeThemeIndex {
     return [NTDTheme activeThemeIndex];
 }
 

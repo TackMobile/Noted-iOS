@@ -130,7 +130,7 @@ static const int RowHeight = 60;
     
     // decide if the theme is currently active
     if (indexPath.item == self.selectedThemeIndex) {
-        cell.backgroundColor = [UIColor colorWithWhite:.15 alpha:1];
+        cell.backgroundColor = [UIColor colorWithWhite:.1 alpha:1];
         themeTitle.font = [UIFont fontWithName:@"Avenir" size:16];
     }
     
@@ -205,7 +205,7 @@ static const int RowHeight = 60;
 
 - (void) promptToPurchaseThemes {
     
-    NSString *msg = @"Get more themes for your notes to customize Noted.";
+    NSString *msg = @"Upgrade Noted with custom color themes.";
     self.modalView = [[NTDModalView alloc]
                       initWithMessage:msg
                       layer:nil

@@ -17,8 +17,6 @@
                 <outlet property="settingsOptionsView" destination="442" id="678"/>
                 <outlet property="shareOptionsView" destination="357" id="683"/>
                 <outlet property="themesTableViewController" destination="Lif-Ay-63o" id="19W-on-6gi"/>
-                <outlet property="toggleDropboxLabel" destination="5uq-ep-D0y" id="kG5-1v-2uO"/>
-                <outlet property="toggleDropboxView" destination="xrH-Je-XeZ" id="2tR-Ds-xbM"/>
                 <outlet property="toggleStatusBarButton" destination="485" id="699"/>
                 <outlet property="view" destination="1" id="3"/>
             </connections>
@@ -109,7 +107,7 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
         <view contentMode="scaleToFill" id="442" userLabel="Settings Options View">
-            <rect key="frame" x="0.0" y="0.0" width="195" height="217"/>
+            <rect key="frame" x="0.0" y="0.0" width="195" height="163"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" id="462" userLabel="option">
@@ -157,22 +155,8 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
-                <view contentMode="scaleToFill" id="xrH-Je-XeZ" userLabel="option">
-                    <rect key="frame" x="0.0" y="109" width="221" height="53"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <subviews>
-                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Enable Dropbox" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="5uq-ep-D0y">
-                            <rect key="frame" x="14" y="24" width="171" height="22"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
-                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                    </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                </view>
                 <view contentMode="scaleToFill" id="oO8-M3-DWQ" userLabel="option">
-                    <rect key="frame" x="0.0" y="163" width="221" height="53"/>
+                    <rect key="frame" x="0.0" y="109" width="221" height="53"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <subviews>
                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Restore Purchases" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Rvx-8j-GTP">

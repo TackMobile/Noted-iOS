@@ -265,11 +265,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                         // enable dropbox
                         nil;
                 }
-                NSString *msg = @"Restored Purchases.";
+                NSString *msg = @"Your Noted purchases have been restored.";
                 __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
                 [modalView show];
             } else {
-                NSString *msg = @"No Purchases Found.";
+                NSString *msg = @"You have not made any Noted purchases.";
                 __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
                 [modalView show];
             }
@@ -481,7 +481,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     
     // add the arrow to done button
     self.doneButtonBackArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow-icon"]];
-    self.doneButtonBackArrow.center = CGPointMake(25, doneButton.frame.size.height/2);
+    self.doneButtonBackArrow.center = CGPointMake(25, doneButton.frame.size.height/2 - 1);
     [doneButton addSubview:self.doneButtonBackArrow];
     
     [self.doneButton setTitle:@"      Settings" forState:UIControlStateNormal];
