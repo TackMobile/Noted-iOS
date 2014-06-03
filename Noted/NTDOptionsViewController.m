@@ -252,20 +252,17 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.themesTableViewController.delegate = self;
     
     // Purchases
+
     self.restorePurchasesView.userInteractionEnabled = YES;
     [self.restorePurchasesView bk_whenTapped:^{
-        
         [[IAPShare sharedHelper].iap restoreProductsWithCompletion:^(SKPaymentQueue *payment, NSError *error) {
-            if (payment.transactions.count > 0) {
-                for (SKPaymentTransaction *transaction in payment.transactions)
-                {
-                    NSString *purchasedID = transaction.payment.productIdentifier;
-                    if([purchasedID isEqualToString:NTDNoteThemesProductID])
-                    {
+            if ([[IAPShare sharedHelper].iap purchasedProducts].count > 0) {
+                for (NSString *productID in [[IAPShare sharedHelper].iap purchasedProducts]) {
+                    if([productID isEqualToString:NTDNoteThemesProductID])
                         [NTDTheme setPurchasedThemes:YES];
-                    } else if ([purchasedID isEqualToString:@"com.tackmobile.noted.dropbox"]){
+                    else if ([productID isEqualToString:@"com.tackmobile.noted.dropbox"])
                         // enable dropbox
-                    }
+                        nil;
                 }
                 NSString *msg = @"Restored Purchases.";
                 __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
@@ -275,7 +272,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
                 [modalView show];
             }
-
         }];
         
     }];
