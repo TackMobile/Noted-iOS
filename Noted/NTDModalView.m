@@ -312,12 +312,13 @@ static BOOL isShowing;
 
 - (void) showWithEdgeInsets:(UIEdgeInsets)insets {
     UIView *view = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
     
     CGRect touchBlockingFrame = {
-        .origin.x = view.frame.origin.x + insets.left,
-        .origin.y = view.frame.origin.y + insets.top,
-        .size.width = view.frame.size.width - insets.left - insets.right,
-        .size.height = view.frame.size.height - insets.top - insets.bottom
+        .origin.x = screenRect.origin.x + insets.left,
+        .origin.y = screenRect.origin.y + insets.top,
+        .size.width = screenRect.size.width - insets.left - insets.right,
+        .size.height = screenRect.size.height - insets.top - insets.bottom
     };
     
     CGRect modalFrame = self.frame;
