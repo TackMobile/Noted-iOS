@@ -80,6 +80,9 @@
 		B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */; };
 		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
+		C55C4094193E4AC300F1F5F0 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4093193E4AC300F1F5F0 /* dots.png */; };
+		C55C4097193E4DD500F1F5F0 /* arrow-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4095193E4DD500F1F5F0 /* arrow-icon.png */; };
+		C55C4098193E4DD500F1F5F0 /* arrow-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4096193E4DD500F1F5F0 /* arrow-icon@2x.png */; };
 		C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */; };
 		CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */ = {isa = PBXBuildFile; fileRef = CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
@@ -201,6 +204,9 @@
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
 		B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.xcconfig"; path = "Pods/Pods-NotedTests.xcconfig"; sourceTree = "<group>"; };
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C55C4093193E4AC300F1F5F0 /* dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dots.png; sourceTree = "<group>"; };
+		C55C4095193E4DD500F1F5F0 /* arrow-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow-icon.png"; sourceTree = "<group>"; };
+		C55C4096193E4DD500F1F5F0 /* arrow-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow-icon@2x.png"; sourceTree = "<group>"; };
 		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
 		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -260,7 +266,10 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				C55C4095193E4DD500F1F5F0 /* arrow-icon.png */,
+				C55C4096193E4DD500F1F5F0 /* arrow-icon@2x.png */,
 				3F4E224D18A9973800EEC7E8 /* ShakeToUndoAnimation.mov */,
+				C55C4093193E4AC300F1F5F0 /* dots.png */,
 				964640C2164B289F0006A7CB /* Default-568h@2x.png */,
 				29E326C3157556920013399B /* Default.png */,
 				29E326C4157556920013399B /* Default@2x.png */,
@@ -645,8 +654,11 @@
 				379E97D81678EE650051218D /* menu-icon-grey.png in Resources */,
 				379E97D91678EE650051218D /* menu-icon-grey@2x.png in Resources */,
 				3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */,
+				C55C4094193E4AC300F1F5F0 /* dots.png in Resources */,
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
+				C55C4097193E4DD500F1F5F0 /* arrow-icon.png in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
+				C55C4098193E4DD500F1F5F0 /* arrow-icon@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
 				3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,

@@ -288,12 +288,12 @@ static const int RowHeight = 60;
 - (void)purchaseThemesSuccess {
     [self dismissModalIfShowing];
     
-    NSString *msg = @"Thanks for purchasing themes. Now check out your new fancy colors...";
+    NSString *msg = @"Thanks for purchasing themes for Noted. Enjoy!";
     self.modalView = [[NTDModalView alloc]
                       initWithMessage:msg
                       layer:nil
                       backgroundColor:[UIColor blackColor]
-                      buttons:@[@"Dismiss"]
+                      buttons:@[@"Done"]
                       dismissalHandler:^(NSUInteger index) {
                           [NTDTheme setPurchasedThemes:YES];
                       }];
@@ -310,16 +310,23 @@ static const int RowHeight = 60;
 
 - (void) showWaitingModal {
     // display a "waiting" modal which replaces the old one
-    NSString *msg = @"Waiting for response from the App Store";
-    self.modalView = [[NTDModalView alloc]
-                      initWithMessage:msg
-                      layer:nil
-                      backgroundColor:[UIColor blackColor]
-                      buttons:@[@"..."]
-                      dismissalHandler:^(NSUInteger index) {
-                          [self showWaitingModal];
-                      }];
+//    NSString *msg = @"Waiting for response from the App Store";
+//    self.modalView = [[NTDModalView alloc]
+//                      initWithMessage:msg
+//                      layer:nil
+//                      backgroundColor:[UIColor blackColor]
+//                      buttons:@[@"..."]
+//                      dismissalHandler:^(NSUInteger index) {
+//                          [self showWaitingModal];
+//                      }];
     
+    
+    UIImageView *dotsView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"dots"]];
+    self.modalView = [[NTDModalView alloc]
+                      initWithMessage:@"Waiting for a response from the App Store."
+                      layer:dotsView.layer backgroundColor:[UIColor blackColor] buttons:@[] dismissalHandler:^(NSUInteger index) {
+                          
+                      }];
     [self.modalView show];
     [self addBorderToActiveModal];
 }
@@ -331,9 +338,8 @@ static const int RowHeight = 60;
     UIView *modalBorder = [[UIView alloc] initWithFrame:modalBorderRect];
     modalBorder.backgroundColor = [UIColor darkGrayColor];
     [self.modalView insertSubview:modalBorder atIndex:0];
-    [UIView animateWithDuration:.2 animations:^{
-        self.modalView.superview.backgroundColor = [UIColor colorWithWhite:0 alpha:.5];
-    }];
+    
+    self.modalView.superview.backgroundColor = [UIColor colorWithWhite:0 alpha:.5];
 }
 
 - (void)dismissModalIfShowing {

@@ -41,12 +41,13 @@ static NSArray *backgroundColors, *textColors, *caretColors, *themes;
                                   [UIColor whiteColor], nil];
     
     NSArray *defaultCaretColors = [[NSArray alloc] initWithObjects:
-                                   [UIColor blackColor],
-                                   [UIColor blackColor],
-                                   [UIColor blackColor],
-                                   [UIColor blackColor],
-                                   [UIColor whiteColor],
-                                   [UIColor whiteColor], nil];
+                                   [UIColor colorWithHexString:@"999999"],
+                                   [UIColor colorWithHexString:@"0088CA"],
+                                   [UIColor colorWithHexString:@"7DA700"],
+                                   [UIColor colorWithHexString:@"C7AC00"],
+                                   [UIColor colorWithHexString:@"999999"],
+                                   [UIColor colorWithHexString:@"00639C"],
+                                   nil];
     // setting sun
     NSArray *aBackgroundColors = [[NSArray alloc] initWithObjects:
                                     [UIColor colorWithRed:0.96 green:0.85 blue:0.64 alpha:1],

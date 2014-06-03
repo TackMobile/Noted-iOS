@@ -43,6 +43,7 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *restorePurchasesView;
 
 @property (strong, nonatomic) IBOutlet NTDThemesTableViewController *themesTableViewController;
+@property (strong, nonatomic) UIImageView *doneButtonBackArrow;
 
 @end
 
@@ -374,6 +375,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                              self.themesAreExpanded = NO;
                              [self.themesTableViewController.view removeFromSuperview];
                          }];
+        [self.doneButtonBackArrow removeFromSuperview];
     } else if (self.optionIsExpanded) {
         [self.delegate changeOptionsViewWidth:[self.delegate initialOptionsViewWidth]];
         
@@ -476,7 +478,13 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         [self.view addSubview:self.themesTableViewController.view];
     
     self.themesAreExpanded = YES;
-    [self.doneButton setTitle:@"< Settings" forState:UIControlStateNormal];
+    
+    // add the arrow to done button
+    self.doneButtonBackArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow-icon"]];
+    self.doneButtonBackArrow.center = CGPointMake(25, doneButton.frame.size.height/2);
+    [doneButton addSubview:self.doneButtonBackArrow];
+    
+    [self.doneButton setTitle:@"      Settings" forState:UIControlStateNormal];
     [UIView animateWithDuration:.2 animations:^{
         self.themesTableViewController.view.$x=0;
         [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
@@ -643,6 +651,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.doneButton.frame = doneFrame;
     self.themesTableViewController.view.frame = themesFrame;
     [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [self.doneButtonBackArrow removeFromSuperview];
     self.themesAreExpanded = NO;
     
     [self.themesTableViewController dismissModalIfShowing];
