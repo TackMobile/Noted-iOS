@@ -9,8 +9,10 @@
 #import "NTDThemesTableViewController.h"
 #import "NTDModalView.h"
 #import "NTDTheme.h"
+#import "UIDeviceHardware.h"
 #import <UIView+FrameAdditions.h>
 #import <IAPHelper/IAPShare.h>
+#import <AVFoundation/AVFoundation.h>
 
 #pragma mark - NTDThemePreview
 
@@ -132,6 +134,7 @@ static const int RowHeight = 60;
     if (indexPath.item == self.selectedThemeIndex) {
         cell.backgroundColor = [UIColor colorWithWhite:.1 alpha:1];
         themeTitle.font = [UIFont fontWithName:@"Avenir" size:16];
+        cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"check-icon"]];
     }
     
     // add in the subviews
@@ -205,12 +208,12 @@ static const int RowHeight = 60;
 
 - (void) promptToPurchaseThemes {
     
-    NSString *msg = @"Upgrade Noted with custom color themes.";
+    NSString *msg = @"Upgrade Noted with custom color themes for $0.99";
     self.modalView = [[NTDModalView alloc]
                       initWithMessage:msg
                       layer:nil
                       backgroundColor:[UIColor blackColor]
-                      buttons:@[@"$0.99", @"Cancel"]
+                      buttons:@[@"Upgrade", @"Cancel"]
                       dismissalHandler:^(NSUInteger index) {
                           switch (index) {
                               case 0:
@@ -319,16 +322,34 @@ static const int RowHeight = 60;
 //                      dismissalHandler:^(NSUInteger index) {
 //                          [self showWaitingModal];
 //                      }];
+    NSString *msg = @"Waiting for a response from the App Store.";
     
+    AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"mov"]];
+    player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+    playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 100, .size.height = 50};
+    [player play];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(playerItemDidReachEnd:)
+                                                 name:AVPlayerItemDidPlayToEndTimeNotification
+                                               object:[player currentItem]];
+
     
-    UIImageView *dotsView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"dots"]];
-    self.modalView = [[NTDModalView alloc]
-                      initWithMessage:@"Waiting for a response from the App Store."
-                      layer:dotsView.layer backgroundColor:[UIColor blackColor] buttons:@[] dismissalHandler:^(NSUInteger index) {
-                          
-                      }];
+    self.modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                              layer:playerLayer
+                                                    backgroundColor:[UIColor blackColor]
+                                                            buttons:@[]
+                                                   dismissalHandler:^(NSUInteger index) {
+                                                             }];
     [self.modalView show];
     [self addBorderToActiveModal];
+
+}
+
+// loops the animation
+- (void)playerItemDidReachEnd:(NSNotification *)notification {
+    AVPlayerItem *p = [notification object];
+    [p seekToTime:kCMTimeZero];
 }
 
 - (void)addBorderToActiveModal {

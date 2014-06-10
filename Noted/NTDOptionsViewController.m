@@ -642,7 +642,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     CGRect themesFrame = {
         .origin.x = mySize.width,
         .origin.y = CompressedColorHeight,
-        .size.width = mySize.width,
+        .size.width = mySize.width * .9,
         .size.height = mySize.height - doneFrame.size.height - CompressedColorHeight
     };
     
