@@ -77,7 +77,9 @@ static const int RowHeight = 60;
     self = [super initWithCoder:aDecoder];
     if (self) {
         [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:NTDThemeCellReuseIdentifier];
-        self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+            self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
         
         themeNames = [NTDTheme themeNames];
     }
@@ -127,6 +129,7 @@ static const int RowHeight = 60;
     // configure the theme's title
     UILabel *themeTitle = [[UILabel alloc] initWithFrame:CGRectMake(65, 10, cell.frame.size.width-60, 40)];
     themeTitle.textColor = [UIColor whiteColor];
+    themeTitle.backgroundColor = [UIColor clearColor];
     themeTitle.font = [UIFont fontWithName:@"Avenir-Light" size:16];
     themeTitle.text = [themeNames objectAtIndex:indexPath.item];
     
@@ -174,6 +177,7 @@ static const int RowHeight = 60;
     // configure the header's text
     UILabel *headerLabel = [[UILabel alloc] init];
     headerLabel.textColor = [UIColor whiteColor];
+    headerLabel.backgroundColor = [UIColor blackColor];
     headerLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
     headerLabel.text = @"Themes";
     headerLabel.alpha = .7;
