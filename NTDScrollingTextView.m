@@ -69,6 +69,10 @@ static CGFloat heightDifference;
 #pragma mark - Helper Methods
 
 - (void) scrollToCaretAnimated:(BOOL)animated {
+    // automatic scrolling is default <7.0
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
+        return;
+
     CGRect rect = [self caretRectForPosition:self.selectedTextRange.end];
     rect.size.height += self.textContainerInset.bottom;
     [self scrollRectToVisible:rect animated:animated];
