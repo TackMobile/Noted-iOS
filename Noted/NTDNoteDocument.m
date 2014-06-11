@@ -67,35 +67,24 @@ static NSUInteger filenameCounter = 1;
 
 + (NSURL *)newFileURL
 {
-    NSURL *url;
-    do
-    {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", (int)filenameCounter];
-        NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
-        url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
-        filenameCounter++;
-    }
-    while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
-    
-    return url;
+    return [self fileURLFromDate:[NSDate date]];
 }
 
-+ (NSURL *)fileURLFromIndex:(NSUInteger)index
++ (NSString *)filenameFromDate:(NSDate *)date {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy-MM-dd_HH-mm-ss_A";
+    
+    NSString *filename = [NSString stringWithFormat:@"Note at %@.txt", [dateFormatter stringFromDate:date]];
+    return filename;
+}
+
++ (NSURL *)fileURLFromDate:(NSDate *)date
 {
     // try to use the new index. if not, keep incrimenting
     NSURL *url;
-    do
-    {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", (uint)index];
-        NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
-        url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
-        index++;
-    }
-    while ([NSFileManager.defaultManager fileExistsAtPath:[url path]]);
-    
-    // if our new index exceeds our counter, update it
-    if (index>filenameCounter)
-        filenameCounter=index;
+    NSString *basename = [NTDNoteDocument filenameFromDate:date];
+    NSString *filename = [basename stringByAppendingPathExtension:FileExtension];
+    url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
     
     return url;
 }
@@ -306,6 +295,8 @@ BOOL safe_rename(const char *old, const char *new)
         NSLog(@"WARNING: Couldn't save file: %@", *outError);
         [Flurry logError:@"Couldn't save file" message:[*outError localizedDescription] error:*outError];
         return NO;
+    } else {
+        NSLog(@"*** Save - %@", self.filename);
     }
     
     NSManagedObjectContext *context = [[self class] managedObjectContext];
@@ -413,46 +404,96 @@ BOOL safe_rename(const char *old, const char *new)
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *))handler
 {
+    // For error information
+    NSError __autoreleasing *error;
+    
+    // Create file manager
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    // Point to Document directory
+    NSString *documentsDirectory = [NSHomeDirectory()
+                                    stringByAppendingPathComponent:@"Documents/Notes"];
+    
+    // Query the files
+    NSArray *files = [fileMgr contentsOfDirectoryAtPath:documentsDirectory
+                                                   error:&error];
+    // list current file names
+    NSLog(@"files: %@\nerror:%@", files, error);
+    
+    // Create a fetch request for metadata
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
     NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
     fetchRequest.sortDescriptors = @[filenameSortDescriptor];
-    NSError __autoreleasing *error;
-    NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-    if (results == nil) {
+    
+    // Query the metadata
+    NSArray *records = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    // check for empty results
+    if (records == nil) {
         NSLog(@"WARNING: Couldn't fetch list of notes!");
         [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
     }
-
-    NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[results count]];
     
-    // for 2.0 migration: we need to assign sequential dateCreated dates for already created notes...
-    NSTimeInterval fakeTimeOffset = 0;
-    for (NTDNoteMetadata *metadata in results) {
-        if (![metadata dateCreated]) {
-            metadata.dateCreated = [NSDate dateWithTimeIntervalSinceNow:fakeTimeOffset];
-            // subtract a second from the next date
-            fakeTimeOffset -= 1;
-        }
-        [notes addObject:[self documentFromMetadata:metadata]];
-        filenameCounter = MAX(filenameCounter, [self indexFromFilename:metadata.filename]);
-    }
+    // list the metadata filenames
+    NSMutableArray *metaFilenames = [NSMutableArray new];
+    for (NTDNoteMetadata *metadata in records)
+        [metaFilenames addObject:metadata.filename];
+    
+    NSLog(@"files: %@\nerror:%@", metaFilenames, error);
+    
+    // migration: files will now be named according to date
+    NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[records count]];
 
+    NSTimeInterval dateCreatedOffset = 0;
+    NSDate *refDate = [NSDate date];
+    for (NTDNoteMetadata *metadata in records) {
+        // ensure all files have a dateCreated field.
+        if (!metadata.dateCreated) {
+            NSDate *fillerDateCreated = [refDate dateByAddingTimeInterval:dateCreatedOffset];
+            [metadata setDateCreated:fillerDateCreated];
+            dateCreatedOffset -= 5;
+        }
+        
+        // check if the filename reflects it's date created
+        if (![metadata.filename isEqualToString:[NTDNoteDocument filenameFromDate:metadata.dateCreated]]) {
+            
+            // attempt to move the file to a new path
+            NSString *newFilename = [NTDNoteDocument filenameFromDate:metadata.dateCreated];
+            NSString *oldPath = [documentsDirectory stringByAppendingPathComponent:metadata.filename];
+            NSString *newPath = [documentsDirectory stringByAppendingPathComponent:newFilename];
+            NSLog(@"new filename: %@", newFilename);
+            if ([fileMgr moveItemAtPath:oldPath toPath:newPath error:&error]) {
+                NSLog(@"Rename successful!");
+                
+                // change the record's filename to reflect the migrated file
+                [metadata setFilename:newFilename];
+            } else {
+                NSLog(@"Error: %@", [error localizedDescription]);
+            }
+        }
+        
+        // finally we can continue building the notes array
+        [notes addObject:[NTDNoteDocument documentFromMetadata:metadata]];
+    }
+    
+    // Query the files again
+    files = [fileMgr contentsOfDirectoryAtPath:documentsDirectory
+                                         error:&error];
+    // list current file names
+    NSLog(@"files: %@\n", files);
+    
+    if ([self.managedObjectContext save:&error])
+        NSLog(@"names saved");
+    
+    // order the notes according to dateCreated
     [notes sortUsingComparator:^NSComparisonResult(NTDNoteMetadata *metadata1, NTDNoteMetadata *metadata2) {
         return [metadata2.dateCreated compare:metadata1.dateCreated];
-//        NSUInteger i = [self indexFromFilename:metadata1.filename];
-//        NSUInteger j = [self indexFromFilename:metadata2.filename];
-//        
-//        if (i > j) {
-//            return (NSComparisonResult)NSOrderedAscending;
-//        } else if (i < j) {
-//            return (NSComparisonResult)NSOrderedDescending;
-//        } else {
-//            return (NSComparisonResult)NSOrderedSame;
-//        }
     }];
-
-    [self removeFilesWithNoMetadata:notes];
+    
     handler(notes);
+    
+    [self removeFilesWithNoMetadata:notes];
+
 }
 
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
@@ -462,16 +503,19 @@ BOOL safe_rename(const char *old, const char *new)
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
-    NSUInteger fileIndex = [self indexFromFilename:deletedNote.filename];
-    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+    
+    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromDate:deletedNote.dateCreated]];
     
     [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
         [note setTheme:deletedNote.theme];
         [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        [note setDateCreated:deletedNote.dateCreated];
         [note setText:deletedNote.bodyText];
         
         handler(note);
     }];
+    NSLog(@"*** Restore - %@", document.metadata.filename);
+
 }
 
 + (void)newNoteWithDocument:(NTDNoteDocument *)document completionHandler:(void(^)(NTDNote *))handler {
@@ -493,6 +537,7 @@ BOOL safe_rename(const char *old, const char *new)
               handler(nil);
           };
       }];
+    NSLog(@"*** Create - %@", document.metadata.filename);
 }
 
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
@@ -574,6 +619,8 @@ BOOL safe_rename(const char *old, const char *new)
 
 - (void)actuallyDeleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
+    NSLog(@"*** Delete - %@", self.filename);
+
     completionHandler = [NTDNoteDocument handlerDispatchedToMainQueue:completionHandler];
     NSManagedObjectContext *context = [[self class] managedObjectContext];
     __block BOOL didDeleteMetadata;
@@ -680,6 +727,14 @@ BOOL safe_rename(const char *old, const char *new)
 {
     if (![date isEqualToDate:self.lastModifiedDate]) {
         self.metadata.lastModifiedDate = date;
+        [self updateChangeCount:UIDocumentChangeDone];
+    }
+}
+
+- (void)setDateCreated:(NSDate *)date
+{
+    if (![date isEqualToDate:self.dateCreated]) {
+        self.metadata.dateCreated = date;
         [self updateChangeCount:UIDocumentChangeDone];
     }
 }

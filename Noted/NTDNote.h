@@ -49,6 +49,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (void)setTheme:(NTDTheme *)theme;
 - (void)setText:(NSString *)text;
 - (void)setLastModifiedDate:(NSDate *)date;
+- (void)setDateCreated:(NSDate *)date;
 
 //- (id<NTDNoteDelegate>)delegate;
 //- (void)setDelegate:(id<NTDNoteDelegate>)delegate;

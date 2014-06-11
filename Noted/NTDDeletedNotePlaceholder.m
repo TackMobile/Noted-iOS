@@ -13,7 +13,7 @@
 
 @property (nonatomic, strong) NSString *filename, *headline, *bodyText;
 @property (nonatomic, strong) NTDTheme *theme;
-@property (nonatomic, strong) NSDate *lastModifiedDate;
+@property (nonatomic, strong) NSDate *lastModifiedDate, *dateCreated;
 
 @end
 
@@ -23,7 +23,9 @@
     if (self = [super init]) {
         self.filename = note.filename;
         self.headline = note.headline;
+        self.bodyText = note.text;
         self.lastModifiedDate = note.lastModifiedDate;
+        self.dateCreated = note.dateCreated;
         self.theme = note.theme;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
