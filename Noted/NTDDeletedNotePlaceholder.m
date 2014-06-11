@@ -7,6 +7,7 @@
 //
 
 #import "NTDDeletedNotePlaceholder.h"
+#import "NTDNoteDocument.h"
 #import "NTDTheme.h"
 
 @interface NTDDeletedNotePlaceholder ()

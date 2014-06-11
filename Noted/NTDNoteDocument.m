@@ -89,64 +89,9 @@ static NSUInteger filenameCounter = 1;
     return url;
 }
 
-+ (NSUInteger)indexFromFilename:(NSString *)filename
-{
-    /* Depends on filename structure as defined by +newFileURL */
-    static NSUInteger NilIndex = 0;
-    static NSRegularExpression *matcher;
-    if (!matcher) {
-        NSError __autoreleasing *error;
-        matcher = [NSRegularExpression regularExpressionWithPattern:@"^Note ([0-9]+)$"
-                                                            options:0
-                                                              error:&error];
-        if (error) return NilIndex;
-    }
-    
-    filename = [filename stringByDeletingPathExtension];
-    if (!filename || 0==filename.length) return NilIndex;
-
-    NSTextCheckingResult *result = [matcher firstMatchInString:filename options:0 range:[filename rangeOfString:filename]];
-    if (!result) return NilIndex;
-
-    NSRange range = [result rangeAtIndex:1];
-    if (NSEqualRanges(range, NSMakeRange(NSNotFound, 0))) {
-        return NilIndex;
-    } else {
-        return [[filename substringWithRange:range] integerValue];
-    }    
-}
-
-BOOL safe_rename(const char *old, const char *new)
-{
-    // http://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
-    int old_fd, new_fd, error;
-    
-    old_fd = open(old, O_RDONLY);
-    if (-1 == old_fd) return NO;
-    
-    error = rename(old, new);
-    if (-1 == error) return NO;
-    
-    new_fd = open(new, O_RDONLY);
-    if (-1 == new_fd) return NO;
-    
-    error = fsync(old_fd); /* Not sure what to do if we fail here so let's punt for now. */
-    error = fsync(new_fd);
-    
-    return YES;
-}
-
 + (BOOL)safelyMoveItemAtURL:(NSURL *)oldURL toURL:(NSURL *)newURL
 {
-    const char *oldpath = [[oldURL path] cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *newpath = [[newURL path] cStringUsingEncoding:NSUTF8StringEncoding];
-    BOOL success = safe_rename(oldpath, newpath);
-    if (!success) {
-        NSString *errorMsg = [NSString stringWithFormat:@"safe_rename failed. errno = %d", errno];
-        NSLog(@"%@", errorMsg);
-        [Flurry logError:@"safe_rename() failure" message:errorMsg error:nil];
-    }
-    return success;
+    // this
 }
 
 + (BOOL)restoreFromBackup
@@ -407,19 +352,6 @@ BOOL safe_rename(const char *old, const char *new)
     // For error information
     NSError __autoreleasing *error;
     
-    // Create file manager
-    NSFileManager *fileMgr = [NSFileManager defaultManager];
-    
-    // Point to Document directory
-    NSString *documentsDirectory = [NSHomeDirectory()
-                                    stringByAppendingPathComponent:@"Documents/Notes"];
-    
-    // Query the files
-    NSArray *files = [fileMgr contentsOfDirectoryAtPath:documentsDirectory
-                                                   error:&error];
-    // list current file names
-    NSLog(@"files: %@\nerror:%@", files, error);
-    
     // Create a fetch request for metadata
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
     NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
@@ -434,13 +366,6 @@ BOOL safe_rename(const char *old, const char *new)
         [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
     }
     
-    // list the metadata filenames
-    NSMutableArray *metaFilenames = [NSMutableArray new];
-    for (NTDNoteMetadata *metadata in records)
-        [metaFilenames addObject:metadata.filename];
-    
-    NSLog(@"files: %@\nerror:%@", metaFilenames, error);
-    
     // migration: files will now be named according to date
     NSMutableArray *notes = [NSMutableArray arrayWithCapacity:[records count]];
 
@@ -454,16 +379,16 @@ BOOL safe_rename(const char *old, const char *new)
             dateCreatedOffset -= 5;
         }
         
-        // check if the filename reflects it's date created
+        // check if the filename reflects its date created
         if (![metadata.filename isEqualToString:[NTDNoteDocument filenameFromDate:metadata.dateCreated]]) {
             
             // attempt to move the file to a new path
             NSString *newFilename = [NTDNoteDocument filenameFromDate:metadata.dateCreated];
-            NSString *oldPath = [documentsDirectory stringByAppendingPathComponent:metadata.filename];
-            NSString *newPath = [documentsDirectory stringByAppendingPathComponent:newFilename];
+            NSString *oldPath = [[self notesDirectoryURL].path stringByAppendingPathComponent:metadata.filename];
+            NSString *newPath = [[self notesDirectoryURL].path stringByAppendingPathComponent:newFilename];
             NSLog(@"new filename: %@", newFilename);
-            if ([fileMgr moveItemAtPath:oldPath toPath:newPath error:&error]) {
-                NSLog(@"Rename successful!");
+            if ([[NSFileManager defaultManager] moveItemAtPath:oldPath toPath:newPath error:&error]) {
+                NSLog(@"Rename successful");
                 
                 // change the record's filename to reflect the migrated file
                 [metadata setFilename:newFilename];
@@ -476,12 +401,6 @@ BOOL safe_rename(const char *old, const char *new)
         [notes addObject:[NTDNoteDocument documentFromMetadata:metadata]];
     }
     
-    // Query the files again
-    files = [fileMgr contentsOfDirectoryAtPath:documentsDirectory
-                                         error:&error];
-    // list current file names
-    NSLog(@"files: %@\n", files);
-    
     if ([self.managedObjectContext save:&error])
         NSLog(@"names saved");
     
@@ -492,6 +411,7 @@ BOOL safe_rename(const char *old, const char *new)
     
     handler(notes);
     
+    // clean up filesystem
     [self removeFilesWithNoMetadata:notes];
 
 }
@@ -500,22 +420,6 @@ BOOL safe_rename(const char *old, const char *new)
 {
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL]];
     [self newNoteWithDocument:document completionHandler:handler];
-}
-
-+ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
-    
-    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromDate:deletedNote.dateCreated]];
-    
-    [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
-        [note setTheme:deletedNote.theme];
-        [note setLastModifiedDate:deletedNote.lastModifiedDate];
-        [note setDateCreated:deletedNote.dateCreated];
-        [note setText:deletedNote.bodyText];
-        
-        handler(note);
-    }];
-    NSLog(@"*** Restore - %@", document.metadata.filename);
-
 }
 
 + (void)newNoteWithDocument:(NTDNoteDocument *)document completionHandler:(void(^)(NTDNote *))handler {
@@ -538,6 +442,51 @@ BOOL safe_rename(const char *old, const char *new)
           };
       }];
     NSLog(@"*** Create - %@", document.metadata.filename);
+}
+
+#pragma mark - Restoration & Backup
+
++ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
+    
+    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromDate:deletedNote.dateCreated]];
+    
+    [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
+        [note setTheme:deletedNote.theme];
+        [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        [note setDateCreated:deletedNote.dateCreated];
+        [note setText:deletedNote.bodyText];
+        
+        handler(note);
+    }];
+    NSLog(@"*** Restore - %@", document.metadata.filename);
+    
+}
+
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler = [self handlerDispatchedToMainQueue:handler];
+    
+    // nil PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    [sharedDatastore resetStore];
+    
+    // lock PSC
+    [[sharedDatastore persistentStoreCoordinator] lock];
+    
+    BOOL didRestore = [self restoreFromBackup];
+    
+    // unlock PSC
+    [[sharedDatastore persistentStoreCoordinator] unlock];
+    
+    if (!didRestore) {
+        handler(NO);
+        return;
+    }
+    
+    // reset PSC
+    [sharedDatastore resetStore];
+    
+    handler(YES);
 }
 
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
@@ -567,45 +516,7 @@ BOOL safe_rename(const char *old, const char *new)
     handler(YES);
 }
 
-+ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
-{
-    handler = [self handlerDispatchedToMainQueue:handler];
-    
-//    // delete store
-//    NSFileManager *fileManager = [NSFileManager defaultManager];
-//    NSError __autoreleasing *error;
-//
-//    [[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] lock];
-//    NSPersistentStore *mainStore = [[[[NTDCoreDataStore sharedStore] persistentStoreCoordinator] persistentStores] objectAtIndex:0];
-//    [fileManager removeItemAtURL:[mainStore URL] error:&error];
-//    if (error) {
-//        NSLog(@"Couldn't delete persistent store: %@", error);
-//        handler(NO);
-//        return;
-//    }
-    
-    // nil PSC
-    [[sharedDatastore persistentStoreCoordinator] unlock];
-    [sharedDatastore resetStore];
-
-    // lock PSC
-    [[sharedDatastore persistentStoreCoordinator] lock];
-    
-    BOOL didRestore = [self restoreFromBackup];
-    
-    // unlock PSC
-    [[sharedDatastore persistentStoreCoordinator] unlock];
-
-    if (!didRestore) {
-        handler(NO);
-        return;
-    }
-
-    // reset PSC
-    [sharedDatastore resetStore];
-
-    handler(YES);
-}
+#pragma mark - Note Deletion
 
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler
 {
@@ -658,6 +569,8 @@ BOOL safe_rename(const char *old, const char *new)
     }];
 }
 
+#pragma mark - Metadata Getters
+
 - (NSString *)filename
 {
     return self.metadata.filename;
@@ -699,6 +612,8 @@ BOOL safe_rename(const char *old, const char *new)
 {
     return self.bodyText;
 }
+
+#pragma mark - Metadata Setters
 
 // Needs to: update change count; maybe notify app
 - (void)setTheme:(NTDTheme *)theme
