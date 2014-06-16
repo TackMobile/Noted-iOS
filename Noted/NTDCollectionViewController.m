@@ -1822,7 +1822,6 @@ static BOOL keyboardIsBeingShown;
         [self.optionsViewController reset];
         [coverupView removeFromSuperview];
         [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughCloseOptionsStep];
-        [self reloadNotes];
     }];
 }
 
