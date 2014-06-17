@@ -95,7 +95,7 @@ static NSString *themesPrice = @"...";
                  [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
                  [numberFormatter setLocale:product.priceLocale];
                  if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
-                     themesPrice = @"Free.  ";
+                     themesPrice = @"free.";
                  else
                      themesPrice = [numberFormatter stringFromNumber:product.price];
              } else {
