@@ -257,22 +257,27 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     self.restorePurchasesView.userInteractionEnabled = YES;
     [self.restorePurchasesView bk_whenTapped:^{
         [[IAPShare sharedHelper].iap restoreProductsWithCompletion:^(SKPaymentQueue *payment, NSError *error) {
+            NSString *msg = @"You have not made any Noted purchases.";
+            
             if ([[IAPShare sharedHelper].iap purchasedProducts].count > 0) {
+                BOOL restoredAnything = NO;
                 for (NSString *productID in [[IAPShare sharedHelper].iap purchasedProducts]) {
-                    if([productID isEqualToString:NTDNoteThemesProductID])
+                    msg = @"You have no unactivated Noted purchases.";
+                    if([productID isEqualToString:NTDNoteThemesProductID] && ![NTDTheme didPurchaseThemes]) {
                         [NTDTheme setPurchasedThemes:YES];
-                    else if ([productID isEqualToString:@"com.tackmobile.noted.dropbox"])
+                        restoredAnything = YES;
+                    }else if ([productID isEqualToString:@"com.tackmobile.noted.dropbox"]) {
+                        restoredAnything = YES;
                         // enable dropbox
                         nil;
+                    }
                 }
-                NSString *msg = @"Your Noted purchases have been restored.";
-                __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
-                [modalView show];
-            } else {
-                NSString *msg = @"You have not made any Noted purchases.";
-                __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
-                [modalView show];
+                if (restoredAnything)
+                    msg = @"Your Noted purchases have been restored.";
             }
+            
+            __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
+            [modalView show];
         }];
         
     }];

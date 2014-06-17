@@ -73,6 +73,8 @@ static const int HeaderHeight = 38;
 static const int RowHeight = 60;
 
 #pragma mark - View Lifecycle
+static NSString *themesPrice = @"...";
+
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
@@ -82,6 +84,21 @@ static const int RowHeight = 60;
             self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
         
         themeNames = [NTDTheme themeNames];
+        
+        [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
+         {
+             if(response > 0 ) {
+                 // purchase themes
+                 SKProduct* product =[[IAPShare sharedHelper].iap.products objectAtIndex:1];
+                 NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                 [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+                 [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                 [numberFormatter setLocale:product.priceLocale];
+                 themesPrice = [numberFormatter stringFromNumber:product.price];
+             } else {
+                 themesPrice = @"...";
+             }
+         }];
     }
     return self;
 }
@@ -209,10 +226,10 @@ static const int RowHeight = 60;
 }
 
 #pragma mark - User flow
-
 - (void) promptToPurchaseThemes {
     
-    NSString *msg = @"Upgrade Noted with custom color themes for $0.99";
+    NSString *msg = @"Upgrade Noted with custom color themes for ";
+    msg = [msg stringByAppendingString:themesPrice];
     self.modalView = [[NTDModalView alloc]
                       initWithMessage:msg
                       layer:nil
@@ -329,10 +346,10 @@ static const int RowHeight = 60;
     NSString *msg = @"Waiting for a response from the App Store.";
     
     AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"mov"]];
+    [player play];
     player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
     playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 100, .size.height = 50};
-    [player play];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(playerItemDidReachEnd:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
