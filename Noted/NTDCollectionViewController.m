@@ -612,15 +612,15 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     } else {
                         [self.collectionView performBatchUpdates:^{
                             [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
-                            if (shouldDeleteLastNote) {
-                                [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
-                                    [self.notes insertObject:note atIndex:0];
-                                    self.pagingLayout.deletedLastNote = YES;
-                                    self.pagingLayout.activeCardIndex = 0;
-                                    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
-                                    [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
-                                }];
-                            }
+//                            if (shouldDeleteLastNote) {
+//                                [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
+//                                    [self.notes insertObject:note atIndex:0];
+//                                    self.pagingLayout.deletedLastNote = YES;
+//                                    self.pagingLayout.activeCardIndex = 0;
+//                                    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+//                                    [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
+//                                }];
+//                            }
                         } completion:^(BOOL finished) {
                             [self.collectionView reloadData];
                             [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
@@ -1269,7 +1269,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView performBatchUpdates:^{
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
         if (indexPath.item == self.notes.count) {
-            [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
+//            [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
         }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];

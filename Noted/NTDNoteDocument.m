@@ -444,7 +444,7 @@ BOOL safe_rename(const char *old, const char *new)
         }
     }];
 
-    [self removeFilesWithNoMetadata:notes];
+//    [self removeFilesWithNoMetadata:notes];
     handler(notes);
 }
 
