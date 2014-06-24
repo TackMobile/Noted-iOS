@@ -116,7 +116,11 @@ static CGFloat heightDifference;
 - (void)textViewDidEndEditing:(UITextView *)textView {
     if ([self.customDelegate respondsToSelector:@selector(textViewDidEndEditing:)])
         [self.customDelegate textViewDidEndEditing:textView];
+}
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if ([self.customDelegate respondsToSelector:@selector(scrollViewDidScroll:)])
+        [self.customDelegate scrollViewDidScroll:scrollView];
 }
 
 @end
