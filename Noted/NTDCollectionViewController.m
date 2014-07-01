@@ -243,6 +243,9 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                               [self bk_performBlock:^(id sender) {
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
+                                  else
+                                      if (![NTDWalkthrough hasLearnedAboutThemes])
+                                          [NTDWalkthrough.sharedWalkthrough promptUserAboutThemes];
                               }
                                       afterDelay:NTDDefaultInitialModalDelay];
                           });

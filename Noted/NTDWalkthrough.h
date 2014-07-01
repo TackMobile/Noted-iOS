@@ -37,7 +37,9 @@ FOUNDATION_EXTERN NSString *const NTDDidAdvanceWalkthroughToStepNotification;
 
 + (instancetype)sharedWalkthrough;
 + (BOOL)isCompleted;
++ (BOOL)hasLearnedAboutThemes;
 - (void)promptUserToStartWalkthrough;
+- (void)promptUserAboutThemes;
 - (void)stepShouldEnd:(NTDWalkthroughStep)step;
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step;
 - (void)endWalkthrough:(BOOL)wasCompleted;
