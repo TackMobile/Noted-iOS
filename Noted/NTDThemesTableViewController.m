@@ -349,24 +349,27 @@ static NSString *themesPrice = @"...";
     NSString *msg = @"Waiting for a response from the App Store.";
     
     AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"mov"]];
-    [player play];
     player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-    playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 100, .size.height = 50};
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(playerItemDidReachEnd:)
-                                                 name:AVPlayerItemDidPlayToEndTimeNotification
-                                               object:[player currentItem]];
-
+    playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 220, .size.height = 190};
+    [player play];
     
-    self.modalView = [[NTDModalView alloc] initWithMessage:msg
+    id observer;
+    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
                                                               layer:playerLayer
                                                     backgroundColor:[UIColor blackColor]
                                                             buttons:@[]
-                                                   dismissalHandler:^(NSUInteger index) {
+                                                   dismissalHandler:nil];
+    observer = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
+                                                                 object:player.currentItem
+                                                                  queue:[NSOperationQueue mainQueue]
+                                                             usingBlock:^(NSNotification *note) {
+                                                                 AVPlayerItem *p = [note object];
+                                                                 [p seekToTime:kCMTimeZero];
                                                              }];
-    [self.modalView show];
+    [modalView show];
     [self addBorderToActiveModal];
+
 
 }
 

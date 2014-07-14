@@ -232,9 +232,9 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
 
     // set up properties
+    [self bindGestureRecognizers];
     [self.collectionView reloadData];
     self.collectionView.alwaysBounceVertical = YES;
-    [self bindGestureRecognizers];
     [self reloadNotes];
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
@@ -1161,8 +1161,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)animateSwipedCellToOriginalPosition {
     self.listLayout.swipedCardIndexPath = nil;
     self.oneFingerDeletionDirection = NTDDeletionDirectionNoDirection;
-    [self.collectionView performBatchUpdates:nil completion:^(BOOL finished) {
-    }];
+    [self.collectionView performBatchUpdates:nil completion:nil];
+
 }
 
 - (void)finishAnimationForVisibleCardWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
@@ -1240,7 +1240,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
             [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
         else
-            [self.collectionView reloadData]; /* fixes the 'two cards animate back in' bug. */
+            [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]]; /* fixes the 'two cards animate back in' bug. */
     
         CGFloat insertedCellScrollPos = self.listLayout.cardOffset * indexPath.item;
         
@@ -1272,7 +1272,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.collectionView performBatchUpdates:^{
         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
         if (indexPath.item == self.notes.count) {
-//            [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
+            [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
         }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];
