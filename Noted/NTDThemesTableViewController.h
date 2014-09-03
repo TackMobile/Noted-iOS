@@ -25,7 +25,7 @@
 @end
 
 @interface NTDThemesTableViewController : UITableViewController
-@property (nonatomic, strong) id<NTDThemesTableViewControllerDelegate> delegate;
+@property (nonatomic, assign) id<NTDThemesTableViewControllerDelegate> delegate;
 
 -(void)dismissModalIfShowing;
 
