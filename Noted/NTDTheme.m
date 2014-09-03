@@ -23,6 +23,9 @@ static NSArray *backgroundColors, *textColors, *caretColors, *themes;
 
 + (void)initialize
 {
+    if ( self != [NTDTheme class] )
+        return;
+
     NSArray *defaultBackgroundColors = [[NSArray alloc] initWithObjects:
                                         [UIColor colorWithHexString:@"FFFFFF"],
                                         [UIColor colorWithHexString:@"B5D2E0"],
