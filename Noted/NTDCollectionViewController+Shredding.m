@@ -47,7 +47,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     
     UIImage *noteImage = [self imageForView:self.currentDeletionCell];
     
-    for (int i=0; i<self.deletedNoteVertSliceCount; i++) {
+    for (int i = 0; i < self.deletedNoteVertSliceCount; i++) {
         // add a column
         ColumnForShredding *currentColumn = [[ColumnForShredding alloc] init];
         currentColumn.percentLeft = (sliceSize.width*i)/self.collectionView.frame.size.width;

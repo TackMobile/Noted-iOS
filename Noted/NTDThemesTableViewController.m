@@ -10,6 +10,7 @@
 #import "NTDModalView.h"
 #import "NTDTheme.h"
 #import "UIDeviceHardware.h"
+#import "WaitingAnimationLayer.h"
 #import <UIView+FrameAdditions.h>
 #import <IAPHelper/IAPShare.h>
 #import <AVFoundation/AVFoundation.h>
@@ -89,7 +90,7 @@ static NSString *themesPrice = @"...";
          {
              if(response > 0 ) {
                  // purchase themes
-                 SKProduct* product =[[IAPShare sharedHelper].iap.products objectAtIndex:1];
+                 SKProduct* product = IAPShare.sharedHelper.iap.products[1];
                  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
                  [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
                  [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
@@ -272,7 +273,7 @@ static NSString *themesPrice = @"...";
              IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
                  if (transaction.error) {
                      NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
-                     [self purchaseThemesFailure];
+                     [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
                  } else {
                      switch (transaction.transactionState) {
                          case SKPaymentTransactionStatePurchased:
@@ -280,16 +281,16 @@ static NSString *themesPrice = @"...";
                              // check the receipt
                              [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                           onCompletion:^(NSString *response, NSError *error) {
-                                                              NSDictionary *reciept = [IAPShare toJSON:response];
-                                                              if ([reciept[@"status"] integerValue] == 0) {
+                                                              NSDictionary *receipt = [IAPShare toJSON:response];
+                                                              if ([receipt[@"status"] integerValue] == 0) {
                                                                   NSString *pID = transaction.payment.productIdentifier;
                                                                   [[IAPShare sharedHelper].iap provideContent:pID];
                                                                   NSLog(@"Success: %@",response);
                                                                   NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
                                                                   [self purchaseThemesSuccess];
                                                               } else {
-                                                                  NSLog(@"Reciept Invalid");
-                                                                  [self purchaseThemesFailure];
+                                                                  NSLog(@"Receipt Invalid");
+                                                                  [self showErrorMessageAndDismiss:error.localizedDescription];
                                                               }
                                                           }];
                              break;
@@ -336,37 +337,34 @@ static NSString *themesPrice = @"...";
 }
 
 - (void) showWaitingModal {
-    // display a "waiting" modal which replaces the old one
-//    NSString *msg = @"Waiting for response from the App Store";
-//    self.modalView = [[NTDModalView alloc]
-//                      initWithMessage:msg
-//                      layer:nil
-//                      backgroundColor:[UIColor blackColor]
-//                      buttons:@[@"..."]
-//                      dismissalHandler:^(NSUInteger index) {
-//                          [self showWaitingModal];
-//                      }];
+    // display a "waiting" modal which replaces the old one    
+    [self dismissModalIfShowing];
+
+    WaitingAnimationLayer *animatingLayer = [WaitingAnimationLayer layer];
+    animatingLayer.frame = (CGRect){{0, 0}, {220, 190}};
     NSString *msg = @"Waiting for a response from the App Store.";
-    
-    AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"mov"]];
-    player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
-    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-    playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 220, .size.height = 190};
-    [player play];
-    
-    id observer;
     NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
-                                                              layer:playerLayer
+                                                              layer:animatingLayer
                                                     backgroundColor:[UIColor blackColor]
                                                             buttons:@[]
                                                    dismissalHandler:nil];
-    observer = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
-                                                                 object:player.currentItem
-                                                                  queue:[NSOperationQueue mainQueue]
-                                                             usingBlock:^(NSNotification *note) {
-                                                                 AVPlayerItem *p = [note object];
-                                                                 [p seekToTime:kCMTimeZero];
-                                                             }];
+    [animatingLayer setNeedsLayout];
+    [modalView show];
+    [self addBorderToActiveModal];
+}
+
+- (void) showErrorMessageAndDismiss:(NSString*)msg {
+    // display a "failure" modal
+    [self dismissModalIfShowing];
+    
+    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                              layer:nil
+                                                    backgroundColor:[UIColor blackColor]
+                                                            buttons:@[@"OK"]
+                                                   dismissalHandler:^(NSUInteger index) {
+                          [self dismiss];
+                      }];
+
     [modalView show];
     [self addBorderToActiveModal];
 
@@ -393,6 +391,13 @@ static NSString *themesPrice = @"...";
 - (void)dismissModalIfShowing {
     if (self.modalView != nil)
         [self.modalView dismiss];
+}
+
+- (void) dismiss {
+  [self dismissModalIfShowing];
+  if ( self.delegate ) {
+    [self.delegate dismissThemesTableView];
+  }
 }
 
 @end

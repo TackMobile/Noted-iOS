@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -108,6 +109,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAnimationLayer.h; sourceTree = "<group>"; };
+		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -370,6 +373,8 @@
 				B5D5F23B17188821008C60EE /* Controllers */,
 				3F73F7E617975FA300EEE802 /* Other */,
 				29FC491A156EE0CD0007BBAD /* Supporting Files */,
+				1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */,
+				1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */,
 			);
 			path = Noted;
 			sourceTree = "<group>";
@@ -770,6 +775,7 @@
 			files = (
 				29FC4920156EE0CD0007BBAD /* main.m in Sources */,
 				29FC4924156EE0CD0007BBAD /* AppDelegate.m in Sources */,
+				1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */,
 				C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,

@@ -77,7 +77,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         self.cardPanningDirection = NTDCardPanningNoDirection;
         
         // decide on the slice count
-        if ([UIDeviceHardware performanceClass] == NTDHighPerformanceDevice) {
+        if ([UIDeviceHardware isHighPerformanceDevice]) {
             // 60 slices
             self.deletedNoteHorizSliceCount = 6;
             self.deletedNoteVertSliceCount = 10;
@@ -101,7 +101,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         
         /* Enable scrollsToTop functionality. */
         __weak UICollectionView *collectionView = self.collectionView;
-        [self.pagingLayout bk_addObserverForKeyPath:@"activeCardIndex"
+        _pagingLayoutIndexObserver = [self.pagingLayout bk_addObserverForKeyPath:@"activeCardIndex"
                                             options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                                                task:^(id obj, NSDictionary *change) {
                                                    NSInteger oldIndex = [change[NSKeyValueChangeOldKey] integerValue];
@@ -177,8 +177,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     [self setupPullToCreate];
     
     // swipe to remove in listlayout
-    SEL selector = @selector(handleRemoveCardGesture:);
-    self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:selector];
+    self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleRemoveCardGesture:)];
     self.removeCardGestureRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:self.removeCardGestureRecognizer];
     
@@ -209,7 +208,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // pinch to bring back tolist layout
     UIPinchGestureRecognizer *pinchGestureRecognizer;
     pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchToListLayout:)];
-    [pinchGestureRecognizer addTarget:self action:@selector(squeezeLastNote:)];
     self.pinchToListLayoutGestureRecognizer = pinchGestureRecognizer;
     [self.collectionView addGestureRecognizer:pinchGestureRecognizer];
     
@@ -226,9 +224,9 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 //    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
-    // create launch image view
+    // create launch image view while the notes are reloading
     UIImage *launchImage = (IS_TALL_IPHONE) ? [UIImage imageNamed:@"Default-568h"] : [UIImage imageNamed:@"Default"];
-    UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
+    __block UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
     [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
 
     // set up properties
@@ -239,7 +237,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     dispatch_group_notify(self.note_refresh_group,
                           dispatch_get_main_queue(),
                           ^{
-                              [launchImageView removeFromSuperview];
+                              if ( launchImageView ) {
+                                  [launchImageView removeFromSuperview];
+                                  launchImageView = nil;
+                              }
                               [self bk_performBlock:^(id sender) {
                                   if (!NTDWalkthrough.isCompleted)
                                       [NTDWalkthrough.sharedWalkthrough promptUserToStartWalkthrough];
@@ -250,11 +251,15 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                       afterDelay:NTDDefaultInitialModalDelay];
                           });
     
-     [self becomeFirstResponder];
+    [self becomeFirstResponder];
 }
 
 -(void)dealloc
 {
+    if ( _pagingLayoutIndexObserver ) {
+        [self.pagingLayout bk_removeObserversWithIdentifier:_pagingLayoutIndexObserver];
+    }
+    _pagingLayoutIndexObserver = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -432,11 +437,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (indexPath) {
                 swipedCardIndexPath = indexPath;
                 self.listLayout.swipedCardOffset = 0.0;
+
+                // make the shadow larger and sticky to the cell's alpha
+                NTDCollectionViewCell *theCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+                theCell.layer.shouldRasterize = YES;
+                [theCell applyShadow:YES];
             }
-            // make the shadow larger and sticky to the cell's alpha
-            NTDCollectionViewCell *theCell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-            theCell.layer.shouldRasterize = YES;
-            [theCell applyShadow:YES];
             break;
         }
         case UIGestureRecognizerStateChanged:
@@ -511,7 +517,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (void)handleCardTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
     if (tapGestureRecognizer.state == UIGestureRecognizerStateEnded &&
-        self.listLayout == self.collectionView.collectionViewLayout) {
+        self.collectionView.collectionViewLayout == self.listLayout) {
         CGPoint tapPoint = [tapGestureRecognizer locationInView:self.collectionView];
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:tapPoint];
         if (indexPath) {
@@ -528,10 +534,10 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-            if (panGestureRecognizer.numberOfTouches != 2) {
-                panGestureRecognizer.enabled = NO;
-            } else {
+            if (panGestureRecognizer.numberOfTouches == 2) {
                 [self prepareVisibleNoteForShredding];
+            } else {
+                panGestureRecognizer.enabled = NO;
             }
             
             break;
@@ -919,8 +925,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
 - (IBAction)pinchToListLayout:(UIPinchGestureRecognizer *)pinchGestureRecognizer
 {
+    // special case squeezing when there is only one card
     if (self.notes.count == 1)
-        return;
+        return [self squeezeLastNote:pinchGestureRecognizer];
 
     static CGFloat initialDistance = 0.0f, endDistance = 130.0f;
     static CGPoint initialContentOffset;
@@ -1391,15 +1398,15 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (BOOL)shouldShowBodyForNoteAtIndexPath:(NSIndexPath *)indexPath
 {
-    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
-
     if (self.collectionView.collectionViewLayout == self.pagingLayout)
         return YES;
     
-    if (isFinalCell)
+    if ([self.listLayout.pinchedCardIndexPath isEqual:indexPath])
         return YES;
     
-    if ([self.listLayout.pinchedCardIndexPath isEqual:indexPath])
+    BOOL isFinalCell = (self.notes.count > 0) && (indexPath.item == self.notes.count-1);
+
+    if (isFinalCell)
         return YES;
     
     return NO;
@@ -1610,7 +1617,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if ([possibleIndicatorView isKindOfClass:[UIImageView class]] &&
         possibleIndicatorView.$width == IndicatorWidth) {
         if (CATransform3DIsIdentity(possibleIndicatorView.layer.transform))
-            possibleIndicatorView.layer.transform = CATransform3DMakeTranslation(0.0, 0.0, CGFLOAT_MAX);
+            possibleIndicatorView.layer.zPosition = CGFLOAT_MAX;
     }
     
     [self adjustMotionEffects];
