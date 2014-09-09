@@ -11,8 +11,6 @@
 typedef NS_ENUM(NSInteger, WaitingAnimationState) {
     WaitingAnimationStateWaiting,
     WaitingAnimationStateExpand1,
-    WaitingAnimationStateTransitionInitial,
-    WaitingAnimationStateTransition1,
     WaitingAnimationStateTransition2,
     WaitingAnimationStateTransition3,
     WaitingAnimationStateShrink3
