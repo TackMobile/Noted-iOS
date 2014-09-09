@@ -264,52 +264,51 @@ static NSString *themesPrice = @"...";
     [self showWaitingModal];
     
     //initate the purchase request
-    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
-     {
-         if(response > 0 ) {
-             // purchase themes
-             SKProduct* product =[[IAPShare sharedHelper].iap.products objectAtIndex:1];
-             
-             IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
-                 if (transaction.error) {
-                     NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
-                     [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
-                 } else {
-                     switch (transaction.transactionState) {
-                         case SKPaymentTransactionStatePurchased:
-                         {
-                             // check the receipt
-                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
-                                                          onCompletion:^(NSString *response, NSError *error) {
-                                                              NSDictionary *receipt = [IAPShare toJSON:response];
-                                                              if ([receipt[@"status"] integerValue] == 0) {
-                                                                  NSString *pID = transaction.payment.productIdentifier;
-                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
-                                                                  NSLog(@"Success: %@",response);
-                                                                  NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
-                                                                  [self purchaseThemesSuccess];
-                                                              } else {
-                                                                  NSLog(@"Receipt Invalid");
-                                                                  [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                              }
-                                                          }];
-                             break;
-                         }
-                             
-                         default:
-                         {
-                             NSLog(@"Purchase Failed");
-                             [self purchaseThemesFailure];
-                             break;
-                         }
-                     }
-                 }
-             };
-             
-             // attempt to buy the product
-             [[IAPShare sharedHelper].iap buyProduct:product
-                                        onCompletion:buyProductCompleteResponceBlock];
-         }
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
+        if ( response > 0 ) {
+            // purchase themes
+            SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:1];
+            
+            IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                if (transaction.error) {
+                    NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                    [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
+                } else {
+                    switch (transaction.transactionState) {
+                        case SKPaymentTransactionStatePurchased:
+                        {
+                            // check the receipt
+                            [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                         onCompletion:^(NSString *response, NSError *error) {
+                                                             NSDictionary *receipt = [IAPShare toJSON:response];
+                                                             if ([receipt[@"status"] integerValue] == 0) {
+                                                                 NSString *pID = transaction.payment.productIdentifier;
+                                                                 [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                 NSLog(@"Success: %@",response);
+                                                                 NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 [self purchaseThemesSuccess];
+                                                             } else {
+                                                                 NSLog(@"Receipt Invalid");
+                                                                 [self showErrorMessageAndDismiss:error.localizedDescription];
+                                                             }
+                                                         }];
+                            break;
+                        }
+                            
+                        default:
+                        {
+                            NSLog(@"Purchase Failed");
+                            [self purchaseThemesFailure];
+                            break;
+                        }
+                    }
+                }
+            };
+            
+            // attempt to buy the product
+            [[IAPShare sharedHelper].iap buyProduct:product
+                                       onCompletion:buyProductCompleteResponceBlock];
+        }
      }];
 }
 
