@@ -546,7 +546,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.mailViewController = nil;
     }];
-    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"mail"}];
+    if ( result == MFMailComposeResultSent ) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"mail"}];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
@@ -554,7 +554,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.messageViewController = nil;
     }];
-    if (result == MessageComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"sms"}];
+    if ( result == MessageComposeResultSent ) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"sms"}];
 }
 
 - (void)createSocialPostForServiceType:(NSString *)serviceType
