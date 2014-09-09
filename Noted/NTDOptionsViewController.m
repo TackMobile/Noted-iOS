@@ -396,7 +396,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     BOOL show = ![[UIApplication sharedApplication] isStatusBarHidden];
     [self.toggleStatusBarButton setTitle:show?@"OFF":@"ON" forState:UIControlStateNormal];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:show withAnimation:YES];
+    [[UIApplication sharedApplication] setStatusBarHidden:show withAnimation:UIStatusBarAnimationFade];
     
     [[NSUserDefaults standardUserDefaults] setBool:show forKey:HIDE_STATUS_BAR];
     [[NSUserDefaults standardUserDefaults] synchronize];
