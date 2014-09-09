@@ -1505,8 +1505,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     newViewFrame.size.height = appFrame.size.height;
     newOptionsFrame.size.height = appFrame.size.height;
     
+    // [UIView animateWithDuration:0.25 animations:^{
+    //     animations are very jarring; so disabled for now.
+    //     they cause a bunch of strange view artifacts.
     self.view.frame = newViewFrame;
     self.optionsViewController.view.frame = newOptionsFrame;
+    // }];
 }
 
 - (void)mayShowNoteAtIndexPath:(NSNotification *)notification
