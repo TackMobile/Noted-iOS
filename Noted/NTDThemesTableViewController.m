@@ -342,13 +342,13 @@ static NSString *themesPrice = @"...";
     WaitingAnimationLayer *animatingLayer = [WaitingAnimationLayer layer];
     animatingLayer.frame = (CGRect){{0, 0}, {220, 190}};
     NSString *msg = @"Waiting for a response from the App Store.";
-    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+    self.modalView = [[NTDModalView alloc] initWithMessage:msg
                                                               layer:animatingLayer
                                                     backgroundColor:[UIColor blackColor]
                                                             buttons:@[]
                                                    dismissalHandler:nil];
     [animatingLayer setNeedsLayout];
-    [modalView show];
+    [self.modalView show];
     [self addBorderToActiveModal];
 }
 
