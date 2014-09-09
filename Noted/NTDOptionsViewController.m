@@ -284,29 +284,29 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self reset];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-}
-
 - (void)createShareOptions
 {
     for (UIView *subview in self.shareOptionsView.subviews)
         [subview removeFromSuperview];
     
-    NSMutableArray *optionsTitles = [@[@"Email", @"Message", @"Copy", @"Twitter", @"Facebook", @"Sina Weibo"]
-                                     mutableCopy];
-    if (![MFMailComposeViewController canSendMail])
-        [optionsTitles removeObject:@"Email"];
-    if (![MFMessageComposeViewController canSendText])
-        [optionsTitles removeObject:@"Message"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook])
-        [optionsTitles removeObject:@"Facebook"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-        [optionsTitles removeObject:@"Twitter"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo])
-        [optionsTitles removeObject:@"Sina Weibo"];
-    
+    NSMutableArray *optionsTitles = [NSMutableArray new];
+    if ( [MFMailComposeViewController canSendMail] ) {
+        [optionsTitles addObject:@"Email"];
+    }
+    if ( [MFMessageComposeViewController canSendText] ) {
+        [optionsTitles addObject:@"Message"];
+    }
+    [optionsTitles addObject:@"Copy"];
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ) {
+        [optionsTitles addObject:@"Twitter"];
+    }
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ) {
+        [optionsTitles addObject:@"Facebook"];
+    }
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo] ) {
+        [optionsTitles addObject:@"Sina Weibo"];
+    }
+
     CGRect InitialOptionFrame = CGRectMake(0, 1, 221, 53);
     CGRect InitialShareLabelFrame = CGRectMake(14, 24, 149, 22);
     UIFont *labelFont = [UIFont fontWithName:@"Avenir-Light" size:16];
