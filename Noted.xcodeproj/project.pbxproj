@@ -86,7 +86,6 @@
 		C55C409C193E64F500F1F5F0 /* arrow-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C409A193E64F500F1F5F0 /* arrow-icon@2x.png */; };
 		C55C40A3193E782D00F1F5F0 /* check-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C40A1193E782D00F1F5F0 /* check-icon.png */; };
 		C55C40A4193E782D00F1F5F0 /* check-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */; };
-		C55C40A6193E78C200F1F5F0 /* loader.mov in Resources */ = {isa = PBXBuildFile; fileRef = C55C40A5193E78C200F1F5F0 /* loader.mov */; };
 		C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */; };
 		CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */ = {isa = PBXBuildFile; fileRef = CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */; };
 		CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8ECF9C178213C20062705D /* NTDCollectionViewController+Shredding.m */; };
@@ -215,7 +214,6 @@
 		C55C409A193E64F500F1F5F0 /* arrow-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow-icon@2x.png"; sourceTree = "<group>"; };
 		C55C40A1193E782D00F1F5F0 /* check-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check-icon.png"; sourceTree = "<group>"; };
 		C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check-icon@2x.png"; sourceTree = "<group>"; };
-		C55C40A5193E78C200F1F5F0 /* loader.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = loader.mov; sourceTree = "<group>"; };
 		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
 		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -275,7 +273,6 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				C55C40A5193E78C200F1F5F0 /* loader.mov */,
 				C55C40A1193E782D00F1F5F0 /* check-icon.png */,
 				C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */,
 				C55C4099193E64F500F1F5F0 /* arrow-icon.png */,
@@ -673,7 +670,6 @@
 				379E97DD1678EE710051218D /* menu-icon-white.png in Resources */,
 				C55C40A4193E782D00F1F5F0 /* check-icon@2x.png in Resources */,
 				C55C409B193E64F500F1F5F0 /* arrow-icon.png in Resources */,
-				C55C40A6193E78C200F1F5F0 /* loader.mov in Resources */,
 				379E97DE1678EE710051218D /* menu-icon-white@2x.png in Resources */,
 				C55C409C193E64F500F1F5F0 /* arrow-icon@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
