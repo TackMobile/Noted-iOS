@@ -266,9 +266,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                     if([productID isEqualToString:NTDNoteThemesProductID] && ![NTDTheme didPurchaseThemes]) {
                         [NTDTheme setPurchasedThemes:YES];
                         restoredAnything = YES;
-                    }else if ([productID isEqualToString:@"com.tackmobile.noted.dropbox"]) {
+                    }else if ([productID isEqualToString:NTDDropboxProductID]) {
                         restoredAnything = YES;
-                        // enable dropbox
+                        [NTDDropboxManager setPurchased:YES];
                         nil;
                     }
                 }
