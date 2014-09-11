@@ -28,6 +28,9 @@ static DBDatastore *datastore;
 
 +(void)initialize
 {
+    if ( self != [NTDDropboxNote class] ) {
+        return;
+    }
     background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     main_dispatch_queue = dispatch_get_main_queue();
 }
@@ -38,6 +41,7 @@ static DBDatastore *datastore;
     note.fileinfo = fileinfo;
     return note;
 }
+
 
 -(id)init
 {

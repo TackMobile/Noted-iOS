@@ -33,7 +33,7 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
     
     if ( ! IAPShare.sharedHelper.iap ) {
-        NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, @"com.tackmobile.noted.dropbox", nil];
+        NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, NTDDropboxProductID, nil];
         IAPShare.sharedHelper.iap = [[IAPHelper alloc] initWithProductIdentifiers:dataSet];
     }
     

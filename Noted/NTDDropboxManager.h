@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
+
 @interface NTDDropboxManager : NSObject
 
 +(void)setup;
++(void)setPurchased:(BOOL)purchased;
 +(void)linkAccountFromViewController:(UIViewController *)controller;
 +(BOOL)handleOpenURL:(NSURL *)url;
 +(BOOL)isDropboxEnabled;

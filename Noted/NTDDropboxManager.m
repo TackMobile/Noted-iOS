@@ -13,6 +13,7 @@
 #import "NTDDropboxNote.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 
+NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
@@ -20,6 +21,9 @@ static NTDModalView *modalView;
 
 +(void)initialize
 {
+    if ( self != [NTDDropboxManager class] ) {
+        return;
+    }
     DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
     [DBAccountManager setSharedManager:accountManager];
 }
@@ -35,6 +39,10 @@ static NTDModalView *modalView;
 +(void)linkAccountFromViewController:(UIViewController *)controller
 {
     [[DBAccountManager sharedManager] linkFromController:controller];
+}
+
++ (void)setPurchased:(BOOL)purchased {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
 }
 
 +(BOOL)handleOpenURL:(NSURL *)url
