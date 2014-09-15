@@ -1804,10 +1804,11 @@ static BOOL keyboardIsBeingShown;
         if (![window isKindOfClass:NSClassFromString(@"UITextEffectsWindow")]) continue;
 
         UIView *peripheralHostView = window.subviews[0];
-        if (![peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")]) continue;
-        
-        return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame
+        if ( [peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")] ||
+            [peripheralHostView isKindOfClass:NSClassFromString(@"UIInputSetContainerView")] ) {
+            return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame
                                                                fromWindow:window];
+        }
     }
     
     NSAssert(FALSE, @"Wasn't able to find keyboard frame. Bailing");

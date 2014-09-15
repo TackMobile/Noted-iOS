@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
+		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -110,6 +111,7 @@
 /* Begin PBXFileReference section */
 		1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAnimationLayer.h; sourceTree = "<group>"; };
 		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
+		1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Noted/Images.xcassets; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -273,6 +275,7 @@
 		29960C661573F4C50054347A /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */,
 				C55C40A1193E782D00F1F5F0 /* check-icon.png */,
 				C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */,
 				C55C4099193E64F500F1F5F0 /* arrow-icon.png */,
@@ -655,6 +658,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */,
+				1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */,
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
 				3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
@@ -912,6 +916,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -930,7 +935,7 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "b5a5e985-2b70-4273-9dff-de18caae0925";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -940,6 +945,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -957,7 +963,11 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+<<<<<<< HEAD
 				PROVISIONING_PROFILE = "";
+=======
+				PROVISIONING_PROFILE = "b5a5e985-2b70-4273-9dff-de18caae0925";
+>>>>>>> 5cae06d... fixes RE: new screen sizes
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1104,6 +1114,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1127,7 +1138,11 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+<<<<<<< HEAD
 				PROVISIONING_PROFILE = "";
+=======
+				PROVISIONING_PROFILE = "b5a5e985-2b70-4273-9dff-de18caae0925";
+>>>>>>> 5cae06d... fixes RE: new screen sizes
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
