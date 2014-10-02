@@ -1614,13 +1614,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView == self.visibleCell.textView)
         [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
     
-    if (scrollView == self.visibleCell.textView &&
+    // This keyboard function doesn't work as expected, and crashes in many cases
+    /*if (scrollView == self.visibleCell.textView &&
         [self.visibleCell.textView isFirstResponder] &&
         SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         CGRect keyboardFrame = [self keyboardFrame];
         [self keyboardWasPannedToFrame:[self.visibleCell.textView convertRect:keyboardFrame
                                                                      fromView:[[UIApplication sharedApplication] keyWindow]]];
-    }
+    }*/
     
     if (scrollView != self.collectionView)
         return;
