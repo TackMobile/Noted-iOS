@@ -1134,11 +1134,7 @@
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-<<<<<<< HEAD
-				PROVISIONING_PROFILE = "";
-=======
 				PROVISIONING_PROFILE = "b5a5e985-2b70-4273-9dff-de18caae0925";
->>>>>>> 5cae06d... fixes RE: new screen sizes
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
