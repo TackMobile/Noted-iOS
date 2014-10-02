@@ -100,7 +100,7 @@ static DBDatastore *datastore;
     DBPath *path;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", filenameCounter];
+        NSString *basename = [NSString stringWithFormat:@"Note %ld", (long)filenameCounter];
         NSString *filename = [basename stringByAppendingPathExtension:NTDNoteFileExtension];
         path = [[self rootPath] childPath:filename];
         fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
@@ -117,7 +117,7 @@ static DBDatastore *datastore;
     DBPath *path;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", index];
+        NSString *basename = [NSString stringWithFormat:@"Note %ld", (long)index];
         NSString *filename = [basename stringByAppendingPathExtension:NTDNoteFileExtension];
         path = [[self rootPath] childPath:filename];
         fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
@@ -387,7 +387,7 @@ static const NSString *kFilenameKey = @"filename";
         if (results.count > 1) {
             NSLog(@"Multiple records found for %@", self.filename);
             [results enumerateObjectsUsingBlock:^(DBRecord *obj, NSUInteger idx, BOOL *stop) {
-                NSLog(@"Record #%d: %@", idx, [obj fields]);
+                NSLog(@"Record #%lu: %@", (unsigned long)idx, [obj fields]);
             }];
         }
     } else {

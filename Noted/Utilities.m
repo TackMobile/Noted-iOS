@@ -114,7 +114,7 @@
         }
         return [localizedRelativeDateFormatter stringFromDate:dateCreated];
     } else if (days < 7 && [@"en" isEqualToString:[locale objectForKey:NSLocaleLanguageCode]]) {
-        return [NSString stringWithFormat:@"%d days ago", days];
+        return [NSString stringWithFormat:@"%ld days ago", (long)days];
     } else {
         static NSDateFormatter *sameYearDateFormatter, *differentYearDateFormatter;
         if (!sameYearDateFormatter) {

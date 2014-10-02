@@ -87,7 +87,7 @@
             return;
         }
         [self compare:files against:newFiles withResults:^(NSArray *insertedFiles, NSArray *updatedFiles, NSArray *deletedFiles) {
-            NSLog(@"Searching for newly inserted, updated & deleted files. %d vs %d", files.count, newFiles.count);
+            NSLog(@"Searching for newly inserted, updated & deleted files. %lu vs %lu", (unsigned long)files.count, (unsigned long)newFiles.count);
             NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
             for (DBFileInfo *fileinfo in insertedFiles) {
                 [files addObject:fileinfo];
