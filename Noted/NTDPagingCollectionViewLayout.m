@@ -42,7 +42,7 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *attributesArray = [NSMutableArray array];
     
-    for (int i = activeCardIndex+1; i > activeCardIndex - [self numberOfCardsToRender];
+    for (int i = (int)activeCardIndex+1; i > activeCardIndex - [self numberOfCardsToRender];
          i--) {
         if (i < 0 || i > self.noteCount-1)
             continue;
@@ -124,7 +124,7 @@ static const int NumberOfCardsToFanOut = 6;
 {
     // we need to recalculate noteCount
     activeCardIndex = newActiveCardIndex;
-    for (int i = activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
+    for (int i = (int)activeCardIndex+1; i >= activeCardIndex-[self numberOfCardsToRender]; i--) {
         if (i < 0 || i+1 > self.noteCount)
             continue;
         else {
@@ -260,7 +260,7 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     
     //  animate
     void (^animationBlock)() = ^{
-        for (int i = activeCardIndex+1; i > activeCardIndex-[self numberOfCardsToRender]; i--) {
+        for (int i = (int)activeCardIndex+1; i > activeCardIndex-[self numberOfCardsToRender]; i--) {
             if (i < 0 || i+1 > self.noteCount)
                 continue;
             else {

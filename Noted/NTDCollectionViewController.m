@@ -687,7 +687,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     CGPoint translation = [panGestureRecognizer translationInView:self.collectionView];
     CGPoint velocity = [panGestureRecognizer velocityInView:self.collectionView];
     
-    int newIndex = self.pagingLayout.activeCardIndex;
+    int newIndex = (int)self.pagingLayout.activeCardIndex;
     
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan :
@@ -793,7 +793,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     }
                     
                     // make sure we stay within bounds
-                    newIndex = CLAMP(newIndex, 0, [self.collectionView numberOfItemsInSection:0]-1);
+                    newIndex = CLAMP(newIndex, 0, (int)[self.collectionView numberOfItemsInSection:0]-1);
                     self.pagingLayout.activeCardIndex = newIndex ;
                     [self finishAnimationForVisibleCardWithVelocity:velocity.x completion:nil];
 
@@ -1331,7 +1331,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (NTDNote *)noteAtIndexPath:(NSIndexPath *)indexPath
 {
     NSParameterAssert(indexPath);
-    NSAssert(indexPath.item < self.notes.count, @"!(%d < %d)", indexPath.item, self.notes.count);
+    NSAssert(indexPath.item < self.notes.count, @"!(%ld < %lu)", (long)indexPath.item, (unsigned long)self.notes.count);
     if (indexPath.item >= self.notes.count)
         [NSException raise:NSInvalidArgumentException format:@"!(%d < %d)", (int)indexPath.item, (int)self.notes.count];
     return self.notes[indexPath.item];
@@ -1583,7 +1583,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         [note openWithCompletionHandler:^(BOOL success) {
             NSInteger i = [NTDNote indexForNote:note amongNotes:self.notes];
-            NSLog(@"New note %@ should be placed at index %d", note.filename, i);
+            NSLog(@"New note %@ should be placed at index %ld", note.filename, (long)i);
             [self.notes insertObject:note atIndex:i];
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
@@ -1614,13 +1614,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView == self.visibleCell.textView)
         [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
     
-    if (scrollView == self.visibleCell.textView &&
+    // This keyboard function doesn't work as expected, and crashes in many cases
+    /*if (scrollView == self.visibleCell.textView &&
         [self.visibleCell.textView isFirstResponder] &&
         SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         CGRect keyboardFrame = [self keyboardFrame];
         [self keyboardWasPannedToFrame:[self.visibleCell.textView convertRect:keyboardFrame
                                                                      fromView:[[UIApplication sharedApplication] keyWindow]]];
-    }
+    }*/
     
     if (scrollView != self.collectionView)
         return;

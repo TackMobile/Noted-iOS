@@ -200,6 +200,7 @@
             <color key="backgroundColor" white="0.15975707119999999" alpha="1" colorSpace="calibratedWhite"/>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="548.5" y="432.5"/>
         </view>
         <view contentMode="scaleToFill" id="548" userLabel="About Options View">
             <rect key="frame" x="0.0" y="0.0" width="213" height="350"/>
