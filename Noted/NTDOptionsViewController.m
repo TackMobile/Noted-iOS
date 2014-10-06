@@ -234,15 +234,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // Dropbox
     self.toggleDropboxView.userInteractionEnabled = YES;
     [self.toggleDropboxView bk_whenTapped:^{
-        NSString *msg = @"Would you like to enable Dropbox?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [self.delegate dismissOptions];
-                [NTDDropboxManager linkAccountFromViewController:self];
-            }
-            [modalView dismiss];
-        }];
-        [modalView show];
+        [self dropboxTapped];
     }];
     
     // Themes
@@ -494,6 +486,18 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         self.themesTableViewController.view.$x=0;
         [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
     }];
+}
+
+- (void)dropboxTapped {
+    NSString *msg = @"Sync your  notes with Dropbox for ...";
+    __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
+        if (index == 1) {
+            [self.delegate dismissOptions];
+            [NTDDropboxManager linkAccountFromViewController:self];
+        }
+        [modalView dismiss];
+    }];
+    [modalView show];
 }
 
 #pragma mark - Sharing Actions
