@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
+		1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -112,6 +113,7 @@
 		1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAnimationLayer.h; sourceTree = "<group>"; };
 		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
 		1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Noted/Images.xcassets; sourceTree = "<group>"; };
+		1F6F800F19E446C8004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../../../Downloads/dropbox-ios-sync-sdk-3.1.0/Dropbox.framework"; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -240,6 +242,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */,
 				3F4E225018A99CCF00EEC7E8 /* CoreMedia.framework in Frameworks */,
 				3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */,
 				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
@@ -345,6 +348,7 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1F6F800F19E446C8004D0344 /* Dropbox.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
 				CF29671517B2F9B100994446 /* Crashlytics.framework */,
@@ -922,7 +926,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -950,7 +955,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -1114,7 +1120,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

@@ -21,11 +21,11 @@ static NTDModalView *modalView;
 
 +(void)initialize
 {
-    if ( self != [NTDDropboxManager class] ) {
+/*    if ( self != [NTDDropboxManager class] ) {
         return;
     }
     DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
-    [DBAccountManager setSharedManager:accountManager];
+    [DBAccountManager setSharedManager:accountManager];*/
 }
 
 +(void)setup

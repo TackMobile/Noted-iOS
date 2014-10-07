@@ -434,18 +434,18 @@ static const NSString *kFilenameKey = @"filename";
         [datastore sync:nil];
     };
     
-    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+    if ((datastore.status.downloading | datastore.status.incoming) == 0) {
         purgeBlock();
         completionBlock();
     } else {
         __block NSObject *observer = [NSObject new];
         __weak DBDatastore *weakDatastore = datastore;
         [datastore addObserver:observer block:^{
-            if (weakDatastore.status & DBDatastoreIncoming) {
+            if (weakDatastore.status.incoming) {
                 [weakDatastore sync:nil];
                 return;
             }
-            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+            if ((weakDatastore.status.downloading | weakDatastore.status.incoming) == 0) {
                 purgeBlock();
                 [weakDatastore removeObserver:observer];
                 observer = nil;
@@ -468,17 +468,17 @@ static const NSString *kFilenameKey = @"filename";
     }
     
     
-    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+    if ((datastore.status.downloading | datastore.status.incoming) == 0) {
         completionBlock();
     } else {
         __block NSObject *observer = [NSObject new];
         __weak DBDatastore *weakDatastore = datastore;
         [datastore addObserver:observer block:^{
-            if (weakDatastore.status & DBDatastoreIncoming) {
+            if (weakDatastore.status.incoming) {
                 [weakDatastore sync:nil];
                 return;
             }
-            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+            if ((weakDatastore.status.downloading | weakDatastore.status.incoming) == 0) {
                 [weakDatastore removeObserver:observer];
                 observer = nil;
                 completionBlock();

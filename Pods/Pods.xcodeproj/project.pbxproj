@@ -38,6 +38,10 @@
 		182E261C7FA746DBA4FD412E /* KWReporting.h in Headers */ = {isa = PBXBuildFile; fileRef = AAAC753A4472468094EEFAEE /* KWReporting.h */; };
 		1CA90AFA352444E087965419 /* Kiwi.h in Headers */ = {isa = PBXBuildFile; fileRef = 955B7636CB914371833FE98E /* Kiwi.h */; };
 		1F09FD7D417646BD96BA3AAC /* NSTimer+BlocksKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D7327CF294155838B86A4 /* NSTimer+BlocksKit.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1F6F800B19E44651004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800A19E44651004D0344 /* Dropbox.framework */; };
+		1F6F800C19E44651004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800A19E44651004D0344 /* Dropbox.framework */; };
+		1F6F800D19E44651004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800A19E44651004D0344 /* Dropbox.framework */; };
+		1F6F800E19E44651004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800A19E44651004D0344 /* Dropbox.framework */; };
 		1FE355DBA1634631A79C6CE8 /* KWReceiveMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EBAF345A0F441DFABDBD8DA /* KWReceiveMatcher.m */; settings = {COMPILER_FLAGS = "-fobjc-arc -DOS_OBJECT_USE_OBJC=0"; }; };
 		210FB5C5BB704ED9B15EDC03 /* KWBeIdenticalToMatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 21052C70CE824477ABC005F4 /* KWBeIdenticalToMatcher.h */; };
 		22741FCD89824ECBA5D943D8 /* UIActionSheet+BlocksKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CAABFAF6C694F2FA8895061 /* UIActionSheet+BlocksKit.h */; };
@@ -379,6 +383,7 @@
 		1C0F5E9192C1447A94CCAA72 /* KWMatchers.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWMatchers.m; path = Classes/Core/KWMatchers.m; sourceTree = "<group>"; };
 		1DA1F9C65C354FABA66EA6FC /* KWRegularExpressionPatternMatcher.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWRegularExpressionPatternMatcher.h; path = Classes/Matchers/KWRegularExpressionPatternMatcher.h; sourceTree = "<group>"; };
 		1E4002CE70624AEBA3713B38 /* KWExampleSuite.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWExampleSuite.m; path = Classes/Core/KWExampleSuite.m; sourceTree = "<group>"; };
+		1F6F800A19E44651004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Dropbox.framework; sourceTree = "<group>"; };
 		1FA6AA02BAF444D0AEAD3385 /* KWExistVerifier.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWExistVerifier.m; path = Classes/Verifiers/KWExistVerifier.m; sourceTree = "<group>"; };
 		20418DDF2B3045888C9C112F /* KWHaveValueMatcher.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWHaveValueMatcher.h; path = Classes/Matchers/KWHaveValueMatcher.h; sourceTree = "<group>"; };
 		21052C70CE824477ABC005F4 /* KWBeIdenticalToMatcher.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWBeIdenticalToMatcher.h; path = Classes/Matchers/KWBeIdenticalToMatcher.h; sourceTree = "<group>"; };
@@ -508,7 +513,6 @@
 		84485CA1540A489D845E000A /* NSObject+KiwiMockAdditions.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "NSObject+KiwiMockAdditions.m"; path = "Classes/Mocking/NSObject+KiwiMockAdditions.m"; sourceTree = "<group>"; };
 		86083B00D9C8448C84B882C4 /* KWCallSite.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWCallSite.m; path = Classes/Core/KWCallSite.m; sourceTree = "<group>"; };
 		86325914443A4F1B817E644B /* KWFailure.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWFailure.h; path = Classes/Core/KWFailure.h; sourceTree = "<group>"; };
-		86730E01447148ECB8D6D41E /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "dropbox-ios-sync-sdk-2.1.0/Dropbox.framework"; sourceTree = "<group>"; };
 		867A8565D4264DA283E8E60B /* KWExample.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWExample.m; path = Classes/Core/KWExample.m; sourceTree = "<group>"; };
 		87CFEB1C0D494313888E194A /* KWInvocationCapturer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWInvocationCapturer.h; path = Classes/Core/KWInvocationCapturer.h; sourceTree = "<group>"; };
 		889D90732E7544FEBB0300B4 /* KWBeMemberOfClassMatcher.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWBeMemberOfClassMatcher.m; path = Classes/Matchers/KWBeMemberOfClassMatcher.m; sourceTree = "<group>"; };
@@ -658,6 +662,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				94316364D53F4AA38800913F /* Foundation.framework in Frameworks */,
+				1F6F800D19E44651004D0344 /* Dropbox.framework in Frameworks */,
 				E575E3CE2ACC4B4A8546F439 /* libPods-NotedTests-Kiwi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -666,6 +671,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F6F800B19E44651004D0344 /* Dropbox.framework in Frameworks */,
 				DD96111A94D24C51955603FA /* Foundation.framework in Frameworks */,
 				61DF1BB3C05C44CAB9B3875D /* libPods-BlocksKit.a in Frameworks */,
 				2C967CEAC4BA4C07B0B71E0D /* libPods-Dropbox-Sync-API-SDK.a in Frameworks */,
@@ -680,6 +686,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0E18CBC6A7CC44F38AF02197 /* CFNetwork.framework in Frameworks */,
+				1F6F800C19E44651004D0344 /* Dropbox.framework in Frameworks */,
 				0D1243AC5B7445319AA18B54 /* Foundation.framework in Frameworks */,
 				5ADFEDFA544C44DFB280EC1D /* QuartzCore.framework in Frameworks */,
 				4B54D7709DDF41A4B269F475 /* Security.framework in Frameworks */,
@@ -718,6 +725,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AF80B8381444751ADEFC786 /* Foundation.framework in Frameworks */,
+				1F6F800E19E44651004D0344 /* Dropbox.framework in Frameworks */,
 				BD24221F48C245F09C6E5653 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -782,7 +790,7 @@
 		20FA542AA67148B39E55481C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				86730E01447148ECB8D6D41E /* Dropbox.framework */,
+				1F6F800A19E44651004D0344 /* Dropbox.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1841,6 +1849,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pods-NotedTests-Kiwi-prefix.pch";
@@ -1899,6 +1911,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1954,6 +1970,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pods-NotedTests-Kiwi-prefix.pch";
@@ -2050,6 +2070,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2137,6 +2161,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pods-Dropbox-Sync-API-SDK-prefix.pch";
@@ -2167,6 +2195,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2196,6 +2228,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2284,6 +2320,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pods-Dropbox-Sync-API-SDK-prefix.pch";
@@ -2314,6 +2354,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2491,6 +2535,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2549,6 +2597,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2578,6 +2630,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/xcodeproj.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dropbox-Sync-API-SDK",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
