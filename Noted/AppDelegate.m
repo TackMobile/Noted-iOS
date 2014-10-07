@@ -39,9 +39,6 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     }
     
     IAPShare.sharedHelper.iap.production = NO;
-
-    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
-    [DBAccountManager setSharedManager:accountManager];
     
     [self customizeAppearance];
     [self recordInitialLaunchData];
