@@ -25,6 +25,7 @@
         self.headline = note.headline;
         self.lastModifiedDate = note.lastModifiedDate;
         self.theme = note.theme;
+        self.bodyText = note.text;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(flushSavedColumns:)
