@@ -24,7 +24,8 @@ static NTDModalView *modalView;
     if ( self != [NTDDropboxManager class] ) {
         return;
     }
-    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
+    //DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
+    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"lwscmn1v79cbgag" secret:@"rqoh5v4tjvztg9a"];
     [DBAccountManager setSharedManager:accountManager];
 }
 
