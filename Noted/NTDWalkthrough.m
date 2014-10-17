@@ -75,7 +75,7 @@ static NTDWalkthrough *sharedInstance;
     NTDModalView *modal = [[NTDModalView alloc] initWithMessage:@"Apply a theme to your notes! Check them out in Settings"
                                                           layer:nil
                                                 backgroundColor:nil
-                                                        buttons:@[@"Okay."]
+                                                        buttons:@[@"Okay"]
                                                dismissalHandler:^(NSUInteger index) {
                                                    [NSUserDefaults.standardUserDefaults setBool:YES forKey:KnowsAboutThemesKey];
                                                    [NSUserDefaults.standardUserDefaults synchronize];
