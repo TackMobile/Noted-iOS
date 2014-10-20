@@ -51,19 +51,25 @@ static NTDModalView *modalView;
     DBAccount *account = [[DBAccountManager sharedManager] handleOpenURL:url];
     BOOL success = (account != nil);
     if (success) {
+        
+        [self setDropboxEnabled:YES];
+        [self setPurchased:YES];
+        
         modalView = [[NTDModalView alloc] init];
         modalView.message = @"Syncing. Hold up a second...";
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
         
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        [DBFilesystem setSharedFilesystem:filesystem];
+        if ([DBFilesystem sharedFilesystem] != nil) {
+            [DBFilesystem setSharedFilesystem:filesystem];
+        }
         [filesystem addObserver:self block:^{
             if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
                 [self importExistingFiles];
-                [self setDropboxEnabled:YES];
                 [[DBFilesystem sharedFilesystem] removeObserver:self];
             }
+            [modalView dismiss];
         }];
     }
     return success;
@@ -79,10 +85,26 @@ static NTDModalView *modalView;
     return [[DBAccountManager sharedManager] linkedAccount] != nil;
 }
 
++(BOOL)isDropboxPurchased
+{
+    return [NSUserDefaults.standardUserDefaults boolForKey:NTDDropboxProductID];
+}
+
 +(void)setDropboxEnabled:(BOOL)enabled
 {
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
+    
+    // this is to actually stop or start syncing
+    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
+    if (enabled) {
+        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
+        if ([DBFilesystem sharedFilesystem] != nil) {
+            [DBFilesystem setSharedFilesystem:filesystem];
+        }
+    } else {
+        [DBFilesystem setSharedFilesystem:nil]; // this is Dropbox's official response to stop syncing
+    }
 }
 
 #pragma mark - Importing

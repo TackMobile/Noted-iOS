@@ -18,4 +18,6 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 +(BOOL)handleOpenURL:(NSURL *)url;
 +(BOOL)isDropboxEnabled;
 +(BOOL)isDropboxLinked;
++(BOOL)isDropboxPurchased;
++(void)setDropboxEnabled:(BOOL)enabled;
 @end
