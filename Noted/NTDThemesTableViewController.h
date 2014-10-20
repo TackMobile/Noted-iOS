@@ -27,7 +27,8 @@
 @interface NTDThemesTableViewController : UITableViewController
 @property (nonatomic, assign) id<NTDThemesTableViewControllerDelegate> delegate;
 
--(void)dismissModalIfShowing;
++(void)showWaitingModal;
++(void)dismissModalIfShowing;
 
 //@property (nonatomic, strong) activeTheme
 

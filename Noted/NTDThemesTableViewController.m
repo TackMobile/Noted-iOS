@@ -9,6 +9,7 @@
 #import "NTDThemesTableViewController.h"
 #import "NTDModalView.h"
 #import "NTDTheme.h"
+#import "NTDPurchaseUtil.h"
 #import "UIDeviceHardware.h"
 #import "WaitingAnimationLayer.h"
 #import <UIView+FrameAdditions.h>

@@ -516,10 +516,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         }];
         [modalView show];
     } else {
-        NSString *msg = @"Sync your  notes with Dropbox for ...";
+        NSString *msg = @"Sync your  notes with Dropbox for ";
+        msg = [NSString stringWithFormat:@"%@%@%@", msg, [NTDDropboxManager DropboxPriceString], @"?"];
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
                 [self.delegate dismissOptions];
+                 //[NTDDropboxManager purchaseDropboxPressed];
                 [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];

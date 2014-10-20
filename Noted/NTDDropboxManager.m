@@ -7,6 +7,8 @@
 //
 #import <Dropbox/Dropbox.h>
 #import <FlurrySDK/Flurry.h>
+#import <IAPHelper/IAPShare.h>
+#import "NTDThemesTableViewController.h"
 #import "NTDDropboxManager.h"
 #import "NTDModalView.h"
 #import "NTDNote.h"
@@ -17,6 +19,7 @@ NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
+static NSString *dropboxPrice = @"";
 @implementation NTDDropboxManager
 
 +(void)initialize
@@ -27,6 +30,24 @@ static NTDModalView *modalView;
     //DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
     DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"lwscmn1v79cbgag" secret:@"rqoh5v4tjvztg9a"];
     [DBAccountManager setSharedManager:accountManager];
+    
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
+     {
+         if(response > 0 ) {
+             // get Dropbox price
+             SKProduct* product = IAPShare.sharedHelper.iap.products[0];
+             NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+             [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+             [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+             [numberFormatter setLocale:product.priceLocale];
+             if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
+                 dropboxPrice = @"free.";
+             else
+                 dropboxPrice = [numberFormatter stringFromNumber:product.price];
+         } else {
+             dropboxPrice = @"...";
+         }
+     }];
 }
 
 +(void)setup
@@ -181,5 +202,63 @@ static NSString *IncrementIndexOfFilename(NSString *path)
         incrementedFilename = [filename stringByReplacingCharactersInRange:textCheckingResultRange withString:[@(index) stringValue]];
     }
     return [incrementedFilename stringByAppendingPathExtension:[path pathExtension]];
+}
+
+#pragma mark - Options menu
++(NSString *)DropboxPriceString
+{
+    return dropboxPrice;
+}
+
+- (void) purchaseDropboxPressed {
+    [NTDThemesTableViewController showWaitingModal];
+    
+    //initate the purchase request
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
+        if ( response > 0 ) {
+            // purchase Dropbox
+            SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:0];
+            
+            IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                if (transaction.error) {
+                    NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                    //[self showErrorMessageAndDismiss:transaction.error.localizedDescription];
+                } else {
+                    switch (transaction.transactionState) {
+                        case SKPaymentTransactionStatePurchased:
+                        {
+                            // check the receipt
+                            [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                         onCompletion:^(NSString *response, NSError *error) {
+                                                             NSDictionary *receipt = [IAPShare toJSON:response];
+                                                             if ([receipt[@"status"] integerValue] == 0) {
+                                                                 NSString *pID = transaction.payment.productIdentifier;
+                                                                 [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                 NSLog(@"Success: %@",response);
+                                                                 NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 //[self purchaseThemesSuccess];
+                                                             } else {
+                                                                 NSLog(@"Receipt Invalid");
+                                                                 //[self showErrorMessageAndDismiss:error.localizedDescription];
+                                                             }
+                                                         }];
+                            break;
+                        }
+                            
+                        default:
+                        {
+                            NSLog(@"Purchase Failed");
+                            //[self purchaseThemesFailure];
+                            break;
+                        }
+                    }
+                }
+            };
+            
+            // attempt to buy the product
+            [[IAPShare sharedHelper].iap buyProduct:product
+                                       onCompletion:buyProductCompleteResponceBlock];
+        }
+    }];
 }
 @end
