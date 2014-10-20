@@ -61,7 +61,7 @@ static NTDModalView *modalView;
         [modalView show];
         
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        if ([DBFilesystem sharedFilesystem] != nil) {
+        if ([DBFilesystem sharedFilesystem] == nil) {
             [DBFilesystem setSharedFilesystem:filesystem];
         }
         [filesystem addObserver:self block:^{
@@ -96,10 +96,10 @@ static NTDModalView *modalView;
     [NSUserDefaults.standardUserDefaults synchronize];
     
     // this is to actually stop or start syncing
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
     if (enabled) {
+        DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        if ([DBFilesystem sharedFilesystem] != nil) {
+        if ([DBFilesystem sharedFilesystem] == nil) {
             [DBFilesystem setSharedFilesystem:filesystem];
         }
     } else {
