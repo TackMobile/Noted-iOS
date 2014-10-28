@@ -21,57 +21,57 @@
 
 +(instancetype)sharedObserver
 {
-    static dispatch_once_t onceToken;
+/*    static dispatch_once_t onceToken;
     static NTDDropboxObserver *sharedObserver;
     dispatch_once(&onceToken, ^{
         sharedObserver = [[self alloc] init];
     });
-    return sharedObserver;
+    return sharedObserver;*/
 }
 
 -(id)init
 {
-    if (self == [super init]) {
+    /*if (self == [super init]) {
         [self clearMaps];
         self.serial_queue = dispatch_queue_create("NTDDropboxObserver Serial Queue", DISPATCH_QUEUE_SERIAL);
     }
-    return self;
+    return self;*/
 }
 
 -(void)clearMaps
 {
-    self.fileToPathMap = [NSMutableDictionary dictionary];
+    /*self.fileToPathMap = [NSMutableDictionary dictionary];
     self.fileinfoToNoteMap = [NSMutableDictionary dictionary];
     self.filenameToNoteMap = [NSMutableDictionary dictionary];
-    self.filenameToRecordMap = [NSMutableDictionary dictionary];
+    self.filenameToRecordMap = [NSMutableDictionary dictionary];*/
 }
 
 -(void)stopObserving:(id)observed
 {
-    [observed removeObserver:self];
+    //[observed removeObserver:self];
 }
 
 -(void)removeAllObservers
 {
-    for (DBFile *file in self.fileToPathMap.keyEnumerator) {
+    /*for (DBFile *file in self.fileToPathMap.keyEnumerator) {
         [file removeObserver:self];
     }
     
     [[DBFilesystem sharedFilesystem] removeObserver:self];
     
-    [self clearMaps];
+    [self clearMaps];*/
 }
 
 -(BOOL)observeNote:(NTDDropboxNote *)note
 {
-    self.fileinfoToNoteMap[note.fileinfo] = note;
+    /*self.fileinfoToNoteMap[note.fileinfo] = note;
     self.filenameToNoteMap[[(NTDNote *)note filename]] = note;
-    return YES;
+    return YES;*/
 }
 
 -(BOOL)observeRootPath:(DBPath *)path
 {
-    __autoreleasing DBError *error;
+    /*__autoreleasing DBError *error;
     DBFilesystem *filesystem = [DBFilesystem sharedFilesystem];
     NSMutableArray *files = [[filesystem listFolder:path error:&error] mutableCopy];
     if (error || !files) {
@@ -142,12 +142,12 @@
     };
     return [filesystem addObserver:self forPathAndChildren:path block:^{
         dispatch_async(self.serial_queue, observerBlock);
-    }];
+    }];*/
 }
 
 -(void)compare:(NSArray *)oldArray against:(NSArray *)newArray withResults:(void(^)(NSArray *insertedFiles, NSArray *updatedFiles, NSArray *deletedFiles))differenceBlock
 {
-    NSMutableArray *insertedFiles = [NSMutableArray array];
+    /*NSMutableArray *insertedFiles = [NSMutableArray array];
     NSMutableArray *updatedFiles = [NSMutableArray array];
     NSMutableArray *deletedFiles = [NSMutableArray array];
     [deletedFiles addObjectsFromArray:oldArray];
@@ -156,10 +156,10 @@
         if ([oldArray containsObject:newFileInfo]) {
             [deletedFiles removeObject:newFileInfo];
             continue;
-        }
+        }*/
         /* If our original array doesn't contain this new object, either it's path is different or another property is different.
          * If the path has remained the same, let's consider that an update, else it's an insert. */
-        DBFileInfo *fileinfoWithMatchingPath = [oldArray bk_match:^BOOL(DBFileInfo *oldFileInfo) {
+        /*DBFileInfo *fileinfoWithMatchingPath = [oldArray bk_match:^BOOL(DBFileInfo *oldFileInfo) {
             return ([newFileInfo.path isEqual:oldFileInfo.path]);
         }];
         
@@ -171,12 +171,12 @@
         }
     }
     
-    differenceBlock(insertedFiles, updatedFiles, deletedFiles);
+    differenceBlock(insertedFiles, updatedFiles, deletedFiles);*/
 }
 
 - (void)observeDatastore:(DBDatastore *)datastore
 {
-    __weak DBDatastore *weakDatastore = datastore;
+    /*__weak DBDatastore *weakDatastore = datastore;
     DBObserver observerBlock = ^{
         LogDatastoreStatusDebug(weakDatastore);
         if (!(weakDatastore.status.incoming))
@@ -186,7 +186,7 @@
         for (DBRecord *changedRecord in changedRecords) {
             NSLog(@"Incoming Record #%@. Fields: %@", changedRecord.recordId, changedRecord.fields);
             // There are three cases we need to deal with. Insertion, Modification and Deletion.
-            NTDDropboxNote *note = self.filenameToNoteMap[changedRecord[@"filename"]];
+            NTDDropboxNote *note = self.filenameToNoteMap[changedRecord[@"filename"]];*/
 
             /* Deletion
              * --------
@@ -194,11 +194,11 @@
              * Since deletion of a metadata record corresponds with deletion of a note, we can simply wait
              * for -observeRootPath: to observe the note deletion.
              */
-            if (changedRecord.isDeleted) {
+            /*if (changedRecord.isDeleted) {
                 NSString *filename = changedRecord[@"filename"];
                 if (filename) [self.filenameToRecordMap removeObjectForKey:filename];
                 continue;
-            }
+            }*/
             
             /* Insertion
              * ---------
@@ -213,7 +213,7 @@
              * metadata to this new record, then tell the UI to update. The latter step will be handled by the "Modification" case below.
              *
              */
-            if (!note)
+            /*if (!note)
                 self.filenameToRecordMap[changedRecord[@"filename"]] = changedRecord;
             
             // If this incoming record shares the same filename with an existing record, assume that we're in case B and overwrite local metadata.
@@ -221,7 +221,7 @@
                 NSLog(@"Record ID collision: Incoming (%@), Existing (%@)", changedRecord.recordId, note.metadata.recordId);
                 [note.metadata deleteRecord];
                 note.metadata = changedRecord;
-            }
+            }*/
             
             
             /* Modification
@@ -234,19 +234,19 @@
              * Since the DBRecord underlying the note's metadata will change automatically, we don't need to do anything
              * else for the note to alter its internal state.
              */
-            if (note) {
+            /*if (note) {
                 [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
             }
         }
     };
     [datastore addObserver:self block:^{
         dispatch_async(self.serial_queue, observerBlock);
-    }];
+    }];*/
 }
 
 void LogDatastoreStatusDebug(DBDatastore *datastore)
 {
-    NSMutableArray *states = [NSMutableArray new];
+    /*NSMutableArray *states = [NSMutableArray new];
     DBDatastoreStatus *status = datastore.status;
     if (status.outgoing) [states addObject:@"Outgoing"];
     if (status.incoming) [states addObject:@"Incoming"];
@@ -254,6 +254,6 @@ void LogDatastoreStatusDebug(DBDatastore *datastore)
     if (status.downloading) [states addObject:@"Downloading"];
     if (status.connected) [states addObject:@"Connected"];
     NSString *state = [states componentsJoinedByString:@" | "];
-    NSLog(@"%@ %@", datastore, state);
+    NSLog(@"%@ %@", datastore, state);*/
 }
 @end

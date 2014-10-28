@@ -28,79 +28,79 @@ static DBDatastore *datastore;
 
 +(void)initialize
 {
-    if ( self != [NTDDropboxNote class] ) {
+    /*if ( self != [NTDDropboxNote class] ) {
         return;
     }
     background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    main_dispatch_queue = dispatch_get_main_queue();
+    main_dispatch_queue = dispatch_get_main_queue();*/
 }
 
 +(instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo
 {
-    NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
+    /*NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
     note.fileinfo = fileinfo;
-    return note;
+    return note;*/
 }
 
 
 -(id)init
 {
-    if (self = [super init]) {
+    /*if (self = [super init]) {
         self.serial_queue = dispatch_queue_create("NTDDropboxNote Serial Queue", DISPATCH_QUEUE_SERIAL);
         [NSNotificationCenter.defaultCenter addObserver:self
                                                selector:@selector(noteWasDeleted:)
                                                    name:NTDNoteWasDeletedNotification
                                                  object:self];
     }
-    return self;
+    return self;*/
 }
 
 -(void)dealloc
 {
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    //[NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 #pragma mark - Properties
 -(void)setFile:(DBFile *)file
 {
-    _file = file;
+    /*_file = file;
     if (file != nil)
-        self.fileinfo = file.info;
+        self.fileinfo = file.info;*/
 }
 
 -(void)setFileinfo:(DBFileInfo *)fileinfo
 {
-    _fileinfo = fileinfo;
+    /*_fileinfo = fileinfo;
     if (fileinfo != nil) {
         [self refreshMetadata];
-    }
+    }*/
 }
 
 -(void)setMetadata:(DBRecord *)metadata
 {
-    if (![_metadata isEqual:metadata])
+    /*if (![_metadata isEqual:metadata])
         [_metadata deleteRecord];
-    _metadata = metadata;
+    _metadata = metadata;*/
 }
 
 -(void)setBodyText:(NSString *)bodyText
 {
-    if (![_bodyText isEqualToString:bodyText]) {
+    /*if (![_bodyText isEqualToString:bodyText]) {
         _bodyText = bodyText;
         NSString *newHeadline = [NTDNote headlineForString:bodyText];
         [self setHeadline:newHeadline];
-    }
+    }*/
 }
 
 #pragma mark - Helpers
 + (DBPath *)rootPath
 {
-    return [DBPath root];
+    //return [DBPath root];
 }
 
 + (DBPath *)pathForNewNote
 {
-    DBFileInfo *fileinfo;
+    /*DBFileInfo *fileinfo;
     DBPath *path;
     do
     {
@@ -112,12 +112,12 @@ static DBDatastore *datastore;
     }
     while (fileinfo);
 
-    return path;
+    return path;*/
 }
 
 + (DBPath *)pathWithIndexAsBase:(NSUInteger)index
 {
-    DBFileInfo *fileinfo;
+    /*DBFileInfo *fileinfo;
     DBPath *path;
     do
     {
@@ -133,21 +133,21 @@ static DBDatastore *datastore;
     if (index>filenameCounter)
         filenameCounter=index;
 
-    return path;
+    return path;*/
 }
 
 - (void)wasDeleted
 {
     //TODO think about what else needs to be cleared here.
-    [self.metadata deleteRecord];
+    /*[self.metadata deleteRecord];
     [datastore sync:nil];
-    self.file = nil;
+    self.file = nil;*/
 }
 
 #pragma mark - NTDNote
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler
 {
-    dispatch_async(background_dispatch_queue, ^{
+    /*dispatch_async(background_dispatch_queue, ^{
         [NTDDropboxManager setup];
         DBError __autoreleasing *error;
         NSArray *fileinfoArray = [[DBFilesystem sharedFilesystem] listFolder:[self rootPath] error:&error];
@@ -166,7 +166,7 @@ static DBDatastore *datastore;
         if (!datastore) {
             datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                           error:&error];
-            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; /* TODO this should fail */
+            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; // TODO this should fail
             [[NTDDropboxObserver sharedObserver] observeDatastore:datastore];
         }
         
@@ -178,7 +178,7 @@ static DBDatastore *datastore;
             [[NTDDropboxObserver sharedObserver] observeNote:note];
             filenameCounter = MAX(filenameCounter, [NTDNote indexFromFilename:note.filename]);
         }
-        [datastore sync:nil]; /* Upload any newly created metadata objects. */
+        [datastore sync:nil]; // Upload any newly created metadata objects.
         [notes sortUsingComparator:[NTDNote comparatorUsingFilenames]];
         
         if (error) [NTDNote logError:error withMessage:@"Couldn't open datastore for metadata!"];
@@ -186,18 +186,18 @@ static DBDatastore *datastore;
         dispatch_async(main_dispatch_queue, ^{
             handler(notes);
         });
-    });
+    });*/
 }
 
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler
 {
-    DBPath *path = [self pathForNewNote];
-    [self newNoteAtPath:path completionHandler:handler];
+    /*DBPath *path = [self pathForNewNote];
+    [self newNoteAtPath:path completionHandler:handler];*/
 }
 
 + (void)newNoteAtPath:(DBPath *)path completionHandler:(void(^)(NTDNote *note))handler
 {
-    dispatch_async(background_dispatch_queue, ^{
+    /*dispatch_async(background_dispatch_queue, ^{
         NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
         DBError __autoreleasing *error;
         note.file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
@@ -208,12 +208,12 @@ static DBDatastore *datastore;
         dispatch_async(main_dispatch_queue, ^{
             handler((NTDNote *)note);
         });
-    });
+    });*/
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
     //TODO should we wait for the underlying file (+metadata?) to be deleted?
-    NSUInteger fileIndex = [NTDNote indexFromFilename:deletedNote.filename];
+    /*NSUInteger fileIndex = [NTDNote indexFromFilename:deletedNote.filename];
     DBPath *path =  [self pathWithIndexAsBase:fileIndex];
     [self newNoteAtPath:path completionHandler:^(NTDNote *note) {
         [note setTheme:deletedNote.theme];
@@ -221,7 +221,7 @@ static DBDatastore *datastore;
         NTDDropboxNote *dropboxNote = (NTDDropboxNote *)note;
         dropboxNote.headline = deletedNote.headline;
         handler(note);
-    }];
+    }];*/
 }
 
 //+ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
@@ -229,7 +229,7 @@ static DBDatastore *datastore;
 
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    /*handler = [NTDNote handlerDispatchedToMainQueue:handler];
     if (self.fileState == NTDNoteFileStateOpened) {
         handler(YES);
         return;
@@ -238,14 +238,14 @@ static DBDatastore *datastore;
         DBError __autoreleasing *error;
         BOOL success = YES;
         
-        /* open file */
+        // open file
         if (self.fileState != NTDNoteFileStateOpened) {
             self.file = [[DBFilesystem sharedFilesystem] openFile:self.fileinfo.path error:&error];
             if (error) [NTDNote logError:error withMessage:@"Couldn't open file! %@", self.fileinfo.path];
             success = (error == nil);
         }
         
-        /* read text from file */
+        // read text from file
         if (success) {
             self.bodyText = [self.file readString:&error];
             if (error) {
@@ -254,25 +254,25 @@ static DBDatastore *datastore;
             }
         }
         
-        /* return results */
+        // return results
         handler(success);
-    });
+    });*/
 }
 
 - (void)closeWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    /*handler = [NTDNote handlerDispatchedToMainQueue:handler];
     dispatch_async(self.serial_queue, ^{
         //TODO force save
         [self.file close];
         self.file = nil;
         handler(YES);
-    });
+    });*/
 }
 
 - (void)deleteWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    handler = [NTDNote handlerDispatchedToMainQueue:handler];
+    /*handler = [NTDNote handlerDispatchedToMainQueue:handler];
     dispatch_async(self.serial_queue, ^{
         DBError __autoreleasing *error;
         BOOL success = [[DBFilesystem sharedFilesystem] deletePath:self.fileinfo.path error:&error];
@@ -282,48 +282,48 @@ static DBDatastore *datastore;
             [self wasDeleted];
         }
         handler(success);
-    });
+    });*/
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
-    DBError __autoreleasing *error;
+    /*DBError __autoreleasing *error;
     BOOL didUpdate = [self.file update:&error];
     NSString *text = didUpdate ? [self.file readString:&error] : nil;
     if (text) { self.bodyText = text; NSLog(@"Updating %p with %@", self, text); }
     if (error) [NTDNote logError:error withMessage:@"Couldn't update file or read text after updating."];
-    handler(didUpdate);
+    handler(didUpdate);*/
 }
 
 - (NSURL *)fileURL
 {
     //TODO does this even work?
-    NSString *path = [self.fileinfo.path stringValue];
-    return [NSURL URLWithString:path];
+    /*NSString *path = [self.fileinfo.path stringValue];
+    return [NSURL URLWithString:path];*/
 }
 
 - (NSString *)filename
 {
-    return self.fileinfo.path.name;
+    //return self.fileinfo.path.name;
 }
 
 
 - (NSDate *)lastModifiedDate
 {
-    return self.fileinfo.modifiedTime;
+    //return self.fileinfo.modifiedTime;
 }
 
 - (void)setLastModifiedDate:(NSDate *)date
 {
-    @throw @"Nope";
+    //@throw @"Nope";
 }
 
 - (NTDNoteFileState)fileState
 {
-    if (self.file)
+    /*if (self.file)
         return NTDNoteFileStateOpened;
     else
-        return NTDNoteFileStateClosed;
+        return NTDNoteFileStateClosed;*/
 }
 
 #pragma mark Datastore-backed properties
@@ -335,41 +335,41 @@ static const NSString *kFilenameKey = @"filename";
 
 - (NSString *)headline
 {
-    if (self.file) {
+    /*if (self.file) {
         return [NTDNote headlineForString:self.bodyText];
     } else {
         return self.metadata[kHeadlineKey];
-    }
+    }*/
 }
 
 - (NTDTheme *)theme
 {
-    NTDColorScheme scheme = [self.metadata[kThemeKey] intValue];
-    return [NTDTheme themeForColorScheme:scheme];
+    /*NTDColorScheme scheme = [self.metadata[kThemeKey] intValue];
+    return [NTDTheme themeForColorScheme:scheme];*/
 }
 
 - (NSString *)text
 {
-    return self.bodyText;
+    //return self.bodyText;
 }
 
 - (void)setTheme:(NTDTheme *)theme
 {
-    self.metadata[kThemeKey] = @(theme.colorScheme);
-    [datastore sync:nil];
+    /*self.metadata[kThemeKey] = @(theme.colorScheme);
+    [datastore sync:nil];*/
 }
 
 - (void)setHeadline:(NSString *)newHeadline
 {
-    if (![newHeadline isEqualToString:self.metadata[kHeadlineKey]]) {
+    /*if (![newHeadline isEqualToString:self.metadata[kHeadlineKey]]) {
         self.metadata[kHeadlineKey] = newHeadline;
         [datastore sync:nil];
-    }
+    }*/
 }
 
 - (void)setText:(NSString *)text
 {
-    if ([self.bodyText isEqualToString:text]) return;
+    /*if ([self.bodyText isEqualToString:text]) return;
 
     //TODO autosave intelligently
     DBError __autoreleasing *error;
@@ -378,12 +378,12 @@ static const NSString *kFilenameKey = @"filename";
         [NTDNote logError:error withMessage:@"Couldn't save file!"];
         return;
     }
-    self.bodyText = text;
+    self.bodyText = text;*/
 }
 
 -(void)refreshMetadata
 {
-    DBTable *table = [datastore getTable:kMetadataTableName];
+    /*DBTable *table = [datastore getTable:kMetadataTableName];
     if (!table) { NSLog(@"Can't refresh metadata!"); return; }
     NSArray *results = [table query:@{kFilenameKey : self.filename} error:nil];
     if (results && results.count > 0) {
@@ -399,27 +399,27 @@ static const NSString *kFilenameKey = @"filename";
                                         kHeadlineKey : [NTDNote headlineForString:self.bodyText],
                                         kThemeKey    : @(NTDColorSchemeWhite)}];
         if (self.fileState != NTDNoteFileStateOpened) {
-            /* This implies that we need to open the file in order to eventually get the correct headline. */
+            // This implies that we need to open the file in order to eventually get the correct headline.
             [self openWithCompletionHandler:^(BOOL success) {
                 if (success)  {
                     [[NSNotificationCenter defaultCenter] postNotificationName:NTDNoteWasChangedNotification object:self];
                 }
             }];
         }
-    }
+    }*/
 }
 
 #pragma  mark - Import
 -(void)copyFromNote:(NTDNote *)note file:(DBFile *)file
 {
-    self.file = file;
+    /*self.file = file;
     self.theme = note.theme;
-    self.headline = note.headline;
+    self.headline = note.headline;*/
 }
 
 + (void)clearExistingMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
-    datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+    /*datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                   error:nil];
     if (!datastore) {
         NSLog(@"Couldn't open datastore!");
@@ -452,12 +452,12 @@ static const NSString *kFilenameKey = @"filename";
                 completionBlock();
             }
         }];
-    }
+    }*/
 }
 
 + (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
-    if (!datastore) {
+    /*if (!datastore) {
         datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                       error:nil];
     }
@@ -484,12 +484,12 @@ static const NSString *kFilenameKey = @"filename";
                 completionBlock();
             }
         }];
-    }
+    }*/
 }
 
 #pragma mark - Notifications
 - (void)noteWasDeleted:(NSNotification *)notification
 {
-    [self wasDeleted];
+    //[self wasDeleted];
 }
 @end

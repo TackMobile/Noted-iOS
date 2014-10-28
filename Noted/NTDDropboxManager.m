@@ -24,7 +24,7 @@ static NSString *dropboxPrice = @"";
 
 +(void)initialize
 {
-    if ( self != [NTDDropboxManager class] ) {
+    /*if ( self != [NTDDropboxManager class] ) {
         return;
     }
     //DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
@@ -47,29 +47,29 @@ static NSString *dropboxPrice = @"";
          } else {
              dropboxPrice = @"...";
          }
-     }];
+     }];*/
 }
 
 +(void)setup
 {
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
+    /*DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
     if (account && ![DBFilesystem sharedFilesystem]) {
         [DBFilesystem setSharedFilesystem:[[DBFilesystem alloc] initWithAccount:account]];
-    }
+    }*/
 }
 
 +(void)linkAccountFromViewController:(UIViewController *)controller
 {
-    [[DBAccountManager sharedManager] linkFromController:controller];
+    //[[DBAccountManager sharedManager] linkFromController:controller];
 }
 
 +(void)setPurchased:(BOOL)purchased {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
+    //[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
 }
 
 +(BOOL)handleOpenURL:(NSURL *)url
 {
-    DBAccount *account = [[DBAccountManager sharedManager] handleOpenURL:url];
+    /*DBAccount *account = [[DBAccountManager sharedManager] handleOpenURL:url];
     BOOL success = (account != nil);
     if (success) {
         
@@ -93,27 +93,27 @@ static NSString *dropboxPrice = @"";
             [modalView dismiss];
         }];
     }
-    return success;
+    return success;*/
 }
 
 +(BOOL)isDropboxEnabled
 {
-    return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxEnabledKey];
+    //return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxEnabledKey];
 }
 
 +(BOOL)isDropboxLinked
 {
-    return [[DBAccountManager sharedManager] linkedAccount] != nil;
+    //return [[DBAccountManager sharedManager] linkedAccount] != nil;
 }
 
 +(BOOL)isDropboxPurchased
 {
-    return [NSUserDefaults.standardUserDefaults boolForKey:NTDDropboxProductID];
+    //return [NSUserDefaults.standardUserDefaults boolForKey:NTDDropboxProductID];
 }
 
 +(void)setDropboxEnabled:(BOOL)enabled
 {
-    [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
+    /*[NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
     
     // this is to actually stop or start syncing
@@ -125,14 +125,14 @@ static NSString *dropboxPrice = @"";
         }
     } else {
         [DBFilesystem setSharedFilesystem:nil]; // this is Dropbox's official response to stop syncing
-    }
+    }*/
 }
 
 #pragma mark - Importing
 /* This method should be more or less idempotent. */
 + (void)importExistingFiles
 {
-    static BOOL didImportExistingFiles = NO;
+    /*static BOOL didImportExistingFiles = NO;
     if (didImportExistingFiles) return;
     
     NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
@@ -181,13 +181,13 @@ static NSString *dropboxPrice = @"";
                 }];
             }];
         });
-    }];
+    }];*/
 }
 
 #pragma mark - Helpers
 static NSString *IncrementIndexOfFilename(NSString *path)
 {
-    NSRegularExpression *matcher = [NSRegularExpression regularExpressionWithPattern:@".*([0-9])+.*"
+    /*NSRegularExpression *matcher = [NSRegularExpression regularExpressionWithPattern:@".*([0-9])+.*"
                                                                              options:0
                                                                                error:nil];
     NSString *filename = [path stringByDeletingPathExtension], *incrementedFilename;
@@ -201,20 +201,20 @@ static NSString *IncrementIndexOfFilename(NSString *path)
         index++;
         incrementedFilename = [filename stringByReplacingCharactersInRange:textCheckingResultRange withString:[@(index) stringValue]];
     }
-    return [incrementedFilename stringByAppendingPathExtension:[path pathExtension]];
+    return [incrementedFilename stringByAppendingPathExtension:[path pathExtension]];*/
 }
 
 #pragma mark - Options menu
 +(NSString *)DropboxPriceString
 {
-    return dropboxPrice;
+    //return dropboxPrice;
 }
 
 + (void) purchaseDropboxPressed {
     //[NTDThemesTableViewController showWaitingModal];
     
     //initate the purchase request
-    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
+    /*[[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
         if ( response > 0 ) {
             // purchase Dropbox
             SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:0];
@@ -261,13 +261,13 @@ static NSString *IncrementIndexOfFilename(NSString *path)
             [[IAPShare sharedHelper].iap buyProduct:product
                                        onCompletion:buyProductCompleteResponceBlock];
         }
-    }];
+    }];*/
 }
 
 - (void)purchaseDropboxSuccess {
-    [NTDDropboxManager setPurchased:YES];
+    /*[NTDDropboxManager setPurchased:YES];
     [NTDDropboxManager linkAccountFromViewController:nil];
-    //[NTDThemesTableViewController dismissModalIfShowing];
+    //[NTDThemesTableViewController dismissModalIfShowing];*/
 }
 
 - (void)purchaseDropboxFailure {

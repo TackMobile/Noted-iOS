@@ -232,11 +232,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
+    /*
     self.toggleDropboxLabel.text = [NTDDropboxManager isDropboxEnabled] ? @"ON" : @"OFF";
     self.toggleDropboxView.userInteractionEnabled = YES;
     [self.toggleDropboxView bk_whenTapped:^{
         [self dropboxTapped];
-    }];
+    }];*/
     
     // Themes
     self.chooseThemeView.userInteractionEnabled = YES;
@@ -491,42 +492,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void)dropboxTapped {
     
-    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
-        NSString *msg = @"Disable Dropbox syncing?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [NTDDropboxManager setDropboxEnabled:NO];
-                [NTDNote refreshStoragePreferences];
-                self.toggleDropboxLabel.text = @"OFF";
-                [self reloadInputViews];
-            }
-            [modalView dismiss];
-        }];
-        [modalView show];
-    } else if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
-        NSString *msg = @"Enable Dropbox syncing?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [NTDDropboxManager setDropboxEnabled:YES];
-                [NTDNote refreshStoragePreferences];
-                self.toggleDropboxLabel.text = @"ON";
-                [self reloadInputViews];
-            }
-            [modalView dismiss];
-        }];
-        [modalView show];
-    } else {
-        NSString *msg = @"Sync your  notes with Dropbox for ";
-        msg = [NSString stringWithFormat:@"%@%@%@", msg, [NTDDropboxManager DropboxPriceString], @"?"];
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [self.delegate dismissOptions];
-                [NTDDropboxManager purchaseDropboxPressed];
-            }
-            [modalView dismiss];
-        }];
-        [modalView show];
-    }
 }
 
 #pragma mark - Sharing Actions
