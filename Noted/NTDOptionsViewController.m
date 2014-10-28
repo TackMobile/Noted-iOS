@@ -259,7 +259,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                     if([productID isEqualToString:NTDNoteThemesProductID] && ![NTDTheme didPurchaseThemes]) {
                         [NTDTheme setPurchasedThemes:YES];
                         restoredAnything = YES;
-                    }else if ([productID isEqualToString:NTDDropboxProductID]) {
+                    } else if ([productID isEqualToString:NTDDropboxProductID]) {
                         restoredAnything = YES;
                         [NTDDropboxManager setPurchased:YES];
                         nil;
@@ -521,8 +521,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
                 [self.delegate dismissOptions];
-                 //[NTDDropboxManager purchaseDropboxPressed];
-                [NTDDropboxManager linkAccountFromViewController:self];
+                [NTDDropboxManager purchaseDropboxPressed];
             }
             [modalView dismiss];
         }];

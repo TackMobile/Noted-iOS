@@ -21,4 +21,5 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 +(BOOL)isDropboxPurchased;
 +(void)setDropboxEnabled:(BOOL)enabled;
 +(NSString *)DropboxPriceString;
++(void)purchaseDropboxPressed;
 @end

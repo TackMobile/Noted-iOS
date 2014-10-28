@@ -63,7 +63,7 @@ static NSString *dropboxPrice = @"";
     [[DBAccountManager sharedManager] linkFromController:controller];
 }
 
-+ (void)setPurchased:(BOOL)purchased {
++(void)setPurchased:(BOOL)purchased {
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
 }
 
@@ -210,8 +210,8 @@ static NSString *IncrementIndexOfFilename(NSString *path)
     return dropboxPrice;
 }
 
-- (void) purchaseDropboxPressed {
-    [NTDThemesTableViewController showWaitingModal];
++ (void) purchaseDropboxPressed {
+    //[NTDThemesTableViewController showWaitingModal];
     
     //initate the purchase request
     [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
@@ -236,7 +236,9 @@ static NSString *IncrementIndexOfFilename(NSString *path)
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
                                                                  NSLog(@"Success: %@",response);
                                                                  NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
-                                                                 //[self purchaseThemesSuccess];
+                                                                 [NTDDropboxManager setPurchased:YES];
+                                                                 [NTDDropboxManager linkAccountFromViewController:nil];
+                                                                 //[self purchaseDropboxSuccess];
                                                              } else {
                                                                  NSLog(@"Receipt Invalid");
                                                                  //[self showErrorMessageAndDismiss:error.localizedDescription];
@@ -248,7 +250,7 @@ static NSString *IncrementIndexOfFilename(NSString *path)
                         default:
                         {
                             NSLog(@"Purchase Failed");
-                            //[self purchaseThemesFailure];
+                            //[self purchaseDropboxFailure];
                             break;
                         }
                     }
@@ -261,4 +263,15 @@ static NSString *IncrementIndexOfFilename(NSString *path)
         }
     }];
 }
+
+- (void)purchaseDropboxSuccess {
+    [NTDDropboxManager setPurchased:YES];
+    [NTDDropboxManager linkAccountFromViewController:nil];
+    //[NTDThemesTableViewController dismissModalIfShowing];
+}
+
+- (void)purchaseDropboxFailure {
+    //[NTDThemesTableViewController dismissModalIfShowing];
+}
+
 @end
