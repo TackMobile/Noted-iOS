@@ -187,6 +187,7 @@ static DBDatastore *datastore;
             handler(notes);
         });
     });*/
+    return;
 }
 
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler

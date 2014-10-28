@@ -13,6 +13,7 @@
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
 #import <IAPHelper/IAPShare.h>
+#import <Dropbox/Dropbox.h>
 #import "NTDOptionsViewController.h"
 #import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
@@ -234,10 +235,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     // Dropbox
     /*
     self.toggleDropboxLabel.text = [NTDDropboxManager isDropboxEnabled] ? @"ON" : @"OFF";
-    self.toggleDropboxView.userInteractionEnabled = YES;
+    self.toggleDropboxView.userInteractionEnabled = YES;*/
     [self.toggleDropboxView bk_whenTapped:^{
         [self dropboxTapped];
-    }];*/
+    }];
     
     // Themes
     self.chooseThemeView.userInteractionEnabled = YES;
@@ -491,7 +492,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)dropboxTapped {
-    
+    //[[DBAccountManager sharedManager] linkFromController:self];
 }
 
 #pragma mark - Sharing Actions

@@ -25,7 +25,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 + (void)initialize
 {
     [self refreshStoragePreferences];
-//     PrivateImplentingClass = [NTDNoteDocument class];
+     PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
