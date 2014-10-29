@@ -7,6 +7,7 @@
 //
 #import <Dropbox/Dropbox.h>
 #import <FlurrySDK/Flurry.h>
+#import <IAPHelper/IAPShare.h>
 #import "NTDDropboxManager.h"
 #import "NTDModalView.h"
 #import "NTDNote.h"
@@ -17,6 +18,7 @@ NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
+NSString *dropboxPrice = @"";
 @implementation NTDDropboxManager
 
 +(void)initialize
@@ -27,6 +29,24 @@ static NTDModalView *modalView;
     //DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"];
     DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"lwscmn1v79cbgag" secret:@"rqoh5v4tjvztg9a"];
     [DBAccountManager setSharedManager:accountManager];
+    
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
+     {
+         if(response > 0 ) {
+             // get Dropbox price
+             SKProduct* product = IAPShare.sharedHelper.iap.products[0];
+             NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+             [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+             [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+             [numberFormatter setLocale:product.priceLocale];
+             if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
+                 dropboxPrice = @"free.";
+             else
+                 dropboxPrice = [numberFormatter stringFromNumber:product.price];
+         } else {
+             dropboxPrice = @"...";
+         }
+     }];
 }
 
 +(void)setup
@@ -56,8 +76,15 @@ static NTDModalView *modalView;
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
         
+        // in the event we try to link after we have already linked
+        if ([DBFilesystem sharedFilesystem]) {
+            [modalView dismiss];
+            return success;
+        }
+        
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
         [DBFilesystem setSharedFilesystem:filesystem];
+        
         [filesystem addObserver:self block:^{
             if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
                 [self importExistingFiles];
@@ -77,6 +104,11 @@ static NTDModalView *modalView;
 +(BOOL)isDropboxLinked
 {
     return [[DBAccountManager sharedManager] linkedAccount] != nil;
+}
+
++(NSString *)getDropboxPrice
+{
+    return dropboxPrice;
 }
 
 +(void)setDropboxEnabled:(BOOL)enabled

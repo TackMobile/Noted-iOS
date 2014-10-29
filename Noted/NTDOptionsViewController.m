@@ -489,7 +489,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)dropboxTapped {
-    NSString *msg = @"Sync your  notes with Dropbox for ...";
+    NSString *msg = [NSString stringWithFormat:@"%@%@?", @"Sync your  notes with Dropbox for ", [NTDDropboxManager getDropboxPrice]];
     __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
         if (index == 1) {
             [self.delegate dismissOptions];
