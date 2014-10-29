@@ -13,12 +13,18 @@
 #import "NTDNote.h"
 #import "NTDDropboxNote.h"
 #import "NTDCollectionViewController+Walkthrough.h"
+#import "WaitingAnimationLayer.h"
 
 NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
+static NSString *kDropboxPurchasedKey = @"kDropboxPurchasedKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
 NSString *dropboxPrice = @"";
+@interface NTDDropboxManager()
+@property (nonatomic, strong) __block NTDModalView *modalView;
+@end
+
 @implementation NTDDropboxManager
 
 +(void)initialize
@@ -96,6 +102,43 @@ NSString *dropboxPrice = @"";
     return success;
 }
 
++(void) showWaitingModal {
+    // display a "waiting" modal which replaces the old one
+    [self dismissModalIfShowing];
+    
+    WaitingAnimationLayer *animatingLayer = [WaitingAnimationLayer layer];
+    animatingLayer.frame = (CGRect){{0, 0}, {220, 190}};
+    NSString *msg = @"Waiting for a response from the App Store.";
+    modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                     layer:animatingLayer
+                                           backgroundColor:[UIColor blackColor]
+                                                   buttons:@[]
+                                          dismissalHandler:nil];
+    [animatingLayer setNeedsLayout];
+    [modalView show];
+}
+
++(void)showErrorMessageAndDismiss:(NSString*)msg
+{
+    // display a "failure" modal
+    [self dismissModalIfShowing];
+    
+    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                              layer:nil
+                                                    backgroundColor:[UIColor blackColor]
+                                                            buttons:@[@"OK"]
+                                                   dismissalHandler:^(NSUInteger index) {
+                                                       [self dismissModalIfShowing];
+                                                   }];
+    
+    [modalView show];
+}
+
++(void)dismissModalIfShowing {
+    if (modalView != nil)
+        [modalView dismiss];
+}
+
 +(BOOL)isDropboxEnabled
 {
     return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxEnabledKey];
@@ -104,6 +147,11 @@ NSString *dropboxPrice = @"";
 +(BOOL)isDropboxLinked
 {
     return [[DBAccountManager sharedManager] linkedAccount] != nil;
+}
+
++(BOOL)isDropboxPurchased
+{
+    return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxPurchasedKey];
 }
 
 +(NSString *)getDropboxPrice
@@ -115,6 +163,66 @@ NSString *dropboxPrice = @"";
 {
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++(void)setDropoboxPurchased:(BOOL)purchased
+{
+    [NSUserDefaults.standardUserDefaults setBool:purchased forKey:kDropboxPurchasedKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++(void)purchaseDropbox
+{
+    [self showWaitingModal];
+    //initate the purchase request
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
+        if ( response > 0 ) {
+            // purchase Dropbox
+            SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:0];
+            
+            IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                if (transaction.error) {
+                    NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                    [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
+                } else {
+                    switch (transaction.transactionState) {
+                        case SKPaymentTransactionStatePurchased:
+                        {
+                            // check the receipt
+                            [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                         onCompletion:^(NSString *response, NSError *error) {
+                                                             NSDictionary *receipt = [IAPShare toJSON:response];
+                                                             if ([receipt[@"status"] integerValue] == 0) {
+                                                                 NSString *pID = transaction.payment.productIdentifier;
+                                                                 [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                 NSLog(@"Success: %@",response);
+                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 [NTDDropboxManager setPurchased:YES];
+                                                                 [NTDDropboxManager setDropboxEnabled:YES];
+                                                                 [NTDDropboxManager linkAccountFromViewController:nil];
+                                                                 [self dismissModalIfShowing];
+                                                             } else {
+                                                                 NSLog(@"Receipt Invalid");
+                                                                 [self showErrorMessageAndDismiss:error.localizedDescription];
+                                                             }
+                                                         }];
+                            break;
+                        }
+                            
+                        default:
+                        {
+                            NSLog(@"Purchase Failed");
+                            break;
+                        }
+                    }
+                }
+            };
+            
+            // attempt to buy the product
+            [[IAPShare sharedHelper].iap buyProduct:product
+                                       onCompletion:buyProductCompleteResponceBlock];
+        }
+    }];
 }
 
 #pragma mark - Importing

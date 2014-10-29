@@ -285,7 +285,7 @@ static NSString *themesPrice = @"...";
                                                                  NSString *pID = transaction.payment.productIdentifier;
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
                                                                  NSLog(@"Success: %@",response);
-                                                                 NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
                                                                  [self purchaseThemesSuccess];
                                                              } else {
                                                                  NSLog(@"Receipt Invalid");

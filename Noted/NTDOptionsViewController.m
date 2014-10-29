@@ -232,6 +232,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
+    self.toggleDropboxLabel.text = @"OFF";
+    if ([NTDDropboxManager isDropboxEnabled])
+        self.toggleDropboxLabel.text = @"ON";
     self.toggleDropboxView.userInteractionEnabled = YES;
     [self.toggleDropboxView bk_whenTapped:^{
         [self dropboxTapped];
@@ -493,7 +496,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
         if (index == 1) {
             [self.delegate dismissOptions];
-            [NTDDropboxManager linkAccountFromViewController:self];
+            [NTDDropboxManager purchaseDropbox];
+            //[NTDDropboxManager linkAccountFromViewController:self];
         }
         [modalView dismiss];
     }];
