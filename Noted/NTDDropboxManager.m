@@ -69,7 +69,7 @@ NSString *dropboxPrice = @"";
 }
 
 + (void)setPurchased:(BOOL)purchased {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
+    [[NSUserDefaults standardUserDefaults] setBool:purchased forKey:NTDDropboxProductID];
 }
 
 +(BOOL)handleOpenURL:(NSURL *)url
@@ -151,7 +151,7 @@ NSString *dropboxPrice = @"";
 
 +(BOOL)isDropboxPurchased
 {
-    return [NSUserDefaults.standardUserDefaults boolForKey:kDropboxPurchasedKey];
+    return [NSUserDefaults.standardUserDefaults boolForKey:NTDDropboxProductID];
 }
 
 +(NSString *)getDropboxPrice
@@ -161,13 +161,21 @@ NSString *dropboxPrice = @"";
 
 +(void)setDropboxEnabled:(BOOL)enabled
 {
+    // this is to actually start and stop syncing
+    if (!enabled) {
+        [DBFilesystem setSharedFilesystem:nil];
+    } else {
+        DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
+        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
+        [DBFilesystem setSharedFilesystem:filesystem];
+    }
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 +(void)setDropoboxPurchased:(BOOL)purchased
 {
-    [NSUserDefaults.standardUserDefaults setBool:purchased forKey:kDropboxPurchasedKey];
+    [NSUserDefaults.standardUserDefaults setBool:purchased forKey:NTDDropboxProductID];
     [NSUserDefaults.standardUserDefaults synchronize];
 }
 
