@@ -493,9 +493,30 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void)dropboxTapped {
     if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]){
+        NSString *msg = @"Enable Dropbox syncing?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                [self.delegate dismissOptions];
+                [NTDDropboxManager setDropboxEnabled:YES];
+                self.toggleDropboxLabel.text = @"ON";
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
         
+        [self reloadInputViews];
     } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
-        
+        NSString *msg = @"Disable Dropbox syncing?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                [self.delegate dismissOptions];
+                [NTDDropboxManager setDropboxEnabled:NO];
+                self.toggleDropboxLabel.text = @"OFF";
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
+        [self reloadInputViews];
     } else {
         NSString *msg = [NSString stringWithFormat:@"%@%@?", @"Sync your  notes with Dropbox for ", [NTDDropboxManager getDropboxPrice]];
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
