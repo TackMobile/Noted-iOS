@@ -1,4 +1,4 @@
-//
+ //
 //  NTDNoteDocument.m
 //  Noted
 //
@@ -604,6 +604,11 @@ BOOL safe_rename(const char *old, const char *new)
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
+
++ (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler(YES);
 }

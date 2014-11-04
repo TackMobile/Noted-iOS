@@ -13,6 +13,7 @@
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
 #import <IAPHelper/IAPShare.h>
+#import <Dropbox/Dropbox.h>
 #import "NTDOptionsViewController.h"
 #import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
@@ -499,6 +500,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 [self.delegate dismissOptions];
                 [NTDDropboxManager setDropboxEnabled:YES];
                 self.toggleDropboxLabel.text = @"ON";
+                [NTDNote refreshStoragePreferences];
+                [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];
@@ -512,6 +515,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 [self.delegate dismissOptions];
                 [NTDDropboxManager setDropboxEnabled:NO];
                 self.toggleDropboxLabel.text = @"OFF";
+                [NTDNote refreshStoragePreferences];
+                [DBFilesystem setSharedFilesystem:nil];
             }
             [modalView dismiss];
         }];

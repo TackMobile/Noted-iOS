@@ -161,15 +161,6 @@ NSString *dropboxPrice = @"";
 
 +(void)setDropboxEnabled:(BOOL)enabled
 {
-    // this is to actually start and stop syncing
-    /*if (!enabled) {
-        [[DBAccountManager sharedManager] linkedAccount] = nil;
-    } else {
-        DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        [DBFilesystem setSharedFilesystem:filesystem];
-    }*/
-    
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
 }

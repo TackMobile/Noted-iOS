@@ -14,6 +14,7 @@
 #import "NTDNote+ImplUtils.h"
 #import "NTDTheme.h"
 #import "NTDDeletedNotePlaceholder.h"
+#import "NTDNoteDocument.h"
 
 static dispatch_queue_t background_dispatch_queue, main_dispatch_queue;
 static NSUInteger filenameCounter = 1;
@@ -193,6 +194,8 @@ static DBDatastore *datastore;
 {
     DBPath *path = [self pathForNewNote];
     [self newNoteAtPath:path completionHandler:handler];
+    
+    [NTDNoteDocument newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler];
 }
 
 + (void)newNoteAtPath:(DBPath *)path completionHandler:(void(^)(NTDNote *note))handler
@@ -222,10 +225,18 @@ static DBDatastore *datastore;
         dropboxNote.headline = deletedNote.headline;
         handler(note);
     }];
+    
+    [NTDNoteDocument restoreNote:deletedNote completionHandler:handler];
 }
 
-//+ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
-//+ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
 
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
@@ -283,6 +294,8 @@ static DBDatastore *datastore;
         }
         handler(success);
     });
+    
+    //[NTDNoteDocument deleteWithCompletionHandler:handler];
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
@@ -293,6 +306,8 @@ static DBDatastore *datastore;
     if (text) { self.bodyText = text; NSLog(@"Updating %p with %@", self, text); }
     if (error) [NTDNote logError:error withMessage:@"Couldn't update file or read text after updating."];
     handler(didUpdate);
+    
+    [NTDNoteDocument updateWithCompletionHandler:handler];
 }
 
 - (NSURL *)fileURL
