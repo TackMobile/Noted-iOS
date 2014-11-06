@@ -97,7 +97,7 @@
                     [self.filenameToRecordMap removeObjectForKey:note.filename];
                 }
                 [self observeNote:note];
-                [notificationCenter postNotificationName:NTDNoteWasAddedNotification object:note];
+                //[notificationCenter postNotificationName:NTDNoteWasAddedNotification object:note];
                 NSLog(@"Found new inserted file: %@", fileinfo.path);
             }
             for (DBFileInfo *fileinfo in updatedFiles) {
