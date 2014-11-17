@@ -10,6 +10,19 @@
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
 		1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
+		1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
+		1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
+		1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
+		1FD1E5691A1A74EE005763BB /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
+		1FD1E56A1A1A7506005763BB /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
+		1FD1E56B1A1A7513005763BB /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
+		1FD1E56C1A1A753A005763BB /* NTDModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8308E1861FB50001C141C /* NTDModalView.m */; };
+		1FD1E56D1A1A7566005763BB /* NTDWalkthroughViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF28C17A06A6500213F2F /* NTDWalkthroughViewController.m */; };
+		1FD1E56E1A1A75A3005763BB /* NTDWalkthroughGestureIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF29517A0727100213F2F /* NTDWalkthroughGestureIndicatorView.m */; };
+		1FD1E56F1A1A75C3005763BB /* NTDWalkthrough.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F1FF28917A048BD00213F2F /* NTDWalkthrough.m */; };
+		1FD1E5701A1A75FC005763BB /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
+		1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */; };
+		1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5731A1A8B11005763BB /* libc++.dylib */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -114,6 +127,8 @@
 		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
 		1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Noted/Images.xcassets; sourceTree = "<group>"; };
 		1F6F800F19E446C8004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../../../Downloads/dropbox-ios-sync-sdk-3.1.0/Dropbox.framework"; sourceTree = "<group>"; };
+		1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		1FD1E5731A1A8B11005763BB /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -263,6 +278,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */,
+				1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */,
+				1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */,
 				3F27A0E318B41FBC00734CDD /* Crashlytics.framework in Frameworks */,
 				3F27A0E218B41E9A00734CDD /* CoreData.framework in Frameworks */,
 				3F73710118AECD5F0092694E /* XCTest.framework in Frameworks */,
@@ -348,6 +366,8 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1FD1E5731A1A8B11005763BB /* libc++.dylib */,
+				1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */,
 				1F6F800F19E446C8004D0344 /* Dropbox.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
@@ -822,6 +842,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FD1E5701A1A75FC005763BB /* WaitingAnimationLayer.m in Sources */,
+				1FD1E56F1A1A75C3005763BB /* NTDWalkthrough.m in Sources */,
+				1FD1E56E1A1A75A3005763BB /* NTDWalkthroughGestureIndicatorView.m in Sources */,
+				1FD1E56D1A1A7566005763BB /* NTDWalkthroughViewController.m in Sources */,
+				1FD1E56C1A1A753A005763BB /* NTDModalView.m in Sources */,
+				1FD1E56B1A1A7513005763BB /* NTDWalkthroughModalView.m in Sources */,
+				1FD1E56A1A1A7506005763BB /* NTDReplicatorView.m in Sources */,
+				1FD1E5691A1A74EE005763BB /* NTDDropboxObserver.m in Sources */,
+				1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */,
+				1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */,
 				3F27A0D618B41E9100734CDD /* NTDCoreDataStore.m in Sources */,
 				3F27A0D818B41E9100734CDD /* NTDNoteDocument.m in Sources */,
 				3F27A0DA18B41E9100734CDD /* NTDNoteMetadata.m in Sources */,
@@ -980,8 +1010,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_ID_SUFFIX = .dev;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Noted.app/Noted";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -992,8 +1022,9 @@
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(PROJECT_DIR)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1021,8 +1052,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Noted.app/Noted";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1034,8 +1065,9 @@
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(PROJECT_DIR)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NotedTests/NotedTests-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1056,8 +1088,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Noted.app/Noted";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1069,8 +1101,9 @@
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(PROJECT_DIR)",
+					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NotedTests/NotedTests-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
