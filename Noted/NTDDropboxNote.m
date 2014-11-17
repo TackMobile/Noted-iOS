@@ -419,7 +419,7 @@ static const NSString *kFilenameKey = @"filename";
 
 + (void)clearExistingMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
-    datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
+    /*datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                   error:nil];
     if (!datastore) {
         NSLog(@"Couldn't open datastore!");
@@ -452,12 +452,12 @@ static const NSString *kFilenameKey = @"filename";
                 completionBlock();
             }
         }];
-    }
+    }*/
 }
 
 + (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock
 {
-    if (!datastore) {
+/*    if (!datastore) {
         datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                       error:nil];
     }
@@ -484,7 +484,7 @@ static const NSString *kFilenameKey = @"filename";
                 completionBlock();
             }
         }];
-    }
+    }*/
 }
 
 #pragma mark - Notifications

@@ -179,8 +179,8 @@
     __weak DBDatastore *weakDatastore = datastore;
     DBObserver observerBlock = ^{
         LogDatastoreStatusDebug(weakDatastore);
-        if (!(weakDatastore.status & DBDatastoreIncoming))
-            return;
+        /*if (!(weakDatastore.status & DBDatastoreInfo))
+            return;*/
         NSDictionary *syncResults = [weakDatastore sync:nil];
         NSSet *changedRecords = syncResults[@"metadata"];
         for (DBRecord *changedRecord in changedRecords) {
@@ -246,7 +246,7 @@
 
 void LogDatastoreStatusDebug(DBDatastore *datastore)
 {
-    NSMutableArray *states = [NSMutableArray new];
+/*    NSMutableArray *states = [NSMutableArray new];
     DBDatastoreStatus status = datastore.status;
     if (status & DBDatastoreOutgoing) [states addObject:@"Outgoing"];
     if (status & DBDatastoreIncoming) [states addObject:@"Incoming"];
@@ -254,6 +254,6 @@ void LogDatastoreStatusDebug(DBDatastore *datastore)
     if (status & DBDatastoreDownloading) [states addObject:@"Downloading"];
     if (status & DBDatastoreConnected) [states addObject:@"Connected"];
     NSString *state = [states componentsJoinedByString:@" | "];
-    NSLog(@"%@ %@", datastore, state);
+    NSLog(@"%@ %@", datastore, state);*/
 }
 @end
