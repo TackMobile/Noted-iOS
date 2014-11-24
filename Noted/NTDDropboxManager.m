@@ -20,7 +20,7 @@ static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
 static NSString *kDropboxPurchasedKey = @"kDropboxPurchasedKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
-NSString *dropboxPrice = @"";
+NSString *dropboxPrice = @"...";
 @interface NTDDropboxManager()
 @property (nonatomic, strong) __block NTDModalView *modalView;
 @end
@@ -40,15 +40,28 @@ NSString *dropboxPrice = @"";
      {
          if(response > 0 ) {
              // get Dropbox price
-             SKProduct* product = IAPShare.sharedHelper.iap.products[0];
-             NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-             [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-             [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-             [numberFormatter setLocale:product.priceLocale];
-             if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
-                 dropboxPrice = @"free.";
-             else
-                 dropboxPrice = [numberFormatter stringFromNumber:product.price];
+             if (IAPShare.sharedHelper.iap.products.count > 0) {
+                 //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
+                 
+                 SKProduct* product = nil;
+                 
+                 for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                     SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                     if ([temp.productIdentifier isEqualToString:NTDDropboxProductID])
+                         product = temp;
+                 }
+                 
+                 if (product != nil) {
+                    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                     [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+                     [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                    [numberFormatter setLocale:product.priceLocale];
+                     if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
+                         dropboxPrice = @"free.";
+                     else
+                         dropboxPrice = [numberFormatter stringFromNumber:product.price];
+                 }
+             }
          } else {
              dropboxPrice = @"...";
          }
@@ -178,49 +191,67 @@ NSString *dropboxPrice = @"";
     [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
         if ( response > 0 ) {
             // purchase Dropbox
-            SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:0];
+            if (IAPShare.sharedHelper.iap.products.count > 0) {
+                //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
+                
+                SKProduct* product = nil;
+                
+                for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                    SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                    if ([temp.productIdentifier isEqualToString:NTDDropboxProductID])
+                        product = temp;
+                }
+                
+                if (product == nil) {
+                    [self showErrorMessageAndDismiss:@"Unable to reach iTunes store."];
+                    return;
+                }
             
-            IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
-                if (transaction.error) {
-                    NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
-                    [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
-                } else {
-                    switch (transaction.transactionState) {
-                        case SKPaymentTransactionStatePurchased:
-                        {
-                            // check the receipt
-                            [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
-                                                         onCompletion:^(NSString *response, NSError *error) {
-                                                             NSDictionary *receipt = [IAPShare toJSON:response];
-                                                             if ([receipt[@"status"] integerValue] == 0) {
-                                                                 NSString *pID = transaction.payment.productIdentifier;
-                                                                 [[IAPShare sharedHelper].iap provideContent:pID];
-                                                                 NSLog(@"Success: %@",response);
-                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
-                                                                 [NTDDropboxManager setPurchased:YES];
-                                                                 [NTDDropboxManager setDropboxEnabled:YES];
-                                                                 [NTDDropboxManager linkAccountFromViewController:nil];
-                                                                 [self dismissModalIfShowing];
-                                                             } else {
-                                                                 NSLog(@"Receipt Invalid");
-                                                                 [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                             }
-                                                         }];
-                            break;
-                        }
-                            
-                        default:
-                        {
-                            NSLog(@"Purchase Failed");
-                            break;
+                IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                    if (transaction.error) {
+                        NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                        [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
+                    } else {
+                        switch (transaction.transactionState) {
+                            case SKPaymentTransactionStatePurchased:
+                            {
+                                // check the receipt
+                                [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                             onCompletion:^(NSString *response, NSError *error) {
+                                                                 NSDictionary *receipt = [IAPShare toJSON:response];
+                                                                 if ([receipt[@"status"] integerValue] == 0) {
+                                                                     NSString *pID = transaction.payment.productIdentifier;
+                                                                     [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                     NSLog(@"Success: %@",response);
+                                                                     NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                     [NTDDropboxManager setPurchased:YES];
+                                                                     [NTDDropboxManager setDropboxEnabled:YES];
+                                                                     [NTDDropboxManager linkAccountFromViewController:nil];
+                                                                     [self dismissModalIfShowing];
+                                                                 } else {
+                                                                     NSLog(@"Receipt Invalid");
+                                                                     [self showErrorMessageAndDismiss:error.localizedDescription];
+                                                                 }
+                                                             }];
+                                break;
+                            }
+                                
+                            default:
+                            {
+                                NSLog(@"Purchase Failed");
+                                break;
+                            }
                         }
                     }
-                }
-            };
-            
-            // attempt to buy the product
-            [[IAPShare sharedHelper].iap buyProduct:product
-                                       onCompletion:buyProductCompleteResponceBlock];
+                };
+                
+                // attempt to buy the product
+                [[IAPShare sharedHelper].iap buyProduct:product
+                                           onCompletion:buyProductCompleteResponceBlock];
+            } else {
+                [self showErrorMessageAndDismiss:@"Unable to reach iTunes store."];
+                return;
+            }
         }
     }];
 }
