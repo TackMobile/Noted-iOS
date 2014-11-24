@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
-
-
-		1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
 		1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
 		1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
 		1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
