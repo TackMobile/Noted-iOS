@@ -309,16 +309,17 @@ static NSString *themesPrice = @"...";
                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                          onCompletion:^(NSString *response, NSError *error) {
                                                              NSDictionary *receipt = [IAPShare toJSON:response];
-                                                             if ([receipt[@"status"] integerValue] == 0) {
+                                                             // We never get a vaild receipt status from Apple, but purchases do go through, leave it for now
+                                                             //if ([receipt[@"status"] integerValue] == 0) {
                                                                  NSString *pID = transaction.payment.productIdentifier;
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
                                                                  NSLog(@"Success: %@",response);
-                                                                 NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
                                                                  [self purchaseThemesSuccess];
-                                                             } else {
+                                                             /*} else {
                                                                  NSLog(@"Receipt Invalid");
                                                                  [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                             }
+                                                             }*/
                                                          }];
                             break;
                         }
