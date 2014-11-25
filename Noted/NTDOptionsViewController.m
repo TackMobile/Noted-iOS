@@ -528,7 +528,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             if (index == 1) {
                 [self.delegate dismissOptions];
                 [NTDDropboxManager purchaseDropbox];
-                //[NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];
