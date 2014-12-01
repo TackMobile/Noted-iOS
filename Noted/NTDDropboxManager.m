@@ -219,7 +219,8 @@ NSString *dropboxPrice = @"...";
                                 [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                              onCompletion:^(NSString *response, NSError *error) {
                                                                  NSDictionary *receipt = [IAPShare toJSON:response];
-                                                                 if ([receipt[@"status"] integerValue] == 0) {
+                                                                 // We never get a valid receipt from Apple, leave it for now
+                                                                 //if ([receipt[@"status"] integerValue] == 0) {
                                                                      NSString *pID = transaction.payment.productIdentifier;
                                                                      [[IAPShare sharedHelper].iap provideContent:pID];
                                                                      NSLog(@"Success: %@",response);
@@ -228,10 +229,10 @@ NSString *dropboxPrice = @"...";
                                                                      [NTDDropboxManager setDropboxEnabled:YES];
                                                                      [NTDDropboxManager linkAccountFromViewController:nil];
                                                                      [self dismissModalIfShowing];
-                                                                 } else {
+                                                                 /*} else {
                                                                      NSLog(@"Receipt Invalid");
                                                                      [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                                 }
+                                                                 }*/
                                                              }];
                                 break;
                             }
