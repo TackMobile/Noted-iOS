@@ -17,9 +17,11 @@
 @property (nonatomic, strong) DBFileInfo *fileinfo;
 @property (nonatomic, strong) DBRecord *metadata;
 @property (nonatomic, strong, readonly) NSString *filename;
+@property (nonatomic, strong) NSString *bodyText;
 
 + (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
 
 - (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
 + (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock;
++ (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 @end

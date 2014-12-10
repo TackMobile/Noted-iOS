@@ -12,6 +12,7 @@
 #import "NTDModalView.h"
 #import "NTDNote.h"
 #import "NTDDropboxNote.h"
+#import "NTDNoteDocument.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "WaitingAnimationLayer.h"
 
@@ -311,6 +312,35 @@ NSString *dropboxPrice = @"...";
             }];
         });
     }];
+}
+
++ (void) importDropboxNotes
+{
+    //static BOOL importing = NO;
+    NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
+    [controller returnToListLayout];
+    //importing = YES;
+    [NTDDropboxNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            for (NTDDropboxNote *note in notes) {
+                /*DBError __autoreleasing *error;
+                NSString *filename = note.filename;
+                DBFileInfo *fileinfo;
+                DBPath *path;
+            
+                NTDTheme *theme = [NTDTheme themeForColorScheme:NTDColorSchemeKernal];*/
+            
+                [NTDNoteDocument newNoteWithCompletionHandler:^(NTDNote *newNote){
+                    newNote.text = @"Test text.";
+                }];
+            }
+            //importing = NO;
+        //});
+    }];
+    //while (importing == YES){};
+    [NTDNote refreshStoragePreferences];
+    [controller reloadNotes];
+    [controller reloadInputViews];
 }
 
 #pragma mark - Helpers
