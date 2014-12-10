@@ -518,16 +518,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 self.toggleDropboxLabel.text = @"OFF";
                 [NTDNote refreshStoragePreferences];
                 [NTDDropboxManager importDropboxNotes];
-                //[DBFilesystem setSharedFilesystem:nil];
-                
-                //isLoggingOut = YES;
+
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
                     [[[DBAccountManager sharedManager] linkedAccount] unlink];
-                    //isLoggingOut = NO;
                 });
                 
             }
-            //while (isLoggingOut == YES){};
             [modalView dismiss];
         }];
         [modalView show];
