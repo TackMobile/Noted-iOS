@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NTDNote.h"
 
 @interface NTDNoteDocument : UIDocument
++ (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler;
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
+- (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler;
++ (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
 #if __NOTED_TESTS__
 + (BOOL)reset;

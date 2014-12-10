@@ -67,7 +67,7 @@
 @end
 
 @implementation NTDThemesTableViewController
-
+NSString *const ThemesProductID = @"com.tackmobile.noted.themes";
 static NSString * const NTDThemeCellReuseIdentifier = @"ThemeCell";
 static NSString * const NTDDidPurchaseThemesKey = @"DidPurchaseThemes";
 static NSArray *themeNames;
@@ -90,16 +90,31 @@ static NSString *themesPrice = @"...";
         [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)
          {
              if(response > 0 ) {
-                 // purchase themes
-                 SKProduct* product = IAPShare.sharedHelper.iap.products[1];
-                 NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-                 [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-                 [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-                 [numberFormatter setLocale:product.priceLocale];
-                 if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
-                     themesPrice = @"free.";
-                 else
-                     themesPrice = [numberFormatter stringFromNumber:product.price];
+                 // get themes price
+                 if (IAPShare.sharedHelper.iap.products.count > 0) {
+                     //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
+                     
+                     SKProduct* product = nil;
+                     
+                     for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                         SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                         if ([temp.productIdentifier isEqualToString:ThemesProductID])
+                             product = temp;
+                     }
+                     
+                     if (product != nil) {
+                         NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                         [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+                         [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                         [numberFormatter setLocale:product.priceLocale];
+                         if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
+                             themesPrice = @"free.";
+                         else
+                             themesPrice = [numberFormatter stringFromNumber:product.price];
+                     } else {
+                         themesPrice = @"...";
+                     }
+                 }
              } else {
                  themesPrice = @"...";
              }
@@ -268,7 +283,20 @@ static NSString *themesPrice = @"...";
     [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
         if ( response > 0 ) {
             // purchase themes
-            SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:1];
+            //SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:1];
+            
+            SKProduct* product = nil;
+            
+            for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                if ([temp.productIdentifier isEqualToString:ThemesProductID])
+                    product = temp;
+            }
+            
+            if (product == nil) {
+                [self purchaseThemesFailure];
+                return;
+            }
             
             IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
                 if (transaction.error) {
@@ -282,16 +310,17 @@ static NSString *themesPrice = @"...";
                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                          onCompletion:^(NSString *response, NSError *error) {
                                                              NSDictionary *receipt = [IAPShare toJSON:response];
-                                                             if ([receipt[@"status"] integerValue] == 0) {
+                                                             // We never get a valid receipt status from Apple, but purchased do go through, leave it for now
+                                                             //if ([receipt[@"status"] integerValue] == 0) {
                                                                  NSString *pID = transaction.payment.productIdentifier;
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
                                                                  NSLog(@"Success: %@",response);
-                                                                 NSLog(@"Pruchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
                                                                  [self purchaseThemesSuccess];
-                                                             } else {
+                                                             /*} else {
                                                                  NSLog(@"Receipt Invalid");
                                                                  [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                             }
+                                                             }*/
                                                          }];
                             break;
                         }

@@ -14,12 +14,14 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 
 +(void)setup;
 +(void)setPurchased:(BOOL)purchased;
++(void)setDropboxEnabled:(BOOL)enabled;
 +(void)linkAccountFromViewController:(UIViewController *)controller;
 +(BOOL)handleOpenURL:(NSURL *)url;
++(void)showErrorMessageAndDismiss:(NSString*)msg;
 +(BOOL)isDropboxEnabled;
 +(BOOL)isDropboxLinked;
 +(BOOL)isDropboxPurchased;
-+(void)setDropboxEnabled:(BOOL)enabled;
-+(NSString *)DropboxPriceString;
-+(void)purchaseDropboxPressed;
++(NSString *)getDropboxPrice;
++(void)purchaseDropbox;
++(void)importDropboxNotes;
 @end

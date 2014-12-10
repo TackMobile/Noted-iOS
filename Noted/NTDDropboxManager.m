@@ -8,18 +8,24 @@
 #import <Dropbox/Dropbox.h>
 #import <FlurrySDK/Flurry.h>
 #import <IAPHelper/IAPShare.h>
-#import "NTDThemesTableViewController.h"
 #import "NTDDropboxManager.h"
 #import "NTDModalView.h"
 #import "NTDNote.h"
 #import "NTDDropboxNote.h"
+#import "NTDNoteDocument.h"
 #import "NTDCollectionViewController+Walkthrough.h"
+#import "WaitingAnimationLayer.h"
 
 NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
+static NSString *kDropboxPurchasedKey = @"kDropboxPurchasedKey";
 static NSString *kDropboxError = @"DropboxError";
 static NTDModalView *modalView;
-static NSString *dropboxPrice = @"";
+NSString *dropboxPrice = @"...";
+@interface NTDDropboxManager()
+@property (nonatomic, strong) __block NTDModalView *modalView;
+@end
+
 @implementation NTDDropboxManager
 
 +(void)initialize
@@ -35,15 +41,28 @@ static NSString *dropboxPrice = @"";
      {
          if(response > 0 ) {
              // get Dropbox price
-             SKProduct* product = IAPShare.sharedHelper.iap.products[0];
-             NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-             [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-             [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-             [numberFormatter setLocale:product.priceLocale];
-             if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
-                 dropboxPrice = @"free.";
-             else
-                 dropboxPrice = [numberFormatter stringFromNumber:product.price];
+             if (IAPShare.sharedHelper.iap.products.count > 0) {
+                 //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
+                 
+                 SKProduct* product = nil;
+                 
+                 for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                     SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                     if ([temp.productIdentifier isEqualToString:NTDDropboxProductID])
+                         product = temp;
+                 }
+                 
+                 if (product != nil) {
+                    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                     [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+                     [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                    [numberFormatter setLocale:product.priceLocale];
+                     if ([product.price isEqualToNumber:[NSNumber numberWithFloat:0]])
+                         dropboxPrice = @"free.";
+                     else
+                         dropboxPrice = [numberFormatter stringFromNumber:product.price];
+                 }
+             }
          } else {
              dropboxPrice = @"...";
          }
@@ -63,8 +82,8 @@ static NSString *dropboxPrice = @"";
     [[DBAccountManager sharedManager] linkFromController:controller];
 }
 
-+(void)setPurchased:(BOOL)purchased {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:purchased] forKey:NTDDropboxProductID];
++ (void)setPurchased:(BOOL)purchased {
+    [[NSUserDefaults standardUserDefaults] setBool:purchased forKey:NTDDropboxProductID];
 }
 
 +(BOOL)handleOpenURL:(NSURL *)url
@@ -81,10 +100,15 @@ static NSString *dropboxPrice = @"";
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
         
-        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        if ([DBFilesystem sharedFilesystem] == nil) {
-            [DBFilesystem setSharedFilesystem:filesystem];
+        // in the event we try to link after we have already linked
+        if ([DBFilesystem sharedFilesystem]) {
+            [modalView dismiss];
+            return success;
         }
+        
+        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
+        [DBFilesystem setSharedFilesystem:filesystem];
+        
         [filesystem addObserver:self block:^{
             if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
                 [self importExistingFiles];
@@ -94,6 +118,43 @@ static NSString *dropboxPrice = @"";
         }];
     }
     return success;
+}
+
++(void) showWaitingModal {
+    // display a "waiting" modal which replaces the old one
+    [self dismissModalIfShowing];
+    
+    WaitingAnimationLayer *animatingLayer = [WaitingAnimationLayer layer];
+    animatingLayer.frame = (CGRect){{0, 0}, {220, 190}};
+    NSString *msg = @"Waiting for a response from the App Store.";
+    modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                     layer:animatingLayer
+                                           backgroundColor:[UIColor blackColor]
+                                                   buttons:@[]
+                                          dismissalHandler:nil];
+    [animatingLayer setNeedsLayout];
+    [modalView show];
+}
+
++(void)showErrorMessageAndDismiss:(NSString*)msg
+{
+    // display a "failure" modal
+    [self dismissModalIfShowing];
+    
+    NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                              layer:nil
+                                                    backgroundColor:[UIColor blackColor]
+                                                            buttons:@[@"OK"]
+                                                   dismissalHandler:^(NSUInteger index) {
+                                                       [self dismissModalIfShowing];
+                                                   }];
+    
+    [modalView show];
+}
+
++(void)dismissModalIfShowing {
+    if (modalView != nil)
+        [modalView dismiss];
 }
 
 +(BOOL)isDropboxEnabled
@@ -111,6 +172,11 @@ static NSString *dropboxPrice = @"";
     return [NSUserDefaults.standardUserDefaults boolForKey:NTDDropboxProductID];
 }
 
++(NSString *)getDropboxPrice
+{
+    return dropboxPrice;
+}
+
 +(void)setDropboxEnabled:(BOOL)enabled
 {
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
@@ -126,6 +192,85 @@ static NSString *dropboxPrice = @"";
     } else {
         [DBFilesystem setSharedFilesystem:nil]; // this is Dropbox's official response to stop syncing
     }
+}
+
++(void)setDropoboxPurchased:(BOOL)purchased
+{
+    [NSUserDefaults.standardUserDefaults setBool:purchased forKey:NTDDropboxProductID];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++(void)purchaseDropbox
+{
+    [self showWaitingModal];
+    //initate the purchase request
+    [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
+        if ( response > 0 ) {
+            // purchase Dropbox
+            if (IAPShare.sharedHelper.iap.products.count > 0) {
+                //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
+                
+                SKProduct* product = nil;
+                
+                for (int i = 0; i < IAPShare.sharedHelper.iap.products.count; i++) {
+                    SKProduct *temp = IAPShare.sharedHelper.iap.products[i];
+                    if ([temp.productIdentifier isEqualToString:NTDDropboxProductID])
+                        product = temp;
+                }
+                
+                if (product == nil) {
+                    [self showErrorMessageAndDismiss:@"Unable to reach iTunes store."];
+                    return;
+                }
+            
+                IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
+                    if (transaction.error) {
+                        NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
+                        [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
+                    } else {
+                        switch (transaction.transactionState) {
+                            case SKPaymentTransactionStatePurchased:
+                            {
+                                // check the receipt
+                                [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                                                             onCompletion:^(NSString *response, NSError *error) {
+                                                                 NSDictionary *receipt = [IAPShare toJSON:response];
+                                                                 // We never get a valid receipt from Apple, leave it for now
+                                                                 //if ([receipt[@"status"] integerValue] == 0) {
+                                                                     NSString *pID = transaction.payment.productIdentifier;
+                                                                     [[IAPShare sharedHelper].iap provideContent:pID];
+                                                                     NSLog(@"Success: %@",response);
+                                                                     NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
+                                                                     [NTDDropboxManager setPurchased:YES];
+                                                                     [NTDDropboxManager setDropboxEnabled:YES];
+                                                                     [NTDDropboxManager linkAccountFromViewController:nil];
+                                                                     [self dismissModalIfShowing];
+                                                                 /*} else {
+                                                                     NSLog(@"Receipt Invalid");
+                                                                     [self showErrorMessageAndDismiss:error.localizedDescription];
+                                                                 }*/
+                                                             }];
+                                break;
+                            }
+                                
+                            default:
+                            {
+                                NSLog(@"Purchase Failed");
+                                break;
+                            }
+                        }
+                    }
+                };
+                
+                // attempt to buy the product
+                [[IAPShare sharedHelper].iap buyProduct:product
+                                           onCompletion:buyProductCompleteResponceBlock];
+            } else {
+                [self showErrorMessageAndDismiss:@"Unable to reach iTunes store."];
+                return;
+            }
+        }
+    }];
 }
 
 #pragma mark - Importing
@@ -182,6 +327,30 @@ static NSString *dropboxPrice = @"";
             }];
         });
     }];
+}
+
++ (void) importDropboxNotes
+{
+    NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
+    [controller returnToListLayout];
+    [NTDDropboxNote listNotesWithCompletionHandler:^(NSArray *notes) {
+        for (NTDDropboxNote *note in notes) {
+            [NTDNoteDocument newNoteWithCompletionHandler:^(NTDNote *newNote){
+                newNote.text = note.headline;
+                newNote.theme = note.theme;
+            }];
+        }
+    }];
+    [NTDNote refreshStoragePreferences];
+    modalView = [[NTDModalView alloc] init];
+    modalView.message = @"Dropbox Sync disabled. All of your notes are now stored locally.";
+    modalView.type = NTDWalkthroughModalTypeDismiss;
+    modalView.promptHandler = ^(BOOL userClickedYes) {
+        [controller reloadNotes];
+        [modalView dismiss];
+        modalView = nil;
+    };
+    [modalView show];
 }
 
 #pragma mark - Helpers

@@ -41,7 +41,7 @@ describe(@"NTDNoteDocument", ^{
         [[expectFutureValue(_note.theme) shouldEventually] equal:theme];
     });
     
-    it (@"should work fine with large strings", ^{
+    /*it (@"should work fine with large strings", ^{
         __block NTDNote *_note;
         NSUInteger capacity = 10000;
         NSMutableString *noteText = [NSMutableString stringWithCapacity:capacity];
@@ -87,7 +87,7 @@ describe(@"NTDNoteDocument", ^{
 
         
         [[expectFutureValue(@(didDelete)) shouldNotEventuallyBeforeTimingOutAfter(5.0)] beTrue];
-    });
+    });*/
 
 });
 SPEC_END

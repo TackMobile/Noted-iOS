@@ -13,6 +13,7 @@
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
 #import <IAPHelper/IAPShare.h>
+#import <Dropbox/Dropbox.h>
 #import "NTDOptionsViewController.h"
 #import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
@@ -21,6 +22,7 @@
 #import "NTDDropboxManager.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
+bool isLoggingOut = NO;
 
 @interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, NTDThemesTableViewControllerDelegate>
 
@@ -232,7 +234,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
-    self.toggleDropboxLabel.text = [NTDDropboxManager isDropboxEnabled] ? @"ON" : @"OFF";
+    self.toggleDropboxLabel.text = @"OFF";
+    if ([NTDDropboxManager isDropboxEnabled])
+        self.toggleDropboxLabel.text = @"ON";
     self.toggleDropboxView.userInteractionEnabled = YES;
     [self.toggleDropboxView bk_whenTapped:^{
         [self dropboxTapped];
@@ -490,38 +494,46 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)dropboxTapped {
-    
-    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
-        NSString *msg = @"Disable Dropbox syncing?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [NTDDropboxManager setDropboxEnabled:NO];
-                [NTDNote refreshStoragePreferences];
-                self.toggleDropboxLabel.text = @"OFF";
-                [self reloadInputViews];
-            }
-            [modalView dismiss];
-        }];
-        [modalView show];
-    } else if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
+    if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]){
         NSString *msg = @"Enable Dropbox syncing?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
+                [self.delegate dismissOptions];
                 [NTDDropboxManager setDropboxEnabled:YES];
-                [NTDNote refreshStoragePreferences];
                 self.toggleDropboxLabel.text = @"ON";
-                [self reloadInputViews];
+                [NTDNote refreshStoragePreferences];
+                [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];
         [modalView show];
+        
+        [self reloadInputViews];
+    } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
+        NSString *msg = @"Disable Dropbox syncing?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                [self.delegate dismissOptions];
+                [NTDDropboxManager setDropboxEnabled:NO];
+                self.toggleDropboxLabel.text = @"OFF";
+                [NTDNote refreshStoragePreferences];
+                [NTDDropboxManager importDropboxNotes];
+
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                    [[[DBAccountManager sharedManager] linkedAccount] unlink];
+                });
+                
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
+        [self reloadInputViews];
     } else {
-        NSString *msg = @"Sync your  notes with Dropbox for ";
-        msg = [NSString stringWithFormat:@"%@%@%@", msg, [NTDDropboxManager DropboxPriceString], @"?"];
+        NSString *msg = [NSString stringWithFormat:@"%@%@?", @"Sync your  notes with Dropbox for ", [NTDDropboxManager getDropboxPrice]];
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
                 [self.delegate dismissOptions];
-                [NTDDropboxManager purchaseDropboxPressed];
+                [NTDDropboxManager purchaseDropbox];
             }
             [modalView dismiss];
         }];
