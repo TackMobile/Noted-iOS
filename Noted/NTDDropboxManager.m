@@ -379,7 +379,7 @@ static NSString *IncrementIndexOfFilename(NSString *path)
     return dropboxPrice;
 }
 
-+ (void) purchaseDropboxPressed {
+/*+ (void) purchaseDropboxPressed {
     //[NTDThemesTableViewController showWaitingModal];
     
     //initate the purchase request
@@ -431,7 +431,7 @@ static NSString *IncrementIndexOfFilename(NSString *path)
                                        onCompletion:buyProductCompleteResponceBlock];
         }
     }];
-}
+}*/
 
 - (void)purchaseDropboxSuccess {
     [NTDDropboxManager setPurchased:YES];
