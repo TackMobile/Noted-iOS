@@ -529,12 +529,21 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         [modalView show];
         [self reloadInputViews];
     } else {
+        
+        CALayer *imageLayer = [CALayer layer];
+        imageLayer.contents = (id)[UIImage imageNamed:@"sync-dropbox.png"].CGImage;
+        imageLayer.frame = (CGRect){{0, 0}, {220, 75}};
+        
         NSString *msg = [NSString stringWithFormat:@"%@%@?", @"Sync your  notes with Dropbox for ", [NTDDropboxManager getDropboxPrice]];
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Maybe Later", @"Purchase"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [self.delegate dismissOptions];
-                [NTDDropboxManager purchaseDropbox];
-            }
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                                          layer:imageLayer
+                                                                backgroundColor:nil
+                                                                        buttons:@[@"Maybe Later", @"Purchase"]
+                                                               dismissalHandler:^(NSUInteger index) {
+                                                                   if (index == 1) {
+                                                                       [self.delegate dismissOptions];
+                                                                       [NTDDropboxManager purchaseDropbox];
+                                                                   }
             [modalView dismiss];
         }];
         [modalView show];

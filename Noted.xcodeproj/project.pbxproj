@@ -23,6 +23,10 @@
 		1FD1E5701A1A75FC005763BB /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */; };
 		1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5731A1A8B11005763BB /* libc++.dylib */; };
+		1FD36E921A4885DF0072098F /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E911A4885DF0072098F /* sync-dropbox.png */; };
+		1FD36E931A4885DF0072098F /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E911A4885DF0072098F /* sync-dropbox.png */; };
+		1FD36E951A4885F10072098F /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E941A4885F10072098F /* sync-dropbox@2x.png */; };
+		1FD36E961A4885F10072098F /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E941A4885F10072098F /* sync-dropbox@2x.png */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -129,6 +133,8 @@
 		1F6F800F19E446C8004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../../../Downloads/dropbox-ios-sync-sdk-3.1.0/Dropbox.framework"; sourceTree = "<group>"; };
 		1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1FD1E5731A1A8B11005763BB /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
+		1FD36E911A4885DF0072098F /* sync-dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sync-dropbox.png"; path = "../../../../Downloads/sync-dropbox.png"; sourceTree = "<group>"; };
+		1FD36E941A4885F10072098F /* sync-dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sync-dropbox@2x.png"; path = "../../../../Downloads/sync-dropbox@2x.png"; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -297,6 +303,8 @@
 			isa = PBXGroup;
 			children = (
 				1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */,
+				1FD36E911A4885DF0072098F /* sync-dropbox.png */,
+				1FD36E941A4885F10072098F /* sync-dropbox@2x.png */,
 				C55C40A1193E782D00F1F5F0 /* check-icon.png */,
 				C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */,
 				C55C4099193E64F500F1F5F0 /* arrow-icon.png */,
@@ -324,8 +332,6 @@
 		29960C7E15740F050054347A /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				1FBBBE6019F5B45B0015D19D /* NTDPurchaseUtil.m */,
-				1FBBBE6319F5B4780015D19D /* NTDPurchaseUtil.h */,
 				3F73F7E517975BA700EEE802 /* Constants.h */,
 				B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */,
 				B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */,
@@ -686,6 +692,7 @@
 				3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */,
 				1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */,
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
+				1FD36E921A4885DF0072098F /* sync-dropbox.png in Resources */,
 				3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
 				29E326D4157556920013399B /* Icon@2x.png in Resources */,
@@ -704,6 +711,7 @@
 				C55C409C193E64F500F1F5F0 /* arrow-icon@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
 				3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */,
+				1FD36E951A4885F10072098F /* sync-dropbox@2x.png in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,
 				3F4E224E18A9973800EEC7E8 /* ShakeToUndoAnimation.mov in Resources */,
 			);
@@ -714,6 +722,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F73710918AECD600092694E /* InfoPlist.strings in Resources */,
+				1FD36E931A4885DF0072098F /* sync-dropbox.png in Resources */,
+				1FD36E961A4885F10072098F /* sync-dropbox@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -799,7 +809,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FBBBE6419F5B4B40015D19D /* NTDPurchaseUtil.h in Sources */,
 				29FC4920156EE0CD0007BBAD /* main.m in Sources */,
 				29FC4924156EE0CD0007BBAD /* AppDelegate.m in Sources */,
 				1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */,
@@ -826,7 +835,6 @@
 				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
 				3FC8309E1864FB7F001C141C /* NTDDropboxObserver.m in Sources */,
 				3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */,
-				1FBBBE6119F5B45B0015D19D /* NTDPurchaseUtil.m in Sources */,
 				3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */,
 				3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */,
 				CF3D464B17B177FD00178DF0 /* UIViewController+NTDToast.m in Sources */,
@@ -858,7 +866,6 @@
 				1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */,
 				3F27A0D618B41E9100734CDD /* NTDCoreDataStore.m in Sources */,
 				3F27A0D818B41E9100734CDD /* NTDNoteDocument.m in Sources */,
-				1FBBBE6219F5B45B0015D19D /* NTDPurchaseUtil.m in Sources */,
 				3F27A0DA18B41E9100734CDD /* NTDNoteMetadata.m in Sources */,
 				3F27A0DB18B41E9100734CDD /* NTDNoteMetadata.xcdatamodeld in Sources */,
 				3F27A0DD18B41E9100734CDD /* NTDNote.m in Sources */,
