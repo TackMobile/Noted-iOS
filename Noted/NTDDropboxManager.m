@@ -175,17 +175,6 @@ NSString *dropboxPrice = @"...";
 {
     [NSUserDefaults.standardUserDefaults setBool:enabled forKey:kDropboxEnabledKey];
     [NSUserDefaults.standardUserDefaults synchronize];
-    
-    // this is to actually stop or start syncing
-    /*if (enabled) {
-        DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-        DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-        if ([DBFilesystem sharedFilesystem] == nil) {
-            [DBFilesystem setSharedFilesystem:filesystem];
-        }
-    } else {
-        [DBFilesystem setSharedFilesystem:nil]; // this is Dropbox's official response to stop syncing
-    }*/
 }
 
 +(void)setDropoboxPurchased:(BOOL)purchased
