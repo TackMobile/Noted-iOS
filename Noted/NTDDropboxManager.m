@@ -100,12 +100,6 @@ NSString *dropboxPrice = @"...";
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
         
-        // in the event we try to link after we have already linked
-        if ([DBFilesystem sharedFilesystem]) {
-            [modalView dismiss];
-            return success;
-        }
-        
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
         [DBFilesystem setSharedFilesystem:filesystem];
         
@@ -183,7 +177,7 @@ NSString *dropboxPrice = @"...";
     [NSUserDefaults.standardUserDefaults synchronize];
     
     // this is to actually stop or start syncing
-    if (enabled) {
+    /*if (enabled) {
         DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
         if ([DBFilesystem sharedFilesystem] == nil) {
@@ -191,7 +185,7 @@ NSString *dropboxPrice = @"...";
         }
     } else {
         [DBFilesystem setSharedFilesystem:nil]; // this is Dropbox's official response to stop syncing
-    }
+    }*/
 }
 
 +(void)setDropoboxPurchased:(BOOL)purchased
