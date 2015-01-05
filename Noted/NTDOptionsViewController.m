@@ -481,12 +481,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     
     self.themesAreExpanded = YES;
     
-    // add the arrow to done button
-    self.doneButtonBackArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow-icon"]];
-    self.doneButtonBackArrow.center = CGPointMake(25, doneButton.frame.size.height/2 - 1);
-    [doneButton addSubview:self.doneButtonBackArrow];
-    
-    [self.doneButton setTitle:@"      Settings" forState:UIControlStateNormal];
     [UIView animateWithDuration:.2 animations:^{
         self.themesTableViewController.view.$x=0;
         [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
