@@ -299,7 +299,7 @@ NSString *dropboxPrice = @"...";
                 [NTDNote refreshStoragePreferences];
                 [modalView dismissWithCompletionHandler:^{
                     modalView = [[NTDModalView alloc] init];
-                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/TakeNoted” folder of your Dropbox.";
+                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/Noted” folder of your Dropbox.";
                     modalView.type = NTDWalkthroughModalTypeDismiss;
                     modalView.promptHandler = ^(BOOL userClickedYes) {
                         [controller reloadNotes];
