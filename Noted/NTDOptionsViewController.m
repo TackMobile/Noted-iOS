@@ -488,6 +488,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)dropboxTapped {
+    // Dropbox has already been purchased and is off
     if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]){
         NSString *msg = @"Enable Dropbox syncing?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
@@ -503,6 +504,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         [modalView show];
         
         [self reloadInputViews];
+    // Dropbox is currently on
     } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
         NSString *msg = @"Disable Dropbox syncing?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
@@ -522,6 +524,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         }];
         [modalView show];
         [self reloadInputViews];
+    // Dropbox hasn't been purchased
     } else {
         
         CALayer *imageLayer = [CALayer layer];

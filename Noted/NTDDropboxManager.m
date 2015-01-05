@@ -315,6 +315,9 @@ NSString *dropboxPrice = @"...";
 
 + (void) importDropboxNotes
 {
+    if (![DBFilesystem sharedFilesystem])
+        return;
+    
     NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
     [controller returnToListLayout];
     [NTDDropboxNote listNotesWithCompletionHandler:^(NSArray *notes) {
