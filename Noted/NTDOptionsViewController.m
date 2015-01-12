@@ -493,6 +493,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         NSString *msg = @"Enable Dropbox syncing?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
+                //[NTDDropboxManager initialize];
                 [self.delegate dismissOptions];
                 [NTDDropboxManager setDropboxEnabled:YES];
                 self.toggleDropboxLabel.text = @"ON";

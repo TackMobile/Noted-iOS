@@ -195,7 +195,6 @@ static DBDatastore *datastore;
     DBPath *path = [self pathForNewNote];
     [self newNoteAtPath:path completionHandler:handler];
     
-    //[NTDNoteDocument newNoteWithCompletionHandler:nil];
 }
 
 + (void)newNoteAtPath:(DBPath *)path completionHandler:(void(^)(NTDNote *note))handler
@@ -295,7 +294,6 @@ static DBDatastore *datastore;
         handler(success);
     });
     
-    //[NTDNoteDocument deleteWithCompletionHandler:handler];
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
