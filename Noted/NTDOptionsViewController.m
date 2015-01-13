@@ -493,7 +493,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         NSString *msg = @"Enable Dropbox syncing?";
         __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
             if (index == 1) {
-                //[NTDDropboxManager initialize];
                 [self.delegate dismissOptions];
                 [NTDNote refreshStoragePreferences];
                 [NTDDropboxManager linkAccountFromViewController:self];
@@ -515,9 +514,6 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 [NTDDropboxManager importDropboxNotes];
 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                    [[[DBAccountManager sharedManager] linkedAccount] unlink];
-                });
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
                     [[[DBAccountManager sharedManager] linkedAccount] unlink];
                 });
                 
