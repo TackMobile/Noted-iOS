@@ -495,15 +495,13 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
             if (index == 1) {
                 //[NTDDropboxManager initialize];
                 [self.delegate dismissOptions];
-                [NTDDropboxManager setDropboxEnabled:YES];
-                self.toggleDropboxLabel.text = @"ON";
                 [NTDNote refreshStoragePreferences];
                 [NTDDropboxManager linkAccountFromViewController:self];
             }
             [modalView dismiss];
         }];
         [modalView show];
-        
+        self.toggleDropboxLabel.text = [NTDDropboxManager isDropboxEnabled] ? @"ON" : @"OFF";
         [self reloadInputViews];
     // Dropbox is currently on
     } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
@@ -517,6 +515,9 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                 [NTDDropboxManager importDropboxNotes];
 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                    [[[DBAccountManager sharedManager] linkedAccount] unlink];
+                });
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
                     [[[DBAccountManager sharedManager] linkedAccount] unlink];
                 });
                 

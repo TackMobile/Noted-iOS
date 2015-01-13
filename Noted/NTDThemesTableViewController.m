@@ -309,7 +309,7 @@ static NSString *themesPrice = @"...";
                             // check the receipt
                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                          onCompletion:^(NSString *response, NSError *error) {
-                                                             NSDictionary *receipt = [IAPShare toJSON:response];
+                                                             //NSDictionary *receipt = [IAPShare toJSON:response];
                                                              // We never get a valid receipt status from Apple, but purchased do go through, leave it for now
                                                              //if ([receipt[@"status"] integerValue] == 0) {
                                                                  NSString *pID = transaction.payment.productIdentifier;

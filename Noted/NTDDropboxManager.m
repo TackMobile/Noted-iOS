@@ -111,6 +111,17 @@ NSString *dropboxPrice = @"...";
             }
             [modalView dismiss];
         }];
+    } else { // the user cancelled or this somehow otherwise failed
+        NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:@"Unable to link with Dropbox at this time. Please try again later."
+                                                                  layer:nil
+                                                        backgroundColor:[UIColor blackColor]
+                                                                buttons:@[@"OK"]
+                                                       dismissalHandler:^(NSUInteger index) {
+                                                           [self dismissModalIfShowing];
+                                                       }];
+        
+        [modalView show];
+        [self setDropboxEnabled:NO];
     }
     return success;
 }
@@ -218,7 +229,7 @@ NSString *dropboxPrice = @"...";
                                 // check the receipt
                                 [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                              onCompletion:^(NSString *response, NSError *error) {
-                                                                 NSDictionary *receipt = [IAPShare toJSON:response];
+                                                                 //NSDictionary *receipt = [IAPShare toJSON:response];
                                                                  // We never get a valid receipt from Apple, leave it for now
                                                                  //if ([receipt[@"status"] integerValue] == 0) {
                                                                      NSString *pID = transaction.payment.productIdentifier;
