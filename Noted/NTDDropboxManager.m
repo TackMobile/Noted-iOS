@@ -101,16 +101,23 @@ NSString *dropboxPrice = @"...";
         modalView.type = NTDWalkthroughModalTypeMessage;
         [modalView show];
         
+        DBFilesystem *oldshared = [DBFilesystem sharedFilesystem];
+        
         DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
         [DBFilesystem setSharedFilesystem:filesystem];
         
-        [filesystem addObserver:self block:^{
-            if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
-                [self importExistingFiles];
-                [[DBFilesystem sharedFilesystem] removeObserver:self];
-            }
+        if (oldshared == filesystem) {
+            [self importExistingFiles];
             [modalView dismiss];
-        }];
+        } else {
+            [filesystem addObserver:self block:^{
+                if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
+                    [self importExistingFiles];
+                    [[DBFilesystem sharedFilesystem] removeObserver:self];
+                }
+                [modalView dismiss];
+            }];
+        }
     } else { // the user cancelled or this somehow otherwise failed
         NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:@"Unable to link with Dropbox at this time. Please try again later."
                                                                   layer:nil
@@ -273,7 +280,23 @@ NSString *dropboxPrice = @"...";
 + (void)importExistingFiles
 {
     static BOOL didImportExistingFiles = NO;
-    if (didImportExistingFiles) return;
+    // This is to prevent a Dropbox related crash, which happens sometimes, sometimes not
+    if (didImportExistingFiles) {
+        NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:@"Unable to link with Dropbox at this time. Please try again later."
+                                                                  layer:nil
+                                                        backgroundColor:[UIColor blackColor]
+                                                                buttons:@[@"OK"]
+                                                       dismissalHandler:^(NSUInteger index) {
+                                                           [self dismissModalIfShowing];
+                                                       }];
+        
+        [modalView show];
+        [self setDropboxEnabled:NO];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [[[DBAccountManager sharedManager] linkedAccount] unlink];
+        });
+        return;
+    }
     
     NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
     [controller returnToListLayout];
