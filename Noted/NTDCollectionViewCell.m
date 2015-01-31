@@ -13,6 +13,7 @@
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
 #import "DAKeyboardControl.h"
+#import "Utilities.h"
 
 @interface NTDCollectionViewCell ()
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
@@ -81,6 +82,15 @@ static NSDictionary *bodyFontSizes;
                                                    name:UIContentSizeCategoryDidChangeNotification
                                                  object:nil];
     }
+    
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(updateRelativeDateLabel:)
+                                               name:UIApplicationDidBecomeActiveNotification
+                                             object:nil];
+}
+
+- (void)updateRelativeDateLabel:(NSNotification *)notification {
+    self.relativeTimeLabel.text = [Utilities formatRelativeDate:self.dateCreated];
 }
 
 - (void)applyMaskWithScrolledOffset:(CGFloat)scrolledOffset {

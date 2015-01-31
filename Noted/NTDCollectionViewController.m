@@ -229,25 +229,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                               }
                                       afterDelay:.75];
                           });
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appplicationIsActive:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(applicationEnteredForeground:)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
-}
-
-- (void)appplicationIsActive:(NSNotification *)notification {
-    [self.collectionView reloadData];
-}
-
-- (void)applicationEnteredForeground:(NSNotification *)notification {
-    NSLog(@"Application Entered Foreground");
 }
 
 -(void)dealloc
@@ -280,10 +261,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
             }
         }
     } while (didSwap);
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    
 }
 
 #pragma mark - Setup
@@ -333,8 +310,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                   forControlEvents:UIControlEventTouchUpInside];
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
-    NSLog(@"%@", note.lastModifiedDate);
     cell.relativeTimeLabel.text = [Utilities formatRelativeDate:note.lastModifiedDate];
+    cell.dateCreated = note.lastModifiedDate;
 
     if (!self.hasTwoFingerNoteDeletionBegun)
         cell.layer.mask = nil;

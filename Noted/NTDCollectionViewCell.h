@@ -16,6 +16,8 @@
 @property (weak, nonatomic) IBOutlet UIView *fadeView;
 @property (weak, nonatomic) IBOutlet UIButton *settingsButton;
 
+@property (strong, nonatomic) NSDate *dateCreated;
+
 - (void)applyTheme:(NTDTheme *)theme;
 - (void)applyShadow:(bool)useFullShadow;
 
