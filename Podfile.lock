@@ -14,7 +14,7 @@ PODS:
   - BlocksKit/UIKit (2.2.3):
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
-  - Dropbox-Sync-API-SDK (2.1.0)
+  - Dropbox-Sync-API-SDK (3.1.2)
   - FlurrySDK (4.3.2):
     - FlurrySDK/FlurrySDK (= 4.3.2)
   - FlurrySDK/FlurrySDK (4.3.2)
@@ -28,7 +28,7 @@ PODS:
 
 DEPENDENCIES:
   - BlocksKit (= 2.2.3)
-  - Dropbox-Sync-API-SDK (~> 2.1.0)
+  - Dropbox-Sync-API-SDK
   - FlurrySDK (~> 4.3)
   - IAPHelper (= 1.0.7)
   - Kiwi/XCTest
@@ -36,7 +36,7 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   BlocksKit: 3ae2bd80239d338053cf1603bf0a7d57dd589ab3
-  Dropbox-Sync-API-SDK: cd6b0b37f8cbb223eb104a5df20171253de60df7
+  Dropbox-Sync-API-SDK: 92652bd663984740f963ba228864542711eda148
   FlurrySDK: 9f09e57ee8f01296bd547950433384da192ea680
   IAPHelper: 60a2d5b6ef2d121ce041cf942cd6fc87dc3ab3a3
   Kiwi: 68d88fcfd9f900a2cd720823e0b47c3668b4ac07

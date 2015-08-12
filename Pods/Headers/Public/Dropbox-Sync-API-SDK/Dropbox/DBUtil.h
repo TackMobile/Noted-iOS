@@ -1,1 +1,1 @@
-../../../../Dropbox-Sync-API-SDK/dropbox-ios-sync-sdk-2.1.0/Dropbox.framework/Headers/DBUtil.h
+../../../../Dropbox-Sync-API-SDK/dropbox-ios-sync-sdk-3.1.2/Dropbox.framework/Headers/DBUtil.h
