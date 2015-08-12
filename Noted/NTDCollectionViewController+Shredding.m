@@ -47,7 +47,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
     
     UIImage *noteImage = [self imageForView:self.currentDeletionCell];
     
-    for (int i=0; i<self.deletedNoteVertSliceCount; i++) {
+    for (int i = 0; i < self.deletedNoteVertSliceCount; i++) {
         // add a column
         ColumnForShredding *currentColumn = [[ColumnForShredding alloc] init];
         currentColumn.percentLeft = (sliceSize.width*i)/self.collectionView.frame.size.width;
@@ -293,8 +293,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 
 - (void)restoreShreddedNote:(NTDDeletedNotePlaceholder *)restoredNote
 {
-    for (id column in restoredNote.savedColumnsForDeletion)
-        for (UIImageView *slice in [column valueForKey:@"slices"] /*hax*/)
+    for (ColumnForShredding *col in restoredNote.savedColumnsForDeletion)
+        for (UIImageView *slice in col.slices)
             [self.collectionView addSubview:slice];
 
     zTranslation = CGFLOAT_MAX;
@@ -305,6 +305,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         [self.collectionView reloadData];
         ShredAnimationDuration = DefaultShredAnimationDuration;
     }];
+    
 }
 
 #pragma mark - utilities

@@ -47,6 +47,7 @@ static const NSTimeInterval NTDDefaultInitialModalDelay = 0.75;
 -(instancetype)initWithMessage:(NSString *)message layer:(CALayer *)layer backgroundColor:(UIColor *)backgroundColor buttons:(NSArray *)buttonTitles dismissalHandler:(NTDModalDismissalHandler)handler;
 
 -(void)show;
+-(void)showWithEdgeInsets:(UIEdgeInsets)insets;
 -(void)dismiss;
 -(void)dismissWithCompletionHandler:(void(^)())handler;
 + (BOOL)isShowing;

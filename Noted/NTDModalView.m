@@ -47,7 +47,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     if (self = [super init]) {
         self.message = message;
         self.position = NTDWalkthroughModalPositionCenter;
-        self.type = NTDWalkthroughModalTypeMultipleButtons;
+        self.type = buttonTitles.count > 0 ? NTDWalkthroughModalTypeMultipleButtons : NTDWalkthroughModalTypeMessage;
         if (!handler) handler = ^(NSUInteger i) {};
         self.dismissalHandler = handler;
         self.buttonTitles = buttonTitles;
@@ -307,8 +307,27 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 static BOOL isShowing;
 -(void)show
 {
+    [self showWithEdgeInsets:UIEdgeInsetsZero];
+}
+
+- (void) showWithEdgeInsets:(UIEdgeInsets)insets {
     UIView *view = [[[[UIApplication sharedApplication] keyWindow] rootViewController] view];
-    UIView *touchBlockingView = [[UIView alloc] initWithFrame:view.frame];
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    
+    CGRect touchBlockingFrame = {
+        .origin.x = screenRect.origin.x + insets.left,
+        .origin.y = screenRect.origin.y + insets.top,
+        .size.width = screenRect.size.width - insets.left - insets.right,
+        .size.height = screenRect.size.height - insets.top - insets.bottom
+    };
+    
+    CGRect modalFrame = self.frame;
+    modalFrame.origin.x = (touchBlockingFrame.size.width - modalFrame.size.width)/2;
+    modalFrame.origin.y = (touchBlockingFrame.size.height - modalFrame.size.height)/2;
+    
+    self.frame = modalFrame;
+    
+    UIView *touchBlockingView = [[UIView alloc] initWithFrame:touchBlockingFrame];
     [touchBlockingView addSubview:self];
     [view addSubview:touchBlockingView];
     isShowing = YES;

@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="NTDOptionsViewController">
             <connections>
                 <outlet property="aboutOptionsView" destination="548" id="672"/>
+                <outlet property="chooseThemeView" destination="dEp-pt-iw7" id="lyc-4e-yMG"/>
                 <outlet property="colors" destination="4" id="1091"/>
                 <outlet property="doneButton" destination="668" id="674"/>
                 <outlet property="options" destination="153" id="1090"/>
+                <outlet property="restorePurchasesView" destination="oO8-M3-DWQ" id="Pxj-8E-5ws"/>
+                <outlet property="selectedThemePreview" destination="W1K-Gs-pyB" id="all-ey-ufU"/>
                 <outlet property="settingsOptionsView" destination="442" id="678"/>
                 <outlet property="shareOptionsView" destination="357" id="683"/>
-                <outlet property="toggleDropboxLabel" destination="Cqb-jb-7rK" id="lPO-oS-ME1"/>
+                <outlet property="themesTableViewController" destination="Lif-Ay-63o" id="19W-on-6gi"/>
+                <outlet property="toggleDropboxLabel" destination="h1v-hu-9fT" id="wyL-cB-9Ck"/>
+                <outlet property="toggleDropboxView" destination="xqf-t7-5YH" id="9kK-dc-7eT"/>
                 <outlet property="toggleStatusBarButton" destination="485" id="699"/>
                 <outlet property="view" destination="1" id="3"/>
             </connections>
@@ -23,10 +28,10 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <color key="backgroundColor" white="0.15975707119999999" alpha="1" colorSpace="calibratedWhite"/>
-            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+            <nil key="simulatedStatusBarMetrics"/>
         </view>
         <view contentMode="scaleToFill" id="357" userLabel="Share Options View">
-            <rect key="frame" x="0.0" y="0.0" width="140" height="217"/>
+            <rect key="frame" x="0.0" y="0.0" width="140" height="271"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" id="361" userLabel="option">
@@ -57,11 +62,11 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
-                <view tag="2" contentMode="scaleToFill" id="359" userLabel="option">
+                <view tag="2" contentMode="scaleToFill" id="gPc-Js-esq" userLabel="option">
                     <rect key="frame" x="0.0" y="109" width="221" height="53"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Tweet" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="390">
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Copy" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="vF5-9B-kdk">
                             <rect key="frame" x="14" y="24" width="149" height="22"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
@@ -71,8 +76,22 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
-                <view tag="3" contentMode="scaleToFill" id="358" userLabel="version">
+                <view tag="3" contentMode="scaleToFill" id="359" userLabel="option">
                     <rect key="frame" x="0.0" y="163" width="221" height="53"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Twitter" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="390">
+                            <rect key="frame" x="14" y="24" width="149" height="22"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <view tag="4" contentMode="scaleToFill" id="358" userLabel="version">
+                    <rect key="frame" x="0.0" y="217" width="221" height="53"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Facebook" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="396">
@@ -87,15 +106,16 @@
                 </view>
             </subviews>
             <color key="backgroundColor" white="0.15975707119999999" alpha="1" colorSpace="calibratedWhite"/>
+            <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
         <view contentMode="scaleToFill" id="442" userLabel="Settings Options View">
-            <rect key="frame" x="0.0" y="0.0" width="195" height="109"/>
+            <rect key="frame" x="0.0" y="0.0" width="195" height="216"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" id="462" userLabel="option">
-                    <rect key="frame" x="0.0" y="1" width="221" height="107"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <view contentMode="scaleToFill" id="462" userLabel="status bar option">
+                    <rect key="frame" x="0.0" y="1" width="221" height="53"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Status Bar" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="480">
                             <rect key="frame" x="14" y="24" width="149" height="22"/>
@@ -105,7 +125,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="485">
-                            <rect key="frame" x="138" y="23" width="52" height="24"/>
+                            <rect key="frame" x="148" y="17" width="40" height="36"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="15"/>
                             <state key="normal" title="OFF">
@@ -119,12 +139,52 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
-                <view contentMode="scaleToFill" id="dEp-pt-iw7" userLabel="option">
-                    <rect key="frame" x="0.0" y="56" width="221" height="107"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <view contentMode="scaleToFill" id="dEp-pt-iw7" userLabel="theme option">
+                    <rect key="frame" x="0.0" y="55" width="221" height="53"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Enable Dropbox" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Cqb-jb-7rK">
-                            <rect key="frame" x="14" y="24" width="149" height="22"/>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Theme" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Cqb-jb-7rK">
+                            <rect key="frame" x="14" y="24" width="168" height="22"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <view contentMode="scaleToFill" id="W1K-Gs-pyB" customClass="NTDThemePreview">
+                            <rect key="frame" x="148" y="7" width="40" height="40"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <view contentMode="scaleToFill" id="xqf-t7-5YH" userLabel="Dropbox option">
+                    <rect key="frame" x="0.0" y="109" width="221" height="53"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Dropbox Sync" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="qwZ-p7-bbU" userLabel="Label - Enable Dropbox">
+                            <rect key="frame" x="14" y="24" width="167" height="22"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OFF" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="h1v-hu-9fT">
+                            <rect key="frame" x="156" y="24" width="34" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="15"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <view contentMode="scaleToFill" id="oO8-M3-DWQ" userLabel="restore purchases option">
+                    <rect key="frame" x="0.0" y="163" width="221" height="53"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Restore Purchases" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Rvx-8j-GTP">
+                            <rect key="frame" x="14" y="24" width="167" height="22"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -135,10 +195,12 @@
                 </view>
             </subviews>
             <color key="backgroundColor" white="0.15975707119999999" alpha="1" colorSpace="calibratedWhite"/>
+            <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="548.5" y="432"/>
         </view>
         <view contentMode="scaleToFill" id="548" userLabel="About Options View">
-            <rect key="frame" x="0.0" y="0.0" width="213" height="296"/>
+            <rect key="frame" x="0.0" y="0.0" width="213" height="350"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view contentMode="scaleAspectFill" id="568" userLabel="option">
@@ -201,7 +263,21 @@
                     <rect key="frame" x="0.0" y="242" width="228" height="53"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Replay Walkthrough" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1095">
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Noted Support" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1095">
+                            <rect key="frame" x="14" y="24" width="149" height="22"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <view tag="5" contentMode="scaleAspectFill" id="iNx-aL-HZa" userLabel="option">
+                    <rect key="frame" x="0.0" y="296" width="228" height="53"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Replay Walkthrough" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="0Pu-SQ-OJA">
                             <rect key="frame" x="14" y="24" width="149" height="22"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="16"/>
@@ -213,12 +289,14 @@
                 </view>
             </subviews>
             <color key="backgroundColor" white="0.15975707119999999" alpha="1" colorSpace="calibratedWhite"/>
+            <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
-        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="668">
-            <rect key="frame" x="0.0" y="0.0" width="68" height="45"/>
+        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="clip" id="668">
+            <rect key="frame" x="0.0" y="0.0" width="260" height="45"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="17"/>
+            <inset key="contentEdgeInsets" minX="15" minY="0.0" maxX="0.0" maxY="0.0"/>
             <state key="normal" title="Done">
                 <color key="titleColor" red="0.99215692280000001" green="0.99607849120000003" blue="0.99215692280000001" alpha="1" colorSpace="deviceRGB"/>
                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -289,6 +367,7 @@
                 </view>
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+            <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
         <view clipsSubviews="YES" contentMode="scaleAspectFill" verticalCompressionResistancePriority="741" id="4" userLabel="Colors View" customClass="NTDColorPicker">
@@ -326,6 +405,29 @@
                     <color key="backgroundColor" red="0.011764707040000001" green="0.0078431377190000002" blue="0.98823535439999999" alpha="1" colorSpace="deviceRGB"/>
                 </view>
             </subviews>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
+        <tableViewController id="Lif-Ay-63o" customClass="NTDThemesTableViewController">
+            <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" rowHeight="53" sectionHeaderHeight="22" sectionFooterHeight="22" id="Xxm-c4-izZ">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="400"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                <color key="separatorColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                <color key="sectionIndexBackgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                <color key="sectionIndexTrackingBackgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                <connections>
+                    <outlet property="dataSource" destination="Lif-Ay-63o" id="imu-G8-LhN"/>
+                    <outlet property="delegate" destination="Lif-Ay-63o" id="6Y8-aM-wWo"/>
+                </connections>
+            </tableView>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <size key="freeformSize" width="320" height="400"/>
+        </tableViewController>
     </objects>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
 </document>

@@ -1,6 +1,6 @@
 #include "Pods-NotedTests-Kiwi.xcconfig"
 FRAMEWORK_SEARCH_PATHS = ${PODS_NOTEDTESTS_KIWI_FRAMEWORK_SEARCH_PATHS}
 GCC_PREPROCESSOR_DEFINITIONS = COCOAPODS=1
-HEADER_SEARCH_PATHS = "${PODS_ROOT}/BuildHeaders" "${PODS_ROOT}/BuildHeaders/Kiwi" "${PODS_ROOT}/Headers" "${PODS_ROOT}/Headers/BlocksKit" "${PODS_ROOT}/Headers/Dropbox-Sync-API-SDK" "${PODS_ROOT}/Headers/FlurrySDK" "${PODS_ROOT}/Headers/Kiwi" "${PODS_ROOT}/Headers/UIView+FrameAdditions"
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/BuildHeaders" "${PODS_ROOT}/BuildHeaders/Kiwi" "${PODS_ROOT}/Headers" "${PODS_ROOT}/Headers/BlocksKit" "${PODS_ROOT}/Headers/Dropbox-Sync-API-SDK" "${PODS_ROOT}/Headers/FlurrySDK" "${PODS_ROOT}/Headers/IAPHelper" "${PODS_ROOT}/Headers/Kiwi" "${PODS_ROOT}/Headers/UIView+FrameAdditions"
 OTHER_LDFLAGS = -ObjC ${PODS_NOTEDTESTS_KIWI_OTHER_LDFLAGS}
 PODS_ROOT = ${SRCROOT}

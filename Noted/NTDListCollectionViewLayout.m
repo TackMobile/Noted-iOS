@@ -361,7 +361,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     
     if (self.pinchStartedInListLayout) pinchGap = 0;
 
-//    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     
     if (_originalPinchRatio < 0) {
         NSInteger itemOffset = self.pinchedCardIndexPath.item - indexPath.item;
@@ -369,7 +368,12 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         offset *= ABS(itemOffset);
         pinchGap += offset;
         pinchOffset -= offset;
+        // dampen the pinch
+        pinchGap *= .4;
+        pinchOffset *= .4;
     }
+    
+//    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
     
     if (indexPath.item > self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);

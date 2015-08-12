@@ -14,13 +14,14 @@
 #import "NTDNote+ImplUtils.h"
 #import "NTDTheme.h"
 #import "NTDDeletedNotePlaceholder.h"
+#import "NTDNoteDocument.h"
 
 static dispatch_queue_t background_dispatch_queue, main_dispatch_queue;
 static NSUInteger filenameCounter = 1;
 static DBDatastore *datastore;
 
 @interface NTDDropboxNote ()
-@property (nonatomic, strong) NSString *bodyText;
+
 @property (nonatomic, strong) dispatch_queue_t serial_queue;
 @end
 
@@ -28,6 +29,9 @@ static DBDatastore *datastore;
 
 +(void)initialize
 {
+    if ( self != [NTDDropboxNote class] ) {
+        return;
+    }
     background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     main_dispatch_queue = dispatch_get_main_queue();
 }
@@ -38,6 +42,7 @@ static DBDatastore *datastore;
     note.fileinfo = fileinfo;
     return note;
 }
+
 
 -(id)init
 {
@@ -100,7 +105,7 @@ static DBDatastore *datastore;
     DBPath *path;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", filenameCounter];
+        NSString *basename = [NSString stringWithFormat:@"Note %ld", (long)filenameCounter];
         NSString *filename = [basename stringByAppendingPathExtension:NTDNoteFileExtension];
         path = [[self rootPath] childPath:filename];
         fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
@@ -117,7 +122,7 @@ static DBDatastore *datastore;
     DBPath *path;
     do
     {
-        NSString *basename = [NSString stringWithFormat:@"Note %d", index];
+        NSString *basename = [NSString stringWithFormat:@"Note %ld", (long)index];
         NSString *filename = [basename stringByAppendingPathExtension:NTDNoteFileExtension];
         path = [[self rootPath] childPath:filename];
         fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
@@ -189,6 +194,7 @@ static DBDatastore *datastore;
 {
     DBPath *path = [self pathForNewNote];
     [self newNoteAtPath:path completionHandler:handler];
+    
 }
 
 + (void)newNoteAtPath:(DBPath *)path completionHandler:(void(^)(NTDNote *note))handler
@@ -218,10 +224,18 @@ static DBDatastore *datastore;
         dropboxNote.headline = deletedNote.headline;
         handler(note);
     }];
+    
+    [NTDNoteDocument restoreNote:deletedNote completionHandler:handler];
 }
 
-//+ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
-//+ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
++ (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
++ (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
 
 - (void)openWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
@@ -279,6 +293,7 @@ static DBDatastore *datastore;
         }
         handler(success);
     });
+    
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
@@ -289,6 +304,8 @@ static DBDatastore *datastore;
     if (text) { self.bodyText = text; NSLog(@"Updating %p with %@", self, text); }
     if (error) [NTDNote logError:error withMessage:@"Couldn't update file or read text after updating."];
     handler(didUpdate);
+    
+    [NTDNoteDocument updateWithCompletionHandler:handler];
 }
 
 - (NSURL *)fileURL
@@ -387,7 +404,7 @@ static const NSString *kFilenameKey = @"filename";
         if (results.count > 1) {
             NSLog(@"Multiple records found for %@", self.filename);
             [results enumerateObjectsUsingBlock:^(DBRecord *obj, NSUInteger idx, BOOL *stop) {
-                NSLog(@"Record #%d: %@", idx, [obj fields]);
+                NSLog(@"Record #%lu: %@", (unsigned long)idx, [obj fields]);
             }];
         }
     } else {
@@ -430,18 +447,18 @@ static const NSString *kFilenameKey = @"filename";
         [datastore sync:nil];
     };
     
-    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+    if ((datastore.status.downloading | datastore.status.incoming) == 0) {
         purgeBlock();
         completionBlock();
     } else {
         __block NSObject *observer = [NSObject new];
         __weak DBDatastore *weakDatastore = datastore;
         [datastore addObserver:observer block:^{
-            if (weakDatastore.status & DBDatastoreIncoming) {
+            if (weakDatastore.status.incoming) {
                 [weakDatastore sync:nil];
                 return;
             }
-            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+            if ((weakDatastore.status.downloading | weakDatastore.status.incoming) == 0) {
                 purgeBlock();
                 [weakDatastore removeObserver:observer];
                 observer = nil;
@@ -464,17 +481,17 @@ static const NSString *kFilenameKey = @"filename";
     }
     
     
-    if ((datastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+    if ((datastore.status.downloading | datastore.status.incoming) == 0) {
         completionBlock();
     } else {
         __block NSObject *observer = [NSObject new];
         __weak DBDatastore *weakDatastore = datastore;
         [datastore addObserver:observer block:^{
-            if (weakDatastore.status & DBDatastoreIncoming) {
+            if (weakDatastore.status.incoming) {
                 [weakDatastore sync:nil];
                 return;
             }
-            if ((weakDatastore.status & (DBDatastoreDownloading | DBDatastoreIncoming)) == 0) {
+            if ((weakDatastore.status.downloading | weakDatastore.status.incoming) == 0) {
                 [weakDatastore removeObserver:observer];
                 observer = nil;
                 completionBlock();

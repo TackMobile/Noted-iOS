@@ -12,15 +12,19 @@
 #import <UIView+FrameAdditions/UIView+FrameAdditions.h>
 #import <FlurrySDK/Flurry.h>
 #import <BlocksKit/BlocksKit+UIKit.h>
+#import <IAPHelper/IAPShare.h>
+#import <Dropbox/Dropbox.h>
 #import "NTDOptionsViewController.h"
+#import "NTDThemesTableViewController.h"
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
 #import "NTDModalView.h"
 #import "NTDDropboxManager.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
+bool isLoggingOut = NO;
 
-@interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface NTDOptionsViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate, NTDThemesTableViewControllerDelegate>
 
 // colors
 @property (weak, nonatomic) IBOutlet NTDColorPicker *colors;
@@ -33,7 +37,15 @@ NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 @property (weak, nonatomic) IBOutlet UIView *shareOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *settingsOptionsView;
 @property (weak, nonatomic) IBOutlet UIView *aboutOptionsView;
+
+@property (weak, nonatomic) IBOutlet UIView *toggleDropboxView;
 @property (weak, nonatomic) IBOutlet UILabel *toggleDropboxLabel;
+@property (weak, nonatomic) IBOutlet UIView *chooseThemeView;
+@property (weak, nonatomic) IBOutlet NTDThemePreview *selectedThemePreview;
+@property (weak, nonatomic) IBOutlet UIView *restorePurchasesView;
+
+@property (strong, nonatomic) IBOutlet NTDThemesTableViewController *themesTableViewController;
+@property (strong, nonatomic) UIImageView *doneButtonBackArrow;
 
 @end
 
@@ -87,6 +99,7 @@ typedef NS_ENUM(NSInteger, NTDAboutOptionsTags) {
 @property (nonatomic) CGFloat initialSidebarWidth;
 
 @property (nonatomic) BOOL optionIsExpanded;
+@property (nonatomic) BOOL themesAreExpanded;
 
 @property (nonatomic, strong) MFMailComposeViewController *mailViewController;
 @property (nonatomic, strong) MFMessageComposeViewController *messageViewController;
@@ -175,6 +188,14 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         color.backgroundColor = [[NTDTheme themeForColorScheme:color.tag] backgroundColor];
     }
     
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:NTDDidChangeThemeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        for (UIView *color in self.colors.subviews) {
+            color.backgroundColor = [[NTDTheme themeForColorScheme:color.tag] backgroundColor];
+        }
+        [self.delegate didChangeNoteTheme];
+    }];
+    
     // options
     for (UIView *choice in self.aboutOptionsView.subviews) {
         
@@ -213,24 +234,51 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
-    self.toggleDropboxLabel.userInteractionEnabled = YES;
-    [self.toggleDropboxLabel bk_whenTapped:^{
-        NSString *msg = @"Would you like to enable Dropbox?";
-        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"No", @"Yes"] dismissalHandler:^(NSUInteger index) {
-            if (index == 1) {
-                [self.delegate dismissOptions];
-                [NTDDropboxManager linkAccountFromViewController:self];
+    self.toggleDropboxLabel.text = @"OFF";
+    if ([NTDDropboxManager isDropboxEnabled])
+        self.toggleDropboxLabel.text = @"ON";
+    self.toggleDropboxView.userInteractionEnabled = YES;
+    [self.toggleDropboxView bk_whenTapped:^{
+        [self dropboxTapped];
+    }];
+    
+    // Themes
+    self.chooseThemeView.userInteractionEnabled = YES;
+    [self.chooseThemeView bk_whenTapped:^{
+        [self themesTapped];
+    }];
+    self.themesTableViewController.delegate = self;
+    
+    // Purchases
+
+    self.restorePurchasesView.userInteractionEnabled = YES;
+    [self.restorePurchasesView bk_whenTapped:^{
+        [[IAPShare sharedHelper].iap restoreProductsWithCompletion:^(SKPaymentQueue *payment, NSError *error) {
+            NSString *msg = @"You have not made any Noted purchases.";
+            
+            if ([[IAPShare sharedHelper].iap purchasedProducts].count > 0) {
+                BOOL restoredAnything = NO;
+                for (NSString *productID in [[IAPShare sharedHelper].iap purchasedProducts]) {
+                    msg = @"You have no unactivated Noted purchases.";
+                    if([productID isEqualToString:NTDNoteThemesProductID] && ![NTDTheme didPurchaseThemes]) {
+                        [NTDTheme setPurchasedThemes:YES];
+                        restoredAnything = YES;
+                    } else if ([productID isEqualToString:NTDDropboxProductID]) {
+                        restoredAnything = YES;
+                        [NTDDropboxManager setPurchased:YES];
+                        nil;
+                    }
+                }
+                if (restoredAnything)
+                    msg = @"Your Noted purchases have been restored.";
             }
-            [modalView dismiss];
+            
+            __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Okay"] dismissalHandler:nil];
+            [modalView show];
         }];
-        [modalView show];
+        
     }];
     [self reset];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
 }
 
 - (void)createShareOptions
@@ -238,19 +286,24 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     for (UIView *subview in self.shareOptionsView.subviews)
         [subview removeFromSuperview];
     
-    NSMutableArray *optionsTitles = [@[@"Email", @"Message", @"Copy", @"Twitter", @"Facebook", @"Sina Weibo"]
-                                     mutableCopy];
-    if (![MFMailComposeViewController canSendMail])
-        [optionsTitles removeObject:@"Email"];
-    if (![MFMessageComposeViewController canSendText])
-        [optionsTitles removeObject:@"Message"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook])
-        [optionsTitles removeObject:@"Facebook"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-        [optionsTitles removeObject:@"Twitter"];
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo])
-        [optionsTitles removeObject:@"Sina Weibo"];
-    
+    NSMutableArray *optionsTitles = [NSMutableArray new];
+    if ( [MFMailComposeViewController canSendMail] ) {
+        [optionsTitles addObject:@"Email"];
+    }
+    if ( [MFMessageComposeViewController canSendText] ) {
+        [optionsTitles addObject:@"Message"];
+    }
+    [optionsTitles addObject:@"Copy"];
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ) {
+        [optionsTitles addObject:@"Twitter"];
+    }
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ) {
+        [optionsTitles addObject:@"Facebook"];
+    }
+    if ( [SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo] ) {
+        [optionsTitles addObject:@"Sina Weibo"];
+    }
+
     CGRect InitialOptionFrame = CGRectMake(0, 1, 221, 53);
     CGRect InitialShareLabelFrame = CGRectMake(14, 24, 149, 22);
     UIFont *labelFont = [UIFont fontWithName:@"Avenir-Light" size:16];
@@ -271,6 +324,12 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         shareOptionsHeight = CGRectGetMaxY(optionFrame);
     }
     self.shareOptionsView.$height = shareOptionsHeight+1;
+}
+#pragma mark - NTDThemeTableViewDelegate
+
+- (void)dismissThemesTableView {
+    [self doneTapped:nil];
+
 }
 
 #pragma mark -  Gesture Recognition
@@ -304,13 +363,27 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 - (void) doneTapped:(UIButton *)sender
 {
-    if (self.optionIsExpanded) {
+    if (self.themesAreExpanded) {
+        [self.selectedThemePreview setThemeName:[NTDTheme activeThemeIndex]];
+        [self.themesTableViewController dismissModalIfShowing];
+        [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
+        
+        [UIView animateWithDuration:ExpandMenuAnimationDuration
+                         animations:^{
+                             self.themesTableViewController.view.$x = self.view.frame.size.width;
+                             [self expandOptionWithTag:NTDOptionsSettingsTag];
+                         } completion:^(BOOL finished) {
+                             self.optionIsExpanded = YES;
+                             self.themesAreExpanded = NO;
+                             [self.themesTableViewController.view removeFromSuperview];
+                         }];
+        [self.doneButtonBackArrow removeFromSuperview];
+    } else if (self.optionIsExpanded) {
         [self.delegate changeOptionsViewWidth:[self.delegate initialOptionsViewWidth]];
         
         [UIView animateWithDuration:ExpandMenuAnimationDuration
                          animations:^{
                              [self reset];
-                             
                          }];
     }
 }
@@ -320,7 +393,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     BOOL show = ![[UIApplication sharedApplication] isStatusBarHidden];
     [self.toggleStatusBarButton setTitle:show?@"OFF":@"ON" forState:UIControlStateNormal];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:show withAnimation:YES];
+    [[UIApplication sharedApplication] setStatusBarHidden:show withAnimation:UIStatusBarAnimationFade];
     
     [[NSUserDefaults standardUserDefaults] setBool:show forKey:HIDE_STATUS_BAR];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -402,6 +475,76 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
 }
 
+- (void)themesTapped {
+    if (self.themesTableViewController.view.superview == nil)
+        [self.view addSubview:self.themesTableViewController.view];
+    
+    self.themesAreExpanded = YES;
+    
+    [UIView animateWithDuration:.2 animations:^{
+        self.themesTableViewController.view.$x=0;
+        [self.delegate changeOptionsViewWidth:self.delegate.view.frame.size.width*.9];
+    }];
+}
+
+- (void)dropboxTapped {
+    // Dropbox has already been purchased and is off
+    if (![NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]){
+        NSString *msg = @"Enable Dropbox syncing?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                [self.delegate dismissOptions];
+                [NTDNote refreshStoragePreferences];
+                [NTDDropboxManager linkAccountFromViewController:self];
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
+        self.toggleDropboxLabel.text = [NTDDropboxManager isDropboxEnabled] ? @"ON" : @"OFF";
+        [self reloadInputViews];
+    // Dropbox is currently on
+    } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
+        NSString *msg = @"Disable Dropbox syncing?";
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
+            if (index == 1) {
+                [self.delegate dismissOptions];
+                [NTDDropboxManager setDropboxEnabled:NO];
+                self.toggleDropboxLabel.text = @"OFF";
+                [NTDNote refreshStoragePreferences];
+                [NTDDropboxManager importDropboxNotes];
+
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                    [[[DBAccountManager sharedManager] linkedAccount] unlink];
+                });
+                
+            }
+            [modalView dismiss];
+        }];
+        [modalView show];
+        [self reloadInputViews];
+    // Dropbox hasn't been purchased
+    } else {
+        
+        CALayer *imageLayer = [CALayer layer];
+        imageLayer.contents = (id)[UIImage imageNamed:@"sync-dropbox.png"].CGImage;
+        imageLayer.frame = (CGRect){{0, 0}, {220, 75}};
+        
+        NSString *msg = [NSString stringWithFormat:@"%@%@?", @"Sync your  notes with Dropbox for ", [NTDDropboxManager getDropboxPrice]];
+        __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                                          layer:imageLayer
+                                                                backgroundColor:nil
+                                                                        buttons:@[@"Maybe Later", @"Purchase"]
+                                                               dismissalHandler:^(NSUInteger index) {
+                                                                   if (index == 1) {
+                                                                       [self.delegate dismissOptions];
+                                                                       [NTDDropboxManager purchaseDropbox];
+                                                                   }
+            [modalView dismiss];
+        }];
+        [modalView show];
+    }
+}
+
 #pragma mark - Sharing Actions
 - (NSString *)sharingText
 {
@@ -452,7 +595,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.mailViewController = nil;
     }];
-    if (result == MFMailComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"mail"}];
+    if ( result == MFMailComposeResultSent ) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"mail"}];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
@@ -460,7 +603,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self.delegate dismissViewControllerAnimated:YES completion:^{
         self.messageViewController = nil;
     }];
-    if (result == MessageComposeResultSent) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"sms"}];
+    if ( result == MessageComposeResultSent ) [Flurry logEvent:@"Note Shared" withParameters:@{@"type" : @"sms"}];
 }
 
 - (void)createSocialPostForServiceType:(NSString *)serviceType
@@ -550,10 +693,25 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         .origin.y = mySize.height,
         .size = self.doneButton.frame.size
     };
+    CGRect themesFrame = {
+        .origin.x = mySize.width,
+        .origin.y = CompressedColorHeight,
+        .size.width = mySize.width * .9,
+        .size.height = mySize.height - doneFrame.size.height - CompressedColorHeight
+    };
     
     self.colors.frame = colorsFrame;
     self.options.frame = optionsFrame;
     self.doneButton.frame = doneFrame;
+    self.themesTableViewController.view.frame = themesFrame;
+    [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [self.doneButtonBackArrow removeFromSuperview];
+    self.themesAreExpanded = NO;
+    
+    [self.themesTableViewController dismissModalIfShowing];
+    [self.themesTableViewController.view removeFromSuperview];
+    
+    [self.selectedThemePreview setThemeName:[NTDTheme activeThemeIndex]];
     
     [self.options.subviews enumerateObjectsUsingBlock:^(UIView *optionView, NSUInteger idx, BOOL *stop) {
         // make sure title labels are at full alpha

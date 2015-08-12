@@ -1,21 +1,24 @@
 PODS:
-  - BlocksKit (2.1.0):
+  - BlocksKit (2.2.3):
     - BlocksKit/All
-  - BlocksKit/All (2.1.0):
+  - BlocksKit/All (2.2.3):
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
     - BlocksKit/MessageUI
     - BlocksKit/UIKit
-  - BlocksKit/Core (2.1.0)
-  - BlocksKit/DynamicDelegate (2.1.0):
-    - BlocksKit/MiniFFI
-  - BlocksKit/MessageUI (2.1.0):
+  - BlocksKit/Core (2.2.3)
+  - BlocksKit/DynamicDelegate (2.2.3)
+  - BlocksKit/MessageUI (2.2.3):
+    - BlocksKit/Core
     - BlocksKit/DynamicDelegate
-  - BlocksKit/MiniFFI (2.1.0)
-  - BlocksKit/UIKit (2.1.0):
+  - BlocksKit/UIKit (2.2.3):
+    - BlocksKit/Core
     - BlocksKit/DynamicDelegate
   - Dropbox-Sync-API-SDK (2.1.0)
-  - FlurrySDK (4.3.2)
+  - FlurrySDK (4.3.2):
+    - FlurrySDK/FlurrySDK
+  - FlurrySDK/FlurrySDK (4.3.2)
+  - IAPHelper (1.0.7)
   - Kiwi/ARC (2.2.3)
   - Kiwi/NonARC (2.2.3)
   - Kiwi/XCTest (2.2.3):
@@ -24,22 +27,19 @@ PODS:
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
-  - BlocksKit (from `https://github.com/pandamonia/BlocksKit.git`, branch `next`)
+  - BlocksKit (= 2.2.3)
   - Dropbox-Sync-API-SDK (~> 2.1.0)
   - FlurrySDK (~> 4.3)
+  - IAPHelper (= 1.0.7)
   - Kiwi/XCTest
   - UIView+FrameAdditions (= 0.0.1)
 
-EXTERNAL SOURCES:
-  BlocksKit:
-    :branch: next
-    :git: https://github.com/pandamonia/BlocksKit.git
-
 SPEC CHECKSUMS:
-  BlocksKit: 20086a023551c742d2278771e47c36e05f17b662
-  Dropbox-Sync-API-SDK: 7f72642aa8ebb238397a7dcd45e619e78999e20d
-  FlurrySDK: 508afbd655fe2ff935d3e9543cb1c8aa432794de
-  Kiwi: 04c51e880831d291748ec702d42c4101f7eb95c9
-  UIView+FrameAdditions: 29a4d424803f1c674671792c874f7951d6a64f97
+  BlocksKit: 07c8a80f04275efac6a5f8b973782489c083a182
+  Dropbox-Sync-API-SDK: c8dd429159f397993a56f2eb1861e2895a9a983f
+  FlurrySDK: e66cbd5487c7da2c85c6d605fde59f36db4b87e1
+  IAPHelper: cc05be5303b034a6a92dbe58f1be94efeacf619d
+  Kiwi: 7b9bc7294de746357213067a1df49cc0a59384e8
+  UIView+FrameAdditions: 471d2d07068e2e4c9f08450eff5325fe4c066007
 
-COCOAPODS: 0.29.0
+COCOAPODS: 0.33.1

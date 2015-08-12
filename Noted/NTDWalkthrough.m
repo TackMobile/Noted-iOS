@@ -10,6 +10,7 @@
 #import <FlurrySDK/Flurry.h>
 #import "NTDWalkthrough.h"
 #import "NTDWalkthroughViewController.h"
+#import "NTDModalView.h"
 
 NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
 NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
@@ -18,6 +19,8 @@ NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalk
 NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";
 
 static NSString *const DidCompleteWalkthroughKey = @"DidCompleteWalkthroughKey";
+static NSString *const KnowsAboutThemesKey = @"KnowsAboutThemesKey";
+
 static NTDWalkthrough *sharedInstance;
 
 @interface NTDWalkthrough ()
@@ -43,6 +46,12 @@ static NTDWalkthrough *sharedInstance;
     return didCompleteWalkthrough;
 }
 
++ (BOOL)hasLearnedAboutThemes
+{
+    BOOL knowsAboutThemes = [NSUserDefaults.standardUserDefaults boolForKey:KnowsAboutThemesKey];
+    return knowsAboutThemes;
+}
+
 -(BOOL)isActive
 {
     return self.currentStep != -1;
@@ -59,6 +68,19 @@ static NTDWalkthrough *sharedInstance;
 
     [self.viewController beginDisplayingViewsForStep:self.currentStep];
     [Flurry logEvent:@"Step through Walkthrough" withParameters:@{@"step" : @(self.currentStep)} timed:YES];
+}
+
+- (void)promptUserAboutThemes
+{
+    NTDModalView *modal = [[NTDModalView alloc] initWithMessage:@"Apply a theme to your notes! Check them out in Settings"
+                                                          layer:nil
+                                                backgroundColor:nil
+                                                        buttons:@[@"Okay"]
+                                               dismissalHandler:^(NSUInteger index) {
+                                                   [NSUserDefaults.standardUserDefaults setBool:YES forKey:KnowsAboutThemesKey];
+                                                   [NSUserDefaults.standardUserDefaults synchronize];
+                                               }];
+    [modal show];
 }
 
 - (void)shouldAdvanceFromStep:(NTDWalkthroughStep)step

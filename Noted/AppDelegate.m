@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Tackmobile. All rights reserved.
 //
 
+#import <Dropbox/Dropbox.h>
 #import <Crashlytics/Crashlytics.h>
 #import <FlurrySDK/Flurry.h>
 #import "AppDelegate.h"
@@ -13,6 +14,7 @@
 #import "NTDCollectionViewController.h"
 #import "NTDWalkthrough.h"
 #import "NTDDropboxManager.h"
+#import <IAPHelper/IAPShare.h>
 
 NSString *const NTDInitialVersionKey = @"NTDInitialVersionKey";
 NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
@@ -30,7 +32,14 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     [Flurry setCrashReportingEnabled:NO];
     [Flurry startSession:@"F9R3ZM7J2KWNPCGR6XBF"];
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
-
+    
+    if ( ! IAPShare.sharedHelper.iap ) {
+        NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, NTDDropboxProductID, nil];
+        IAPShare.sharedHelper.iap = [[IAPHelper alloc] initWithProductIdentifiers:dataSet];
+    }
+    
+    IAPShare.sharedHelper.iap.production = NO;
+    
     [self customizeAppearance];
     [self recordInitialLaunchData];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

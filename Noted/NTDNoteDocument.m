@@ -1,4 +1,4 @@
-//
+ //
 //  NTDNoteDocument.m
 //  Noted
 //
@@ -313,7 +313,9 @@ BOOL safe_rename(const char *old, const char *new)
     typeof(self) __weak weakSelf = self;
     [context performBlockAndWait:^{
         typeof(self) strongSelf = weakSelf;
-        if (!strongSelf) {
+        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate) {
+            [Flurry logEvent:@"Avoided crash"];
+            NSLog(@"Avoided metadata related crash.");
             didSaveMetadata = NO;
             return;
         }
@@ -475,8 +477,10 @@ BOOL safe_rename(const char *old, const char *new)
       completionHandler:^(BOOL success) {
           if (success) {
               [Flurry logEvent:@"Note Created" withParameters:@{@"counter" : @(filenameCounter-1)}];
-              handler((NTDNote *)document /* Shhh... */);
-              [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+              if (handler != nil) {
+                  handler((NTDNote *)document /* Shhh... */);
+                  [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+              }
           } else {
               NSLog(@"WARNING: Couldn't create new note!");
               [Flurry logError:@"Couldn't create new note" message:nil error:nil];
@@ -602,6 +606,11 @@ BOOL safe_rename(const char *old, const char *new)
 }
 
 - (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
+{
+    handler(YES);
+}
+
++ (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     handler(YES);
 }

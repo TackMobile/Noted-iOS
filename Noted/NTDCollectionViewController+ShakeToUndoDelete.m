@@ -57,6 +57,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
                                                             buttons:@[@"OK"]
                                                    dismissalHandler:^(NSUInteger index) {
                                                        [NSUserDefaults.standardUserDefaults setBool:YES forKey:NTDShakeToUndoDidShowModalKey];
+                                                       [NSUserDefaults.standardUserDefaults synchronize];
                                                        [NSNotificationCenter.defaultCenter removeObserver:observer];
     }];
     observer = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification

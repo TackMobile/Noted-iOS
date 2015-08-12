@@ -451,13 +451,13 @@ static char UIViewIsPanning;
             CGPoint velocity = [gesture velocityInView:self.keyboardActiveView];
             BOOL shouldRecede;
             
+            // If the keyboard has only been pushed down 44 pixels or has been
+            // panned upwards let it pop back up; otherwise, let it drop down
             if (touchLocationInKeyboardWindow.y < thresholdHeight || velocity.y < 0)
                 shouldRecede = NO;
             else
                 shouldRecede = YES;
             
-            // If the keyboard has only been pushed down 44 pixels or has been
-            // panned upwards let it pop back up; otherwise, let it drop down
             CGRect newKeyboardViewFrame = self.keyboardActiveView.frame;
             newKeyboardViewFrame.origin.y = (!shouldRecede ? keyboardWindowHeight - keyboardViewHeight : keyboardWindowHeight);
             
@@ -516,10 +516,10 @@ static char UIViewIsPanning;
         found = [self recursiveFindFirstResponder:v];
         if (found)
         {
-            break;
+            return found;
         }
     }
-    return found;
+    return nil;
 }
 
 - (void)swizzled_addSubview:(UIView *)subview

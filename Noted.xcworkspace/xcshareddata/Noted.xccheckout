@@ -5,34 +5,34 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>DAE1E708-7E01-4557-9C9D-8CC940F1D733</string>
+	<string>616A22F6-11E5-4276-A2E9-AC985F958E62</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Noted</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>BC4DE922-4D90-47C7-A869-9CF53817CF89</key>
+		<key>975A846F21B97D86ADAA3D330D74D6CDE6668B86</key>
 		<string>ssh://bitbucket.org/tackmobile/noted.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Noted.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>BC4DE922-4D90-47C7-A869-9CF53817CF89</key>
+		<key>975A846F21B97D86ADAA3D330D74D6CDE6668B86</key>
 		<string>..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>ssh://bitbucket.org/tackmobile/noted.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>BC4DE922-4D90-47C7-A869-9CF53817CF89</string>
+	<string>975A846F21B97D86ADAA3D330D74D6CDE6668B86</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>BC4DE922-4D90-47C7-A869-9CF53817CF89</string>
+			<string>975A846F21B97D86ADAA3D330D74D6CDE6668B86</string>
 			<key>IDESourceControlWCCName</key>
 			<string>noted</string>
 		</dict>

@@ -15,7 +15,9 @@
 @class NTDListCollectionViewLayout, NTDPagingCollectionViewLayout;
 @protocol NTDPagingCollectionViewLayoutDelegate;
 
-@interface NTDCollectionViewController : UICollectionViewController <NTDOptionsViewDelegate, NTDPagingCollectionViewLayoutDelegate>
+@interface NTDCollectionViewController : UICollectionViewController <NTDOptionsViewDelegate, NTDPagingCollectionViewLayoutDelegate> {
+    NSString *_pagingLayoutIndexObserver;
+}
 
 @property (nonatomic, strong, readonly) NTDCollectionViewCell *visibleCell;
 

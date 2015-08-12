@@ -14,10 +14,12 @@
 #import "NTDPagingCollectionViewLayout.h"
 #import "DAKeyboardControl.h"
 #import "Utilities.h"
+#import "NTDOptionsViewController.h"
 
 @interface NTDCollectionViewCell ()
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
 @property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
+@property (nonatomic, weak) NTDTheme *theme;
 @end
 
 static NSDictionary *bodyFontSizes;
@@ -87,6 +89,9 @@ static NSDictionary *bodyFontSizes;
                                            selector:@selector(updateRelativeDateLabel:)
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(refreshTheme:)
+                                               name:NTDDidChangeThemeNotification object:nil];
 }
 
 - (void)updateRelativeDateLabel:(NSNotification *)notification {
@@ -213,8 +218,12 @@ static NSDictionary *bodyFontSizes;
 }
 
 #pragma mark - Theming
+- (void)refreshTheme:(id)notif {
+    [self applyTheme:_theme];
+}
 - (void)applyTheme:(NTDTheme *)theme
 {
+    _theme = theme;
     self.contentView.backgroundColor = theme.backgroundColor;
     self.fadeView.backgroundColor = theme.backgroundColor;
     self.relativeTimeLabel.backgroundColor = theme.backgroundColor;
