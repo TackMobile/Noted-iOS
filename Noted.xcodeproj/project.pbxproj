@@ -11,7 +11,6 @@
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
 		1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
 		1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
-		1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
 		1FD1E5691A1A74EE005763BB /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
 		1FD1E56A1A1A7506005763BB /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
 		1FD1E56B1A1A7513005763BB /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
@@ -82,7 +81,6 @@
 		3FC8309E1864FB7F001C141C /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
 		3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
-		998B35271B7971BF00C9BA1D /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 998B35261B7971BF00C9BA1D /* Dropbox.framework */; };
 		998B352A1B7A88FA00C9BA1D /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 998B35281B7A88FA00C9BA1D /* sync-dropbox.png */; };
 		998B352B1B7A88FA00C9BA1D /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */; };
 		9C53A0360BDA46B5B8544B1C /* libPods-NotedTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49647001D63E48259E02462C /* libPods-NotedTests.a */; };
@@ -128,7 +126,6 @@
 		1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAnimationLayer.h; sourceTree = "<group>"; };
 		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
 		1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Noted/Images.xcassets; sourceTree = "<group>"; };
-		1F6F800F19E446C8004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../../../Downloads/dropbox-ios-sync-sdk-3.1.0/Dropbox.framework"; sourceTree = "<group>"; };
 		1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1FD1E5731A1A8B11005763BB /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
@@ -208,8 +205,6 @@
 		49647001D63E48259E02462C /* libPods-NotedTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotedTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		964640C2164B289F0006A7CB /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		990A8A5E1B79716B00E6D955 /* libPods-Dropbox-Sync-API-SDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-Dropbox-Sync-API-SDK.a"; path = "Pods/build/Debug-iphoneos/libPods-Dropbox-Sync-API-SDK.a"; sourceTree = "<group>"; };
-		998B35261B7971BF00C9BA1D /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "Pods/Dropbox-Sync-API-SDK/Dropbox.framework"; sourceTree = "<group>"; };
 		998B35281B7A88FA00C9BA1D /* sync-dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox.png"; sourceTree = "<group>"; };
 		998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox@2x.png"; sourceTree = "<group>"; };
 		B52114D9171CA800007670F3 /* NTDTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTheme.h; sourceTree = "<group>"; };
@@ -263,7 +258,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				998B35271B7971BF00C9BA1D /* Dropbox.framework in Frameworks */,
 				3F4E225018A99CCF00EEC7E8 /* CoreMedia.framework in Frameworks */,
 				3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */,
 				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
@@ -286,7 +280,6 @@
 			files = (
 				1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */,
 				1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */,
-				1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */,
 				3F27A0E318B41FBC00734CDD /* Crashlytics.framework in Frameworks */,
 				3F27A0E218B41E9A00734CDD /* CoreData.framework in Frameworks */,
 				3F73710118AECD5F0092694E /* XCTest.framework in Frameworks */,
@@ -374,11 +367,8 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				998B35261B7971BF00C9BA1D /* Dropbox.framework */,
-				990A8A5E1B79716B00E6D955 /* libPods-Dropbox-Sync-API-SDK.a */,
 				1FD1E5731A1A8B11005763BB /* libc++.dylib */,
 				1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */,
-				1F6F800F19E446C8004D0344 /* Dropbox.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
 				CF29671517B2F9B100994446 /* Crashlytics.framework */,
