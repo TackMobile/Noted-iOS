@@ -23,7 +23,7 @@
 @end
 
 @implementation KWContextNode
-@synthesize description = _description;
+
 #pragma mark - Initializing
 
 - (id)initWithCallSite:(KWCallSite *)aCallSite parentContext:(KWContextNode *)node description:(NSString *)aDescription {

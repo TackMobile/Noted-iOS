@@ -73,6 +73,7 @@
 }
 
 - (void)requestProductsWithCompletion:(IAPProductsResponseBlock)completion {
+    
     self.request = [[SKProductsRequest alloc] initWithProductIdentifiers:_productIdentifiers];
     _request.delegate = self;
     self.requestProductsBlock = completion;

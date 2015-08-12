@@ -123,6 +123,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		105E566C1B2DF82D00297C5B /* Pods.ad hoc.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods.ad hoc.xcconfig"; path = "Pods/Target Support Files/Pods/Pods.ad hoc.xcconfig"; sourceTree = "<group>"; };
+		1146490919EDB05323262826 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		1D22070F19BE4C860094B43C /* WaitingAnimationLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAnimationLayer.h; sourceTree = "<group>"; };
 		1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAnimationLayer.m; sourceTree = "<group>"; };
 		1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Noted/Images.xcassets; sourceTree = "<group>"; };
@@ -203,7 +205,8 @@
 		3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxObserver.m; sourceTree = "<group>"; };
 		3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		49647001D63E48259E02462C /* libPods-NotedTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotedTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
+		668140F3A4E42B319AF1F92D /* Pods-NotedTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests.release.xcconfig"; sourceTree = "<group>"; };
+		73EE263DE30B5B8D681A58D6 /* Pods-NotedTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests.debug.xcconfig"; sourceTree = "<group>"; };
 		964640C2164B289F0006A7CB /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		998B35281B7A88FA00C9BA1D /* sync-dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox.png"; sourceTree = "<group>"; };
 		998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox@2x.png"; sourceTree = "<group>"; };
@@ -225,7 +228,6 @@
 		B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
-		B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.xcconfig"; path = "Pods/Pods-NotedTests.xcconfig"; sourceTree = "<group>"; };
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C51D44F21937A4C400B16C87 /* NTDScrollingTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDScrollingTextView.h; sourceTree = "<group>"; };
 		C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDScrollingTextView.m; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 		C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check-icon@2x.png"; sourceTree = "<group>"; };
 		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
 		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
+		C9E738AB5D7ACAF2889D80D6 /* Pods-NotedTests.ad hoc.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.ad hoc.xcconfig"; path = "Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests.ad hoc.xcconfig"; sourceTree = "<group>"; };
 		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
@@ -245,6 +248,7 @@
 		CFAF5CBA178DBDAF00187C79 /* NTDOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDOptionsViewController.m; sourceTree = "<group>"; };
 		CFAF5CBB178DBDAF00187C79 /* NTDOptionsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NTDOptionsViewController.xib; sourceTree = "<group>"; };
 		CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		E38F9ECF23ABF0CDCFAE5408 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		F349FB4E187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+ShakeToUndoDelete.h"; sourceTree = "<group>"; };
 		F349FB4F187DC29300B3768B /* NTDCollectionViewController+ShakeToUndoDelete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDCollectionViewController+ShakeToUndoDelete.m"; sourceTree = "<group>"; };
 		F3EA4F2C188349F40077AD44 /* NTDDeletedNotePlaceholder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDeletedNotePlaceholder.h; sourceTree = "<group>"; };
@@ -350,8 +354,7 @@
 				3FC8309018622058001C141C /* Dropbox */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
-				56511FDB4151478DBAF18458 /* Pods.xcconfig */,
-				B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */,
+				9D3C7D095B02984930888C31 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -536,6 +539,19 @@
 				3FC8309618623E61001C141C /* NTDDropboxNote.m */,
 			);
 			name = Private;
+			sourceTree = "<group>";
+		};
+		9D3C7D095B02984930888C31 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E38F9ECF23ABF0CDCFAE5408 /* Pods.debug.xcconfig */,
+				1146490919EDB05323262826 /* Pods.release.xcconfig */,
+				105E566C1B2DF82D00297C5B /* Pods.ad hoc.xcconfig */,
+				73EE263DE30B5B8D681A58D6 /* Pods-NotedTests.debug.xcconfig */,
+				668140F3A4E42B319AF1F92D /* Pods-NotedTests.release.xcconfig */,
+				C9E738AB5D7ACAF2889D80D6 /* Pods-NotedTests.ad hoc.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		B52114D8171CA79E007670F3 /* Models */ = {
@@ -733,7 +749,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 		};
 		3F73F7E817985D3500EEE802 /* Run Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -790,7 +806,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-NotedTests-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -951,7 +967,7 @@
 		};
 		29FC4934156EE0CD0007BBAD /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
+			baseConfigurationReference = E38F9ECF23ABF0CDCFAE5408 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
@@ -982,7 +998,7 @@
 		};
 		29FC4935156EE0CD0007BBAD /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
+			baseConfigurationReference = 1146490919EDB05323262826 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
@@ -1012,7 +1028,7 @@
 		};
 		3F73710F18AECD600092694E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */;
+			baseConfigurationReference = 73EE263DE30B5B8D681A58D6 /* Pods-NotedTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_ID_SUFFIX = .dev;
@@ -1058,7 +1074,7 @@
 		};
 		3F73711018AECD600092694E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */;
+			baseConfigurationReference = 668140F3A4E42B319AF1F92D /* Pods-NotedTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Noted.app/Noted";
@@ -1097,7 +1113,7 @@
 		};
 		3F73711118AECD600092694E /* Ad Hoc */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B8E5188712564DF9A62BDB86 /* Pods-NotedTests.xcconfig */;
+			baseConfigurationReference = C9E738AB5D7ACAF2889D80D6 /* Pods-NotedTests.ad hoc.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Noted.app/Noted";
@@ -1161,7 +1177,7 @@
 		};
 		B512B1281611191500E0E8B5 /* Ad Hoc */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 56511FDB4151478DBAF18458 /* Pods.xcconfig */;
+			baseConfigurationReference = 105E566C1B2DF82D00297C5B /* Pods.ad hoc.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;

@@ -7,7 +7,6 @@
 #import "KWBlockNode.h"
 
 @implementation KWBlockNode
-@synthesize description = _description;
 
 #pragma mark - Initializing
 

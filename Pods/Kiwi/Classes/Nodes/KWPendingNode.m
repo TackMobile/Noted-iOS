@@ -11,7 +11,7 @@
 #import "KWExampleNodeVisitor.h"
 
 @implementation KWPendingNode
-@synthesize description = _description;
+
 #pragma mark - Initializing
 
 - (id)initWithCallSite:(KWCallSite *)aCallSite context:(KWContextNode *)context description:(NSString *)aDescription {

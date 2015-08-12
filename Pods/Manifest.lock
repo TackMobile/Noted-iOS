@@ -1,6 +1,6 @@
 PODS:
   - BlocksKit (2.2.3):
-    - BlocksKit/All
+    - BlocksKit/All (= 2.2.3)
   - BlocksKit/All (2.2.3):
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
@@ -16,7 +16,7 @@ PODS:
     - BlocksKit/DynamicDelegate
   - Dropbox-Sync-API-SDK (2.1.0)
   - FlurrySDK (4.3.2):
-    - FlurrySDK/FlurrySDK
+    - FlurrySDK/FlurrySDK (= 4.3.2)
   - FlurrySDK/FlurrySDK (4.3.2)
   - IAPHelper (1.0.7)
   - Kiwi/ARC (2.2.3)
@@ -35,11 +35,11 @@ DEPENDENCIES:
   - UIView+FrameAdditions (= 0.0.1)
 
 SPEC CHECKSUMS:
-  BlocksKit: 07c8a80f04275efac6a5f8b973782489c083a182
-  Dropbox-Sync-API-SDK: c8dd429159f397993a56f2eb1861e2895a9a983f
-  FlurrySDK: e66cbd5487c7da2c85c6d605fde59f36db4b87e1
-  IAPHelper: cc05be5303b034a6a92dbe58f1be94efeacf619d
-  Kiwi: 7b9bc7294de746357213067a1df49cc0a59384e8
-  UIView+FrameAdditions: 471d2d07068e2e4c9f08450eff5325fe4c066007
+  BlocksKit: 3ae2bd80239d338053cf1603bf0a7d57dd589ab3
+  Dropbox-Sync-API-SDK: cd6b0b37f8cbb223eb104a5df20171253de60df7
+  FlurrySDK: 9f09e57ee8f01296bd547950433384da192ea680
+  IAPHelper: 60a2d5b6ef2d121ce041cf942cd6fc87dc3ab3a3
+  Kiwi: 68d88fcfd9f900a2cd720823e0b47c3668b4ac07
+  UIView+FrameAdditions: ff98a73ddb1ba15ce426f3ca2eb70c2613580879
 
-COCOAPODS: 0.33.1
+COCOAPODS: 0.38.2
