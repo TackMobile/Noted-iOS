@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
-		1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
 		1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
 		1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
 		1FD1E5681A1A74B2005763BB /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F6F800F19E446C8004D0344 /* Dropbox.framework */; };
@@ -23,10 +22,6 @@
 		1FD1E5701A1A75FC005763BB /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */; };
 		1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FD1E5731A1A8B11005763BB /* libc++.dylib */; };
-		1FD36E921A4885DF0072098F /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E911A4885DF0072098F /* sync-dropbox.png */; };
-		1FD36E931A4885DF0072098F /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E911A4885DF0072098F /* sync-dropbox.png */; };
-		1FD36E951A4885F10072098F /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E941A4885F10072098F /* sync-dropbox@2x.png */; };
-		1FD36E961A4885F10072098F /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1FD36E941A4885F10072098F /* sync-dropbox@2x.png */; };
 		298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 298F8D1C15780FA2004D11A4 /* Utilities.m */; };
 		29914F181575350C0029D170 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29914F171575350C0029D170 /* MessageUI.framework */; };
 		29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 29960C8015740F2D0054347A /* UIColor+Utils.m */; };
@@ -87,6 +82,9 @@
 		3FC8309E1864FB7F001C141C /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
 		3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
+		998B35271B7971BF00C9BA1D /* Dropbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 998B35261B7971BF00C9BA1D /* Dropbox.framework */; };
+		998B352A1B7A88FA00C9BA1D /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 998B35281B7A88FA00C9BA1D /* sync-dropbox.png */; };
+		998B352B1B7A88FA00C9BA1D /* sync-dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */; };
 		9C53A0360BDA46B5B8544B1C /* libPods-NotedTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49647001D63E48259E02462C /* libPods-NotedTests.a */; };
 		A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB62BC5EED29406FBB1BE6A4 /* libPods.a */; };
 		B52114DB171CA800007670F3 /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
@@ -133,8 +131,6 @@
 		1F6F800F19E446C8004D0344 /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "../../../../Downloads/dropbox-ios-sync-sdk-3.1.0/Dropbox.framework"; sourceTree = "<group>"; };
 		1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1FD1E5731A1A8B11005763BB /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
-		1FD36E911A4885DF0072098F /* sync-dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sync-dropbox.png"; path = "../../../../Downloads/sync-dropbox.png"; sourceTree = "<group>"; };
-		1FD36E941A4885F10072098F /* sync-dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sync-dropbox@2x.png"; path = "../../../../Downloads/sync-dropbox@2x.png"; sourceTree = "<group>"; };
 		298F8D1B15780FA2004D11A4 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utilities.h; path = Noted/Utilities.h; sourceTree = "<group>"; };
 		298F8D1C15780FA2004D11A4 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utilities.m; path = Noted/Utilities.m; sourceTree = "<group>"; };
 		29914F171575350C0029D170 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -212,6 +208,10 @@
 		49647001D63E48259E02462C /* libPods-NotedTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotedTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		56511FDB4151478DBAF18458 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		964640C2164B289F0006A7CB /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		990A8A5E1B79716B00E6D955 /* libPods-Dropbox-Sync-API-SDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-Dropbox-Sync-API-SDK.a"; path = "Pods/build/Debug-iphoneos/libPods-Dropbox-Sync-API-SDK.a"; sourceTree = "<group>"; };
+		998B35261B7971BF00C9BA1D /* Dropbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Dropbox.framework; path = "Pods/Dropbox-Sync-API-SDK/Dropbox.framework"; sourceTree = "<group>"; };
+		998B35281B7A88FA00C9BA1D /* sync-dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox.png"; sourceTree = "<group>"; };
+		998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sync-dropbox@2x.png"; sourceTree = "<group>"; };
 		B52114D9171CA800007670F3 /* NTDTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDTheme.h; sourceTree = "<group>"; };
 		B52114DA171CA800007670F3 /* NTDTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDTheme.m; sourceTree = "<group>"; };
 		B52114DC171DCF9E007670F3 /* NTDPagingCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDPagingCollectionViewLayout.h; sourceTree = "<group>"; };
@@ -263,7 +263,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F6F801019E446C8004D0344 /* Dropbox.framework in Frameworks */,
+				998B35271B7971BF00C9BA1D /* Dropbox.framework in Frameworks */,
 				3F4E225018A99CCF00EEC7E8 /* CoreMedia.framework in Frameworks */,
 				3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */,
 				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
@@ -303,8 +303,8 @@
 			isa = PBXGroup;
 			children = (
 				1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */,
-				1FD36E911A4885DF0072098F /* sync-dropbox.png */,
-				1FD36E941A4885F10072098F /* sync-dropbox@2x.png */,
+				998B35281B7A88FA00C9BA1D /* sync-dropbox.png */,
+				998B35291B7A88FA00C9BA1D /* sync-dropbox@2x.png */,
 				C55C40A1193E782D00F1F5F0 /* check-icon.png */,
 				C55C40A2193E782D00F1F5F0 /* check-icon@2x.png */,
 				C55C4099193E64F500F1F5F0 /* arrow-icon.png */,
@@ -374,6 +374,8 @@
 		29FC4912156EE0CD0007BBAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				998B35261B7971BF00C9BA1D /* Dropbox.framework */,
+				990A8A5E1B79716B00E6D955 /* libPods-Dropbox-Sync-API-SDK.a */,
 				1FD1E5731A1A8B11005763BB /* libc++.dylib */,
 				1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */,
 				1F6F800F19E446C8004D0344 /* Dropbox.framework */,
@@ -662,6 +664,7 @@
 						DevelopmentTeam = 9B83N8S7VW;
 					};
 					3F7370FE18AECD5F0092694E = {
+						DevelopmentTeam = 9B83N8S7VW;
 						TestTargetID = 29FC490E156EE0CD0007BBAD;
 					};
 				};
@@ -692,7 +695,7 @@
 				3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */,
 				1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */,
 				29FC491E156EE0CD0007BBAD /* InfoPlist.strings in Resources */,
-				1FD36E921A4885DF0072098F /* sync-dropbox.png in Resources */,
+				998B352A1B7A88FA00C9BA1D /* sync-dropbox.png in Resources */,
 				3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */,
 				29E326D3157556920013399B /* Icon.png in Resources */,
 				29E326D4157556920013399B /* Icon@2x.png in Resources */,
@@ -711,7 +714,7 @@
 				C55C409C193E64F500F1F5F0 /* arrow-icon@2x.png in Resources */,
 				B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */,
 				3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */,
-				1FD36E951A4885F10072098F /* sync-dropbox@2x.png in Resources */,
+				998B352B1B7A88FA00C9BA1D /* sync-dropbox@2x.png in Resources */,
 				CFAF5CBD178DBDAF00187C79 /* NTDOptionsViewController.xib in Resources */,
 				3F4E224E18A9973800EEC7E8 /* ShakeToUndoAnimation.mov in Resources */,
 			);
@@ -722,8 +725,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F73710918AECD600092694E /* InfoPlist.strings in Resources */,
-				1FD36E931A4885DF0072098F /* sync-dropbox.png in Resources */,
-				1FD36E961A4885F10072098F /* sync-dropbox@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -970,6 +971,7 @@
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
+					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -978,7 +980,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"$(PROJECT_DIR)/Pods/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -999,6 +1002,7 @@
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
+					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -1006,7 +1010,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"$(PROJECT_DIR)/Pods/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -1029,6 +1034,8 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1053,6 +1060,7 @@
 				INFOPLIST_FILE = "NotedTests/NotedTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1071,6 +1079,8 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1089,6 +1099,7 @@
 				INFOPLIST_FILE = "NotedTests/NotedTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1107,6 +1118,8 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1125,6 +1138,7 @@
 				INFOPLIST_FILE = "NotedTests/NotedTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1167,6 +1181,7 @@
 					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
+					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1180,7 +1195,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
+					"$(SRCROOT)",
+					"$(PROJECT_DIR)/Pods/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
