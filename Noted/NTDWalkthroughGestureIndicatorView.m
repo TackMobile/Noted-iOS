@@ -94,15 +94,24 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         }
         case NTDWalkthroughTapOptionsStep:
         {
-            CGPoint center = {.x = 294, .y = 20};
+            CGPoint center = {.x = [UIScreen mainScreen].bounds.size.width - 25, .y = 20};
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
         case NTDWalkthroughChangeColorsStep:
         {
-            CGPoint center = {.x = 48, .y = 142.5};
-            if (YOffset != 0) center.y -= 4; /* hack to position properly on 4" displays. */
-            
+            CGPoint center = {.x = 48, .y = CenterY};
+          
+            if (YOffset == 0) { // 3.5" iPhone 4/4s
+                center.y -= 130;
+            } else if (YOffset == 88) { // 4" iPhone 5/5s
+                center.y -= 136;
+            } else  if (YOffset == 187) { // 4.7" iPhone 6
+                center.y -= 144;
+            } else if (YOffset == 256) { // 5.5" iPhone 6+
+                center.y -= 151;
+            }
+          
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }

@@ -236,9 +236,9 @@ NSString *dropboxPrice = @"...";
                                 // check the receipt
                                 [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                              onCompletion:^(NSString *response, NSError *error) {
-                                                                 //NSDictionary *receipt = [IAPShare toJSON:response];
+                                                                 NSDictionary *receipt = [IAPShare toJSON:response];
                                                                  // We never get a valid receipt from Apple, leave it for now
-                                                                 //if ([receipt[@"status"] integerValue] == 0) {
+                                                                 if ([receipt[@"status"] integerValue] == 0) {
                                                                      NSString *pID = transaction.payment.productIdentifier;
                                                                      [[IAPShare sharedHelper].iap provideContent:pID];
                                                                      NSLog(@"Success: %@",response);
@@ -247,10 +247,10 @@ NSString *dropboxPrice = @"...";
                                                                      [NTDDropboxManager setDropboxEnabled:YES];
                                                                      [NTDDropboxManager linkAccountFromViewController:nil];
                                                                      [self dismissModalIfShowing];
-                                                                 /*} else {
+                                                                 } else {
                                                                      NSLog(@"Receipt Invalid");
                                                                      [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                                 }*/
+                                                                 }
                                                              }];
                                 break;
                             }
@@ -279,6 +279,11 @@ NSString *dropboxPrice = @"...";
 /* This method should be more or less idempotent. */
 + (void)importExistingFiles
 {
+  
+  ////////////////////////////////////////////////////////////
+  //// KAK THIS vvv NEEDS TO BE REMOVED vvv
+  ////////////////////////////////////////////////////////////
+  
     static BOOL didImportExistingFiles = NO;
     // This is to prevent a Dropbox related crash, which happens sometimes, sometimes not
     if (didImportExistingFiles) {
@@ -297,7 +302,11 @@ NSString *dropboxPrice = @"...";
         });
         return;
     }
-    
+  
+  ////////////////////////////////////////////////////////////
+  //// KAK THIS ^^^ NEEDS TO BE REMOVED ^^^
+  ////////////////////////////////////////////////////////////
+  
     NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
     [controller returnToListLayout];
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {

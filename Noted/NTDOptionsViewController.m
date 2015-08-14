@@ -234,9 +234,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     versionLabel.text = version;
 
     // Dropbox
-    self.toggleDropboxLabel.text = @"OFF";
-    if ([NTDDropboxManager isDropboxEnabled])
-        self.toggleDropboxLabel.text = @"ON";
+  [self checkDropboxStatusForLabelText];
     self.toggleDropboxView.userInteractionEnabled = YES;
     [self.toggleDropboxView bk_whenTapped:^{
         [self dropboxTapped];
@@ -279,6 +277,18 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
         
     }];
     [self reset];
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  
+  [self checkDropboxStatusForLabelText];
+}
+
+-(void)checkDropboxStatusForLabelText {
+  self.toggleDropboxLabel.text = @"OFF";
+  if ([NTDDropboxManager isDropboxEnabled])
+    self.toggleDropboxLabel.text = @"ON";
 }
 
 - (void)createShareOptions
