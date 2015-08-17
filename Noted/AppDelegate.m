@@ -6,14 +6,14 @@
 //  Copyright (c) 2012 Tackmobile. All rights reserved.
 //
 
-#import <Dropbox/Dropbox.h>
+#import <DropboxSDK/DropboxSDK.h>
 #import <Crashlytics/Crashlytics.h>
 #import <FlurrySDK/Flurry.h>
 #import "AppDelegate.h"
 #import "Constants.h"
 #import "NTDCollectionViewController.h"
 #import "NTDWalkthrough.h"
-#import "NTDDropboxManager.h"
+//#import "NTDDropboxManager.h"
 #import <IAPHelper/IAPShare.h>
 
 NSString *const NTDInitialVersionKey = @"NTDInitialVersionKey";
@@ -34,8 +34,9 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
     
     if ( ! IAPShare.sharedHelper.iap ) {
-        NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, NTDDropboxProductID, nil];
-        IAPShare.sharedHelper.iap = [[IAPHelper alloc] initWithProductIdentifiers:dataSet];
+      // TODO KAK
+//        NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, NTDDropboxProductID, nil];
+//        IAPShare.sharedHelper.iap = [[IAPHelper alloc] initWithProductIdentifiers:dataSet];
     }
     
     IAPShare.sharedHelper.iap.production = NO;
@@ -66,7 +67,8 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url sourceApplication:(NSString *)source annotation:(id)annotation
 {
-    return [NTDDropboxManager handleOpenURL:url];
+  return NO;
+//    return [NTDDropboxManager handleOpenURL:url]; // TODO KAK
 }
 
 - (void)recordInitialLaunchData

@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		1D22071119BE4C860094B43C /* WaitingAnimationLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D22071019BE4C860094B43C /* WaitingAnimationLayer.m */; };
 		1DA1BDB819C7AE0300BFD5AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA1BDB719C7AE0300BFD5AA /* Images.xcassets */; };
-		1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
-		1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
-		1FD1E5691A1A74EE005763BB /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
 		1FD1E56A1A1A7506005763BB /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
 		1FD1E56B1A1A7513005763BB /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
 		1FD1E56C1A1A753A005763BB /* NTDModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8308E1861FB50001C141C /* NTDModalView.m */; };
@@ -75,10 +72,7 @@
 		3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F221794A8E000EA183D /* NTDNoteMetadata.m */; };
 		3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB8976617B1A5EA004D0DC3 /* NTDReplicatorView.m */; };
 		3FC8308F1861FB50001C141C /* NTDModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8308E1861FB50001C141C /* NTDModalView.m */; };
-		3FC830941862209D001C141C /* NTDDropboxManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC830931862209D001C141C /* NTDDropboxManager.m */; };
-		3FC8309718623E61001C141C /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
 		3FC8309A18623FBF001C141C /* NTDNote+ImplUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309918623FBF001C141C /* NTDNote+ImplUtils.m */; };
-		3FC8309E1864FB7F001C141C /* NTDDropboxObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */; };
 		3FCBCFCE17C5596D0064ECB3 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */; };
 		964640C3164B289F0006A7CB /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 964640C2164B289F0006A7CB /* Default-568h@2x.png */; };
 		998B352A1B7A88FA00C9BA1D /* sync-dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 998B35281B7A88FA00C9BA1D /* sync-dropbox.png */; };
@@ -95,6 +89,8 @@
 		B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */; };
 		B5D5F246171888C7008C60EE /* NTDCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5D5F23E17188840008C60EE /* NTDCollectionViewCell.xib */; };
 		B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */; };
+		B6732E061B822E0B003AECB9 /* DropboxSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6732E051B822E0B003AECB9 /* DropboxSDK.framework */; };
+		B6732E071B822E0C003AECB9 /* DropboxSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6732E051B822E0B003AECB9 /* DropboxSDK.framework */; };
 		C51D44F41937A4C400B16C87 /* NTDScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */; };
 		C55C4094193E4AC300F1F5F0 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4093193E4AC300F1F5F0 /* dots.png */; };
 		C55C409B193E64F500F1F5F0 /* arrow-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4099193E64F500F1F5F0 /* arrow-icon.png */; };
@@ -228,6 +224,7 @@
 		B5D5F24217188840008C60EE /* NTDListCollectionViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NTDListCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+NTDManipulation.h"; sourceTree = "<group>"; };
 		B5D751F51730361A00CFEB92 /* NSIndexPath+NTDManipulation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+NTDManipulation.m"; sourceTree = "<group>"; };
+		B6732E051B822E0B003AECB9 /* DropboxSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DropboxSDK.framework; sourceTree = "<group>"; };
 		BB62BC5EED29406FBB1BE6A4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C51D44F21937A4C400B16C87 /* NTDScrollingTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDScrollingTextView.h; sourceTree = "<group>"; };
 		C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDScrollingTextView.m; sourceTree = "<group>"; };
@@ -262,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6732E061B822E0B003AECB9 /* DropboxSDK.framework in Frameworks */,
 				3F4E225018A99CCF00EEC7E8 /* CoreMedia.framework in Frameworks */,
 				3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */,
 				3F59DC1F179DCCEB009FF719 /* MobileCoreServices.framework in Frameworks */,
@@ -285,6 +283,7 @@
 				1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */,
 				1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */,
 				3F27A0E318B41FBC00734CDD /* Crashlytics.framework in Frameworks */,
+				B6732E071B822E0C003AECB9 /* DropboxSDK.framework in Frameworks */,
 				3F27A0E218B41E9A00734CDD /* CoreData.framework in Frameworks */,
 				3F73710118AECD5F0092694E /* XCTest.framework in Frameworks */,
 				3F73710318AECD600092694E /* UIKit.framework in Frameworks */,
@@ -371,6 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				1FD1E5731A1A8B11005763BB /* libc++.dylib */,
+				B6732E051B822E0B003AECB9 /* DropboxSDK.framework */,
 				1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
@@ -822,7 +822,6 @@
 				C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
-				3FC8309718623E61001C141C /* NTDDropboxNote.m in Sources */,
 				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
 				B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */,
 				B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */,
@@ -833,14 +832,12 @@
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
 				3FC8309A18623FBF001C141C /* NTDNote+ImplUtils.m in Sources */,
-				3FC830941862209D001C141C /* NTDDropboxManager.m in Sources */,
 				F3F5579B177E05650003E152 /* UIDeviceHardware.m in Sources */,
 				CF8ECF9D178213C20062705D /* NTDCollectionViewController+Shredding.m in Sources */,
 				CFAF5CBC178DBDAF00187C79 /* NTDOptionsViewController.m in Sources */,
 				F3EA4F2E188349F40077AD44 /* NTDDeletedNotePlaceholder.m in Sources */,
 				3F9D3F101790925100EA183D /* NTDNote.m in Sources */,
 				3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */,
-				3FC8309E1864FB7F001C141C /* NTDDropboxObserver.m in Sources */,
 				3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */,
 				3F9D3F1E179491A900EA183D /* NTDCoreDataStore.m in Sources */,
 				3F9D3F231794A8E100EA183D /* NTDNoteMetadata.m in Sources */,
@@ -868,9 +865,6 @@
 				1FD1E56C1A1A753A005763BB /* NTDModalView.m in Sources */,
 				1FD1E56B1A1A7513005763BB /* NTDWalkthroughModalView.m in Sources */,
 				1FD1E56A1A1A7506005763BB /* NTDReplicatorView.m in Sources */,
-				1FD1E5691A1A74EE005763BB /* NTDDropboxObserver.m in Sources */,
-				1FD1E5671A1A7439005763BB /* NTDDropboxNote.m in Sources */,
-				1FD1E5661A1A742A005763BB /* NTDDropboxManager.m in Sources */,
 				3F27A0D618B41E9100734CDD /* NTDCoreDataStore.m in Sources */,
 				3F27A0D818B41E9100734CDD /* NTDNoteDocument.m in Sources */,
 				3F27A0DA18B41E9100734CDD /* NTDNoteMetadata.m in Sources */,
@@ -978,6 +972,7 @@
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
+					"$(PROJECT_DIR)",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1009,6 +1004,7 @@
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -1188,6 +1184,7 @@
 					"$(SRCROOT)",
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
+					"$(PROJECT_DIR)",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

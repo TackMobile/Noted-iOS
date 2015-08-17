@@ -8,8 +8,8 @@
 
 #import "NTDNote.h"
 #import "NTDNoteDocument.h"
-#import "NTDDropboxManager.h"
-#import "NTDDropboxNote.h"
+//#import "NTDDropboxManager.h"
+//#import "NTDDropboxNote.h"
 #import "NTDNote+ImplUtils.h"
 
 static Class PrivateImplentingClass;
@@ -98,9 +98,10 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 
 + (void)refreshStoragePreferences
 {
-    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
-        PrivateImplentingClass = [NTDDropboxNote class];
-    else
+  // TODO KAK
+//    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
+//        PrivateImplentingClass = [NTDDropboxNote class];
+//    else
         PrivateImplentingClass = [NTDNoteDocument class];
 }
 

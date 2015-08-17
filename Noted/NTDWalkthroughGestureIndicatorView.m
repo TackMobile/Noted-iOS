@@ -52,7 +52,6 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
 + (instancetype)gestureIndicatorViewForStep:(NTDWalkthroughStep)step
 {
     NTDWalkthroughGestureIndicatorView *view = [self instanceForStep:step];
-    
     UIGestureRecognizer *recognizer = gestureRecognizerMap[@(step)];
     if (recognizer) {
         [recognizer addTarget:view action:@selector(handleGestureRecognizer:)];
@@ -64,7 +63,6 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
         [control addTarget:view action:@selector(handleAction:) forControlEvents:controlEvents];
         view.control = control;
     }
-    
     return view;
 }
 
@@ -73,42 +71,47 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     CGRect containerBounds = [[UIScreen mainScreen] applicationFrame];
     CGFloat CenterX = containerBounds.size.width/2;
     CGFloat CenterY = containerBounds.size.height/2;
-    CGFloat YOffset = containerBounds.size.height - 460.0;
     CGFloat ScreenWidth = containerBounds.size.width;
+    CGFloat ApplicationScreenHeight = containerBounds.size.height;
+  
+    CGFloat ScreenHeight = [[UIScreen mainScreen] bounds].size.height;
+    BOOL isiPhone4 = (ScreenHeight == 480)? YES : NO; // 3.5" iPhone 4/4s
+    BOOL isiPhone5 = (ScreenHeight == 568)? YES : NO; // 4" iPhone 5/5s
+    BOOL isiPhone6 = (ScreenHeight == 667)? YES : NO; // 4.7" iPhone 6
+    BOOL isiPhone6Plus = (ScreenHeight == 736)? YES : NO; // 5.5" iPhone 6+
     
     NTDWalkthroughGestureIndicatorView *view = nil;
     switch (step) {
         case NTDWalkthroughMakeANoteStep:
         {
             CGPoint start = {.x = CenterX, .y = 65};
-            CGPoint end = {.x = CenterX, .y = 270 + YOffset};
+            CGPoint end = {.x = CenterX, .y = ApplicationScreenHeight - 210};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughSwipeToCloseKeyboardStep:
         {
             CGPoint start = {.x = CenterX, .y = 205};
-            CGPoint end = {.x = CenterX, .y = 245 + YOffset};
+            CGPoint end = {.x = CenterX, .y = ApplicationScreenHeight - 35};
             view = [self animatedSwipeIndicatorViewWithStart:start end:end duration:1];
             break;
         }
         case NTDWalkthroughTapOptionsStep:
         {
-            CGPoint center = {.x = [UIScreen mainScreen].bounds.size.width - 25, .y = 20};
+            CGPoint center = {.x = ScreenWidth - 25, .y = 20};
             view = [self animatedTapIndicatorViewAtCenter:center];
             break;
         }
         case NTDWalkthroughChangeColorsStep:
         {
             CGPoint center = {.x = 48, .y = CenterY};
-          
-            if (YOffset == 0) { // 3.5" iPhone 4/4s
+            if (isiPhone4) {
                 center.y -= 130;
-            } else if (YOffset == 88) { // 4" iPhone 5/5s
+            } else if (isiPhone5) {
                 center.y -= 136;
-            } else  if (YOffset == 187) { // 4.7" iPhone 6
+            } else  if (isiPhone6) {
                 center.y -= 144;
-            } else if (YOffset == 256) { // 5.5" iPhone 6+
+            } else if (isiPhone6Plus) {
                 center.y -= 151;
             }
           
