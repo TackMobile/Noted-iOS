@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <Dropbox/Dropbox.h>
+#import <DropboxSDK/DropboxSDK.h>
 #import <BlocksKit/BlocksKit.h>
 #import "NTDDropboxManager.h"
 #import "NTDDropboxNote.h"
@@ -24,6 +24,11 @@ static DBDatastore *datastore;
 
 @property (nonatomic, strong) dispatch_queue_t serial_queue;
 @end
+
+@implementation NTDDropboxNote
+@end
+
+/*
 
 @implementation NTDDropboxNote
 
@@ -167,7 +172,7 @@ static DBDatastore *datastore;
         if (!datastore) {
             datastore = [DBDatastore openDefaultStoreForAccount:[[DBAccountManager sharedManager] linkedAccount]
                                                           error:&error];
-            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; /* TODO this should fail */
+            if (error || !datastore) [NTDNote logError:error withMessage:@"Couldn't open default datastore."]; // TODO this should fail
             [[NTDDropboxObserver sharedObserver] observeDatastore:datastore];
         }
         
@@ -179,7 +184,7 @@ static DBDatastore *datastore;
             [[NTDDropboxObserver sharedObserver] observeNote:note];
             filenameCounter = MAX(filenameCounter, [NTDNote indexFromFilename:note.filename]);
         }
-        [datastore sync:nil]; /* Upload any newly created metadata objects. */
+        [datastore sync:nil]; // Upload any newly created metadata objects.
         [notes sortUsingComparator:[NTDNote comparatorUsingFilenames]];
         
         if (error) [NTDNote logError:error withMessage:@"Couldn't open datastore for metadata!"];
@@ -248,14 +253,14 @@ static DBDatastore *datastore;
         DBError __autoreleasing *error;
         BOOL success = YES;
         
-        /* open file */
+        // open file
         if (self.fileState != NTDNoteFileStateOpened) {
             self.file = [[DBFilesystem sharedFilesystem] openFile:self.fileinfo.path error:&error];
             if (error) [NTDNote logError:error withMessage:@"Couldn't open file! %@", self.fileinfo.path];
             success = (error == nil);
         }
         
-        /* read text from file */
+        // read text from file
         if (success) {
             self.bodyText = [self.file readString:&error];
             if (error) {
@@ -264,7 +269,7 @@ static DBDatastore *datastore;
             }
         }
         
-        /* return results */
+        // return results
         handler(success);
     });
 }
@@ -412,7 +417,7 @@ static const NSString *kFilenameKey = @"filename";
                                         kHeadlineKey : [NTDNote headlineForString:self.bodyText],
                                         kThemeKey    : @(NTDColorSchemeWhite)}];
         if (self.fileState != NTDNoteFileStateOpened) {
-            /* This implies that we need to open the file in order to eventually get the correct headline. */
+            // This implies that we need to open the file in order to eventually get the correct headline.
             [self openWithCompletionHandler:^(BOOL success) {
                 if (success)  {
                     [[NSNotificationCenter defaultCenter] postNotificationName:NTDNoteWasChangedNotification object:self];
@@ -506,3 +511,5 @@ static const NSString *kFilenameKey = @"filename";
     [self wasDeleted];
 }
 @end
+ 
+ */

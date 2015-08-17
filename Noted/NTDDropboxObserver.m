@@ -18,6 +18,11 @@
 @end
 
 @implementation NTDDropboxObserver
+@end
+
+/*
+
+@implementation NTDDropboxObserver
 
 +(instancetype)sharedObserver
 {
@@ -157,8 +162,8 @@
             [deletedFiles removeObject:newFileInfo];
             continue;
         }
-        /* If our original array doesn't contain this new object, either it's path is different or another property is different.
-         * If the path has remained the same, let's consider that an update, else it's an insert. */
+        // If our original array doesn't contain this new object, either it's path is different or another property is different.
+        // If the path has remained the same, let's consider that an update, else it's an insert.
         DBFileInfo *fileinfoWithMatchingPath = [oldArray bk_match:^BOOL(DBFileInfo *oldFileInfo) {
             return ([newFileInfo.path isEqual:oldFileInfo.path]);
         }];
@@ -188,31 +193,30 @@
             // There are three cases we need to deal with. Insertion, Modification and Deletion.
             NTDDropboxNote *note = self.filenameToNoteMap[changedRecord[@"filename"]];
 
-            /* Deletion
-             * --------
-             * Deletion of a metadata record implies that a note was deleted in another instance of Noted.
-             * Since deletion of a metadata record corresponds with deletion of a note, we can simply wait
-             * for -observeRootPath: to observe the note deletion.
-             */
+            // * Deletion
+            // * --------
+            // * Deletion of a metadata record implies that a note was deleted in another instance of Noted.
+            // * Since deletion of a metadata record corresponds with deletion of a note, we can simply wait
+            // * for -observeRootPath: to observe the note deletion.
+ 
             if (changedRecord.isDeleted) {
                 NSString *filename = changedRecord[@"filename"];
                 if (filename) [self.filenameToRecordMap removeObjectForKey:filename];
                 continue;
             }
             
-            /* Insertion
-             * ---------
-             * Insertion of a metadata record implies that the user created a note in another instance of Noted.
-             * There are two scenarios we need to deal with here: a) this notification has come before the filesystem-level notification
-             * or b) this notification has come after the filesystem-level notification.
-             *
-             * A) We won't have a entry for this record in our mapping. We need to keep this record around and until the filesystem-level notification
-             * comes through. Then we can associate the new text file with this record and have a successful sync.
-             *
-             * B) We will have an entry for this record in our mapping (we utilize serial dispatch queues to ensure this.) We need to set the note's underlying
-             * metadata to this new record, then tell the UI to update. The latter step will be handled by the "Modification" case below.
-             *
-             */
+            // * Insertion
+            // * ---------
+            // * Insertion of a metadata record implies that the user created a note in another instance of Noted.
+            // * There are two scenarios we need to deal with here: a) this notification has come before the filesystem-level notification
+            // * or b) this notification has come after the filesystem-level notification.
+            // *
+            // * A) We won't have a entry for this record in our mapping. We need to keep this record around and until the filesystem-level notification
+            // * comes through. Then we can associate the new text file with this record and have a successful sync.
+            // *
+            // * B) We will have an entry for this record in our mapping (we utilize serial dispatch queues to ensure this.) We need to set the note's underlying
+            // * metadata to this new record, then tell the UI to update. The latter step will be handled by the "Modification" case below.
+ 
             if (!note)
                 self.filenameToRecordMap[changedRecord[@"filename"]] = changedRecord;
             
@@ -224,16 +228,16 @@
             }
             
             
-            /* Modification
-             * ------------
-             * Modification of a metadata record implies that a note was modified in another instance of Noted.
-             * That implies that a) the note text was changed, changing the headline; b) the note color was changed
-             * or c) both.
-             *
-             * To trigger a UI change, we can send a NTDNoteWasChangedNotification notification.
-             * Since the DBRecord underlying the note's metadata will change automatically, we don't need to do anything
-             * else for the note to alter its internal state.
-             */
+            // * Modification
+            // * ------------
+            // * Modification of a metadata record implies that a note was modified in another instance of Noted.
+            // * That implies that a) the note text was changed, changing the headline; b) the note color was changed
+            // * or c) both.
+            // *
+            // * To trigger a UI change, we can send a NTDNoteWasChangedNotification notification.
+            // * Since the DBRecord underlying the note's metadata will change automatically, we don't need to do anything
+            // * else for the note to alter its internal state.
+ 
             if (note) {
                 [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
             }
@@ -257,3 +261,5 @@ void LogDatastoreStatusDebug(DBDatastore *datastore)
     NSLog(@"%@ %@", datastore, state);
 }
 @end
+
+*/

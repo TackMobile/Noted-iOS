@@ -14,17 +14,18 @@
 
 /* These properties and methods are only to be used by other Dropbox-related classes
  * and NOT the application at large. */
-@property (nonatomic, strong) DBFile *file;
-@property (nonatomic, strong) DBFileInfo *fileinfo;
-@property (nonatomic, strong) DBRecord *metadata;
-@property (nonatomic, strong, readonly) NSString *filename;
-@property (nonatomic, strong) NSString *bodyText;
-@property (nonatomic, strong) NTDTheme *theme;
-@property (nonatomic, strong) NSString *headline;
+//@property (nonatomic, strong) DBFile *file;
+//@property (nonatomic, strong) DBFileInfo *fileinfo;
+//@property (nonatomic, strong) DBRecord *metadata;
+//@property (nonatomic, strong, readonly) NSString *filename;
+//@property (nonatomic, strong) NSString *bodyText;
+//@property (nonatomic, strong) NTDTheme *theme;
+//@property (nonatomic, strong) NSString *headline;
+//
+//+ (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
+//
+//- (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
+//+ (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock;
+//+ (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 
-+ (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo;
-
-- (void)copyFromNote:(NTDNote *)note file:(DBFile *)file;
-+ (void)syncMetadataWithCompletionBlock:(NTDVoidBlock)completionBlock;
-+ (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 @end

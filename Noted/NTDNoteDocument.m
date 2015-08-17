@@ -17,6 +17,7 @@
 #import "NTDNote.h"
 #import "NTDDeletedNotePlaceholder.h"
 #import "NTDCoreDataStore.h"
+#import "NTDDropboxManager.h"
 
 static NSString *const FileExtension = @"txt";
 static NSString *const DatabaseFilename = @".noted.metadata";
@@ -313,14 +314,19 @@ BOOL safe_rename(const char *old, const char *new)
     typeof(self) __weak weakSelf = self;
     [context performBlockAndWait:^{
         typeof(self) strongSelf = weakSelf;
-        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate) {
+        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate || !strongSelf.metadata.lastSyncDate) {
             [Flurry logEvent:@"Avoided crash"];
             NSLog(@"Avoided metadata related crash.");
             didSaveMetadata = NO;
             return;
         }
-        if (strongSelf.metadata.lastModifiedDate != nil)
+        if (strongSelf.metadata.lastModifiedDate != nil) {
             strongSelf.metadata.lastModifiedDate = [NSDate date];
+        }
+        if (strongSelf.metadata.lastSyncDate != nil) {
+          NSLog(@"Setting last sync date in writeContents");
+            strongSelf.metadata.lastSyncDate = [NSDate date];
+        }
         [context save:outError];
         if (*outError) {
             NSLog(@"WARNING: Couldn't save metadata: %@", *outError);
@@ -461,6 +467,7 @@ BOOL safe_rename(const char *old, const char *new)
     [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
         [note setTheme:deletedNote.theme];
         [note setLastModifiedDate:deletedNote.lastModifiedDate];
+        [note setLastSyncDate:deletedNote.lastSyncDate];
         [note setText:deletedNote.bodyText];
         
         handler(note);
@@ -472,6 +479,9 @@ BOOL safe_rename(const char *old, const char *new)
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
     document.metadata.lastModifiedDate = [NSDate date];
+  
+  NSLog(@"Setting last sync date in newNoteWithDocument");
+    document.metadata.lastSyncDate = [[NSDate date] initWithTimeIntervalSince1970:0];
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
       completionHandler:^(BOOL success) {
@@ -600,7 +610,9 @@ BOOL safe_rename(const char *old, const char *new)
                                              if (fileDeletingError) NSLog(@"Error deleting file: %@", fileDeletingError);
                                          }];
         BOOL success = !error;
-        if (success) [Flurry logEvent:@"Note Deleted"];
+      if (success) {
+        [Flurry logEvent:@"Note Deleted"];
+      }
         completionHandler(success);
     }];
 }
@@ -628,6 +640,11 @@ BOOL safe_rename(const char *old, const char *new)
 - (NSDate *)lastModifiedDate
 {
     return self.metadata.lastModifiedDate;
+}
+
+- (NSDate *)lastSyncDate
+{
+  return self.metadata.lastSyncDate;
 }
 
 - (NTDNoteFileState)fileState
@@ -682,4 +699,13 @@ BOOL safe_rename(const char *old, const char *new)
         [self updateChangeCount:UIDocumentChangeDone];
     }
 }
+
+- (void)setLastSyncDate:(NSDate *)date
+{
+  if (![date isEqualToDate:self.lastSyncDate]) {
+    self.metadata.lastSyncDate = date;
+    [self updateChangeCount:UIDocumentChangeDone];
+  }
+}
+
 @end

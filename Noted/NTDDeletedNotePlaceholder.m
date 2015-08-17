@@ -14,6 +14,7 @@
 @property (nonatomic, strong) NSString *filename, *headline, *bodyText;
 @property (nonatomic, strong) NTDTheme *theme;
 @property (nonatomic, strong) NSDate *lastModifiedDate;
+@property (nonatomic, strong) NSDate *lastSyncDate;
 
 @end
 
@@ -24,6 +25,7 @@
         self.filename = note.filename;
         self.headline = note.headline;
         self.lastModifiedDate = note.lastModifiedDate;
+        self.lastSyncDate = note.lastSyncDate;
         self.theme = note.theme;
         self.bodyText = note.text;
         

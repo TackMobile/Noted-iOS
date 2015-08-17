@@ -19,7 +19,7 @@
 #import "UIViewController+NTDToast.h"
 #import "NTDWalkthrough.h"
 #import "NTDModalView.h"
-//#import "NTDDropboxManager.h"
+#import "NTDDropboxManager.h"
 
 NSString *const NTDDidToggleStatusBarNotification = @"didToggleStatusBar";
 bool isLoggingOut = NO;
@@ -262,12 +262,11 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
                         [NTDTheme setPurchasedThemes:YES];
                         restoredAnything = YES;
                     }
-                  // TODO KAK
-//                    else if ([productID isEqualToString:NTDDropboxProductID]) {
-//                        restoredAnything = YES;
-//                        [NTDDropboxManager setPurchased:YES];
-//                        nil;
-//                    }
+                    else if ([productID isEqualToString:NTDDropboxProductID]) {
+                        restoredAnything = YES;
+                        [NTDDropboxManager setPurchased:YES];
+                        nil;
+                    }
                 }
                 if (restoredAnything)
                     msg = @"Your Noted purchases have been restored.";
@@ -289,10 +288,8 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
 -(void)checkDropboxStatusForLabelText {
   self.toggleDropboxLabel.text = @"OFF";
-  
-  // TODO KAK
-//  if ([NTDDropboxManager isDropboxEnabled])
-//    self.toggleDropboxLabel.text = @"ON";
+  if ([NTDDropboxManager isDropboxEnabled])
+    self.toggleDropboxLabel.text = @"ON";
 }
 
 - (void)createShareOptions
@@ -502,6 +499,14 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 }
 
 - (void)dropboxTapped {
+  
+  // TODO KAK
+  if ([NTDDropboxManager isDropboxLinked]) {
+    [NTDDropboxManager testDropbox];
+  } else {
+    [NTDDropboxManager linkAccountFromViewController:self];
+  }
+  // TODO KAK
   
   // TODO KAK
   
