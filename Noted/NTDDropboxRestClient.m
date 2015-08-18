@@ -8,7 +8,7 @@
 
 #import "NTDDropboxRestClient.h"
 #import "NTDNoteDocument.h"
-#import "NTDNoteMetadata.h"
+#import "NTDNote.h"
 
 @interface NTDDropboxRestClient () <DBRestClientDelegate>
 @property (nonatomic, strong) DBRestClient *restClient;
@@ -30,21 +30,17 @@ NSString *dropboxRoot = @"/";
 
 #pragma mark - Upload
 
-- (void)uploadFileToDropbox:(NSString *)filename {
-  NSString *localDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-  NSString *localPath = [localDir stringByAppendingPathComponent:filename];
-  
-  NSString *destinationDirectory = dropboxRoot;
-  
-  [self.restClient uploadFile:filename toPath:destinationDirectory withParentRev:nil fromPath:localPath];
+- (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
+  NSLog(@"uploadFileToDropbox: Uploading %@ to dropbox", note.filename);
+  [self.restClient uploadFile:note.filename toPath:dropboxRoot withParentRev:rev fromPath:note.fileURL.path];
 }
 
 - (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath metadata:(DBMetadata *)metadata {
-  NSLog(@"File uploaded successfully to path: %@", metadata.path);
+  NSLog(@"Note %@ uploaded successfully to path: %@", metadata.filename, metadata.path);
 }
 
 - (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
-  NSLog(@"File upload failed with error: %@", error);
+  NSLog(@"Note upload failed for with error: %@", error);
 }
 
 #pragma mark - Download
@@ -64,12 +60,10 @@ NSString *dropboxRoot = @"/";
 #pragma mark - Metadata
 
 - (void)fetchDropboxMetadata {
-  NSLog(@"fetchDropboxMetadata enter");
   [self.restClient loadMetadata:dropboxRoot];
 }
 
 - (void)restClient:(DBRestClient *)client loadedMetadata:(DBMetadata *)metadata {
-  NSLog(@"loadedMetadata: Folder '%@' contains:", metadata.path);
   [self compareDropboxWithLocal:metadata];
 }
 
@@ -94,17 +88,18 @@ NSString *dropboxRoot = @"/";
   NSLog(@"compareDropboxWithLocal enter");
   if (metadata.isDirectory) {
     
-    [NTDNoteDocument listNotesWithCompletionHandler:^(NSArray *notes) {
+    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
       
       for (DBMetadata *file in metadata.contents) {
         NSLog(@"compareDropboxWithLocal:Dropbox %@ - %@", file.filename, file.lastModifiedDate);
-        NTDNoteMetadata *note = [self localContainsFilename:file.filename inLocalMetadataArray:notes];
+        NTDNote *note = [self localContainsFilename:file.filename inLocalMetadataArray:notes];
         if (note != nil) {
           // Local file exists. Compare last modified.
           if ([file.lastModifiedDate compare:note.lastModifiedDate] == NSOrderedDescending) {
             // Dropbox file modified after local note
           } else if ([file.lastModifiedDate compare:note.lastModifiedDate] == NSOrderedAscending) {
             // Local note modified after dropbox file
+            [self uploadFileToDropbox:note withDropboxFileRev:file.rev];
           } else {
             // Dropbox file last modified equals note last modified
             // Do nothing
@@ -115,12 +110,13 @@ NSString *dropboxRoot = @"/";
         }
       }
       
-      for (NTDNoteMetadata *note in notes) {
+      for (NTDNote *note in notes) {
         NSLog(@"compareDropboxWithLocal:Local %@ - %@", note.filename, note.lastModifiedDate);
         DBMetadata *dropboxFile = [self dropboxContainsFilename:note.filename inDropboxMetadataArray:metadata.contents];
         if (dropboxFile == nil) {
-          NSLog(@"Need to upload %@ to dropbox", note.filename);
-        } // Don't need to cover the else case where the file is in dropbox because it is covered in the first loop through the dropbox files
+          [self uploadFileToDropbox:note withDropboxFileRev:nil];
+        }
+        // Don't need to cover the else case where the file is in dropbox because it is covered in the first loop through the dropbox files
       }
     }];
     
@@ -132,11 +128,11 @@ NSString *dropboxRoot = @"/";
 
 #pragma mark - Helpers
 
-- (NTDNoteMetadata *)localContainsFilename:(NSString *)filename inLocalMetadataArray:(NSArray *)array {
+- (NTDNote *)localContainsFilename:(NSString *)filename inLocalMetadataArray:(NSArray *)array {
   for (int i = 0; i < array.count; i++) {
-    NTDNoteMetadata *file = (NTDNoteMetadata *)[array objectAtIndex:i];
-    if ([filename isEqualToString:file.filename]) {
-      return file;
+    NTDNote *note = (NTDNote *)[array objectAtIndex:i];
+    if ([filename isEqualToString:note.filename]) {
+      return note;
     }
   }
   return nil;

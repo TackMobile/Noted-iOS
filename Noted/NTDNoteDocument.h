@@ -16,8 +16,6 @@
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler;
 + (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
-+ (void)listNotesWithCompletionHandler:(void(^)(NSArray *))handler;
-
 #if __NOTED_TESTS__
 + (BOOL)reset;
 #endif
