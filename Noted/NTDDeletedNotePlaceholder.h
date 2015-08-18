@@ -14,7 +14,6 @@
 @property (nonatomic, strong, readonly) NSString *filename, *headline, *bodyText;
 @property (nonatomic, strong, readonly) NTDTheme *theme;
 @property (nonatomic, strong, readonly) NSDate *lastModifiedDate;
-@property (nonatomic, strong, readonly) NSDate *lastSyncDate;
 @property (nonatomic, strong) NSIndexPath *indexPath;
 @property (nonatomic, strong) NSMutableArray *savedColumnsForDeletion; // comes from the shredding category. these columns contain slices that are fully transformed and invisible.
 @property (nonatomic, assign) NTDDeletionDirection deletionDirection;

@@ -26,76 +26,75 @@ static DBDatastore *datastore;
 @end
 
 @implementation NTDDropboxNote
-@end
 
-/*
-
-@implementation NTDDropboxNote
-
-+(void)initialize
++ (void)initialize
 {
-    if ( self != [NTDDropboxNote class] ) {
-        return;
-    }
-    background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    main_dispatch_queue = dispatch_get_main_queue();
+  if ( self != [NTDDropboxNote class] ) {
+    return;
+  }
+  background_dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  main_dispatch_queue = dispatch_get_main_queue();
 }
 
-+(instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo
++ (instancetype)noteFromFileInfo:(DBFileInfo *)fileinfo
 {
-    NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
-    note.fileinfo = fileinfo;
-    return note;
+  NTDDropboxNote *note = [[NTDDropboxNote alloc] init];
+  note.fileinfo = fileinfo;
+  return note;
 }
 
-
--(id)init
+- (id)init
 {
-    if (self = [super init]) {
-        self.serial_queue = dispatch_queue_create("NTDDropboxNote Serial Queue", DISPATCH_QUEUE_SERIAL);
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(noteWasDeleted:)
-                                                   name:NTDNoteWasDeletedNotification
-                                                 object:self];
-    }
-    return self;
+  if (self = [super init]) {
+    self.serial_queue = dispatch_queue_create("NTDDropboxNote Serial Queue", DISPATCH_QUEUE_SERIAL);
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(noteWasDeleted:)
+                                               name:NTDNoteWasDeletedNotification
+                                             object:self];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+  [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 #pragma mark - Properties
--(void)setFile:(DBFile *)file
+
+- (void)setFile:(DBFile *)file
 {
-    _file = file;
-    if (file != nil)
-        self.fileinfo = file.info;
+  _file = file;
+  if (file != nil) {
+    // TODO KAK
+//    self.fileinfo = file.info;
+  }
 }
 
--(void)setFileinfo:(DBFileInfo *)fileinfo
+- (void)setFileinfo:(DBFileInfo *)fileinfo
 {
-    _fileinfo = fileinfo;
-    if (fileinfo != nil) {
-        [self refreshMetadata];
-    }
+  _fileinfo = fileinfo;
+  if (fileinfo != nil) {
+    [self refreshMetadata];
+  }
 }
 
--(void)setMetadata:(DBRecord *)metadata
+- (void)setMetadata:(DBRecord *)metadata
 {
-    if (![_metadata isEqual:metadata])
-        [_metadata deleteRecord];
-    _metadata = metadata;
+  // TODO KAK
+//  if (![_metadata isEqual:metadata]) {
+//    [_metadata deleteRecord];
+//  }
+  _metadata = metadata;
 }
 
--(void)setBodyText:(NSString *)bodyText
+- (void)setBodyText:(NSString *)bodyText
 {
-    if (![_bodyText isEqualToString:bodyText]) {
-        _bodyText = bodyText;
-        NSString *newHeadline = [NTDNote headlineForString:bodyText];
-        [self setHeadline:newHeadline];
-    }
+  if (![_bodyText isEqualToString:bodyText]) {
+    _bodyText = bodyText;
+    NSString *newHeadline = [NTDNote headlineForString:bodyText];
+    [self setHeadline:newHeadline];
+  }
 }
 
 #pragma mark - Helpers
@@ -511,5 +510,3 @@ static const NSString *kFilenameKey = @"filename";
     [self wasDeleted];
 }
 @end
- 
- */

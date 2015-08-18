@@ -281,26 +281,13 @@ static NTDDropboxRestClient *restClient = nil;
 
 #pragma mark - File operations
 
-+ (void)testDropbox
-{
-//  if ([self isDropboxEnabled] && [self isDropboxLinked]) {
-  if ([self isDropboxLinked]) {
-    if (!restClient) {
-      restClient = [[NTDDropboxRestClient alloc] init];
-    }
-    [restClient listDropboxDirectory];
-  } else {
-    NSLog(@"Dropbox not linked");
-  }
-}
-
 + (void)syncNotes {
   //  if ([self isDropboxEnabled] && [self isDropboxLinked]) {
   if ([self isDropboxLinked]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient listDropboxDirectory];
+    [restClient syncWithDropbox];
   }
 }
 

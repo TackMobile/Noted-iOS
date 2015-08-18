@@ -502,12 +502,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
   
   // TODO KAK
   if ([NTDDropboxManager isDropboxLinked]) {
-    [NTDDropboxManager testDropbox];
+    [NTDDropboxManager syncNotes];
   } else {
     [NTDDropboxManager linkAccountFromViewController:self];
   }
-  // TODO KAK
-  
   // TODO KAK
   
 //    // Dropbox has already been purchased and is off

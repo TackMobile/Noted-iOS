@@ -5,9 +5,8 @@
         <attribute name="filename" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="headline" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="lastSyncDate" attributeType="Date" defaultDateTimeInterval="-978307200" syncable="YES"/>
     </entity>
     <elements>
-        <element name="NTDNoteMetadata" positionX="160" positionY="192" width="128" height="120"/>
+        <element name="NTDNoteMetadata" positionX="160" positionY="192" width="128" height="105"/>
     </elements>
 </model>

@@ -25,7 +25,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 + (void)initialize
 {
     [self refreshStoragePreferences];
-//     PrivateImplentingClass = [NTDNoteDocument class];
+     PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (id)allocWithZone:(NSZone *)zone
@@ -98,9 +98,10 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 
 + (void)refreshStoragePreferences
 {
-    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
-        PrivateImplentingClass = [NTDDropboxNote class];
-    else
+  // KAK TODO
+//    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
+//        PrivateImplentingClass = [NTDDropboxNote class];
+//    else
         PrivateImplentingClass = [NTDNoteDocument class];
 }
 

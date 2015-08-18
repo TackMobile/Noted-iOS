@@ -10,8 +10,6 @@
 
 @interface NTDDropboxRestClient : NSObject
 
-- (void)uploadFileToDropbox:(NSString *)filename;
-- (void)downloadDropboxFile:(NSString *)dropboxPath intoPath:(NSString *)localPath;
-- (void)listDropboxDirectory;
+- (void)syncWithDropbox;
 
 @end

@@ -15,6 +15,5 @@
 @dynamic colorScheme;
 @dynamic headline;
 @dynamic lastModifiedDate;
-@dynamic lastSyncDate;
 
 @end

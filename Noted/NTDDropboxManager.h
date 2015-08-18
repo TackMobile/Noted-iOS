@@ -22,9 +22,7 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 + (void)setPurchased:(BOOL)purchased;
 + (void)purchaseDropbox;
 + (void)showErrorMessageAndDismiss:(NSString*)msg;
-
 + (void)syncNotes;
-+ (void)testDropbox;
 
 //+(void)setup;
 //+(void)importDropboxNotes;

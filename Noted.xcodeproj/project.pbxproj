@@ -96,8 +96,6 @@
 		B6732E0C1B8236EA003AECB9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6732E0B1B8236EA003AECB9 /* Security.framework */; };
 		B6732E0F1B82413E003AECB9 /* NTDDropboxRestClient.m in Sources */ = {isa = PBXBuildFile; fileRef = B6732E0E1B82413E003AECB9 /* NTDDropboxRestClient.m */; };
 		B6732E101B82413E003AECB9 /* NTDDropboxRestClient.m in Sources */ = {isa = PBXBuildFile; fileRef = B6732E0E1B82413E003AECB9 /* NTDDropboxRestClient.m */; };
-		B6732E111B828BEA003AECB9 /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
-		B6732E121B828BEA003AECB9 /* NTDDropboxNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8309618623E61001C141C /* NTDDropboxNote.m */; };
 		C51D44F41937A4C400B16C87 /* NTDScrollingTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = C51D44F31937A4C400B16C87 /* NTDScrollingTextView.m */; };
 		C55C4094193E4AC300F1F5F0 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4093193E4AC300F1F5F0 /* dots.png */; };
 		C55C409B193E64F500F1F5F0 /* arrow-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C55C4099193E64F500F1F5F0 /* arrow-icon.png */; };
@@ -845,7 +843,6 @@
 				B52114DB171CA800007670F3 /* NTDTheme.m in Sources */,
 				B6732E0F1B82413E003AECB9 /* NTDDropboxRestClient.m in Sources */,
 				B6732E091B82356D003AECB9 /* NTDDropboxManager.m in Sources */,
-				B6732E111B828BEA003AECB9 /* NTDDropboxNote.m in Sources */,
 				B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */,
 				B5D751F61730361A00CFEB92 /* NSIndexPath+NTDManipulation.m in Sources */,
 				3FC8309A18623FBF001C141C /* NTDNote+ImplUtils.m in Sources */,
@@ -892,7 +889,6 @@
 				B6732E0A1B82356D003AECB9 /* NTDDropboxManager.m in Sources */,
 				3F27A0E118B41E9100734CDD /* NTDTheme.m in Sources */,
 				3F73710B18AECD600092694E /* NotedTests.m in Sources */,
-				B6732E121B828BEA003AECB9 /* NTDDropboxNote.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
