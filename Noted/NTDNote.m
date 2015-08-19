@@ -43,9 +43,15 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [PrivateImplentingClass getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler];
 }
 
-+ (void)updateNote:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  [PrivateImplentingClass updateNote:filename andCompletionHandler:handler];
+  [PrivateImplentingClass updateNote:filename atPath:path andCompletionHandler:^(NTDNote *note) {
+    NSParameterAssert(note);
+    NSString *updatedContent = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+    NSLog(@"Updated content - %@", updatedContent);
+    note.text = updatedContent;
+    handler(note);
+  }];
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler

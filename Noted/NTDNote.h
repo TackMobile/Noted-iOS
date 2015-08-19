@@ -26,7 +26,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
-+ (void)updateNote:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler;
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;

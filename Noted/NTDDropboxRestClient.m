@@ -157,17 +157,13 @@ NSString *dropboxRoot = @"/";
       // Note does not exist. Create a new note with contents of file saved at localPath.
       
       [NTDNote newNoteWithPath:localPath filename:metadata.filename theme:[NTDTheme randomTheme] completionHandler:^(NTDNote *note) {
-        
         NSLog(@"New note created with filename %@ at path %@", note.filename, note.fileURL.path);
-        
-        // Reload notes in main collection view controller
-        NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
-        [controller reloadNotes];
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
       }];
     } else {
-      // Note already exists. Update existing note.
-      [NTDNote updateNote:note.filename andCompletionHandler:^(NTDNote *note) {
-        NSLog(@"%@ updated.", note.filename);
+      // Note already exists. Note's stored file was updated. Need to reload notes in main collection view controller.
+      [NTDNote updateNote:metadata.filename atPath:localPath andCompletionHandler:^(NTDNote *note) {
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
       }];
     }
   }];

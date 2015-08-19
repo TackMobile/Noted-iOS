@@ -1343,6 +1343,14 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     NSUInteger index = [self.notes indexOfObject:note];
     if (index == NSNotFound) {
+      
+      for (int i = 0; i < self.notes.count; i++) {
+        NTDNote *myNote = [self.notes objectAtIndex:i];
+        if ([myNote.filename isEqualToString:note.filename]) {
+          NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+          return indexPath;
+        }
+      }
         NSLog(@"Couldn't find note %@", note);
         return nil;
     }

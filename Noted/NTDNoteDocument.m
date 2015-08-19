@@ -466,14 +466,14 @@ BOOL safe_rename(const char *old, const char *new)
   handler(results.firstObject);
 }
 
-+ (void)updateNote:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
-    NSUInteger fileIndex = [self indexFromFilename:note.filename];
-    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
-    [note setLastModifiedDate:document.metadata.lastModifiedDate];
-    [note setText:[NSString stringWithContentsOfFile:document.fileURL.path encoding:NSUTF8StringEncoding error:NULL]];
-    handler(note);
+    if (note != nil) {
+      NSUInteger fileIndex = [self indexFromFilename:note.filename];
+      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+      handler((NTDNote *)document /* Shhh... */);
+    }
   }];
 }
 
