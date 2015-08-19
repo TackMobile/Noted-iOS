@@ -466,15 +466,13 @@ BOOL safe_rename(const char *old, const char *new)
   handler(results.firstObject);
 }
 
-+ (void)updateNote:(NTDNote *)note withText:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNote:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  NSUInteger fileIndex = [self indexFromFilename:note.filename];
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
-  NSDate *lastModified = [NSDate date];
-  document.metadata.lastModifiedDate = lastModified;
-  note.text = text;
-  note.lastModifiedDate = [NSDate date];
-  [note updateWithCompletionHandler:^(BOOL success) {
+  [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
+    NSUInteger fileIndex = [self indexFromFilename:note.filename];
+    NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+    [note setLastModifiedDate:document.metadata.lastModifiedDate];
+    [note setText:[NSString stringWithContentsOfFile:document.fileURL.path encoding:NSUTF8StringEncoding error:NULL]];
     handler(note);
   }];
 }
@@ -485,10 +483,18 @@ BOOL safe_rename(const char *old, const char *new)
     [self newNoteWithDocument:document completionHandler:handler];
 }
 
-+ (void)newNoteWithPathWithCompletionHandler:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)newNoteWithPath:(NSString *)path filename:(NSString *)filename theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
 {
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[NSURL URLWithString:path]];
-  [self newNoteWithDocument:document completionHandler:handler];
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[NSURL fileURLWithPath:path]];
+  document.metadata = [NSEntityDescription insertNewObjectForEntityForName:@"NTDNoteMetadata"
+                                                    inManagedObjectContext:[self managedObjectContext]];
+  document.metadata.filename = [document.fileURL lastPathComponent];
+  document.metadata.lastModifiedDate = [NSDate date];
+  [Flurry logEvent:@"Note Created" withParameters:@{@"filename" : @"document.metadata.filename"}];
+  if (handler != nil) {
+    handler((NTDNote *)document /* Shhh... */);
+    [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+  }
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
@@ -721,6 +727,14 @@ BOOL safe_rename(const char *old, const char *new)
         self.metadata.lastModifiedDate = date;
         [self updateChangeCount:UIDocumentChangeDone];
     }
+}
+
+- (void)setFilename:(NSString *)filename
+{
+  if (![filename isEqualToString:self.filename]) {
+    self.metadata.filename = filename;
+    [self updateChangeCount:UIDocumentChangeDone];
+  }
 }
 
 @end

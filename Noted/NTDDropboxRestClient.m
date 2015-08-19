@@ -145,7 +145,6 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadedFile:(NSString *)localPath contentType:(NSString *)contentType metadata:(DBMetadata *)metadata {
-  NSLog(@"File loaded into path: %@", localPath);
   
   // Check for valid content type
   if (![self fileHasValidExtension:localPath andIsDirectory:false]) {
@@ -154,24 +153,22 @@ NSString *dropboxRoot = @"/";
   }
   
   [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
-    NSString *fileContent = [NSString stringWithContentsOfFile:localPath encoding:NSUTF8StringEncoding error:NULL];
     if (note == nil) {
       // Note does not exist. Create a new note with contents of file saved at localPath.
-      [NTDNote newNoteWithText:fileContent theme:[NTDTheme randomTheme] completionHandler:^(NTDNote *note) {
+      
+      [NTDNote newNoteWithPath:localPath filename:metadata.filename theme:[NTDTheme randomTheme] completionHandler:^(NTDNote *note) {
         
         NSLog(@"New note created with filename %@ at path %@", note.filename, note.fileURL.path);
         
         // Reload notes in main collection view controller
         NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
         [controller reloadNotes];
-        
-        // Still need to remove tmp file
-        [self deleteFileAtLocalPath:localPath];
       }];
     } else {
       // Note already exists. Update existing note.
-//      [NTDNote updateNote:note withText:fileContent andCompletionHandler:^(NTDNote *note) {
-//      }];
+      [NTDNote updateNote:note.filename andCompletionHandler:^(NTDNote *note) {
+        NSLog(@"%@ updated.", note.filename);
+      }];
     }
   }];
 }
@@ -183,7 +180,6 @@ NSString *dropboxRoot = @"/";
 #pragma mark - Delete
 
 - (void)deleteDropboxFile:(NSString *)filename {
-  NSLog(@"deleteDropboxFile: %@", filename);
   self.syncInProgress = YES;
   [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
 }

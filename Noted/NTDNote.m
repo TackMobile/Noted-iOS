@@ -43,9 +43,9 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [PrivateImplentingClass getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler];
 }
 
-+ (void)updateNote:(NTDNote *)note withText:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNote:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  [PrivateImplentingClass updateNote:note withText:text andCompletionHandler:handler];
+  [PrivateImplentingClass updateNote:filename andCompletionHandler:handler];
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler
@@ -73,11 +73,12 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     }];
 }
 
-+ (void)newNoteWithPath:(NSString *)path theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
++ (void)newNoteWithPath:(NSString *)path filename:(NSString *)filename theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
 {
-  [self newNoteWithPath:path theme:theme completionHandler:^(NTDNote *note) {
+  [PrivateImplentingClass newNoteWithPath:path filename:filename theme:theme completionHandler:^(NTDNote *note) {
     NSParameterAssert(note);
-    note.text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];;
+    note.filename = filename;
+    note.text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
     note.theme = theme;
     handler(note);
   }];
