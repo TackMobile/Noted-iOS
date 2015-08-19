@@ -502,6 +502,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
   
   // TODO KAK
   if ([NTDDropboxManager isDropboxLinked]) {
+    [self.delegate dismissOptions];
     [NTDDropboxManager syncNotes];
   } else {
     [NTDDropboxManager linkAccountFromViewController:self];

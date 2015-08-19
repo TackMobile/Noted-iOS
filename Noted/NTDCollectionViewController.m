@@ -27,6 +27,7 @@
 #import "NTDCollectionViewController+ShakeToUndoDelete.h"
 #import "NTDModalView.h"
 #import "UIViewController+NTDToast.h"
+#import "NTDDropboxManager.h"
 
 typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
     NTDCardPanningNoDirection = -1,
@@ -1308,6 +1309,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];
+        [NTDDropboxManager deleteNoteFromDropbox:note]; // KAK TODO
     }];
 }
 
@@ -1560,7 +1562,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NSIndexPath *indexPath = [self indexPathForNote:note];
     [self.notes removeObject:note];
     if (indexPath) {
-         [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } else {
         NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }

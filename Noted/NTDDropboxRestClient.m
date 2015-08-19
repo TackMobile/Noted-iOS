@@ -9,6 +9,8 @@
 #import "NTDDropboxRestClient.h"
 #import "NTDNoteDocument.h"
 #import "NTDNote.h"
+#import "NTDTheme.h"
+#import "NTDCollectionViewController.h"
 
 @interface NTDDropboxRestClient () <DBRestClientDelegate>
 @property (nonatomic, strong) DBRestClient *restClient;
@@ -26,50 +28,6 @@ NSString *dropboxRoot = @"/";
     self.syncInProgress = NO;
   }
   return self;
-}
-
-#pragma mark - Upload
-
-- (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
-  NSLog(@"uploadFileToDropbox: Uploading %@ to dropbox", note.filename);
-  [self.restClient uploadFile:note.filename toPath:dropboxRoot withParentRev:rev fromPath:note.fileURL.path];
-}
-
-- (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath metadata:(DBMetadata *)metadata {
-  NSLog(@"Note %@ uploaded successfully to path: %@", metadata.filename, metadata.path);
-}
-
-- (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
-  NSLog(@"Note upload failed for with error: %@", error);
-}
-
-#pragma mark - Download
-
-- (void)downloadDropboxFile:(NSString *)dropboxPath intoPath:(NSString *)localPath {
-  [self.restClient loadFile:dropboxPath atRev:nil intoPath:localPath];
-}
-
-- (void)restClient:(DBRestClient *)client loadedFile:(NSString *)localPath contentType:(NSString *)contentType metadata:(DBMetadata *)metadata {
-  NSLog(@"File loaded into path: %@", localPath);
-}
-
-- (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
-  NSLog(@"There was an error loading the file: %@", error);
-}
-
-#pragma mark - Metadata
-
-- (void)fetchDropboxMetadata {
-  [self.restClient loadMetadata:dropboxRoot];
-}
-
-- (void)restClient:(DBRestClient *)client loadedMetadata:(DBMetadata *)metadata {
-  [self compareDropboxWithLocal:metadata];
-}
-
-- (void)restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error {
-  NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
-  self.syncInProgress = NO;
 }
 
 #pragma mark - Syncing
@@ -91,22 +49,28 @@ NSString *dropboxRoot = @"/";
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
       
       for (DBMetadata *file in metadata.contents) {
+        
+        if (![self fileHasValidExtension:file.path andIsDirectory:file.isDirectory]) {
+          // Invalid file type. Ignore and move to next file
+          continue;
+        }
+        
         NSLog(@"compareDropboxWithLocal:Dropbox %@ - %@", file.filename, file.lastModifiedDate);
         NTDNote *note = [self localContainsFilename:file.filename inLocalMetadataArray:notes];
         if (note != nil) {
           // Local file exists. Compare last modified.
           if ([file.lastModifiedDate compare:note.lastModifiedDate] == NSOrderedDescending) {
             // Dropbox file modified after local note
+            [self downloadDropboxFile:file toNote:note];
           } else if ([file.lastModifiedDate compare:note.lastModifiedDate] == NSOrderedAscending) {
             // Local note modified after dropbox file
             [self uploadFileToDropbox:note withDropboxFileRev:file.rev];
           } else {
-            // Dropbox file last modified equals note last modified
-            // Do nothing
+            // Do nothing. Dropbox file last modified equals note last modified
           }
         } else {
           // Local does not contain file. Download and save dropbox file to local storage.
-          NSLog(@"Need to download %@", file.filename);
+          [self downloadDropboxFile:file toNote:nil];
         }
       }
       
@@ -118,6 +82,8 @@ NSString *dropboxRoot = @"/";
         }
         // Don't need to cover the else case where the file is in dropbox because it is covered in the first loop through the dropbox files
       }
+      
+      self.syncInProgress = NO;
     }];
     
   } else {
@@ -146,6 +112,125 @@ NSString *dropboxRoot = @"/";
     }
   }
   return nil;
+}
+
+#pragma mark - Upload
+
+- (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
+  NSLog(@"uploadFileToDropbox: Uploading %@ to dropbox", note.filename);
+  [self.restClient uploadFile:note.filename toPath:dropboxRoot withParentRev:rev fromPath:note.fileURL.path];
+}
+
+- (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath metadata:(DBMetadata *)metadata {
+  NSLog(@"Note %@ uploaded successfully to path: %@", metadata.filename, metadata.path);
+}
+
+- (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
+  NSLog(@"Note upload failed for with error: %@", error);
+}
+
+#pragma mark - Download
+
+- (void)downloadDropboxFile:(DBMetadata *)file toNote:(NTDNote *)note {
+  NSString *localPath;
+  if (note == nil) {
+    // New note - send file to tmp directory in documents
+    NSURL *url = [[NTDNote notesDirectoryURL] URLByAppendingPathComponent:file.filename];
+    localPath = url.path;
+  } else {
+    // Update existing note - use existing note's path
+    localPath = note.fileURL.path;
+  }
+  [self.restClient loadFile:file.path atRev:nil intoPath:localPath];
+}
+
+- (void)restClient:(DBRestClient *)client loadedFile:(NSString *)localPath contentType:(NSString *)contentType metadata:(DBMetadata *)metadata {
+  NSLog(@"File loaded into path: %@", localPath);
+  
+  // Check for valid content type
+  if (![self fileHasValidExtension:localPath andIsDirectory:false]) {
+    [self deleteFileAtLocalPath:localPath];
+    return;
+  }
+  
+  [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
+    NSString *fileContent = [NSString stringWithContentsOfFile:localPath encoding:NSUTF8StringEncoding error:NULL];
+    if (note == nil) {
+      // Note does not exist. Create a new note with contents of file saved at localPath.
+      [NTDNote newNoteWithText:fileContent theme:[NTDTheme randomTheme] completionHandler:^(NTDNote *note) {
+        
+        NSLog(@"New note created with filename %@ at path %@", note.filename, note.fileURL.path);
+        
+        // Reload notes in main collection view controller
+        NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
+        [controller reloadNotes];
+        
+        // Still need to remove tmp file
+        [self deleteFileAtLocalPath:localPath];
+      }];
+    } else {
+      // Note already exists. Update existing note.
+//      [NTDNote updateNote:note withText:fileContent andCompletionHandler:^(NTDNote *note) {
+//      }];
+    }
+  }];
+}
+
+- (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
+  NSLog(@"There was an error loading the file: %@", error);
+}
+
+#pragma mark - Delete
+
+- (void)deleteDropboxFile:(NSString *)filename {
+  NSLog(@"deleteDropboxFile: %@", filename);
+  self.syncInProgress = YES;
+  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
+}
+
+- (void) restClient:(DBRestClient *)client deletedPath:(NSString *)path {
+  NSLog(@"Dropbox file deleted from path: %@", path);
+  self.syncInProgress = NO;
+}
+
+- (void) restClient:(DBRestClient *)client deletePathFailedWithError:(NSError *)error {
+  NSLog(@"There was an error deleting the file: %@", error);
+  self.syncInProgress = NO;
+}
+
+#pragma mark - Metadata
+
+- (void)fetchDropboxMetadata {
+  [self.restClient loadMetadata:dropboxRoot];
+}
+
+- (void)restClient:(DBRestClient *)client loadedMetadata:(DBMetadata *)metadata {
+  [self compareDropboxWithLocal:metadata];
+}
+
+- (void)restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error {
+  NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
+  self.syncInProgress = NO;
+}
+  
+#pragma mark - Helpers
+  
+- (void)deleteFileAtLocalPath:(NSString *)localPath {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSError *error;
+  if ([fileManager fileExistsAtPath:localPath]) {
+    if (![fileManager removeItemAtPath:localPath error:&error]) {
+      NSLog(@"Failed to delete TMP file: %@", [error localizedDescription]);
+    } else {
+      NSLog(@"Successfully deleted TMP file at %@", localPath);
+    }
+  }
+}
+
+- (BOOL)fileHasValidExtension:(NSString *)path andIsDirectory:(BOOL)isDirectory{
+  NSArray* validExtensions = [NSArray arrayWithObjects:@"jpg", @"jpeg", nil];
+  NSString* extension = [[path pathExtension] lowercaseString];
+  return isDirectory || [validExtensions indexOfObject:extension] == NSNotFound;
 }
 
 @end

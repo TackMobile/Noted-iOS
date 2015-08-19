@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NTDNote.h"
 
 FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 
@@ -23,6 +24,8 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 + (void)purchaseDropbox;
 + (void)showErrorMessageAndDismiss:(NSString*)msg;
 + (void)syncNotes;
++ (void)deleteNoteFromDropbox:(NTDNote *)note;
++ (void)uploadNewNoteToDropbox:(NTDNote *)note;
 
 //+(void)setup;
 //+(void)importDropboxNotes;

@@ -16,6 +16,8 @@
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler;
 + (void)updateWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
++ (NSURL *)notesDirectoryURL;
+
 #if __NOTED_TESTS__
 + (BOOL)reset;
 #endif

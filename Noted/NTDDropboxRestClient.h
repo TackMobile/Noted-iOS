@@ -7,9 +7,12 @@
 //
 
 #import <DropboxSDK/DropboxSDK.h>
+#import "NTDNote.h"
 
 @interface NTDDropboxRestClient : NSObject
 
 - (void)syncWithDropbox;
+- (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev;
+- (void)deleteDropboxFile:(NSString *)filename;
 
 @end

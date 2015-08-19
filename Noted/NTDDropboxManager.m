@@ -282,8 +282,7 @@ static NTDDropboxRestClient *restClient = nil;
 #pragma mark - File operations
 
 + (void)syncNotes {
-  //  if ([self isDropboxEnabled] && [self isDropboxLinked]) {
-  if ([self isDropboxLinked]) {
+  if ([self isDropboxEnabledAndLinked]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
@@ -291,13 +290,36 @@ static NTDDropboxRestClient *restClient = nil;
   }
 }
 
++ (void)deleteNoteFromDropbox:(NTDNote *)note {
+  if ([self isDropboxEnabledAndLinked]) {
+    if (!restClient) {
+      restClient = [[NTDDropboxRestClient alloc] init];
+    }
+    [restClient deleteDropboxFile:note.filename];
+  }
+}
+
++ (void)uploadNewNoteToDropbox:(NTDNote *)note {
+  if ([self isDropboxEnabledAndLinked]) {
+    if (!restClient) {
+      restClient = [[NTDDropboxRestClient alloc] init];
+    }
+    [restClient uploadFileToDropbox:note withDropboxFileRev:nil];
+  }
+}
+
+#pragma mark - Helpers
+
++ (BOOL)isDropboxEnabledAndLinked {
+//  return [self isDropboxEnabled] && [self isDropboxLinked]; // KAK TODO
+  return [self isDropboxLinked];
+}
+
 @end
 
 /*
 
 @implementation NTDDropboxManager
-
-
 
 +(void)setup
 {

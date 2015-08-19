@@ -450,10 +450,45 @@ BOOL safe_rename(const char *old, const char *new)
     handler(notes);
 }
 
++ (void)getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
+  NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
+  fetchRequest.sortDescriptors = @[filenameSortDescriptor];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"filename == %@", filename];
+  [fetchRequest setPredicate:predicate];
+  NSError __autoreleasing *error;
+  NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+  if (results == nil) {
+    NSLog(@"WARNING: Couldn't fetch list of notes!");
+    [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
+  }
+  handler(results.firstObject);
+}
+
++ (void)updateNote:(NTDNote *)note withText:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NSUInteger fileIndex = [self indexFromFilename:note.filename];
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+  NSDate *lastModified = [NSDate date];
+  document.metadata.lastModifiedDate = lastModified;
+  note.text = text;
+  note.lastModifiedDate = [NSDate date];
+  [note updateWithCompletionHandler:^(BOOL success) {
+    handler(note);
+  }];
+}
+
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
 {
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL]];
     [self newNoteWithDocument:document completionHandler:handler];
+}
+
++ (void)newNoteWithPathWithCompletionHandler:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[NSURL URLWithString:path]];
+  [self newNoteWithDocument:document completionHandler:handler];
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
