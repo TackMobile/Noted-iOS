@@ -1240,8 +1240,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                  
                              dispatch_async(dispatch_get_main_queue(), ^{
                                  [self.visibleCell.textView becomeFirstResponder];
-                                 if (isListLayout)
-                                     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
+                               if (isListLayout) {
+                                 [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
+                                 [NTDDropboxManager uploadNewNoteToDropbox:note];
+                               }
                              });
                          }];
                      }];    
