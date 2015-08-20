@@ -472,29 +472,30 @@ BOOL safe_rename(const char *old, const char *new)
   handler(results.firstObject);
 }
 
-+ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
     if (note != nil) {
       NSUInteger fileIndex = [self indexFromFilename:note.filename];
       NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+      document.metadata = (id)note;
+      document.metadata.filename = [document.fileURL lastPathComponent];
       document.metadata.lastModifiedDate = [NSDate date];
+      [document setText:text];
       
-      [document saveToURL:document.fileURL
-         forSaveOperation:UIDocumentSaveForOverwriting
-        completionHandler:^(BOOL success) {
-          if (success) {
-            [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : filename}];
-            if (handler != nil) {
-              handler((NTDNote *)document /* Shhh... */);
-              [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
-            }
-          } else {
-            NSLog(@"WARNING: Couldn't update note!");
-            [Flurry logError:@"Couldn't update note" message:nil error:nil];
-//            handler(nil);
-          };
-        }];
+      NSError *error;
+      [document writeContents:[text dataUsingEncoding:NSUTF8StringEncoding] toURL:document.fileURL forSaveOperation:UIDocumentSaveForOverwriting originalContentsURL:document.fileURL error:&error];
+      
+      if (error == nil) {
+        [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : filename}];
+        if (handler != nil) {
+          handler((NTDNote *)document /* Shhh... */);
+          [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+        }
+      } else {
+        NSLog(@"WARNING: Couldn't update note! %@", [error localizedDescription]);
+        [Flurry logError:@"Couldn't update note" message:nil error:nil];
+      }
     }
   }];
 }

@@ -26,7 +26,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
-+ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler;
@@ -36,6 +36,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler;
++ (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
 
 + (void)refreshStoragePreferences;
 + (NSInteger)indexForNote:(NTDNote *)note amongNotes:(NSArray *)notes;

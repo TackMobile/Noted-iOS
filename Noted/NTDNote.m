@@ -43,15 +43,6 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [PrivateImplentingClass getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler];
 }
 
-+ (void)updateNote:(NSString *)filename atPath:(NSString *)path andCompletionHandler:(void(^)(NTDNote *))handler
-{
-  [PrivateImplentingClass updateNote:filename atPath:path andCompletionHandler:^(NTDNote *note) {
-    NSParameterAssert(note);
-    note.text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
-    handler(note);
-  }];
-}
-
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler
 {
     [PrivateImplentingClass restoreNote:deletedNote completionHandler:handler];
@@ -118,6 +109,20 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     };
     retainedRecursiveBlock = recursiveBlock;
     recursiveBlock();
+}
+
++ (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass updateNoteWithFilename:filename text:text andCompletionHandler:handler];
+}
+
++ (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
+{
+  [self updateNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
+    NSParameterAssert(note);
+//    note.text = text;
+    handler(note);
+  }];
 }
 
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
