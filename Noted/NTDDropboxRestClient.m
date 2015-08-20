@@ -7,7 +7,6 @@
 //
 
 #import "NTDDropboxRestClient.h"
-#import "NTDNoteDocument.h"
 #import "NTDNote.h"
 #import "NTDTheme.h"
 #import "NTDCollectionViewController.h"
@@ -132,15 +131,8 @@ NSString *dropboxRoot = @"/";
 #pragma mark - Download
 
 - (void)downloadDropboxFile:(DBMetadata *)file toNote:(NTDNote *)note {
-  NSString *localPath;
-  if (note == nil) {
-    // New note - send file to tmp directory in documents
-    NSURL *url = [[NTDNote notesDirectoryURL] URLByAppendingPathComponent:file.filename];
-    localPath = url.path;
-  } else {
-    // Update existing note - use existing note's path
-    localPath = note.fileURL.path;
-  }
+  NSString *localDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+  NSString *localPath = [localDir stringByAppendingPathComponent:[file.filename stringByAppendingString:@".TMP"]];
   [self.restClient loadFile:file.path atRev:nil intoPath:localPath];
 }
 
@@ -152,18 +144,23 @@ NSString *dropboxRoot = @"/";
     return;
   }
   
+  // Grab tmp file content and then delete
+  NSString *dropboxFileText = [NSString stringWithContentsOfFile:localPath encoding:NSUTF8StringEncoding error:NULL];
+  [self deleteFileAtLocalPath:localPath];
+  
   [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
     if (note == nil) {
       // Note does not exist. Create a new note with contents of file saved at localPath.
-      
-      [NTDNote newNoteWithPath:localPath filename:metadata.filename theme:[NTDTheme randomTheme] completionHandler:^(NTDNote *note) {
-        NSLog(@"New note created with filename %@ at path %@", note.filename, note.fileURL.path);
+      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] filename:metadata.filename completionHandler:^(NTDNote *note) {
+        NSLog(@"New note created with filename %@", note.filename);
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
       }];
     } else {
       // Note already exists. Note's stored file was updated. Need to reload notes in main collection view controller.
       [NTDNote updateNote:metadata.filename atPath:localPath andCompletionHandler:^(NTDNote *note) {
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+        NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
+        [controller reloadNotes];
       }];
     }
   }];
@@ -177,7 +174,7 @@ NSString *dropboxRoot = @"/";
 
 - (void)deleteDropboxFile:(NSString *)filename {
   self.syncInProgress = YES;
-  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
+//  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
 }
 
 - (void) restClient:(DBRestClient *)client deletedPath:(NSString *)path {

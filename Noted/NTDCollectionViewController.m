@@ -1556,6 +1556,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                 cell.dateCreated = note.lastModifiedDate;
                 cell.textView.text = note.text;
                 [cell applyTheme:note.theme];
+                [self.collectionView reloadItemsAtIndexPaths:[[NSArray alloc] initWithObjects:indexPath, nil]];
             }];
         }
     } else {

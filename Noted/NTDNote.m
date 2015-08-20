@@ -47,9 +47,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 {
   [PrivateImplentingClass updateNote:filename atPath:path andCompletionHandler:^(NTDNote *note) {
     NSParameterAssert(note);
-    NSString *updatedContent = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
-    NSLog(@"Updated content - %@", updatedContent);
-    note.text = updatedContent;
+    note.text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
     handler(note);
   }];
 }
@@ -69,6 +67,11 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     [PrivateImplentingClass newNoteWithCompletionHandler:handler];
 }
 
++ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass newNoteWithFilename:filename text:text andCompletionHandler:handler];
+}
+
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
 {
     [self newNoteWithCompletionHandler:^(NTDNote *note) {
@@ -79,12 +82,11 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     }];
 }
 
-+ (void)newNoteWithPath:(NSString *)path filename:(NSString *)filename theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
 {
-  [PrivateImplentingClass newNoteWithPath:path filename:filename theme:theme completionHandler:^(NTDNote *note) {
+  [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
     NSParameterAssert(note);
-    note.filename = filename;
-    note.text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+    note.text = text;
     note.theme = theme;
     handler(note);
   }];

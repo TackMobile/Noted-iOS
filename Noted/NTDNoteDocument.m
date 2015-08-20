@@ -81,6 +81,12 @@ static NSUInteger filenameCounter = 1;
     return url;
 }
 
++ (NSURL *)newFileURL:(NSString *)filename
+{
+  NSURL *url = [[self notesDirectoryURL] URLByAppendingPathComponent:filename];
+  return url;
+}
+
 + (NSURL *)fileURLFromIndex:(NSUInteger)index
 {
     // try to use the new index. if not, keep incrimenting
@@ -314,7 +320,7 @@ BOOL safe_rename(const char *old, const char *new)
     typeof(self) __weak weakSelf = self;
     [context performBlockAndWait:^{
         typeof(self) strongSelf = weakSelf;
-        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate) {
+        if (!strongSelf || !strongSelf.metadata || !strongSelf.metadata.lastModifiedDate) {
             [Flurry logEvent:@"Avoided crash"];
             NSLog(@"Avoided metadata related crash.");
             didSaveMetadata = NO;
@@ -472,7 +478,23 @@ BOOL safe_rename(const char *old, const char *new)
     if (note != nil) {
       NSUInteger fileIndex = [self indexFromFilename:note.filename];
       NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
-      handler((NTDNote *)document /* Shhh... */);
+      document.metadata.lastModifiedDate = [NSDate date];
+      
+      [document saveToURL:document.fileURL
+         forSaveOperation:UIDocumentSaveForOverwriting
+        completionHandler:^(BOOL success) {
+          if (success) {
+            [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : filename}];
+            if (handler != nil) {
+              handler((NTDNote *)document /* Shhh... */);
+              [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+            }
+          } else {
+            NSLog(@"WARNING: Couldn't update note!");
+            [Flurry logError:@"Couldn't update note" message:nil error:nil];
+//            handler(nil);
+          };
+        }];
     }
   }];
 }
@@ -483,18 +505,11 @@ BOOL safe_rename(const char *old, const char *new)
     [self newNoteWithDocument:document completionHandler:handler];
 }
 
-+ (void)newNoteWithPath:(NSString *)path filename:(NSString *)filename theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
++ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[NSURL fileURLWithPath:path]];
-  document.metadata = [NSEntityDescription insertNewObjectForEntityForName:@"NTDNoteMetadata"
-                                                    inManagedObjectContext:[self managedObjectContext]];
-  document.metadata.filename = [document.fileURL lastPathComponent];
-  document.metadata.lastModifiedDate = [NSDate date];
-  [Flurry logEvent:@"Note Created" withParameters:@{@"filename" : @"document.metadata.filename"}];
-  if (handler != nil) {
-    handler((NTDNote *)document /* Shhh... */);
-    [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
-  }
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL:filename]];
+  [document setText:text];
+  [self newNoteWithDocument:document completionHandler:handler];
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
