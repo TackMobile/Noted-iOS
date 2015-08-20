@@ -290,12 +290,12 @@ static NTDDropboxRestClient *restClient = nil;
   }
 }
 
-+ (void)deleteNoteFromDropbox:(NTDNote *)note {
++ (void)deleteNoteFromDropbox:(NSString *)filename {
   if ([self isDropboxEnabledAndLinked]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient deleteDropboxFile:note.filename];
+    [restClient deleteDropboxFile:filename];
   }
 }
 

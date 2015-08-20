@@ -1309,7 +1309,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];
-        [NTDDropboxManager deleteNoteFromDropbox:note]; // KAK TODO
+        [NTDDropboxManager deleteNoteFromDropbox:deletedNote.filename]; // KAK TODO
     }];
 }
 

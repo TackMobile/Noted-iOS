@@ -126,7 +126,7 @@ NSString *dropboxRoot = @"/";
 
 - (void)deleteDropboxFile:(NSString *)filename {
   self.syncInProgress = YES;
-//  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
+  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
 }
 
 - (void) restClient:(DBRestClient *)client deletedPath:(NSString *)path {
