@@ -18,15 +18,15 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 + (BOOL)isDropboxEnabled;
 + (void)setDropboxEnabled:(BOOL)enabled;
 + (BOOL)isDropboxLinked;
++ (void)unlinkDropbox;
 + (NSString *)getDropboxPrice;
 + (BOOL)isDropboxPurchased;
 + (void)setPurchased:(BOOL)purchased;
 + (void)purchaseDropbox;
 + (void)showErrorMessageAndDismiss:(NSString*)msg;
++ (void)dismissModalIfShowing;
 + (void)syncNotes;
 + (void)deleteNoteFromDropbox:(NTDNote *)note;
 + (void)uploadNewNoteToDropbox:(NTDNote *)note;
 
-//+(void)setup;
-//+(void)importDropboxNotes;
 @end

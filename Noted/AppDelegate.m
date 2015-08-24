@@ -57,6 +57,15 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+  
+  // Sync dropbox notes
+  [NTDDropboxManager syncNotes];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+  // Sync dropbox notes
+  [NTDDropboxManager syncNotes];
 }
 
 - (void)customizeAppearance

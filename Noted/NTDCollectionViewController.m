@@ -1326,6 +1326,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.notes insertObject:note atIndex:newIndex];
             restoredNote.indexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
             [self.deletedNotesStack removeLastObject];
+            [NTDDropboxManager uploadNewNoteToDropbox:note];
             [self restoreCard:restoredNote];
         }];
     }

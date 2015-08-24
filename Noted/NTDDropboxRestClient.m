@@ -10,6 +10,7 @@
 #import "NTDNote.h"
 #import "NTDTheme.h"
 #import "NTDCollectionViewController.h"
+#import "NTDDropboxManager.h"
 
 @interface NTDDropboxRestClient () <DBRestClientDelegate>
 @property (nonatomic, strong) DBRestClient *restClient;
@@ -36,6 +37,7 @@ NSString *dropboxRoot = @"/";
     self.syncInProgress = YES;
     [self fetchDropboxMetadata];
   } else {
+    [NTDDropboxManager dismissModalIfShowing];
     NSLog(@"syncWithDropbox: Sync in progress. Do nothing.");
   }
 }
@@ -65,11 +67,13 @@ NSString *dropboxRoot = @"/";
       }
       
       self.syncInProgress = NO;
+      [NTDDropboxManager dismissModalIfShowing];
     }];
     
   } else {
     NSLog(@"restClient laodedMetadata: path must be directory");
     self.syncInProgress = NO;
+    [NTDDropboxManager dismissModalIfShowing];
   }
 }
 

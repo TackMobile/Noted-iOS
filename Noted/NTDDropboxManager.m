@@ -79,6 +79,11 @@ static NTDDropboxRestClient *restClient = nil;
 
 + (void)linkAccountFromViewController:(UIViewController *)controller
 {
+  if (![self isDropboxEnabled] && [self isDropboxLinked]) {
+    [self setDropboxEnabled:NO];
+    [self unlinkDropbox];
+  }
+  
   if (![self isDropboxLinked]) {
     [[DBSession sharedSession] linkFromController:controller];
   }
@@ -99,25 +104,8 @@ static NTDDropboxRestClient *restClient = nil;
     
     if ([self isDropboxLinked]) {
       NSLog(@"App linked successfully!");
+      [self syncNotes];
     }
-    
-//    DBFilesystem *oldshared = [DBFilesystem sharedFilesystem];
-//    DBFilesystem *filesystem = [[DBFilesystem alloc] initWithAccount:account];
-//    [DBFilesystem setSharedFilesystem:filesystem];
-//    
-//    if (oldshared == filesystem) {
-//      [self importExistingFiles];
-//      [modalView dismiss];
-//    } else {
-//      [filesystem addObserver:self block:^{
-//        if ([DBFilesystem sharedFilesystem].completedFirstSync)  {
-//          [self importExistingFiles];
-//          [[DBFilesystem sharedFilesystem] removeObserver:self];
-//        }
-//        [modalView dismiss];
-//      }];
-//    }
-    
     
   } else { // the user cancelled or this somehow otherwise failed
     NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:@"Unable to link with Dropbox at this time. Please try again later."
@@ -148,6 +136,13 @@ static NTDDropboxRestClient *restClient = nil;
 + (BOOL)isDropboxLinked
 {
   return [[DBSession sharedSession] isLinked];
+}
+
++ (void)unlinkDropbox
+{
+  if ([self isDropboxLinked]) {
+    [[DBSession sharedSession] unlinkAll];
+  }
 }
 
 #pragma mark - Dropbox purchase
@@ -274,7 +269,8 @@ static NTDDropboxRestClient *restClient = nil;
   [modalView show];
 }
 
-+ (void)dismissModalIfShowing {
++ (void)dismissModalIfShowing
+{
   if (modalView != nil)
     [modalView dismiss];
 }
@@ -311,8 +307,10 @@ static NTDDropboxRestClient *restClient = nil;
 #pragma mark - Helpers
 
 + (BOOL)isDropboxEnabledAndLinked {
-//  return [self isDropboxEnabled] && [self isDropboxLinked]; // KAK TODO
-  return [self isDropboxLinked];
+  if (![self isDropboxEnabled] && [self isDropboxLinked]) {
+    [self unlinkDropbox];
+  }
+  return [self isDropboxEnabled] && [self isDropboxLinked];
 }
 
 @end
