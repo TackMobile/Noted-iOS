@@ -84,8 +84,24 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
     if (note != nil) {
       NSParameterAssert(note);
+      note.filename = filename;
       note.text = text;
       note.theme = theme;
+      handler(note);
+    }
+  }];
+}
+
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename clientMtime:(NSDate *)clientMtime rev:(NSString *)rev completionHandler:(void(^)(NTDNote *note))handler
+{
+  [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      NSParameterAssert(note);
+      note.filename = filename;
+      note.text = text;
+      note.theme = theme;
+      note.dropboxClientMtime = clientMtime;
+      note.dropboxRev = rev;
       handler(note);
     }
   }];

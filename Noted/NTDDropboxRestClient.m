@@ -151,21 +151,29 @@ NSString *dropboxRoot = @"/";
       // Note does not exist. Create a new note with contents of file saved at localPath.
       [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] filename:metadata.filename completionHandler:^(NTDNote *note) {
         NSLog(@"New note created with filename %@", note.filename);
+        [[self filesToDownload] removeLastObject];
+        [[self filesToUploadDropboxRev] removeLastObject];
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
+        [self performSync];
       }];
     } else {
       // Note already exists. Note's stored file was updated. Need to reload notes in main collection view controller.
       NSLog(@"KAK NOTE ALREADY EXISTS NEED TO UPDATE");
+      [[self filesToDownload] removeLastObject];
+      [[self filesToUploadDropboxRev] removeLastObject];
+      [self performSync];
 //      [NTDNote updateNoteWithText:dropboxFileText filename:metadata.filename completionHandler:^(NTDNote *note) {
 //        NSLog(@"Note updated with filename %@", note.filename);
 //        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+//          [self performSync];
 //      }];
     }
   }];
 }
 
 - (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
-  NSLog(@"There was an error loading the file: %@", error);
+  NSLog(@"There was an error loading the file: %@. Retrying.", error);
+  [self performSync];
 }
 
 #pragma mark - Delete

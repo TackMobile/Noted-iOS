@@ -36,6 +36,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename clientMtime:(NSDate *)clientMtime rev:(NSString *)rev completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler;
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
 
