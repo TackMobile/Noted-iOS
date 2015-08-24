@@ -1242,7 +1242,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                                  [self.visibleCell.textView becomeFirstResponder];
                                if (isListLayout) {
                                  [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughMakeANoteStep];
-                                 [NTDDropboxManager uploadNewNoteToDropbox:note];
+                                 [NTDDropboxManager uploadNoteToDropbox:note];
                                }
                              });
                          }];
@@ -1311,7 +1311,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         }
     } completion:^(BOOL finished) {
         [self showShakeToUndoModalIfNecessary];
-        [NTDDropboxManager deleteNoteFromDropbox:deletedNote.filename]; // KAK TODO
+        [NTDDropboxManager deleteNoteFromDropbox:(NTDNote *)deletedNote];
     }];
 }
 
@@ -1326,7 +1326,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.notes insertObject:note atIndex:newIndex];
             restoredNote.indexPath = [NSIndexPath indexPathForItem:newIndex inSection:0];
             [self.deletedNotesStack removeLastObject];
-            [NTDDropboxManager uploadNewNoteToDropbox:note];
+            [NTDDropboxManager uploadNoteToDropbox:note];
             [self restoreCard:restoredNote];
         }];
     }
@@ -1743,6 +1743,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
+    [NTDDropboxManager uploadNoteToDropbox:[self noteAtIndexPath:self.visibleCardIndexPath]];
 }
 
 #pragma mark - Keyboard Handling

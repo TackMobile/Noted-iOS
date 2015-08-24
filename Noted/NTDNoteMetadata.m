@@ -15,5 +15,7 @@
 @dynamic colorScheme;
 @dynamic headline;
 @dynamic lastModifiedDate;
+@dynamic dropboxClientMtime;
+@dynamic dropboxRev;
 
 @end

@@ -16,5 +16,7 @@
 @property (nonatomic) NTDColorScheme colorScheme;
 @property (nonatomic, retain) NSString * headline;
 @property (nonatomic, retain) NSDate *lastModifiedDate;
+@property (nonatomic, retain) NSDate *dropboxClientMtime;
+@property (nonatomic, retain) NSString * dropboxRev;
 
 @end

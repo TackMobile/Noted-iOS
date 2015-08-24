@@ -26,6 +26,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
@@ -51,6 +52,8 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (NSString *)headline;
 - (NSDate *)lastModifiedDate;
 - (NTDNoteFileState)fileState;
+- (NSDate *)dropboxClientMtime;
+- (NSString *)dropboxRev;
 
 - (NTDTheme *)theme;
 - (NSString *)text;
@@ -58,6 +61,8 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (void)setTheme:(NTDTheme *)theme;
 - (void)setText:(NSString *)text;
 - (void)setLastModifiedDate:(NSDate *)date;
+- (void)setDropboxClientMtime:(NSDate *)clientMtime;
+- (void)setDropboxRev:(NSString *)rev;
 
 //- (id<NTDNoteDelegate>)delegate;
 //- (void)setDelegate:(id<NTDNoteDelegate>)delegate;

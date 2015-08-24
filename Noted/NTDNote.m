@@ -9,7 +9,6 @@
 #import "NTDNote.h"
 #import "NTDNoteDocument.h"
 #import "NTDDropboxManager.h"
-#import "NTDDropboxNote.h"
 #import "NTDNote+ImplUtils.h"
 
 static Class PrivateImplentingClass;
@@ -43,6 +42,11 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [PrivateImplentingClass getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler];
 }
 
++ (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass getNoteDocumentByFilename:filename andCompletionHandler:handler];
+}
+
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler
 {
     [PrivateImplentingClass restoreNote:deletedNote completionHandler:handler];
@@ -66,20 +70,24 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
 {
     [self newNoteWithCompletionHandler:^(NTDNote *note) {
+      if (note != nil) {
         NSParameterAssert(note);
         note.text = text;
         note.theme = theme;
         handler(note);
+      }
     }];
 }
 
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
 {
   [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
-    NSParameterAssert(note);
-    note.text = text;
-    note.theme = theme;
-    handler(note);
+    if (note != nil) {
+      NSParameterAssert(note);
+      note.text = text;
+      note.theme = theme;
+      handler(note);
+    }
   }];
 }
 
@@ -119,9 +127,10 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
 {
   [self updateNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
-    NSParameterAssert(note);
-//    note.text = text;
-    handler(note);
+    if (note != nil) {
+      NSParameterAssert(note);
+      handler(note);
+    }
   }];
 }
 
@@ -137,11 +146,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
 
 + (void)refreshStoragePreferences
 {
-  // KAK TODO
-//    if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxLinked])
-//        PrivateImplentingClass = [NTDDropboxNote class];
-//    else
-        PrivateImplentingClass = [NTDNoteDocument class];
+    PrivateImplentingClass = [NTDNoteDocument class];
 }
 
 + (NSInteger)indexForNote:(NTDNote *)note amongNotes:(NSArray *)notes

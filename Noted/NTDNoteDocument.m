@@ -472,6 +472,13 @@ BOOL safe_rename(const char *old, const char *new)
   handler(results.firstObject);
 }
 
++ (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NSUInteger fileIndex = [self indexFromFilename:filename];
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+  handler((NTDNote *)document /* Shhh... */);
+}
+
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
@@ -521,7 +528,9 @@ BOOL safe_rename(const char *old, const char *new)
         [note setTheme:deletedNote.theme];
         [note setLastModifiedDate:deletedNote.lastModifiedDate];
         [note setText:deletedNote.bodyText];
-        
+        [note setDropboxClientMtime:deletedNote.dropboxClientMtime];
+        [note setDropboxRev:deletedNote.dropboxRev];
+      
         handler(note);
     }];
 }
@@ -531,6 +540,8 @@ BOOL safe_rename(const char *old, const char *new)
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
     document.metadata.lastModifiedDate = [NSDate date];
+    document.metadata.dropboxClientMtime = [NSDate date];
+    document.metadata.dropboxRev = @"";
   
     [document saveToURL:document.fileURL
        forSaveOperation:UIDocumentSaveForCreating
@@ -692,6 +703,16 @@ BOOL safe_rename(const char *old, const char *new)
     return self.metadata.lastModifiedDate;
 }
 
+- (NSDate *)dropboxClientMtime
+{
+  return self.metadata.dropboxClientMtime;
+}
+
+- (NSString *)dropboxRev
+{
+  return self.metadata.dropboxRev;
+}
+
 - (NTDNoteFileState)fileState
 {
     switch (self.documentState) {
@@ -749,6 +770,22 @@ BOOL safe_rename(const char *old, const char *new)
 {
   if (![filename isEqualToString:self.filename]) {
     self.metadata.filename = filename;
+    [self updateChangeCount:UIDocumentChangeDone];
+  }
+}
+
+- (void)setDropboxClientMtime:(NSDate *)clientMtime
+{
+  if (![clientMtime isEqualToDate:self.dropboxClientMtime]) {
+    self.metadata.dropboxClientMtime = clientMtime;
+    [self updateChangeCount:UIDocumentChangeDone];
+  }
+}
+
+- (void)setDropboxRev:(NSString *)rev
+{
+  if (![rev isEqualToString:self.dropboxRev]) {
+    self.metadata.dropboxRev = rev;
     [self updateChangeCount:UIDocumentChangeDone];
   }
 }

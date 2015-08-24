@@ -27,6 +27,6 @@ FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
 + (void)dismissModalIfShowing;
 + (void)syncNotes;
 + (void)deleteNoteFromDropbox:(NTDNote *)note;
-+ (void)uploadNewNoteToDropbox:(NTDNote *)note;
++ (void)uploadNoteToDropbox:(NTDNote *)note;
 
 @end

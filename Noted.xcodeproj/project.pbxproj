@@ -198,8 +198,6 @@
 		3FC8308E1861FB50001C141C /* NTDModalView.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = NTDModalView.m; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 1; };
 		3FC830921862209D001C141C /* NTDDropboxManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDropboxManager.h; sourceTree = "<group>"; };
 		3FC830931862209D001C141C /* NTDDropboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxManager.m; sourceTree = "<group>"; };
-		3FC8309518623E61001C141C /* NTDDropboxNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDropboxNote.h; sourceTree = "<group>"; };
-		3FC8309618623E61001C141C /* NTDDropboxNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxNote.m; sourceTree = "<group>"; };
 		3FC8309818623FBF001C141C /* NTDNote+ImplUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDNote+ImplUtils.h"; sourceTree = "<group>"; };
 		3FC8309918623FBF001C141C /* NTDNote+ImplUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDNote+ImplUtils.m"; sourceTree = "<group>"; };
 		3FC8309C1864FB7F001C141C /* NTDDropboxObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDropboxObserver.h; sourceTree = "<group>"; };
@@ -547,8 +545,6 @@
 			children = (
 				3FC8309C1864FB7F001C141C /* NTDDropboxObserver.h */,
 				3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */,
-				3FC8309518623E61001C141C /* NTDDropboxNote.h */,
-				3FC8309618623E61001C141C /* NTDDropboxNote.m */,
 			);
 			name = Private;
 			sourceTree = "<group>";

@@ -11,9 +11,9 @@
 
 @interface NTDDeletedNotePlaceholder ()
 
-@property (nonatomic, strong) NSString *filename, *headline, *bodyText;
+@property (nonatomic, strong) NSString *filename, *headline, *bodyText, *dropboxRev;
 @property (nonatomic, strong) NTDTheme *theme;
-@property (nonatomic, strong) NSDate *lastModifiedDate;
+@property (nonatomic, strong) NSDate *lastModifiedDate, *dropboxClientMtime;
 
 @end
 
@@ -26,7 +26,9 @@
         self.lastModifiedDate = note.lastModifiedDate;
         self.theme = note.theme;
         self.bodyText = note.text;
-        
+        self.dropboxClientMtime = note.dropboxClientMtime;
+        self.dropboxRev = nil;
+      
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(flushSavedColumns:)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification

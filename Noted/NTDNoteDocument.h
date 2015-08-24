@@ -14,7 +14,6 @@
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler;
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 - (void)deleteWithCompletionHandler:(void (^)(BOOL success))completionHandler;
-+ (void)updateNote:(NTDNote *)note andCompletionHandler:(void(^)(NTDNote *))handler;
 
 + (NSURL *)notesDirectoryURL;
 

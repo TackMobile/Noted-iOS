@@ -11,7 +11,6 @@
 #import "NTDDropboxManager.h"
 #import "NTDModalView.h"
 #import "NTDNote.h"
-#import "NTDDropboxNote.h"
 #import "NTDNoteDocument.h"
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "WaitingAnimationLayer.h"
@@ -286,21 +285,21 @@ static NTDDropboxRestClient *restClient = nil;
   }
 }
 
-+ (void)deleteNoteFromDropbox:(NSString *)filename {
++ (void)deleteNoteFromDropbox:(NTDNote *)note {
   if ([self isDropboxEnabledAndLinked]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient deleteDropboxFile:filename];
+    [restClient deleteDropboxFile:note.filename];
   }
 }
 
-+ (void)uploadNewNoteToDropbox:(NTDNote *)note {
++ (void)uploadNoteToDropbox:(NTDNote *)note {
   if ([self isDropboxEnabledAndLinked]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient uploadFileToDropbox:note withDropboxFileRev:nil];
+    [restClient uploadFileToDropbox:note withDropboxFileRev:note == nil ? nil : note.filename];
   }
 }
 
@@ -331,33 +330,6 @@ static NTDDropboxRestClient *restClient = nil;
 // This method should be more or less idempotent.
 + (void)importExistingFiles
 {
-  
-  ////////////////////////////////////////////////////////////
-  //// KAK THIS vvv NEEDS TO BE REMOVED vvv
-  ////////////////////////////////////////////////////////////
-  
-    static BOOL didImportExistingFiles = NO;
-    // This is to prevent a Dropbox related crash, which happens sometimes, sometimes not
-    if (didImportExistingFiles) {
-        NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:@"Unable to link with Dropbox at this time. Please try again later."
-                                                                  layer:nil
-                                                        backgroundColor:[UIColor blackColor]
-                                                                buttons:@[@"OK"]
-                                                       dismissalHandler:^(NSUInteger index) {
-                                                           [self dismissModalIfShowing];
-                                                       }];
-        
-        [modalView show];
-        [self setDropboxEnabled:NO];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [[[DBAccountManager sharedManager] linkedAccount] unlink];
-        });
-        return;
-    }
-  
-  ////////////////////////////////////////////////////////////
-  //// KAK THIS ^^^ NEEDS TO BE REMOVED ^^^
-  ////////////////////////////////////////////////////////////
   
     NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
     [controller returnToListLayout];
