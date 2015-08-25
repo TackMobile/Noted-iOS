@@ -51,6 +51,7 @@ NSString *dropboxRoot = @"/";
 - (void)compareDropboxWithLocal:(DBMetadata *)metadata {
   if (metadata.isDirectory) {
     NSArray *dropboxFiles = metadata.contents;
+    
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
       
       self.filesToUpload = [[NSMutableArray alloc] init];
@@ -58,25 +59,29 @@ NSString *dropboxRoot = @"/";
       self.filesToDownload = [[NSMutableArray alloc] init];
       self.filesToDownloadCorrespondingNote = [[NSMutableArray alloc] init];
       
-      for (NTDNote *note in notes) {
-        DBMetadata *dropboxFile = [self dropboxContainsFilename:note.filename inDropboxMetadataArray:dropboxFiles];
-        if (dropboxFile == nil) {
-          [[self filesToUpload] addObject:note];
-          [[self filesToUploadDropboxRev] addObject:@""];
-        } else if ([note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
-          // Local note modified after dropbox file
-          [[self filesToUpload] addObject:note];
-          [[self filesToUploadDropboxRev] addObject:dropboxFile.rev];
-        } else if ([note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedAscending) {
-          // Dropbox file modified after local note
-          [[self filesToDownload] addObject:dropboxFile];
-          [[self filesToDownloadCorrespondingNote] addObject:note];
+      for (DBMetadata *file in dropboxFiles) {
+        if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil) {
+          [[self filesToDownload] addObject:file];
+          [[self filesToDownloadCorrespondingNote] addObject:@""];
         }
       }
       
-      for (DBMetadata *file in dropboxFiles) {
-        if ([self localContainsFilename:file.filename inLocalMetadataArray:notes] == nil) {
-          [[self filesToDownload] addObject:file];
+      for (NTDNote *note in notes) {
+        DBMetadata *dropboxFile = [self dropboxContainsNoteFilename:note inDropboxMetadataArray:dropboxFiles];
+        if (dropboxFile == nil) {
+          [[self filesToUpload] addObject:note];
+          [[self filesToUploadDropboxRev] addObject:@""];
+        } else if ([note.dropboxRev isEqualToString:dropboxFile.rev] && [note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
+          // Local note modified after dropbox file. Rev IDs match.
+          // Upload local note to dropbox.
+          [[self filesToUpload] addObject:note];
+          [[self filesToUploadDropboxRev] addObject:dropboxFile.rev];
+        } else if ([note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedAscending) {
+          // Modified dates do not match and rev IDs do not match.
+          // Upload note to dropbox and download updated file from dropbox.
+          [[self filesToUpload] addObject:note];
+          [[self filesToUploadDropboxRev] addObject:@""];
+          [[self filesToDownload] addObject:dropboxFile];
           [[self filesToDownloadCorrespondingNote] addObject:@""];
         }
       }
@@ -99,11 +104,11 @@ NSString *dropboxRoot = @"/";
     [self uploadFileToDropbox:noteToUpload withDropboxFileRev:(uploadRev == nil || [uploadRev length] == 0) ? nil : uploadRev];
   } else if (self.filesToDownload.count > 0) {
     DBMetadata *fileToDownload = (DBMetadata *)[[self filesToDownload] lastObject];
-    if ([[[self filesToDownloadCorrespondingNote] firstObject] isKindOfClass:[NTDNote class]]) {
+    if ([[[self filesToDownloadCorrespondingNote] firstObject] isKindOfClass:[NSString class]]) { // Empty string for 
+      [self downloadDropboxFile:fileToDownload toNote:nil];
+    } else {
       NTDNote *noteToUpdate = (NTDNote *)[[self filesToDownloadCorrespondingNote] lastObject];
       [self downloadDropboxFile:fileToDownload toNote:noteToUpdate];
-    } else {
-      [self downloadDropboxFile:fileToDownload toNote:nil];
     }
   } else {
     self.syncInProgress = NO;
@@ -119,9 +124,11 @@ NSString *dropboxRoot = @"/";
 
 - (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath metadata:(DBMetadata *)metadata {
   NSLog(@"Note uploaded successfully to dropbox: %@", metadata.filename);
+  [NTDNote updateNoteWithDropboxMetadata:[srcPath lastPathComponent] newFilename:metadata.filename rev:metadata.rev clientMtime:metadata.clientMtime lastModifiedDate:metadata.lastModifiedDate completionHandler:^(NTDNote *note) {}];
   [[self filesToUpload] removeLastObject];
   [[self filesToUploadDropboxRev] removeLastObject];
   [self performSync];
+
 }
 
 - (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
@@ -149,24 +156,34 @@ NSString *dropboxRoot = @"/";
   [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
     if (note == nil) {
       // Note does not exist. Create a new note with contents of file saved at localPath.
-      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] filename:metadata.filename completionHandler:^(NTDNote *note) {
+      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:metadata.filename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
         NSLog(@"New note created with filename %@", note.filename);
         [[self filesToDownload] removeLastObject];
-        [[self filesToUploadDropboxRev] removeLastObject];
+        [[self filesToDownloadCorrespondingNote] removeLastObject];
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
         [self performSync];
       }];
+      
+    // If different rev IDs, duplicate document. Otherwise update note.
+    } else if ([note.dropboxRev isEqualToString:metadata.rev]) {
+      // Update note
+      [NTDNote updateNoteWithText:note text:dropboxFileText andCompletionHandler:^(NTDNote *note) {
+        NSLog(@"Note updated with filename %@", note.filename);
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+        [[self filesToDownload] removeLastObject];
+        [[self filesToDownloadCorrespondingNote] removeLastObject];
+        [self performSync];
+      }];
     } else {
-      // Note already exists. Note's stored file was updated. Need to reload notes in main collection view controller.
-      NSLog(@"KAK NOTE ALREADY EXISTS NEED TO UPDATE");
-      [[self filesToDownload] removeLastObject];
-      [[self filesToUploadDropboxRev] removeLastObject];
-      [self performSync];
-//      [NTDNote updateNoteWithText:dropboxFileText filename:metadata.filename completionHandler:^(NTDNote *note) {
-//        NSLog(@"Note updated with filename %@", note.filename);
-//        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
-//          [self performSync];
-//      }];
+      // Create new note
+      NSString *newFilename = [NSString stringWithFormat:@"%@.new", metadata.filename];
+      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:newFilename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
+        NSLog(@"New note created with filename %@", note.filename);
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
+        
+        // Now need to update dropbox with updated filename
+        [self renameDropboxFile:metadata.path newPath:[NSString stringWithFormat:@"%@%@", dropboxRoot, newFilename]];
+      }];
     }
   }];
 }
@@ -207,23 +224,39 @@ NSString *dropboxRoot = @"/";
   NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
   self.syncInProgress = NO;
 }
+
+#pragma mark - Rename
+
+- (void)renameDropboxFile:(NSString *)existingPath newPath:(NSString *)newPath {
+  [self.restClient moveFrom:existingPath toPath:newPath];
+}
+
+- (void)restClient:(DBRestClient *)client movedPath:(NSString *)from_path to:(DBMetadata *)result {
+  NSLog(@"Dropbox file moved from path %@ to path %@", from_path, result.path);
+  [[self filesToDownload] removeLastObject];
+  [[self filesToDownloadCorrespondingNote] removeLastObject];
+  [self performSync];
+}
+
+- (void)restClient:(DBRestClient *)client movePathFailedWithError:(NSError *)error {
+  NSLog(@"movePathFailedWithError: Error moving dropbox file: %@", error);
+  [self performSync];
+}
   
 #pragma mark - Helpers
 
-- (NTDNote *)localContainsFilename:(NSString *)filename inLocalMetadataArray:(NSArray *)array {
-  for (int i = 0; i < array.count; i++) {
-    NTDNote *note = (NTDNote *)[array objectAtIndex:i];
-    if ([filename isEqualToString:note.filename]) {
+- (NTDNote *)localContainsDropboxFilename:(DBMetadata *)file inLocalMetadataArray:(NSArray *)array {
+  for (NTDNote *note in array) {
+    if ([file.filename isEqualToString:note.filename]) {
       return note;
     }
   }
   return nil;
 }
 
-- (DBMetadata *)dropboxContainsFilename:(NSString *)filename inDropboxMetadataArray:(NSArray *)array {
-  for (int i = 0; i < array.count; i++) {
-    DBMetadata *file = (DBMetadata *)[array objectAtIndex:i];
-    if ([filename isEqualToString:file.filename]) {
+- (DBMetadata *)dropboxContainsNoteFilename:(NTDNote *)note inDropboxMetadataArray:(NSArray *)array {
+  for (DBMetadata *file in array) {
+    if ([note.filename isEqualToString:file.filename]) {
       return file;
     }
   }

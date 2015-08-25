@@ -47,6 +47,16 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [PrivateImplentingClass getNoteDocumentByFilename:filename andCompletionHandler:handler];
 }
 
++ (void)getNoteMetadataByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass getNoteMetadataByDropboxRev:rev andCompletionHandler:handler];
+}
+
++ (void)getNoteDocumentByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass getNoteDocumentByDropboxRev:rev andCompletionHandler:handler];
+}
+
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler
 {
     [PrivateImplentingClass restoreNote:deletedNote completionHandler:handler];
@@ -62,9 +72,9 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     [PrivateImplentingClass newNoteWithCompletionHandler:handler];
 }
 
-+ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  [PrivateImplentingClass newNoteWithFilename:filename text:text andCompletionHandler:handler];
+  [PrivateImplentingClass newNoteWithFilename:filename text:text lastModifiedDate:lastModifiedDate andCompletionHandler:handler];
 }
 
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler
@@ -79,29 +89,17 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     }];
 }
 
-+ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme lastModifiedDate:(NSDate *)lastModifiedDate filename:(NSString *)filename dropboxRev:(NSString *)rev dropboxClientMtime:(NSDate *)clientMtime completionHandler:(void(^)(NTDNote *note))handler
 {
-  [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
+  [self newNoteWithFilename:filename text:text lastModifiedDate:lastModifiedDate andCompletionHandler:^(NTDNote *note) {
     if (note != nil) {
       NSParameterAssert(note);
       note.filename = filename;
       note.text = text;
       note.theme = theme;
-      handler(note);
-    }
-  }];
-}
-
-+ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename clientMtime:(NSDate *)clientMtime rev:(NSString *)rev completionHandler:(void(^)(NTDNote *note))handler
-{
-  [self newNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
-    if (note != nil) {
-      NSParameterAssert(note);
-      note.filename = filename;
-      note.text = text;
-      note.theme = theme;
-      note.dropboxClientMtime = clientMtime;
+      note.lastModifiedDate = lastModifiedDate;
       note.dropboxRev = rev;
+      note.dropboxClientMtime = clientMtime;
       handler(note);
     }
   }];
@@ -135,9 +133,59 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
     recursiveBlock();
 }
 
++ (void)updateNoteWithDropboxMetadata:(NSString *)oldFilename newFilename:(NSString *)newFilename rev:(NSString *)rev clientMtime:(NSDate *)clientMtime lastModifiedDate:(NSDate *)lastModifiedDate completionHandler:(void(^)(NTDNote *note))handler
+{
+  if ([oldFilename isEqualToString:newFilename]) {
+    [self getNoteByFilename:oldFilename andCompletionHandler:^(NTDNote *note) {
+      if (note != nil) {
+        note.dropboxRev = rev;
+        note.dropboxClientMtime = clientMtime;
+        note.lastModifiedDate = lastModifiedDate;
+        handler(note);
+      } else {
+        handler(nil);
+      }
+    }];
+  } else {
+    [PrivateImplentingClass updateNoteWithFilename:oldFilename newFilename:newFilename text:nil lastModifiedDate:lastModifiedDate andCompletionHandler:^(NTDNote *note) {
+      if (note != nil) {
+        note.filename = newFilename;
+        note.dropboxRev = rev;
+        note.dropboxClientMtime = clientMtime;
+        note.lastModifiedDate = lastModifiedDate;
+        handler(note);
+      } else {
+        handler(nil);
+      }
+    }];
+  }
+}
+
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [PrivateImplentingClass updateNoteWithFilename:filename text:text andCompletionHandler:handler];
+}
+
++ (void)updateNoteFromDropbox:(NSString *)rev filename:(NSString *)filename text:(NSString *)text clientMtime:(NSDate *)clientMtime lastUpdatedDate:(NSDate *)lastUpdatedDate completionHandler:(void(^)(NTDNote *note))handler
+{
+  [self getNoteDocumentByDropboxRev:rev andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      note.filename = filename;
+      note.text = text;
+      note.dropboxClientMtime = clientMtime;
+      note.dropboxRev = rev;
+      note.lastModifiedDate = lastUpdatedDate;
+    }
+  }];
+}
+
++ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [PrivateImplentingClass updateNoteWithText:note text:text andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      note.text = text;
+    }
+  }];
 }
 
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
@@ -145,6 +193,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   [self updateNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
     if (note != nil) {
       NSParameterAssert(note);
+      note.text = text;
       handler(note);
     }
   }];

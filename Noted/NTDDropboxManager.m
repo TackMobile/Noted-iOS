@@ -299,7 +299,8 @@ static NTDDropboxRestClient *restClient = nil;
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient uploadFileToDropbox:note withDropboxFileRev:note == nil ? nil : note.filename];
+    NSString *rev = (note.dropboxRev == nil || [note.dropboxRev length] == 0) ? nil : note.dropboxRev;
+    [restClient uploadFileToDropbox:note withDropboxFileRev:rev];
   }
 }
 

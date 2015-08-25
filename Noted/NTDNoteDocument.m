@@ -466,27 +466,73 @@ BOOL safe_rename(const char *old, const char *new)
   NSError __autoreleasing *error;
   NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
   if (results == nil) {
-    NSLog(@"WARNING: Couldn't fetch list of notes!");
-    [Flurry logError:@"Couldn't fetch list of notes" message:[error localizedDescription] error:error];
+    NSLog(@"WARNING: Couldn't fetch note by filename!");
+    [Flurry logError:@"Couldn't fetch note by filename" message:[error localizedDescription] error:error];
+  }
+  handler(results.firstObject);
+}
+
++ (void)getNoteMetadataByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"NTDNoteMetadata"];
+  NSSortDescriptor *filenameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"filename" ascending:NO];
+  fetchRequest.sortDescriptors = @[filenameSortDescriptor];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dropboxRev == %@", rev];
+  [fetchRequest setPredicate:predicate];
+  NSError __autoreleasing *error;
+  NSArray *results = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+  if (results == nil) {
+    NSLog(@"WARNING: Couldn't note by rev!");
+    [Flurry logError:@"Couldn't note by rev" message:[error localizedDescription] error:error];
   }
   handler(results.firstObject);
 }
 
 + (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  NSUInteger fileIndex = [self indexFromFilename:filename];
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:filename]];
   handler((NTDNote *)document /* Shhh... */);
+}
+
++ (void)getNoteDocumentByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  [self getNoteMetadataByDropboxRev:rev andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      NSUInteger fileIndex = [self indexFromFilename:note.filename];
+      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+      handler((NTDNote *)document);
+    } else {
+      handler(nil);
+    }
+  }];
+}
+
++ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
+  [document setText:text];
+  
+  NSError *error;
+  [document writeContents:[text dataUsingEncoding:NSUTF8StringEncoding] toURL:document.fileURL forSaveOperation:UIDocumentSaveForOverwriting originalContentsURL:nil error:&error];
+  
+  if (error == nil) {
+    [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : note.filename}];
+    if (handler != nil) {
+      handler((NTDNote *)document /* Shhh... */);
+      [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
+    }
+  } else {
+    NSLog(@"WARNING: Couldn't update note! %@", [error localizedDescription]);
+    [Flurry logError:@"Couldn't update note" message:nil error:nil];
+  }
 }
 
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
     if (note != nil) {
-      NSUInteger fileIndex = [self indexFromFilename:note.filename];
-      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
+      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
       document.metadata = (id)note;
-      document.metadata.filename = [document.fileURL lastPathComponent];
       document.metadata.lastModifiedDate = [NSDate date];
       [document setText:text];
       
@@ -507,24 +553,54 @@ BOOL safe_rename(const char *old, const char *new)
   }];
 }
 
++ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler
+{
+  if ([oldFilename isEqualToString:newFilename]) {
+    [self updateNoteWithFilename:oldFilename text:text andCompletionHandler:handler];
+  } else {
+    [self getNoteByFilename:oldFilename andCompletionHandler:^(NTDNote *note) {
+      if (note != nil) {
+        NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSURL *newFileURL = [[self notesDirectoryURL] URLByAppendingPathComponent:newFilename];
+        
+        [document closeWithCompletionHandler:^(BOOL success) {
+          NSError *error;
+          
+          if (success) {
+            success = [fileManager moveItemAtURL:document.fileURL toURL:newFileURL error:&error];
+          }
+          
+          if (success) {
+            handler((NTDNote *)document /* Shhh... */);
+          } else {
+            handler(nil);
+          }
+        }];
+      }
+    }];
+  }
+}
+
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *))handler
 {
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL]];
-    [self newNoteWithDocument:document completionHandler:handler];
+    [self newNoteWithDocument:document lastModifiedDate:[NSDate date] completionHandler:handler];
 }
 
-+ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler
 {
   NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self newFileURL:filename]];
   [document setText:text];
-  [self newNoteWithDocument:document completionHandler:handler];
+  [document setLastModifiedDate:lastModifiedDate];
+  [self newNoteWithDocument:document lastModifiedDate:lastModifiedDate completionHandler:handler];
 }
 
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
     NSUInteger fileIndex = [self indexFromFilename:deletedNote.filename];
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
     
-    [self newNoteWithDocument:document completionHandler:^(NTDNote *note) {
+  [self newNoteWithDocument:document lastModifiedDate:[NSDate date] completionHandler:^(NTDNote *note) {
         [note setTheme:deletedNote.theme];
         [note setLastModifiedDate:deletedNote.lastModifiedDate];
         [note setText:deletedNote.bodyText];
@@ -535,12 +611,12 @@ BOOL safe_rename(const char *old, const char *new)
     }];
 }
 
-+ (void)newNoteWithDocument:(NTDNoteDocument *)document completionHandler:(void(^)(NTDNote *))handler {
++ (void)newNoteWithDocument:(NTDNoteDocument *)document lastModifiedDate:(NSDate *)lastModifiedDate completionHandler:(void(^)(NTDNote *))handler {
     document.metadata = [NSEntityDescription insertNewObjectForEntityForName:@"NTDNoteMetadata"
                                                       inManagedObjectContext:[self managedObjectContext]];
     document.metadata.filename = [document.fileURL lastPathComponent];
-    document.metadata.lastModifiedDate = [NSDate date];
-    document.metadata.dropboxClientMtime = [NSDate date];
+    document.metadata.lastModifiedDate = lastModifiedDate;
+    document.metadata.dropboxClientMtime = lastModifiedDate;
     document.metadata.dropboxRev = @"";
   
     [document saveToURL:document.fileURL

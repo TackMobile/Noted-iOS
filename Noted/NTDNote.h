@@ -27,18 +27,28 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 + (void)listNotesWithCompletionHandler:(void(^)(NSArray *notes))handler;
 + (void)getNoteByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)getNoteMetadataByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)getNoteDocumentByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler;
+
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler;
+
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
-+ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler;
+
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *note))handler;
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 + (void)restoreNotesFromBackupWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler;
 
 + (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme completionHandler:(void(^)(NTDNote *note))handler;
-+ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
-+ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme filename:(NSString *)filename clientMtime:(NSDate *)clientMtime rev:(NSString *)rev completionHandler:(void(^)(NTDNote *note))handler;
++ (void)newNoteWithText:(NSString *)text theme:(NTDTheme *)theme lastModifiedDate:(NSDate *)lastModifiedDate filename:(NSString *)filename dropboxRev:(NSString *)rev dropboxClientMtime:(NSDate *)clientMtime completionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNotesWithTexts:(NSArray *)texts themes:(NSArray *)themes completionHandler:(void(^)(NSArray *notes))handler;
+
++ (void)updateNoteWithDropboxMetadata:(NSString *)oldFilename newFilename:(NSString *)newFilename rev:(NSString *)rev clientMtime:(NSDate *)clientMtime lastModifiedDate:(NSDate *)lastModifiedDate completionHandler:(void(^)(NTDNote *note))handler;
+
++ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
++ (void)updateNoteFromDropbox:(NSString *)rev filename:(NSString *)filename text:(NSString *)text clientMtime:(NSDate *)clientMtime lastUpdatedDate:(NSDate *)lastUpdatedDate completionHandler:(void(^)(NTDNote *note))handler;
 
 + (void)refreshStoragePreferences;
 + (NSInteger)indexForNote:(NTDNote *)note amongNotes:(NSArray *)notes;
