@@ -167,7 +167,7 @@ NSString *dropboxRoot = @"/";
     // If different rev IDs, duplicate document. Otherwise update note.
     } else if ([note.dropboxRev isEqualToString:metadata.rev]) {
       // Update note
-      [NTDNote updateNoteWithText:note text:dropboxFileText andCompletionHandler:^(NTDNote *note) {
+      [NTDNote updateNoteWithText:dropboxFileText filename:note.filename completionHandler:^(NTDNote *note) {
         NSLog(@"Note updated with filename %@", note.filename);
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
         [[self filesToDownload] removeLastObject];
@@ -177,6 +177,7 @@ NSString *dropboxRoot = @"/";
     } else {
       // Create new note
       NSString *newFilename = [NSString stringWithFormat:@"%@.new", metadata.filename];
+//      [NTDNote updateNoteWithFilename:note.filename newFilename:<#(NSString *)#> text:dropboxFileText lastModifiedDate:<#(NSDate *)#> andCompletionHandler:<#^(NTDNote *)handler#>]
       [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:newFilename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
         NSLog(@"New note created with filename %@", note.filename);
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];

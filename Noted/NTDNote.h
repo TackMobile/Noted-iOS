@@ -46,7 +46,6 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 
 + (void)updateNoteWithDropboxMetadata:(NSString *)oldFilename newFilename:(NSString *)newFilename rev:(NSString *)rev clientMtime:(NSDate *)clientMtime lastModifiedDate:(NSDate *)lastModifiedDate completionHandler:(void(^)(NTDNote *note))handler;
 
-+ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler;
 + (void)updateNoteFromDropbox:(NSString *)rev filename:(NSString *)filename text:(NSString *)text clientMtime:(NSDate *)clientMtime lastUpdatedDate:(NSDate *)lastUpdatedDate completionHandler:(void(^)(NTDNote *note))handler;
 

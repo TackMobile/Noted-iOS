@@ -1743,7 +1743,10 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
-    [NTDDropboxManager uploadNoteToDropbox:[self noteAtIndexPath:self.visibleCardIndexPath]];
+    NTDNote *note = [self noteAtIndexPath:self.visibleCardIndexPath];
+    [NTDNote updateNoteWithText:textView.text filename:note.filename completionHandler:^(NTDNote *note) {
+      [NTDDropboxManager uploadNoteToDropbox:note];
+    }];
 }
 
 #pragma mark - Keyboard Handling

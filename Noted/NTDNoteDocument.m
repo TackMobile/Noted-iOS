@@ -507,26 +507,6 @@ BOOL safe_rename(const char *old, const char *new)
   }];
 }
 
-+ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
-{
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
-  [document setText:text];
-  
-  NSError *error;
-  [document writeContents:[text dataUsingEncoding:NSUTF8StringEncoding] toURL:document.fileURL forSaveOperation:UIDocumentSaveForOverwriting originalContentsURL:nil error:&error];
-  
-  if (error == nil) {
-    [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : note.filename}];
-    if (handler != nil) {
-      handler((NTDNote *)document /* Shhh... */);
-      [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
-    }
-  } else {
-    NSLog(@"WARNING: Couldn't update note! %@", [error localizedDescription]);
-    [Flurry logError:@"Couldn't update note" message:nil error:nil];
-  }
-}
-
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
 {
   [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {

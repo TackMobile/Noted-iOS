@@ -179,15 +179,6 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   }];
 }
 
-+ (void)updateNoteWithText:(NTDNote *)note text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler
-{
-  [PrivateImplentingClass updateNoteWithText:note text:text andCompletionHandler:^(NTDNote *note) {
-    if (note != nil) {
-      note.text = text;
-    }
-  }];
-}
-
 + (void)updateNoteWithText:(NSString *)text filename:(NSString *)filename completionHandler:(void(^)(NTDNote *note))handler
 {
   [self updateNoteWithFilename:filename text:text andCompletionHandler:^(NTDNote *note) {
