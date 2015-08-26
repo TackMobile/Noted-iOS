@@ -135,8 +135,16 @@ NSString *dropboxRoot = @"/";
   NSString *destinationPath = (NSString *)[[error userInfo] objectForKey:@"destinationPath"];
   NSString *sourcePath = (NSString *)[[error userInfo] objectForKey:@"sourcePath"];
   NSString* filename = [sourcePath lastPathComponent];
-  NSLog(@"Note upload failed to dropbox with filename: %@. Retrying.", filename);
-  [self performSync];
+  
+  if ([[NSFileManager defaultManager] fileExistsAtPath:sourcePath]) {
+    NSLog(@"Note upload failed to dropbox with filename: %@. Retrying.", filename);
+    [self performSync];
+  } else {
+    NSLog(@"Note upload failed to dropbox with filename: %@ and file does not exist.", filename);
+    [[self filesToUpload] removeLastObject];
+    [[self filesToUploadDropboxRev] removeLastObject];
+    [self performSync];
+  }
 }
 
 #pragma mark - Download
@@ -176,14 +184,13 @@ NSString *dropboxRoot = @"/";
       }];
     } else {
       // Create new note
-      NSString *newFilename = [NSString stringWithFormat:@"%@.new", metadata.filename];
-//      [NTDNote updateNoteWithFilename:note.filename newFilename:<#(NSString *)#> text:dropboxFileText lastModifiedDate:<#(NSDate *)#> andCompletionHandler:<#^(NTDNote *)handler#>]
-      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:newFilename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
+      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:metadata.filename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
         NSLog(@"New note created with filename %@", note.filename);
         [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
         
-        // Now need to update dropbox with updated filename
-        [self renameDropboxFile:metadata.path newPath:[NSString stringWithFormat:@"%@%@", dropboxRoot, newFilename]];
+        [[self filesToDownload] removeLastObject];
+        [[self filesToDownloadCorrespondingNote] removeLastObject];
+        [self performSync];
       }];
     }
   }];

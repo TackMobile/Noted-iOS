@@ -543,6 +543,9 @@ BOOL safe_rename(const char *old, const char *new)
         NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSURL *newFileURL = [[self notesDirectoryURL] URLByAppendingPathComponent:newFilename];
+        document.metadata = (id)note;
+        document.metadata.filename = newFilename;
+        document.metadata.lastModifiedDate = lastModifiedDate;
         
         [document closeWithCompletionHandler:^(BOOL success) {
           NSError *error;
@@ -552,7 +555,10 @@ BOOL safe_rename(const char *old, const char *new)
           }
           
           if (success) {
+            [document setFilename:newFilename];
+            [document setLastModifiedDate:lastModifiedDate];
             handler((NTDNote *)document /* Shhh... */);
+            [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
           } else {
             handler(nil);
           }
