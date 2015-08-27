@@ -270,8 +270,10 @@ static NTDDropboxRestClient *restClient = nil;
 
 + (void)dismissModalIfShowing
 {
-  if (modalView != nil)
-    [modalView dismiss];
+  dispatch_async(dispatch_get_main_queue(), ^(void){
+    if (modalView != nil)
+      [modalView dismiss];
+  });
 }
 
 #pragma mark - File operations
