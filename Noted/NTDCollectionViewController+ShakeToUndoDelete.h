@@ -11,5 +11,6 @@
 @interface NTDCollectionViewController (ShakeToUndoDelete)
 
 -(void)showShakeToUndoModalIfNecessary;
+-(void)showShakeToUndoRemoteDeletionModalIfNecessary:(NSString *)filename;
 
 @end

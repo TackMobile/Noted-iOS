@@ -190,6 +190,11 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
   }];
 }
 
++ (void)deleteNoteWithFilename:(NSString *)filename completionHandler:(void(^)(BOOL success))handler
+{
+  [PrivateImplentingClass deleteNoteWithFilename:filename completionHandler:handler];
+}
+
 + (void)backupNotesWithCompletionHandler:(NTDNoteDefaultCompletionHandler)handler
 {
     [PrivateImplentingClass backupNotesWithCompletionHandler:handler];

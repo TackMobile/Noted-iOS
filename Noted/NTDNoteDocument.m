@@ -582,10 +582,61 @@ BOOL safe_rename(const char *old, const char *new)
   [self newNoteWithDocument:document lastModifiedDate:lastModifiedDate completionHandler:handler];
 }
 
++ (void)deleteNoteWithFilename:(NSString *)filename completionHandler:(void(^)(BOOL success))handler
+{
+  [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:note.filename]];
+      document.metadata = (id)note;
+      
+      NSManagedObjectContext *context = [[self class] managedObjectContext];
+      __block BOOL didDeleteMetadata;
+      [context performBlockAndWait:^{
+        [context deleteObject:document.metadata];
+        didDeleteMetadata = [context save:nil];
+      }];
+      
+      if (didDeleteMetadata) {
+        document.metadata = nil;
+      } else {
+        NSLog(@"WARNING: Couldn't delete metadata!");
+        [Flurry logError:@"Couldn't delete metadata" message:nil error:nil];
+        handler(NO);
+        return;
+      }
+      
+      NSURL *fileURL = document.fileURL;
+      [document performAsynchronousFileAccessUsingBlock:^{
+        NSError __autoreleasing *error;
+        NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [fileCoordinator coordinateWritingItemAtURL:fileURL
+                                            options:NSFileCoordinatorWritingForDeleting
+                                              error:&error
+                                         byAccessor:^(NSURL* writingURL) {
+                                           NSError __autoreleasing *fileDeletingError;
+                                           
+                                           NSFileManager* fileManager = [[NSFileManager alloc] init];
+                                           [fileManager removeItemAtURL:writingURL error:&fileDeletingError];
+                                           
+                                           if (fileDeletingError) NSLog(@"Error deleting file: %@", fileDeletingError);
+                                         }];
+        BOOL success = !error;
+        if (success) {
+          [Flurry logEvent:@"Note Deleted"];
+        }
+        handler(success);
+      }];
+      
+    } else {
+      handler(NO);
+    }
+  }];
+}
+
 + (void)restoreNote:(NTDDeletedNotePlaceholder *)deletedNote completionHandler:(void(^)(NTDNote *))handler {
     NSUInteger fileIndex = [self indexFromFilename:deletedNote.filename];
     NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[self fileURLFromIndex:fileIndex]];
-    
+  
   [self newNoteWithDocument:document lastModifiedDate:[NSDate date] completionHandler:^(NTDNote *note) {
         [note setTheme:deletedNote.theme];
         [note setLastModifiedDate:deletedNote.lastModifiedDate];

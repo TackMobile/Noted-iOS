@@ -1294,6 +1294,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath
 {
+  [self deleteCardAtIndexPath:indexPath isRemoteDelete:NO];
+}
+
+- (void)deleteCardAtIndexPath:(NSIndexPath *)indexPath isRemoteDelete:(BOOL)isRemoteDelete
+{
     NTDNote *note = [self noteAtIndexPath:indexPath];
     NTDDeletedNotePlaceholder *deletedNote = [[NTDDeletedNotePlaceholder alloc] initWithNote:note];
     deletedNote.indexPath = indexPath;
@@ -1310,8 +1315,12 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             [self.collectionView reloadItemsAtIndexPaths:@[[indexPath ntd_indexPathForPreviousItem]]];
         }
     } completion:^(BOOL finished) {
-        [self showShakeToUndoModalIfNecessary];
-        [NTDDropboxManager deleteNoteFromDropbox:(NTDNote *)deletedNote];
+        if (isRemoteDelete) {
+            [self showShakeToUndoRemoteDeletionModalIfNecessary:deletedNote.filename];
+        } else {
+            [self showShakeToUndoModalIfNecessary];
+            [NTDDropboxManager deleteNoteFromDropbox:(NTDNote *)deletedNote];
+        }
     }];
 }
 
@@ -1350,7 +1359,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
       for (int i = 0; i < self.notes.count; i++) {
         NTDNote *myNote = [self.notes objectAtIndex:i];
         if ([myNote.filename isEqualToString:note.filename]) {
-          NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+          NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
           return indexPath;
         }
       }
@@ -1359,6 +1368,19 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
     return indexPath;
+}
+
+- (NSIndexPath *)indexPathForFilename:(NSString *)filename
+{
+  for (int i = 0; i < self.notes.count; i++) {
+    NTDNote *myNote = [self.notes objectAtIndex:i];
+    if ([myNote.filename isEqualToString:filename] || myNote.filename == nil) {
+      NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+      return indexPath;
+    }
+  }
+  NSLog(@"Couldn't find note with filename %@", filename);
+  return nil;
 }
 
 - (void)setBodyForCell:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
@@ -1570,27 +1592,36 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)noteWasDeleted:(NSNotification *)notification
 {
+  if ([notification.object isKindOfClass:NSString.class]) {
+    NSString *filename = notification.object;
+    NSIndexPath *indexPath = [self indexPathForFilename:filename];
+    [self deleteCardAtIndexPath:indexPath isRemoteDelete:YES];
+    if (self.notes.count == 1) {
+      [self didSelectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+    }
+  } else {
     NTDNote *note = notification.object;
     NSIndexPath *indexPath = [self indexPathForNote:note];
     [self.notes removeObject:note];
     if (indexPath) {
-        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+      [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } else {
-        NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
+      NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }
-    if (self.notes.count == 0) {
-        [NTDNote newNoteWithText:@"" theme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite] completionHandler:^(NTDNote *note) {
-            [self.notes addObject:note];
-            [self.collectionView reloadData];
-            self.pagingLayout.activeCardIndex = 0;
-            [self updateLayout:self.pagingLayout animated:NO];
-        }];
-    }
+  }
+  
+  if (self.notes.count == 0) {
+    [NTDNote newNoteWithText:@"" theme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite] completionHandler:^(NTDNote *note) {
+      [self.notes addObject:note];
+      [self.collectionView reloadData];
+      self.pagingLayout.activeCardIndex = 0;
+      [self updateLayout:self.pagingLayout animated:NO];
+    }];
+  }
 }
 
 - (void)noteWasAdded:(NSNotification *)notification
 {
-    
     NTDNote *note = notification.object;
     if ([self.notes containsObject:note]) {
         NSLog(@"Received a 'note added' notification, but we already have the note. %@", note);

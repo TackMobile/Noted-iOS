@@ -38,6 +38,13 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
         [self performSelector:@selector(showShakeToUndoModal) withObject:nil afterDelay:.25];
 }
 
+-(void)showShakeToUndoRemoteDeletionModalIfNecessary:(NSString *)filename
+{
+  BOOL isShowing = [NTDModalView isShowing];
+  if (!isShowing)
+    [self performSelector:@selector(showShakeToUndoRemoteModal:) withObject:filename afterDelay:.25];
+}
+
 -(void)showShakeToUndoModal
 {
     if ([NTDModalView isShowing]) return; /* The modal was triggered again before the timer fired this selector. Just ignore. */
@@ -68,5 +75,35 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
                                                                   [p seekToTime:kCMTimeZero];
                                                               }];
     [modalView show];
+}
+
+-(void)showShakeToUndoRemoteModal:(NSString *)filename
+{
+  if ([NTDModalView isShowing]) return; /* The modal was triggered again before the timer fired this selector. Just ignore. */
+  NSString *device = [UIDeviceHardware deviceType];
+  NSString *msg = [NSString stringWithFormat:@"Note %@ was deleted remotely. You can restore the deleted note by shaking your %@.", filename, device];
+  
+  AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"ShakeToUndoAnimation" withExtension:@"mov"]];
+  player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+  AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+  playerLayer.frame = (CGRect){.origin = CGPointZero, .size.width = 220, .size.height = 190};
+  [player play];
+  
+  id observer;
+  NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg
+                                                            layer:playerLayer
+                                                  backgroundColor:[UIColor blackColor]
+                                                          buttons:@[@"OK"]
+                                                 dismissalHandler:^(NSUInteger index) {
+                                                   [NSNotificationCenter.defaultCenter removeObserver:observer];
+                                                 }];
+  observer = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
+                                                               object:player.currentItem
+                                                                queue:[NSOperationQueue mainQueue]
+                                                           usingBlock:^(NSNotification *note) {
+                                                             AVPlayerItem *p = [note object];
+                                                             [p seekToTime:kCMTimeZero];
+                                                           }];
+  [modalView show];
 }
 @end

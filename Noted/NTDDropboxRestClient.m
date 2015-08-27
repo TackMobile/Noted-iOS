@@ -60,7 +60,7 @@ NSString *dropboxRoot = @"/";
       self.filesToDownloadCorrespondingNote = [[NSMutableArray alloc] init];
       
       for (DBMetadata *file in dropboxFiles) {
-        if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil) {
+        if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil && !file.isDeleted) {
           [[self filesToDownload] addObject:file];
           [[self filesToDownloadCorrespondingNote] addObject:@""];
         }
@@ -71,6 +71,10 @@ NSString *dropboxRoot = @"/";
         if (dropboxFile == nil) {
           [[self filesToUpload] addObject:note];
           [[self filesToUploadDropboxRev] addObject:@""];
+        } else if (dropboxFile.isDeleted) {
+          // Dropbox file has been deleted. Delete local file as well.
+          [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:dropboxFile.filename];
+          NSLog(@"%@ deleted locally due to Dropbox deletion.", dropboxFile.filename);
         } else if ([note.dropboxRev isEqualToString:dropboxFile.rev] && [note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
           // Local note modified after dropbox file. Rev IDs match.
           // Upload local note to dropbox.
@@ -197,8 +201,22 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
-  NSLog(@"There was an error loading the file: %@. Retrying.", error);
-  [self performSync];
+  NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
+  NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
+  NSString *destinationPath = (NSString *)[[error userInfo] objectForKey:@"destinationPath"];
+  NSString *filename = [dropboxPath lastPathComponent];
+  if (dropboxError != nil && [dropboxError rangeOfString:@"delete"].location != NSNotFound) {
+    // File has been deleted on dropbox. Need to delete locally.
+    [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:filename];
+    NSLog(@"%@ deleted locally due to Dropbox deletion.", filename);
+    [[self filesToDownload] removeLastObject];
+    [[self filesToDownloadCorrespondingNote] removeLastObject];
+    [self performSync];
+  } else {
+    // Other error. Retry.
+    NSLog(@"There was an error loading the file: %@. Retrying.", error);
+    [self performSync];
+  }
 }
 
 #pragma mark - Delete
@@ -221,7 +239,9 @@ NSString *dropboxRoot = @"/";
 #pragma mark - Metadata
 
 - (void)fetchDropboxMetadata {
-  [self.restClient loadMetadata:dropboxRoot];
+  [self.restClient loadMetadata:dropboxRoot withParams:[NSDictionary dictionaryWithObject:@"true" forKey:@"include_deleted"]];
+  
+//  [self.restClient loadMetadata:dropboxRoot];
 }
 
 - (void)restClient:(DBRestClient *)client loadedMetadata:(DBMetadata *)metadata {
