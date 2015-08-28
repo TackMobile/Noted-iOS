@@ -147,7 +147,7 @@ NSString *const NTDNoteHasConflictNotification =@"NTDNoteHasConflictNotification
       }
     }];
   } else {
-    [PrivateImplentingClass updateNoteWithFilename:oldFilename newFilename:newFilename text:nil lastModifiedDate:lastModifiedDate andCompletionHandler:^(NTDNote *note) {
+    [PrivateImplentingClass updateNoteWithFilename:oldFilename newFilename:newFilename text:nil lastModifiedDate:lastModifiedDate dropboxClientMtime:clientMtime dropboxRev:rev andCompletionHandler:^(NTDNote *note) {
       if (note != nil) {
         note.filename = newFilename;
         note.dropboxRev = rev;

@@ -490,8 +490,13 @@ BOOL safe_rename(const char *old, const char *new)
 
 + (void)getNoteDocumentByFilename:(NSString *)filename andCompletionHandler:(void(^)(NTDNote *))handler
 {
-  NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:filename]];
-  handler((NTDNote *)document /* Shhh... */);
+  [self getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
+    if (note != nil) {
+      NTDNoteDocument *document = [[NTDNoteDocument alloc] initWithFileURL:[[self notesDirectoryURL] URLByAppendingPathComponent:filename]];
+      document.metadata = (id)note;
+      handler((NTDNote *)document /* Shhh... */);
+    }
+  }];
 }
 
 + (void)getNoteDocumentByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
@@ -533,7 +538,7 @@ BOOL safe_rename(const char *old, const char *new)
   }];
 }
 
-+ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler
++ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate dropboxClientMtime:(NSDate *)clientMtime dropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler
 {
   if ([oldFilename isEqualToString:newFilename]) {
     [self updateNoteWithFilename:oldFilename text:text andCompletionHandler:handler];
@@ -546,6 +551,8 @@ BOOL safe_rename(const char *old, const char *new)
         document.metadata = (id)note;
         document.metadata.filename = newFilename;
         document.metadata.lastModifiedDate = lastModifiedDate;
+        document.metadata.dropboxClientMtime = clientMtime;
+        document.metadata.dropboxRev = rev;
         
         [document closeWithCompletionHandler:^(BOOL success) {
           NSError *error;

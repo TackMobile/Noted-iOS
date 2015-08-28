@@ -31,7 +31,7 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 + (void)getNoteDocumentByDropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler;
 
 + (void)updateNoteWithFilename:(NSString *)filename text:(NSString *)text andCompletionHandler:(void(^)(NTDNote *))handler;
-+ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler;
++ (void)updateNoteWithFilename:(NSString *)oldFilename newFilename:(NSString *)newFilename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate dropboxClientMtime:(NSDate *)clientMtime dropboxRev:(NSString *)rev andCompletionHandler:(void(^)(NTDNote *))handler;
 
 + (void)newNoteWithCompletionHandler:(void(^)(NTDNote *note))handler;
 + (void)newNoteWithFilename:(NSString *)filename text:(NSString *)text lastModifiedDate:(NSDate *)lastModifiedDate andCompletionHandler:(void(^)(NTDNote *))handler;

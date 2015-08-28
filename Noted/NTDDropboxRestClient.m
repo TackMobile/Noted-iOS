@@ -60,7 +60,7 @@ NSString *dropboxRoot = @"/";
       self.filesToDownloadCorrespondingNote = [[NSMutableArray alloc] init];
       
       for (DBMetadata *file in dropboxFiles) {
-        if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil && !file.isDeleted) {
+        if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil && !file.isDeleted && file.totalBytes < 5000) {
           [[self filesToDownload] addObject:file];
           [[self filesToDownloadCorrespondingNote] addObject:@""];
         }
@@ -74,15 +74,19 @@ NSString *dropboxRoot = @"/";
         } else if (dropboxFile.isDeleted) {
           // Dropbox file has been deleted. Delete local file as well.
           dispatch_async(dispatch_get_main_queue(), ^(void){
-            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:dropboxFile.filename];
-            NSLog(@"%@ deleted locally due to Dropbox deletion.", dropboxFile.filename);
+            [NTDNote getNoteByFilename:dropboxFile.filename andCompletionHandler:^(NTDNote *note) {
+              if (note != nil) {
+                [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:dropboxFile.filename];
+                NSLog(@"%@ deleted locally due to Dropbox deletion.", dropboxFile.filename);
+              }
+            }];
           });
-        } else if ([note.dropboxRev isEqualToString:dropboxFile.rev] && [note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
+        } else if ([note.dropboxRev isEqualToString:dropboxFile.rev]) {
           // Local note modified after dropbox file. Rev IDs match.
           // Upload local note to dropbox.
           [[self filesToUpload] addObject:note];
           [[self filesToUploadDropboxRev] addObject:dropboxFile.rev];
-        } else if ([note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedAscending) {
+        } else {
           // Modified dates do not match and rev IDs do not match.
           // Upload note to dropbox and download updated file from dropbox.
           [[self filesToUpload] addObject:note];
@@ -225,8 +229,12 @@ NSString *dropboxRoot = @"/";
     if (dropboxError != nil && [dropboxError rangeOfString:@"delete"].location != NSNotFound) {
       // File has been deleted on dropbox. Need to delete locally.
       dispatch_async(dispatch_get_main_queue(), ^(void){
-        NSLog(@"%@ deleted locally due to Dropbox deletion.", filename);
-        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:filename];
+        [NTDNote getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
+          if (note != nil) {
+            NSLog(@"%@ deleted locally due to Dropbox deletion.", filename);
+            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:filename];
+          }
+        }];
       });
       
       [[self filesToDownload] removeLastObject];

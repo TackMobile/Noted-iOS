@@ -39,9 +39,10 @@ static NTDDropboxRestClient *restClient = nil;
   
   // Old keys:            AppKey:@"dbq94n6jtz5l4n0" secret:@"3fo991ft5qzgn10"
   // Jaclyn's temp keys:  AppKey:@"lwscmn1v79cbgag" secret:@"rqoh5v4tjvztg9a"
+  // Kelvin's temp keys:  AppKey:@"wuctk62vh1yamo7" secret:@"t9mo61046gzn3tb"
   // New keys (current):  AppKey:@"uoi2t5ruoykgrdy" secret:@"7z7j97bs2fh07g9"
   
-  DBSession *dbSession = [[DBSession alloc] initWithAppKey:@"uoi2t5ruoykgrdy" appSecret:@"7z7j97bs2fh07g9" root:kDBRootAppFolder]; // either kDBRootAppFolder or kDBRootDropbox
+  DBSession *dbSession = [[DBSession alloc] initWithAppKey:@"uoi2t5ruoykgrdy" appSecret:@"7z7j97bs2fh07g9" root:kDBRootAppFolder];
   [DBSession setSharedSession:dbSession];
   
   [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response)

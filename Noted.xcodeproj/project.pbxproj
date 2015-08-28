@@ -200,8 +200,6 @@
 		3FC830931862209D001C141C /* NTDDropboxManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxManager.m; sourceTree = "<group>"; };
 		3FC8309818623FBF001C141C /* NTDNote+ImplUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDNote+ImplUtils.h"; sourceTree = "<group>"; };
 		3FC8309918623FBF001C141C /* NTDNote+ImplUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NTDNote+ImplUtils.m"; sourceTree = "<group>"; };
-		3FC8309C1864FB7F001C141C /* NTDDropboxObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDDropboxObserver.h; sourceTree = "<group>"; };
-		3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDDropboxObserver.m; sourceTree = "<group>"; };
 		3FCBCFCD17C5596D0064ECB3 /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		49647001D63E48259E02462C /* libPods-NotedTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotedTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		668140F3A4E42B319AF1F92D /* Pods-NotedTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -530,7 +528,6 @@
 		3FC8309018622058001C141C /* Dropbox */ = {
 			isa = PBXGroup;
 			children = (
-				3FC8309B18624D55001C141C /* Private */,
 				3FC830921862209D001C141C /* NTDDropboxManager.h */,
 				3FC830931862209D001C141C /* NTDDropboxManager.m */,
 				B6732E0D1B82413E003AECB9 /* NTDDropboxRestClient.h */,
@@ -538,15 +535,6 @@
 			);
 			name = Dropbox;
 			path = Noted;
-			sourceTree = "<group>";
-		};
-		3FC8309B18624D55001C141C /* Private */ = {
-			isa = PBXGroup;
-			children = (
-				3FC8309C1864FB7F001C141C /* NTDDropboxObserver.h */,
-				3FC8309D1864FB7F001C141C /* NTDDropboxObserver.m */,
-			);
-			name = Private;
 			sourceTree = "<group>";
 		};
 		9D3C7D095B02984930888C31 /* Pods */ = {
