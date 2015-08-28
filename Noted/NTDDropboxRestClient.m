@@ -81,12 +81,12 @@ NSString *dropboxRoot = @"/";
               }
             }];
           });
-        } else if ([note.dropboxRev isEqualToString:dropboxFile.rev]) {
+        } else if ([note.dropboxRev isEqualToString:dropboxFile.rev] && [note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
           // Local note modified after dropbox file. Rev IDs match.
           // Upload local note to dropbox.
           [[self filesToUpload] addObject:note];
           [[self filesToUploadDropboxRev] addObject:dropboxFile.rev];
-        } else {
+        } else if (![note.dropboxRev isEqualToString:dropboxFile.rev]) {
           // Modified dates do not match and rev IDs do not match.
           // Upload note to dropbox and download updated file from dropbox.
           [[self filesToUpload] addObject:note];

@@ -62,6 +62,12 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
   [NTDDropboxManager syncNotes];
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+  // Sync dropbox notes
+  [NTDDropboxManager syncNotes];
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   // Sync dropbox notes
