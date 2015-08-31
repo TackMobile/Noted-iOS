@@ -280,7 +280,14 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error {
-  NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
+  NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
+  NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
+  if (dropboxError != nil && [dropboxError rangeOfString:@"removed"].location != NSNotFound) {
+    NSLog(@"loadMetadataFailedWithError: %@ at %@. Unlinking dropbox", dropboxError, dropboxPath);
+    [NTDDropboxManager unlinkDropbox];
+  } else {
+    NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
+  }
   self.syncInProgress = NO;
 }
 

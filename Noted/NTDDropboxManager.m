@@ -142,6 +142,7 @@ static NTDDropboxRestClient *restClient = nil;
 {
   if ([self isDropboxLinked]) {
     [[DBSession sharedSession] unlinkAll];
+    [self setDropboxEnabled:false];
   }
 }
 
