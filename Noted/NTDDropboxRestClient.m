@@ -283,6 +283,7 @@ NSString *dropboxRoot = @"/";
   NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
   NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
   if (dropboxError != nil && [dropboxError rangeOfString:@"removed"].location != NSNotFound) {
+    // The user has removed/deleted the Noted app folder, making it impossible to sync. Dropbox must be unlinked and then re-linked to fix.
     NSLog(@"loadMetadataFailedWithError: %@ at %@. Unlinking dropbox", dropboxError, dropboxPath);
     [NTDDropboxManager unlinkDropbox];
   } else {

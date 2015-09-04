@@ -167,6 +167,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                  selector:@selector(noteWasAdded:)
                                                      name:NTDNoteWasAddedNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillResignActive:)
+                                                     name:@"applicationWillResignActive"
+                                                   object:nil];
 
     }
     return self;
@@ -1778,6 +1782,17 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [NTDNote updateNoteWithText:textView.text filename:note.filename completionHandler:^(NTDNote *note) {
       [NTDDropboxManager uploadNoteToDropbox:note];
     }];
+}
+
+#pragma mark - application events
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+  // App will go to background/terminate. Need to sync up any updates from the note that is being edited.
+  NTDNote *note = [self noteAtIndexPath:self.visibleCardIndexPath];
+  [NTDNote updateNoteWithText:note.text filename:note.filename completionHandler:^(NTDNote *note) {
+    [NTDDropboxManager uploadNoteToDropbox:note];
+  }];
 }
 
 #pragma mark - Keyboard Handling
