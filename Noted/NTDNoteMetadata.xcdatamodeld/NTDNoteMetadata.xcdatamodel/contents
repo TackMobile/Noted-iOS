@@ -3,7 +3,7 @@
     <entity name="NTDNoteMetadata" representedClassName="NTDNoteMetadata" syncable="YES">
         <attribute name="colorScheme" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="dropboxClientMtime" optional="YES" attributeType="Date" defaultDateTimeInterval="462132000" syncable="YES"/>
-        <attribute name="dropboxRev" attributeType="String" syncable="YES"/>
+        <attribute name="dropboxRev" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="filename" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="headline" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>

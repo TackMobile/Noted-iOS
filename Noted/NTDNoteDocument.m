@@ -527,6 +527,13 @@ BOOL safe_rename(const char *old, const char *new)
       if (error == nil) {
         [Flurry logEvent:@"Note Updated" withParameters:@{@"filename" : filename}];
         if (handler != nil) {
+          
+          NSError* error = nil;
+          if (![[[self class] managedObjectContext] save:&error]) {
+            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            abort();
+          }
+          
           handler((NTDNote *)document /* Shhh... */);
           [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
         }
@@ -549,7 +556,13 @@ BOOL safe_rename(const char *old, const char *new)
         document.metadata.lastModifiedDate = lastModifiedDate;
         document.metadata.dropboxClientMtime = clientMtime;
         document.metadata.dropboxRev = rev;
-        [[self managedObjectContext] save:nil];
+        
+        NSError* error = nil;
+        if (![[[self class] managedObjectContext] save:&error]) {
+          NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+          abort();
+        }
+        
         handler((NTDNote *)document /* Shhh... */);
         [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
       }
@@ -576,7 +589,13 @@ BOOL safe_rename(const char *old, const char *new)
           if (success) {
             [document setFilename:newFilename];
             [document setLastModifiedDate:lastModifiedDate];
-            [[self managedObjectContext] save:nil];
+            
+            NSError* error = nil;
+            if (![[[self class] managedObjectContext] save:&error]) {
+              NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+              abort();
+            }
+            
             handler((NTDNote *)document /* Shhh... */);
             [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
           } else {
@@ -613,7 +632,13 @@ BOOL safe_rename(const char *old, const char *new)
       __block BOOL didDeleteMetadata;
       [context performBlockAndWait:^{
         [context deleteObject:document.metadata];
-        didDeleteMetadata = [context save:nil];
+        
+        NSError* error = nil;
+        didDeleteMetadata = [[[self class] managedObjectContext] save:&error];
+        if (!didDeleteMetadata) {
+          NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+          abort();
+        }
       }];
       
       if (didDeleteMetadata) {
@@ -682,6 +707,13 @@ BOOL safe_rename(const char *old, const char *new)
           if (success) {
               [Flurry logEvent:@"Note Created" withParameters:@{@"counter" : @(filenameCounter-1)}];
               if (handler != nil) {
+                
+                NSError* error = nil;
+                if (![[[self class] managedObjectContext] save:&error]) {
+                  NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+                  abort();
+                }
+                
                   handler((NTDNote *)document /* Shhh... */);
                   [document autosaveWithCompletionHandler:nil]; /* In case the handler has introduced any changes. */
               }
@@ -777,7 +809,13 @@ BOOL safe_rename(const char *old, const char *new)
     __block BOOL didDeleteMetadata;
     [context performBlockAndWait:^{
         [context deleteObject:self.metadata];
-        didDeleteMetadata = [context save:nil];
+      
+        NSError* error = nil;
+        didDeleteMetadata = [[[self class] managedObjectContext] save:&error];
+        if (!didDeleteMetadata) {
+            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            abort();
+        }
     }];
     if (didDeleteMetadata) {
         self.metadata = nil;
