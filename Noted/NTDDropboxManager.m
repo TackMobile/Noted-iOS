@@ -15,6 +15,7 @@
 #import "NTDCollectionViewController+Walkthrough.h"
 #import "WaitingAnimationLayer.h"
 #import "NTDDropboxRestClient.h"
+#import "NTDWalkthrough.h"
 
 NSString *const NTDDropboxProductID = @"com.tackmobile.noted.dropbox";
 static NSString *kDropboxEnabledKey = @"kDropboxEnabledKey";
@@ -282,15 +283,21 @@ static NTDDropboxRestClient *restClient = nil;
 
 + (void)syncNotes {
   if ([self isDropboxEnabledAndLinked]) {
-    if (!restClient) {
-      restClient = [[NTDDropboxRestClient alloc] init];
+    
+    if ([[NTDWalkthrough sharedWalkthrough] isActive]) {
+      [[NTDWalkthrough sharedWalkthrough] endWalkthrough:NO];
+      NSLog(@"Walkthrough is active. Ending walkthrough and aborting dropbox sync.");
+    } else {
+      if (!restClient) {
+        restClient = [[NTDDropboxRestClient alloc] init];
+      }
+      [restClient syncWithDropbox];
     }
-    [restClient syncWithDropbox];
   }
 }
 
 + (void)deleteNoteFromDropbox:(NTDNote *)note {
-  if ([self isDropboxEnabledAndLinked]) {
+  if ([self isDropboxEnabledAndLinked] && ![[NTDWalkthrough sharedWalkthrough] isActive]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
@@ -299,7 +306,7 @@ static NTDDropboxRestClient *restClient = nil;
 }
 
 + (void)uploadNoteToDropbox:(NTDNote *)note {
-  if ([self isDropboxEnabledAndLinked]) {
+  if ([self isDropboxEnabledAndLinked] && ![[NTDWalkthrough sharedWalkthrough] isActive]) {
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
@@ -318,132 +325,3 @@ static NTDDropboxRestClient *restClient = nil;
 }
 
 @end
-
-/*
-
-@implementation NTDDropboxManager
-
-+(void)setup
-{
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-    if (account && ![DBFilesystem sharedFilesystem]) {
-        [DBFilesystem setSharedFilesystem:[[DBFilesystem alloc] initWithAccount:account]];
-    }
-}
-
-#pragma mark - Importing
-// This method should be more or less idempotent.
-+ (void)importExistingFiles
-{
-  
-    NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
-    [controller returnToListLayout];
-    [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [NTDDropboxNote syncMetadataWithCompletionBlock:^{
-                for (NTDNote *note in notes) {
-                    DBError __autoreleasing *error;
-                    NSString *filename = note.filename;
-                    DBFileInfo *fileinfo;
-                    DBPath *path;
-                    do {
-                        path = [[DBPath root] childPath:filename];
-                        fileinfo = [[DBFilesystem sharedFilesystem] fileInfoForPath:path error:nil];
-                    } while (fileinfo && (filename = IncrementIndexOfFilename(filename)));
-                    
-                    DBFile *file = [[DBFilesystem sharedFilesystem] createFile:path error:&error];
-                    if (error) {
-                        NSString *errorMsg = [NSString stringWithFormat:@"Error creating file named %@: %@", note.filename, error];
-                        [Flurry logError:kDropboxError message:errorMsg error:error];
-                        continue;
-                    }
-                    [file writeContentsOfFile:note.fileURL.path shouldSteal:NO error:&error];
-                    if (error) {
-                        NSString *errorMsg = [NSString stringWithFormat:@"Error copying contents of file named %@: %@", note.filename, error];
-                        [Flurry logError:kDropboxError message:errorMsg error:error];
-                        continue;
-                    }
-                    NTDDropboxNote *dropboxNote = [[NTDDropboxNote alloc] init];
-                    [dropboxNote copyFromNote:note file:file];
-                }
-
-                didImportExistingFiles = YES;
-                [NTDNote refreshStoragePreferences];
-                [modalView dismissWithCompletionHandler:^{
-                    modalView = [[NTDModalView alloc] init];
-                    modalView.message = @"Dropbox Sync enabled. All of your existing notes are now inside the “Apps/Noted” folder of your Dropbox.";
-                    modalView.type = NTDWalkthroughModalTypeDismiss;
-                    modalView.promptHandler = ^(BOOL userClickedYes) {
-                        [controller reloadNotes];
-                        [modalView dismiss];
-                        modalView = nil;
-                    };
-                    [modalView show];
-                }];
-            }];
-        });
-    }];
-}
-
-+ (void) importDropboxNotes
-{
-    if (![DBFilesystem sharedFilesystem])
-        return;
-    
-    NTDCollectionViewController *controller = (NTDCollectionViewController *)[[[UIApplication sharedApplication] keyWindow] rootViewController];
-    [controller returnToListLayout];
-    [NTDDropboxNote listNotesWithCompletionHandler:^(NSArray *notes) {
-        for (NTDDropboxNote *note in notes) {
-            [NTDNoteDocument newNoteWithCompletionHandler:^(NTDNote *newNote){
-                newNote.text = note.headline;
-                newNote.theme = note.theme;
-            }];
-        }
-    }];
-    [NTDNote refreshStoragePreferences];
-    modalView = [[NTDModalView alloc] init];
-    modalView.message = @"Dropbox Sync disabled. All of your notes are now stored locally.";
-    modalView.type = NTDWalkthroughModalTypeDismiss;
-    modalView.promptHandler = ^(BOOL userClickedYes) {
-        [controller reloadNotes];
-        [modalView dismiss];
-        modalView = nil;
-    };
-    [modalView show];
-}
-
-#pragma mark - Helpers
-static NSString *IncrementIndexOfFilename(NSString *path)
-{
-    NSRegularExpression *matcher = [NSRegularExpression regularExpressionWithPattern:@".*([0-9])+.*"
-                                                                             options:0
-                                                                               error:nil];
-    NSString *filename = [path stringByDeletingPathExtension], *incrementedFilename;
-    NSRange filenameRange = NSMakeRange(0, filename.length);
-    NSTextCheckingResult *textCheckingResult = [matcher firstMatchInString:filename options:0 range:filenameRange];
-    NSRange textCheckingResultRange = [textCheckingResult rangeAtIndex:1];
-    if (textCheckingResultRange.location == NSNotFound) {
-        incrementedFilename = [filename stringByAppendingString:@"-1"];
-    } else {
-        NSInteger index = [[filename substringWithRange:textCheckingResultRange] integerValue];
-        index++;
-        incrementedFilename = [filename stringByReplacingCharactersInRange:textCheckingResultRange withString:[@(index) stringValue]];
-    }
-    return [incrementedFilename stringByAppendingPathExtension:[path pathExtension]];
-}
-
-#pragma mark - Options menu
-
-- (void)purchaseDropboxSuccess {
-    [NTDDropboxManager setPurchased:YES];
-    [NTDDropboxManager linkAccountFromViewController:nil];
-    //[NTDThemesTableViewController dismissModalIfShowing];
-}
-
-- (void)purchaseDropboxFailure {
-    //[NTDThemesTableViewController dismissModalIfShowing];
-}
-
-@end
- 
- */
