@@ -115,12 +115,15 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             if (column.isDeleted) {
                 if ((self.twoFingerDeletionDirection == NTDDeletionDirectionRight && column.percentLeft >= percent)
                     || (self.twoFingerDeletionDirection == NTDDeletionDirectionLeft && column.percentLeft <= percent)) {
+                  
                     // animate un-shredding of the column
                     for (UIImageView *slice in column.slices) {
                         slice.alpha = 1;
                         slice.layer.transform = CATransform3DMakeTranslation(0, 0, zTranslation);
 
-                        /* this doesn't actually animate and I'm not sure why. The shadow opacity simply snaps into place. */
+                        // For this to animate properly the zTranslation value must be correct. If it is incorrect the shadow
+                        // opacity simply snaps into place either when animating a two-finger swipe that wasn't completed
+                        // or when restoring a deleted note via the two-finger swipe
                         CABasicAnimation *shadowAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
                         shadowAnimation.fromValue = @(0.5);
                         shadowAnimation.toValue = @(0);
@@ -269,7 +272,7 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 {
     if (self.columnsForDeletion.count == 0)
         return;
-    
+  
     CGFloat shredByPercent = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? 0 : 1;
     [self shredVisibleNoteByPercent:shredByPercent completion:^{
         // remove slices from view
@@ -297,7 +300,6 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         for (UIImageView *slice in col.slices)
             [self.collectionView addSubview:slice];
 
-    zTranslation = CGFLOAT_MAX;
     ShredAnimationDuration = UnshredAnimationDuration;
     self.twoFingerDeletionDirection = restoredNote.deletionDirection;
     self.columnsForDeletion = restoredNote.savedColumnsForDeletion;

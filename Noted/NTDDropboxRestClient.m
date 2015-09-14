@@ -221,7 +221,7 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
     NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
     NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
     NSString *destinationPath = (NSString *)[[error userInfo] objectForKey:@"destinationPath"];
