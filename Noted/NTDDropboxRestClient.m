@@ -13,6 +13,7 @@
 #import "NTDDropboxManager.h"
 
 @interface NTDDropboxRestClient () <DBRestClientDelegate>
+
 @property (nonatomic, strong) DBRestClient *restClient;
 @property BOOL syncInProgress;
 
@@ -21,6 +22,9 @@
 
 @property NSMutableArray *filesToDownload;
 @property NSMutableArray *filesToDownloadCorrespondingNote;
+
+@property NSMutableArray *filesToDelete;
+
 @end
 
 @implementation NTDDropboxRestClient
@@ -58,6 +62,7 @@ NSString *dropboxRoot = @"/";
       self.filesToUploadDropboxRev = [[NSMutableArray alloc] init];
       self.filesToDownload = [[NSMutableArray alloc] init];
       self.filesToDownloadCorrespondingNote = [[NSMutableArray alloc] init];
+      self.filesToDelete = [[NSMutableArray alloc] init];
       
       for (DBMetadata *file in dropboxFiles) {
         if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil && !file.isDeleted && file.totalBytes < 5000) {
@@ -120,6 +125,9 @@ NSString *dropboxRoot = @"/";
       NTDNote *noteToUpdate = (NTDNote *)[[self filesToDownloadCorrespondingNote] lastObject];
       [self downloadDropboxFile:fileToDownload toNote:noteToUpdate];
     }
+  } else if (self.filesToDelete.count > 0) {
+    NSString *filenameToDelete = (NSString *)[[self filesToDelete] lastObject];
+    [self deleteDropboxFile:filenameToDelete];
   } else {
     self.syncInProgress = NO;
     [NTDDropboxManager dismissModalIfShowing];
@@ -127,6 +135,18 @@ NSString *dropboxRoot = @"/";
 }
 
 #pragma mark - Upload
+
+- (void)uploadFile:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
+  if (!self.syncInProgress) {
+    self.syncInProgress = YES;
+    [[self filesToUpload] addObject:note];
+    [[self filesToUploadDropboxRev] addObject:rev == nil ? @"" : rev];
+    [self performSync];
+  } else {
+    [NTDDropboxManager dismissModalIfShowing];
+    NSLog(@"uploadFile: Dropbox Manager is busy. Do nothing.");
+  }
+}
 
 - (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
   dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -250,19 +270,31 @@ NSString *dropboxRoot = @"/";
 
 #pragma mark - Delete
 
+- (void)deleteFile:(NSString *)filename {
+  if (!self.syncInProgress) {
+    self.syncInProgress = YES;
+    [[self filesToDelete] addObject:filename];
+    [self performSync];
+  } else {
+    [NTDDropboxManager dismissModalIfShowing];
+    NSLog(@"uploadFile: Dropbox Manager is busy. Do nothing.");
+  }
+}
+
 - (void)deleteDropboxFile:(NSString *)filename {
-  self.syncInProgress = YES;
   [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
 }
 
 - (void) restClient:(DBRestClient *)client deletedPath:(NSString *)path {
   NSLog(@"Dropbox file deleted from path: %@", path);
-  self.syncInProgress = NO;
+  [[self filesToDelete] removeLastObject];
+  [self performSync];
 }
 
 - (void) restClient:(DBRestClient *)client deletePathFailedWithError:(NSError *)error {
   NSLog(@"There was an error deleting the file: %@", error);
-  self.syncInProgress = NO;
+  [[self filesToDelete] removeLastObject];
+  [self performSync];
 }
 
 #pragma mark - Metadata

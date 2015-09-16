@@ -301,7 +301,7 @@ static NTDDropboxRestClient *restClient = nil;
     if (!restClient) {
       restClient = [[NTDDropboxRestClient alloc] init];
     }
-    [restClient deleteDropboxFile:note.filename];
+    [restClient deleteFile:note.filename];
   }
 }
 
@@ -311,7 +311,7 @@ static NTDDropboxRestClient *restClient = nil;
       restClient = [[NTDDropboxRestClient alloc] init];
     }
     NSString *rev = (note.dropboxRev == nil || [note.dropboxRev length] == 0) ? nil : note.dropboxRev;
-    [restClient uploadFileToDropbox:note withDropboxFileRev:rev];
+    [restClient uploadFile:note withDropboxFileRev:rev];
   }
 }
 

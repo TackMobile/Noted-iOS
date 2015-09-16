@@ -501,7 +501,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 - (void)dropboxTapped {
   
   // Dropbox has already been purchased and is off
-  if (![NTDDropboxManager isDropboxEnabled] && true){//[NTDDropboxManager isDropboxPurchased]){ KAK TODO
+  if (![NTDDropboxManager isDropboxEnabledAndLinked]) { //&& [NTDDropboxManager isDropboxPurchased]) { TODO KAK
     NSString *msg = @"Enable Dropbox syncing?";
     __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
       if (index == 1) {
@@ -516,7 +516,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     [self reloadInputViews];
     
     // Dropbox is currently on
-  } else if ([NTDDropboxManager isDropboxEnabled] && [NTDDropboxManager isDropboxPurchased]) {
+  } else if ([NTDDropboxManager isDropboxEnabledAndLinked] && [NTDDropboxManager isDropboxPurchased]) {
     NSString *msg = @"Disable Dropbox syncing?";
     __block NTDModalView *modalView = [[NTDModalView alloc] initWithMessage:msg layer:nil backgroundColor:nil buttons:@[@"Cancel", @"Yes"] dismissalHandler:^(NSUInteger index) {
       if (index == 1) {

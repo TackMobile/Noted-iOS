@@ -12,7 +12,7 @@
 @interface NTDDropboxRestClient : NSObject
 
 - (void)syncWithDropbox;
-- (void)uploadFileToDropbox:(NTDNote *)note withDropboxFileRev:(NSString *)rev;
-- (void)deleteDropboxFile:(NSString *)filename;
+- (void)uploadFile:(NTDNote *)note withDropboxFileRev:(NSString *)rev;
+- (void)deleteFile:(NSString *)filename;
 
 @end
