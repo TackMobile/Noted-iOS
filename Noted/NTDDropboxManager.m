@@ -281,16 +281,19 @@ static NTDDropboxRestClient *restClient = nil;
 
 #pragma mark - File operations
 
++ (void)initializeRestClient {
+  if (!restClient) {
+    restClient = [[NTDDropboxRestClient alloc] init];
+  }
+}
+
 + (void)syncNotes {
   if ([self isDropboxEnabledAndLinked]) {
-    
     if ([[NTDWalkthrough sharedWalkthrough] isActive]) {
       [[NTDWalkthrough sharedWalkthrough] endWalkthrough:NO];
       NSLog(@"Walkthrough is active. Ending walkthrough and aborting dropbox sync.");
     } else {
-      if (!restClient) {
-        restClient = [[NTDDropboxRestClient alloc] init];
-      }
+      [self initializeRestClient];
       [restClient syncWithDropbox];
     }
   }
@@ -298,18 +301,14 @@ static NTDDropboxRestClient *restClient = nil;
 
 + (void)deleteNoteFromDropbox:(NTDNote *)note {
   if ([self isDropboxEnabledAndLinked] && ![[NTDWalkthrough sharedWalkthrough] isActive]) {
-    if (!restClient) {
-      restClient = [[NTDDropboxRestClient alloc] init];
-    }
+    [self initializeRestClient];
     [restClient deleteFile:note.filename];
   }
 }
 
 + (void)uploadNoteToDropbox:(NTDNote *)note {
   if ([self isDropboxEnabledAndLinked] && ![[NTDWalkthrough sharedWalkthrough] isActive]) {
-    if (!restClient) {
-      restClient = [[NTDDropboxRestClient alloc] init];
-    }
+    [self initializeRestClient];
     NSString *rev = (note.dropboxRev == nil || [note.dropboxRev length] == 0) ? nil : note.dropboxRev;
     [restClient uploadFile:note withDropboxFileRev:rev];
   }

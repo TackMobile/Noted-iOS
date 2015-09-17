@@ -15,15 +15,17 @@
 @interface NTDDropboxRestClient () <DBRestClientDelegate>
 
 @property (nonatomic, strong) DBRestClient *restClient;
-@property BOOL syncInProgress;
+@property (nonatomic) BOOL syncInProgress;
 
-@property NSMutableArray *filesToUpload;
-@property NSMutableArray *filesToUploadDropboxRev;
+@property (nonatomic, strong) NSMutableArray *filesToUploadArray;
+@property (nonatomic, strong) NSMutableArray *filesToUploadDropboxRevArray;
 
-@property NSMutableArray *filesToDownload;
-@property NSMutableArray *filesToDownloadCorrespondingNote;
+@property (nonatomic, strong) NSMutableArray *filesToDownloadArray;
+@property (nonatomic, strong) NSMutableArray *filesToDownloadCorrespondingNoteArray;
 
-@property NSMutableArray *filesToDelete;
+@property (nonatomic, strong) NSMutableArray *filesToDeleteArray;
+
+@property (nonatomic, strong) dispatch_queue_t concurrentDropboxManagerQueue;
 
 @end
 
@@ -36,20 +38,94 @@ NSString *dropboxRoot = @"/";
     self.restClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
     self.restClient.delegate = self;
     self.syncInProgress = NO;
+    self.filesToUploadArray = [[NSMutableArray alloc] init];
+    self.filesToUploadDropboxRevArray = [[NSMutableArray alloc] init];
+    self.filesToDownloadArray = [[NSMutableArray alloc] init];
+    self.filesToDownloadCorrespondingNoteArray = [[NSMutableArray alloc] init];
+    self.filesToDeleteArray = [[NSMutableArray alloc] init];
+    self.concurrentDropboxManagerQueue = dispatch_queue_create("com.tackmobile.noted.concurrentDropboxManagerQueue", DISPATCH_QUEUE_SERIAL);
   }
   return self;
+}
+
+#pragma mark - files to upload arrays
+
+- (NSArray *)filesToUpload {
+  return [NSArray arrayWithArray:self.filesToUploadArray];
+}
+
+- (NSArray *)filesToUploadDropboxRev {
+  return [NSArray arrayWithArray:_filesToUploadDropboxRevArray];;
+}
+
+- (void)addFileToUpload:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
+  [_filesToUploadArray addObject:note];
+  [_filesToUploadDropboxRevArray addObject:rev == nil ? @"" : rev];
+}
+
+- (void)removeLastFileToUpload {
+  [_filesToUploadArray removeLastObject];
+  [_filesToUploadDropboxRevArray removeLastObject];
+}
+
+#pragma mark - files to download arrays
+
+- (NSArray *)filesToDownload {
+  return [NSArray arrayWithArray:_filesToDownloadArray];;
+}
+
+- (NSArray *)filesToDownloadCorrespondingNote {
+  return [NSArray arrayWithArray:_filesToDownloadCorrespondingNoteArray];
+}
+
+- (void)addFileToDownload:(DBMetadata *)file toNote:(NTDNote *)note {
+  [_filesToDownloadArray addObject:file];
+  [_filesToDownloadCorrespondingNoteArray addObject:note];
+}
+
+- (void)removeLastFileToDownload {
+  [_filesToDownloadArray removeLastObject];
+  [_filesToDownloadCorrespondingNoteArray removeLastObject];
+}
+
+#pragma mark - files to delete arrays
+
+- (NSArray *)filesToDelete {
+  return [NSArray arrayWithArray:_filesToDeleteArray];;
+}
+
+- (void)addFileToDelete:(NSString *)filename {
+  [_filesToDeleteArray addObject:filename];
+}
+
+#pragma mark - sycing values
+
+- (void)removeLastFileToDelete {
+  [_filesToDeleteArray removeLastObject];
+}
+
+- (void)setSyncing:(BOOL)syncing {
+  self.syncInProgress = syncing;
+}
+
+- (BOOL)syncing {
+  return self.syncInProgress;
 }
 
 #pragma mark - Syncing
 
 - (void)syncWithDropbox {
-  if (!self.syncInProgress) {
-    self.syncInProgress = YES;
-    [self fetchDropboxMetadata];
-  } else {
-    [NTDDropboxManager dismissModalIfShowing];
-    NSLog(@"syncWithDropbox: Sync in progress. Do nothing.");
-  }
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void) {
+    if (![self syncing]) {
+      [self setSyncing:YES];
+      [self fetchDropboxMetadata];
+    } else {
+      dispatch_async(dispatch_get_main_queue(), ^(void){
+        [NTDDropboxManager dismissModalIfShowing];
+        NSLog(@"syncWithDropbox: Sync in progress. Do nothing.");
+      });
+    }
+  });
 }
 
 - (void)compareDropboxWithLocal:(DBMetadata *)metadata {
@@ -58,24 +134,16 @@ NSString *dropboxRoot = @"/";
     
     [NTDNote listNotesWithCompletionHandler:^(NSArray *notes) {
       
-      self.filesToUpload = [[NSMutableArray alloc] init];
-      self.filesToUploadDropboxRev = [[NSMutableArray alloc] init];
-      self.filesToDownload = [[NSMutableArray alloc] init];
-      self.filesToDownloadCorrespondingNote = [[NSMutableArray alloc] init];
-      self.filesToDelete = [[NSMutableArray alloc] init];
-      
       for (DBMetadata *file in dropboxFiles) {
         if ([self localContainsDropboxFilename:file inLocalMetadataArray:notes] == nil && !file.isDeleted && file.totalBytes < 5000) {
-          [[self filesToDownload] addObject:file];
-          [[self filesToDownloadCorrespondingNote] addObject:@""];
+          [self addFileToDownload:file toNote:@""];
         }
       }
       
       for (NTDNote *note in notes) {
         DBMetadata *dropboxFile = [self dropboxContainsNoteFilename:note inDropboxMetadataArray:dropboxFiles];
         if (dropboxFile == nil) {
-          [[self filesToUpload] addObject:note];
-          [[self filesToUploadDropboxRev] addObject:@""];
+          [self addFileToUpload:note withDropboxFileRev:nil];
         } else if (dropboxFile.isDeleted) {
           // Dropbox file has been deleted. Delete local file as well.
           dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -89,15 +157,12 @@ NSString *dropboxRoot = @"/";
         } else if ([note.dropboxRev isEqualToString:dropboxFile.rev] && [note.lastModifiedDate compare:dropboxFile.lastModifiedDate] == NSOrderedDescending) {
           // Local note modified after dropbox file. Rev IDs match.
           // Upload local note to dropbox.
-          [[self filesToUpload] addObject:note];
-          [[self filesToUploadDropboxRev] addObject:dropboxFile.rev];
+          [self addFileToUpload:note withDropboxFileRev:dropboxFile.rev];
         } else if (![note.dropboxRev isEqualToString:dropboxFile.rev]) {
           // Modified dates do not match and rev IDs do not match.
           // Upload note to dropbox and download updated file from dropbox.
-          [[self filesToUpload] addObject:note];
-          [[self filesToUploadDropboxRev] addObject:@""];
-          [[self filesToDownload] addObject:dropboxFile];
-          [[self filesToDownloadCorrespondingNote] addObject:@""];
+          [self addFileToUpload:note withDropboxFileRev:@""];
+          [self addFileToDownload:dropboxFile toNote:@""];
         }
       }
       
@@ -107,7 +172,7 @@ NSString *dropboxRoot = @"/";
     
   } else {
     NSLog(@"restClient laodedMetadata: path must be directory");
-    self.syncInProgress = NO;
+    [self setSyncing:NO];
     [NTDDropboxManager dismissModalIfShowing];
   }
 }
@@ -119,7 +184,7 @@ NSString *dropboxRoot = @"/";
     [self uploadFileToDropbox:noteToUpload withDropboxFileRev:(uploadRev == nil || [uploadRev length] == 0) ? nil : uploadRev];
   } else if (self.filesToDownload.count > 0) {
     DBMetadata *fileToDownload = (DBMetadata *)[[self filesToDownload] lastObject];
-    if ([[[self filesToDownloadCorrespondingNote] firstObject] isKindOfClass:[NSString class]]) { // Empty string for 
+    if ([[[self filesToDownloadCorrespondingNote] firstObject] isKindOfClass:[NSString class]]) { // If string then note does not exist locally
       [self downloadDropboxFile:fileToDownload toNote:nil];
     } else {
       NTDNote *noteToUpdate = (NTDNote *)[[self filesToDownloadCorrespondingNote] lastObject];
@@ -129,22 +194,21 @@ NSString *dropboxRoot = @"/";
     NSString *filenameToDelete = (NSString *)[[self filesToDelete] lastObject];
     [self deleteDropboxFile:filenameToDelete];
   } else {
-    self.syncInProgress = NO;
-    [NTDDropboxManager dismissModalIfShowing];
+    [self setSyncing:NO];
+    
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+      [NTDDropboxManager dismissModalIfShowing];
+    });
   }
 }
 
 #pragma mark - Upload
 
 - (void)uploadFile:(NTDNote *)note withDropboxFileRev:(NSString *)rev {
-  if (!self.syncInProgress) {
-    self.syncInProgress = YES;
-    [[self filesToUpload] addObject:note];
-    [[self filesToUploadDropboxRev] addObject:rev == nil ? @"" : rev];
+  [self addFileToUpload:note withDropboxFileRev:rev];
+  if (![self syncing]) {
+    [self setSyncing:YES];
     [self performSync];
-  } else {
-    [NTDDropboxManager dismissModalIfShowing];
-    NSLog(@"uploadFile: Dropbox Manager is busy. Do nothing.");
   }
 }
 
@@ -155,18 +219,18 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath metadata:(DBMetadata *)metadata {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    NSLog(@"Note uploaded successfully to dropbox: %@", metadata.filename);
+  NSLog(@"Note uploaded successfully to dropbox: %@", metadata.filename);
+  dispatch_async(dispatch_get_main_queue(), ^(void){
     [NTDNote updateNoteWithDropboxMetadata:[srcPath lastPathComponent] newFilename:metadata.filename rev:metadata.rev clientMtime:metadata.clientMtime lastModifiedDate:metadata.lastModifiedDate completionHandler:^(NTDNote *note) {}];
-    [[self filesToUpload] removeLastObject];
-    [[self filesToUploadDropboxRev] removeLastObject];
+  });
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+    [self removeLastFileToUpload];
     [self performSync];
   });
 }
 
 - (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    NSString *destinationPath = (NSString *)[[error userInfo] objectForKey:@"destinationPath"];
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
     NSString *sourcePath = (NSString *)[[error userInfo] objectForKey:@"sourcePath"];
     NSString* filename = [sourcePath lastPathComponent];
     if ([[NSFileManager defaultManager] fileExistsAtPath:sourcePath]) {
@@ -174,8 +238,7 @@ NSString *dropboxRoot = @"/";
       [self performSync];
     } else {
       NSLog(@"Note upload failed to dropbox with filename: %@ and file does not exist.", filename);
-      [[self filesToUpload] removeLastObject];
-      [[self filesToUploadDropboxRev] removeLastObject];
+      [self removeLastFileToUpload];
       [self performSync];
     }
   });
@@ -192,109 +255,110 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadedFile:(NSString *)localPath contentType:(NSString *)contentType metadata:(DBMetadata *)metadata {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    // Grab tmp file content and then delete
-    NSString *dropboxFileText = [NSString stringWithContentsOfFile:localPath encoding:NSUTF8StringEncoding error:NULL];
-    [self deleteFileAtLocalPath:localPath];
-    
-    [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
-      if (note == nil) {
-        // Note does not exist. Create a new note with contents of file saved at localPath.
-        [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:metadata.filename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
-          dispatch_async(dispatch_get_main_queue(), ^(void){
-            NSLog(@"New note created with filename %@", note.filename);
-            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
-          });
-          [[self filesToDownload] removeLastObject];
-          [[self filesToDownloadCorrespondingNote] removeLastObject];
-          [self performSync];
-        }];
+  // Grab tmp file content and then delete
+  NSString *dropboxFileText = [NSString stringWithContentsOfFile:localPath encoding:NSUTF8StringEncoding error:NULL];
+  [self deleteFileAtLocalPath:localPath];
+  
+  [NTDNote getNoteByFilename:metadata.filename andCompletionHandler:^(NTDNote *note) {
+    if (note == nil) {
+      // Note does not exist. Create a new note with contents of file saved at localPath.
+      [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:metadata.filename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
+        NSLog(@"New note created with filename %@", note.filename);
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
         
-        // If different rev IDs, duplicate document. Otherwise update note.
-      } else if ([note.dropboxRev isEqualToString:metadata.rev]) {
-        // Update note
-        [NTDNote updateNoteWithText:dropboxFileText filename:note.filename completionHandler:^(NTDNote *note) {
-          dispatch_async(dispatch_get_main_queue(), ^(void){
-            NSLog(@"Note updated with filename %@", note.filename);
-            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
-          });
-          
-          [[self filesToDownload] removeLastObject];
-          [[self filesToDownloadCorrespondingNote] removeLastObject];
+        dispatch_async(self.concurrentDropboxManagerQueue, ^(void){});
+        [self removeLastFileToDownload];
+        [self performSync];
+      }];
+      
+      // If different rev IDs, duplicate document. Otherwise update note.
+    } else if ([note.dropboxRev isEqualToString:metadata.rev]) {
+      // Update note
+      [NTDNote updateNoteWithText:dropboxFileText filename:note.filename completionHandler:^(NTDNote *note) {
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+          NSLog(@"Note updated with filename %@", note.filename);
+          [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasChangedNotification object:note];
+        });
+        
+        dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+          [self removeLastFileToDownload];
           [self performSync];
-        }];
-      } else {
-        // Create new note
+        });
+      }];
+    } else {
+      // Create new note
+      dispatch_async(dispatch_get_main_queue(), ^(void){
         [NTDNote newNoteWithText:dropboxFileText theme:[NTDTheme randomTheme] lastModifiedDate:metadata.lastModifiedDate filename:metadata.filename dropboxRev:metadata.rev dropboxClientMtime:metadata.clientMtime completionHandler:^(NTDNote *note) {
-          dispatch_async(dispatch_get_main_queue(), ^(void){
-            NSLog(@"New note created with filename %@", note.filename);
-            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
-          });
+          NSLog(@"New note created with filename %@", note.filename);
+          [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasAddedNotification object:note];
           
-          [[self filesToDownload] removeLastObject];
-          [[self filesToDownloadCorrespondingNote] removeLastObject];
-          [self performSync];
+          dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+            [self removeLastFileToDownload];
+            [self performSync];
+          });
         }];
-      }
-    }];
-  });
+      });
+    }
+    
+  }];
 }
 
 - (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
-    NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
-    NSString *destinationPath = (NSString *)[[error userInfo] objectForKey:@"destinationPath"];
-    NSString *filename = [dropboxPath lastPathComponent];
-    if (dropboxError != nil && [dropboxError rangeOfString:@"delete"].location != NSNotFound) {
-      // File has been deleted on dropbox. Need to delete locally.
-      dispatch_async(dispatch_get_main_queue(), ^(void){
-        [NTDNote getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
-          if (note != nil) {
-            NSLog(@"%@ deleted locally due to Dropbox deletion.", filename);
-            [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:filename];
-          }
-        }];
-      });
-      
-      [[self filesToDownload] removeLastObject];
-      [[self filesToDownloadCorrespondingNote] removeLastObject];
+  NSString *dropboxPath = (NSString *)[[error userInfo] objectForKey:@"path"];
+  NSString *dropboxError = (NSString *)[[error userInfo] objectForKey:@"error"];
+  NSString *filename = [dropboxPath lastPathComponent];
+  if (dropboxError != nil && [dropboxError rangeOfString:@"delete"].location != NSNotFound) {
+    // File has been deleted on dropbox. Need to delete locally.
+    [NTDNote getNoteByFilename:filename andCompletionHandler:^(NTDNote *note) {
+      if (note != nil) {
+        NSLog(@"%@ deleted locally due to Dropbox deletion.", filename);
+        [NSNotificationCenter.defaultCenter postNotificationName:NTDNoteWasDeletedNotification object:filename];
+      }
+    }];
+    
+    dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+      [self removeLastFileToDownload];
       [self performSync];
-    } else {
-      // Other error. Retry.
-      NSLog(@"There was an error loading the file: %@. Retrying.", error);
+    });
+  } else {
+    // Other error. Retry.
+    NSLog(@"There was an error loading the file: %@. Retrying.", error);
+    dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
       [self performSync];
-    }
-  });
+    });
+  }
 }
 
 #pragma mark - Delete
 
 - (void)deleteFile:(NSString *)filename {
-  if (!self.syncInProgress) {
-    self.syncInProgress = YES;
-    [[self filesToDelete] addObject:filename];
+  [self addFileToDelete:filename];
+  if (![self syncing]) {
+    [self setSyncing:YES];
     [self performSync];
-  } else {
-    [NTDDropboxManager dismissModalIfShowing];
-    NSLog(@"uploadFile: Dropbox Manager is busy. Do nothing.");
   }
 }
 
 - (void)deleteDropboxFile:(NSString *)filename {
-  [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
+  dispatch_async(dispatch_get_main_queue(), ^(void){
+    [self.restClient deletePath:[dropboxRoot stringByAppendingPathComponent:filename]];
+  });
 }
 
 - (void) restClient:(DBRestClient *)client deletedPath:(NSString *)path {
   NSLog(@"Dropbox file deleted from path: %@", path);
-  [[self filesToDelete] removeLastObject];
-  [self performSync];
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+    [self removeLastFileToDelete];
+    [self performSync];
+  });
 }
 
 - (void) restClient:(DBRestClient *)client deletePathFailedWithError:(NSError *)error {
   NSLog(@"There was an error deleting the file: %@", error);
-  [[self filesToDelete] removeLastObject];
-  [self performSync];
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+    [self removeLastFileToDelete];
+    [self performSync];
+  });
 }
 
 #pragma mark - Metadata
@@ -306,7 +370,7 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client loadedMetadata:(DBMetadata *)metadata {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
     [self compareDropboxWithLocal:metadata];
   });
 }
@@ -321,7 +385,10 @@ NSString *dropboxRoot = @"/";
   } else {
     NSLog(@"loadMetadataFailedWithError: Error loading metadata: %@", error);
   }
-  self.syncInProgress = NO;
+  
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+    [self setSyncing:NO];
+  });
 }
 
 #pragma mark - Rename
@@ -333,17 +400,16 @@ NSString *dropboxRoot = @"/";
 }
 
 - (void)restClient:(DBRestClient *)client movedPath:(NSString *)from_path to:(DBMetadata *)result {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    NSLog(@"Dropbox file moved from path %@ to path %@", from_path, result.path);
-    [[self filesToDownload] removeLastObject];
-    [[self filesToDownloadCorrespondingNote] removeLastObject];
+  NSLog(@"Dropbox file moved from path %@ to path %@", from_path, result.path);
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
+    [self removeLastFileToDownload];
     [self performSync];
   });
 }
 
 - (void)restClient:(DBRestClient *)client movePathFailedWithError:(NSError *)error {
-  dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    NSLog(@"movePathFailedWithError: Error moving dropbox file: %@", error);
+  NSLog(@"movePathFailedWithError: Error moving dropbox file: %@", error);
+  dispatch_async(self.concurrentDropboxManagerQueue, ^(void){
     [self performSync];
   });
 }

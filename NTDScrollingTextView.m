@@ -39,7 +39,7 @@
 - (void)setDelegate:(id<UITextViewDelegate>)delegate
 {
     self.customDelegate = delegate;
-    [super setDelegate:self];
+    [super setDelegate:delegate];
 } 
 
 static CGFloat heightDifference;

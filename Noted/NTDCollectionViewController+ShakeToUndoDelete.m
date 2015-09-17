@@ -81,7 +81,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
 {
   if ([NTDModalView isShowing]) return; /* The modal was triggered again before the timer fired this selector. Just ignore. */
   NSString *device = [UIDeviceHardware deviceType];
-  NSString *msg = [NSString stringWithFormat:@"%@ was deleted remotely. You can restore the deleted note by shaking your %@.", filename, device];
+  NSString *msg = [NSString stringWithFormat:@"A note was deleted remotely. You can restore the deleted note by shaking your %@.", device];
   
   AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"ShakeToUndoAnimation" withExtension:@"mov"]];
   player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
