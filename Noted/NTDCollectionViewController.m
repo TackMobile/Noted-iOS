@@ -1790,9 +1790,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
   // App will go to background/terminate. Need to sync up any updates from the note that is being edited.
   NTDNote *note = [self noteAtIndexPath:self.visibleCardIndexPath];
-  [NTDNote updateNoteWithText:note.text filename:note.filename completionHandler:^(NTDNote *note) {
-    [NTDDropboxManager uploadNoteToDropbox:note];
-  }];
+  if (note.text) {
+    [NTDNote updateNoteWithText:note.text filename:note.filename completionHandler:^(NTDNote *note) {
+      [NTDDropboxManager uploadNoteToDropbox:note];
+    }];
+  }
 }
 
 #pragma mark - Keyboard Handling
