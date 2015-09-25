@@ -236,4 +236,5 @@ static NSDictionary *bodyFontSizes;
         self.textView.tintColor = theme.caretColor;
     }
 }
+
 @end

@@ -289,12 +289,11 @@ static NTDDropboxRestClient *restClient = nil;
 
 + (void)syncNotes {
   if ([self isDropboxEnabledAndLinked]) {
-    if ([[NTDWalkthrough sharedWalkthrough] isActive]) {
-      [[NTDWalkthrough sharedWalkthrough] endWalkthrough:NO];
-      NSLog(@"Walkthrough is active. Ending walkthrough and aborting dropbox sync.");
-    } else {
+    if (![[NTDWalkthrough sharedWalkthrough] isActive]) {
       [self initializeRestClient];
       [restClient syncWithDropbox];
+    } else {
+      NSLog(@"Walkthrough is active. Dropbox sync cancelled.");
     }
   }
 }

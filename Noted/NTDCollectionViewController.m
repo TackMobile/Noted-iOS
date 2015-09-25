@@ -120,6 +120,10 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
         
         /* Notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardWillShow:)
+                                                     name:UIKeyboardWillShowNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWasShown:)
                                                      name:UIKeyboardDidShowNotification
                                                    object:nil];
@@ -178,9 +182,9 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];   
+    [super viewDidLoad];
     [self setupPullToCreate];
-    
+
     // swipe to remove in listlayout
     self.removeCardGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleRemoveCardGesture:)];
     self.removeCardGestureRecognizer.delegate = self;
@@ -1114,6 +1118,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 //    _notes = notes;
 //}
 
+static BOOL willShowSettings = NO;
 - (IBAction)showSettings:(id)sender
 {
     if (self.visibleCell.layer.animationKeys != nil) return;
@@ -1140,6 +1145,12 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
+  
+  if (keyboardIsBeingShown) {
+    willShowSettings = YES;
+    return;
+  }
+  willShowSettings = NO;
     
     self.optionsViewController.view.frame = visibleCell.frame;
     self.optionsViewController.note = [self noteAtIndexPath:self.visibleCardIndexPath];
@@ -1502,7 +1513,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 - (void)adjustMotionEffects
 {
     if (SYSTEM_VERSION_LESS_THAN(@"7.0")) return;
-    
+  
     CGFloat verticalContentOffset = self.collectionView.contentOffset.y;
     for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
 //        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
@@ -1663,7 +1674,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     if (scrollView == self.visibleCell.textView)
         [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
-    
+  
     // This keyboard function doesn't work as expected, and crashes in many cases
     /*if (scrollView == self.visibleCell.textView &&
         [self.visibleCell.textView isFirstResponder] &&
@@ -1672,7 +1683,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         [self keyboardWasPannedToFrame:[self.visibleCell.textView convertRect:keyboardFrame
                                                                      fromView:[[UIApplication sharedApplication] keyWindow]]];
     }*/
-    
+  
     if (scrollView != self.collectionView)
         return;
     
@@ -1749,7 +1760,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     if (NTDNoteFileStateOpened != [[self noteAtIndexPath:self.visibleCardIndexPath] fileState])
         return NO;
-        
+  
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
@@ -1784,20 +1795,29 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }];
 }
 
-#pragma mark - application events
+#pragma mark - Keyboard Handling
 
-- (void)applicationWillResignActive:(NSNotification *)notification
-{
-  // App will go to background/terminate. Need to sync up any updates from the note that is being edited.
-  NTDNote *note = [self noteAtIndexPath:self.visibleCardIndexPath];
-  if (note.text) {
-    [NTDNote updateNoteWithText:note.text filename:note.filename completionHandler:^(NTDNote *note) {
-      [NTDDropboxManager uploadNoteToDropbox:note];
-    }];
+static CGRect initialFrame;
+static UIView *focusView;
+
+- (void)keyboardWillShow:(NSNotification *)note {
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
+    NSDictionary *userInfo = note.userInfo;
+    NSTimeInterval duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    focusView = self.visibleCell.superview;
+    CGRect keyboardFrameEnd = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
+    
+    initialFrame = focusView.frame;
+    
+    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
+      focusView.frame = CGRectMake(initialFrame.origin.x, initialFrame.origin.y, initialFrame.size.width, keyboardFrameEnd.origin.y);
+    } completion:nil];
   }
 }
 
-#pragma mark - Keyboard Handling
 static BOOL keyboardIsBeingShown;
 - (void)keyboardWasShown:(NSNotification*)notification
 {
@@ -1805,17 +1825,17 @@ static BOOL keyboardIsBeingShown;
         is sent right before a UIKeyboardWillHide notification. Jesus Christ. */
     if (keyboardIsBeingShown) return;
     keyboardIsBeingShown = YES;
-    
+  
     if ([notification.name isEqualToString:UIKeyboardWillShowNotification]) return;
     
     CGSize keyboardSize = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     UITextView *textView = self.visibleCell.textView;
-    
+  
     UIEdgeInsets contentInset = UIEdgeInsetsZero;
     contentInset.bottom += keyboardSize.height;
     textView.contentInset = contentInset;
     textView.scrollIndicatorInsets = contentInset;
-    
+  
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         UITextPosition *textPosition = [textView positionWithinRange:textView.selectedTextRange farthestInDirection:UITextLayoutDirectionRight];
         CGRect caretRect = [textView caretRectForPosition:textPosition];
@@ -1833,6 +1853,16 @@ static BOOL keyboardIsBeingShown;
 {
     NSTimeInterval duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+  
+  // KAK BEGIN
+  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
+    CGRect keyboardFrameEnd = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
+    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
+      focusView.frame = CGRectMake(initialFrame.origin.x, initialFrame.origin.y, initialFrame.size.width, keyboardFrameEnd.origin.y);
+    } completion:nil];
+  }
+  // KAK END
 
     [UIView animateWithDuration:duration
                           delay:0
@@ -1850,6 +1880,10 @@ static BOOL keyboardIsBeingShown;
 {
     [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughSwipeToCloseKeyboardStep];
     keyboardIsBeingShown = FALSE;
+  
+  if (willShowSettings) {
+    [self showSettings:self];
+  }
 }
 
 - (void)keyboardWasPannedToFrame:(CGRect)frame
@@ -1880,6 +1914,19 @@ static BOOL keyboardIsBeingShown;
     
     NSAssert(FALSE, @"Wasn't able to find keyboard frame. Bailing");
     return CGRectZero;
+}
+
+#pragma mark - application events
+
+- (void)applicationWillResignActive:(NSNotification *)notification
+{
+  // App will go to background/terminate. Need to sync up any updates from the note that is being edited.
+  NTDNote *note = [self noteAtIndexPath:self.visibleCardIndexPath];
+  if (note.text) {
+    [NTDNote updateNoteWithText:note.text filename:note.filename completionHandler:^(NTDNote *note) {
+      [NTDDropboxManager uploadNoteToDropbox:note];
+    }];
+  }
 }
 
 #pragma mark - NTDOptionsViewControllerDelegate
