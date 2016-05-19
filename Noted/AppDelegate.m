@@ -98,8 +98,7 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
         [defaults setObject:[NSDate date] forKey:NTDInitialLaunchDateKey];
     }
     [defaults synchronize];
-    
-    [Crashlytics setObjectValue:[defaults objectForKey:NTDInitialVersionKey] forKey:NTDInitialVersionKey];
-    [Crashlytics setObjectValue:[defaults objectForKey:NTDInitialLaunchDateKey] forKey:NTDInitialLaunchDateKey];
+    [[Crashlytics sharedInstance] setObjectValue:[defaults objectForKey:NTDInitialVersionKey]  forKey:NTDInitialVersionKey];
+    [[Crashlytics sharedInstance] setObjectValue:[defaults objectForKey:NTDInitialLaunchDateKey] forKey:NTDInitialLaunchDateKey];
 }
 @end
