@@ -1640,18 +1640,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
     }
     
-    //TODO:NMH check on this
-    /* In iOS 6, scroll indicator views are: the frontmost subview of a scrollview; instances of UIImageVIew
-     * and have a width of 7 points. As you can tell, this is a total hack to place the scroll indicators
-     * on top of all visible cards. */
-    CGFloat IndicatorWidth = 3.5;
-    UIView *possibleIndicatorView = [[scrollView subviews] lastObject];
-    if ([possibleIndicatorView isKindOfClass:[UIImageView class]] &&
-        possibleIndicatorView.$width == IndicatorWidth) {
-        if (CATransform3DIsIdentity(possibleIndicatorView.layer.transform))
-            possibleIndicatorView.layer.zPosition = CGFLOAT_MAX;
-    }
-    
     [self adjustMotionEffects];
 }
 
