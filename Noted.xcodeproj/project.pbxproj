@@ -48,7 +48,6 @@
 		3F27A0DF18B41E9100734CDD /* NTDDeletedNotePlaceholder.m in Sources */ = {isa = PBXBuildFile; fileRef = F3EA4F2D188349F40077AD44 /* NTDDeletedNotePlaceholder.m */; };
 		3F27A0E118B41E9100734CDD /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
 		3F27A0E218B41E9A00734CDD /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F9D3F1F179494B600EA183D /* CoreData.framework */; };
-		3F27A0E318B41FBC00734CDD /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F47D97017A2F6F000DBFB0E /* NTDWalkthroughModalView.m */; };
 		3F4E224618A98F7B00EEC7E8 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */; };
 		3F4E224E18A9973800EEC7E8 /* ShakeToUndoAnimation.mov in Resources */ = {isa = PBXBuildFile; fileRef = 3F4E224D18A9973800EEC7E8 /* ShakeToUndoAnimation.mov */; };
@@ -59,7 +58,6 @@
 		3F73710318AECD600092694E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29FC4913156EE0CD0007BBAD /* UIKit.framework */; };
 		3F73710918AECD600092694E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3F73710718AECD600092694E /* InfoPlist.strings */; };
 		3F73710B18AECD600092694E /* NotedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F73710A18AECD600092694E /* NotedTests.m */; };
-		3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F73F7E917985D5200EEE802 /* Crashlytics.framework */; };
 		3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */; };
 		3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959402189B0E4700C86F93 /* Icon.dev.png */; };
 		3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959403189B0E4700C86F93 /* Icon@2x.dev.png */; };
@@ -176,7 +174,6 @@
 		3F73710A18AECD600092694E /* NotedTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotedTests.m; sourceTree = "<group>"; };
 		3F73710C18AECD600092694E /* NotedTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NotedTests-Prefix.pch"; sourceTree = "<group>"; };
 		3F73F7E517975BA700EEE802 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		3F73F7E917985D5200EEE802 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.dev.png"; sourceTree = "<group>"; };
 		3F959402189B0E4700C86F93 /* Icon.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.dev.png; sourceTree = "<group>"; };
 		3F959403189B0E4700C86F93 /* Icon@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.dev.png"; sourceTree = "<group>"; };
@@ -240,7 +237,6 @@
 		C5F0C07718EC760600A5DA29 /* NTDThemesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDThemesTableViewController.h; sourceTree = "<group>"; };
 		C5F0C07818EC760600A5DA29 /* NTDThemesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDThemesTableViewController.m; sourceTree = "<group>"; };
 		C9E738AB5D7ACAF2889D80D6 /* Pods-NotedTests.ad hoc.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotedTests.ad hoc.xcconfig"; path = "Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests.ad hoc.xcconfig"; sourceTree = "<group>"; };
-		CF29671517B2F9B100994446 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		CF3D464917B177FD00178DF0 /* UIViewController+NTDToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+NTDToast.h"; sourceTree = "<group>"; };
 		CF3D464A17B177FD00178DF0 /* UIViewController+NTDToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+NTDToast.m"; sourceTree = "<group>"; };
 		CF8ECF9B178213C10062705D /* NTDCollectionViewController+Shredding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NTDCollectionViewController+Shredding.h"; sourceTree = "<group>"; };
@@ -277,7 +273,6 @@
 				29FC4918156EE0CD0007BBAD /* CoreGraphics.framework in Frameworks */,
 				29960C8A157413020054347A /* QuartzCore.framework in Frameworks */,
 				A68AE94E4A7A4987B113B21F /* libPods.a in Frameworks */,
-				3F73F7EA17985D5200EEE802 /* Crashlytics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,7 +282,6 @@
 			files = (
 				1FD1E5741A1A8B11005763BB /* libc++.dylib in Frameworks */,
 				1FD1E5721A1A8A1C005763BB /* SystemConfiguration.framework in Frameworks */,
-				3F27A0E318B41FBC00734CDD /* Crashlytics.framework in Frameworks */,
 				B6732E071B822E0C003AECB9 /* DropboxSDK.framework in Frameworks */,
 				3F27A0E218B41E9A00734CDD /* CoreData.framework in Frameworks */,
 				3F73710118AECD5F0092694E /* XCTest.framework in Frameworks */,
@@ -380,11 +374,9 @@
 				1FD1E5711A1A8A1C005763BB /* SystemConfiguration.framework */,
 				3F4E224F18A99CCF00EEC7E8 /* CoreMedia.framework */,
 				3F4E224518A98F7B00EEC7E8 /* AVFoundation.framework */,
-				CF29671517B2F9B100994446 /* Crashlytics.framework */,
 				CFAF5CC0178E04ED00187C79 /* CFNetwork.framework */,
 				3F9D3F1F179494B600EA183D /* CoreData.framework */,
 				29FC4917156EE0CD0007BBAD /* CoreGraphics.framework */,
-				3F73F7E917985D5200EEE802 /* Crashlytics.framework */,
 				29FC4915156EE0CD0007BBAD /* Foundation.framework */,
 				BB62BC5EED29406FBB1BE6A4 /* libPods.a */,
 				29914F171575350C0029D170 /* MessageUI.framework */,
@@ -622,7 +614,7 @@
 				29FC490C156EE0CD0007BBAD /* Frameworks */,
 				29FC490D156EE0CD0007BBAD /* Resources */,
 				0A02F07CA668442FBA33C199 /* Copy Pods Resources */,
-				3F73F7E817985D3500EEE802 /* Run Crashlytics */,
+				AEE5336DD3BF522A37A0404F /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -642,6 +634,7 @@
 				3F7370FC18AECD5F0092694E /* Frameworks */,
 				3F7370FD18AECD5F0092694E /* Resources */,
 				839797196BCA4B93B2426A42 /* Copy Pods Resources */,
+				BA5C84ECD162A0CD8DFD98B7 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -747,20 +740,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 		};
-		3F73F7E817985D3500EEE802 /* Run Crashlytics */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Crashlytics";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./Crashlytics.framework/run 74274da5058ac773f4834d2aedc44eac0555edcd";
-		};
 		428B754B05E147E597ABE2C8 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -803,6 +782,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AEE5336DD3BF522A37A0404F /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BA5C84ECD162A0CD8DFD98B7 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-NotedTests/Pods-NotedTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -974,6 +983,7 @@
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1007,6 +1017,7 @@
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -1188,6 +1199,7 @@
 					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
 					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

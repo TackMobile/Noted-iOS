@@ -14,6 +14,9 @@ PODS:
   - BlocksKit/UIKit (2.2.3):
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
+  - Crashlytics (3.7.0):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.7)
   - FlurrySDK (4.3.2):
     - FlurrySDK/FlurrySDK (= 4.3.2)
   - FlurrySDK/FlurrySDK (4.3.2)
@@ -27,16 +30,19 @@ PODS:
 
 DEPENDENCIES:
   - BlocksKit (= 2.2.3)
+  - Crashlytics
   - FlurrySDK (~> 4.3)
   - IAPHelper (= 1.0.7)
   - Kiwi/XCTest
   - UIView+FrameAdditions (= 0.0.1)
 
 SPEC CHECKSUMS:
-  BlocksKit: 3ae2bd80239d338053cf1603bf0a7d57dd589ab3
-  FlurrySDK: f760610e2949f4905cbac4c8382e26ee082842d9
+  BlocksKit: db63805ebfcc217c198532a900838bffdb400239
+  Crashlytics: c3a2333dea9e2733d2777f730910321fc9e25c0d
+  Fabric: caf7580c725e64db144f610ac65cd60956911dc7
+  FlurrySDK: 49bdf33234f60c5ff19bc23ed7a8d0fcc7118c34
   IAPHelper: 60a2d5b6ef2d121ce041cf942cd6fc87dc3ab3a3
-  Kiwi: 68d88fcfd9f900a2cd720823e0b47c3668b4ac07
+  Kiwi: e4e2673e9435622a5b84149fc90394b5345bc8bc
   UIView+FrameAdditions: ff98a73ddb1ba15ce426f3ca2eb70c2613580879
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.39.0
