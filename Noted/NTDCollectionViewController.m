@@ -394,6 +394,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             [self addMotionEffects:cell atIndexPath:indexPath];
         });
     }
+    [cell willTransitionFromLayout:collectionView.collectionViewLayout toLayout:collectionView.collectionViewLayout];
 
     return cell;
 }

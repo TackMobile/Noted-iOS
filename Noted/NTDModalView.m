@@ -161,10 +161,14 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
     CGRect modalBounds = CGRectInset(screenFrame,
                                      NTDWalkthroughModalEdgeMargin,
                                      NTDWalkthroughModalEdgeMargin);
-    CGSize modalSize = [self.message sizeWithFont:self.modalFont
-                                constrainedToSize:CGRectInset(modalBounds,
-                                                              NTDWalkthroughModalPadding,
-                                                              NTDWalkthroughModalPadding).size];
+    CGRect textRect = [self.message boundingRectWithSize:CGRectInset(modalBounds,
+                                                                     NTDWalkthroughModalPadding,
+                                                                     NTDWalkthroughModalPadding).size
+                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                      attributes:@{NSFontAttributeName:self.modalFont}
+                                         context:nil];
+    
+    CGSize modalSize = textRect.size;
     
     CGRect modalFrame = {
         .origin.x = modalBounds.origin.x,

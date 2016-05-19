@@ -215,7 +215,7 @@ static NSString *themesPrice = @"...";
     headerLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
     headerLabel.text = @"Themes";
     headerLabel.alpha = .7;
-    headerLabel.$size =  [headerLabel.text sizeWithFont:headerLabel.font];
+    headerLabel.$size = [headerLabel.text sizeWithAttributes:@{NSFontAttributeName:headerLabel.font}];
     headerLabel.$x = 15;
     headerLabel.$y = 9;
     
