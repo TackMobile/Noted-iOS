@@ -979,12 +979,8 @@
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
-					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
-					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1014,12 +1010,8 @@
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
-					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
-					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
@@ -1200,12 +1192,8 @@
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries\"",
 					"$(SRCROOT)",
-					"/Users/jaclyn/Downloads/dropbox-ios-sync-sdk-3.1.0",
-					"$(PROJECT_DIR)/Pods/Dropbox-Sync-API-SDK",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/Pods/Crashlytics/iOS",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

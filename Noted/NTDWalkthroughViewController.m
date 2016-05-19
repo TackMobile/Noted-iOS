@@ -26,11 +26,6 @@
     self.view.$origin = CGPointZero;
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-}
-
 - (void)beginDisplayingViewsForStep:(NTDWalkthroughStep)step
 {
     if (self.currentIndicatorView) [self.currentIndicatorView removeFromSuperview];

@@ -399,7 +399,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             });
         }
     }
-    [cell willTransitionFromLayout:nil toLayout:collectionView.collectionViewLayout];
+
     return cell;
 }
 
@@ -496,7 +496,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             if (swipedCardIndexPath == nil)
                 break;
             
-            BOOL velocityCrossesThreshold = fabsf([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold;
+            BOOL velocityCrossesThreshold = fabs([gestureRecognizer velocityInView:self.collectionView].x) > SwipeVelocityThreshold;
             BOOL positionCrossesThreshold = ABS(translation.x) > self.collectionView.frame.size.width/2;
             shouldDelete = velocityCrossesThreshold || positionCrossesThreshold;
             
@@ -596,7 +596,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             NSInteger newIndex = self.visibleCardIndexPath.item;
             
             if (self.hasTwoFingerNoteDeletionBegun) {
-                if ( fabsf(translation.x) >= self.collectionView.frame.size.width/2)
+                if ( fabs(translation.x) >= self.collectionView.frame.size.width/2)
                     shouldDelete = YES;
                 else if ((velocity > SwipeVelocityThreshold && translation.x > 0)
                          || (velocity < -SwipeVelocityThreshold && translation.x < 0)) {
@@ -711,7 +711,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
             // decide whether it is a vertical of horizontal pan
             if (self.cardPanningDirection == NTDCardPanningNoDirection) {
-                self.cardPanningDirection = (translation.y > fabsf(translation.x))?NTDCardPanningVerticalDirection : NTDCardPanningHorizontalDirection;
+                self.cardPanningDirection = (translation.y > fabs(translation.x))?NTDCardPanningVerticalDirection : NTDCardPanningHorizontalDirection;
             
                 // if we are in the process of swiping down
                 if (self.cardPanningDirection == NTDCardPanningVerticalDirection
@@ -813,8 +813,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     BOOL shouldCreateNewCard = (-self.pagingLayout.pannedCardYTranslation <= self.listLayout.pullToCreateCreateCardOffset);
                     
                     if (shouldCreateNewCard) {
-                        CGFloat panSpeed = fabsf(velocity.y) - 30;
-                        CGFloat panPosition = fabsf(translation.y);
+                        CGFloat panSpeed = fabs(velocity.y) - 30;
+                        CGFloat panPosition = fabs(translation.y);
                         CGFloat panDuration = panPosition / panSpeed;
                         
                         NSTimeInterval duration = panDuration;
@@ -1742,8 +1742,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 //        CGFloat scrollPosition = fabsf(scrollView.contentOffset.y);
 //        NSTimeInterval scrollDuration = scrollPosition / scrollSpeed;
         
-        CGFloat panSpeed = fabsf(panVelocity.y) - 30;
-        CGFloat panPosition = fabsf(panTranslation.y);
+        CGFloat panSpeed = fabs(panVelocity.y) - 30;
+        CGFloat panPosition = fabs(panTranslation.y);
         CGFloat panDuration = panPosition / panSpeed;
         
         NSTimeInterval duration = panDuration;

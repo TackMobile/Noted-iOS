@@ -365,7 +365,7 @@ static NSString *themesPrice = @"...";
     [self promptToPurchaseThemes];
 }
 
-- (void) showWaitingModal {
+- (void)showWaitingModal {
     // display a "waiting" modal which replaces the old one    
     [self dismissModalIfShowing];
 
