@@ -15,7 +15,6 @@
 #import "NTDCollectionViewController.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
-#import "DAKeyboardControl.h"
 #import "NSIndexPath+NTDManipulation.h"
 #import "NTDOptionsViewController.h"
 #import "UIDeviceHardware.h"
@@ -334,10 +333,8 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
 static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 - (void)setupPullToCreate
 {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        PullToCreateLabelXOffset -= 8.5;
-        PullToCreateLabelYOffset -= 2;
-    }
+    PullToCreateLabelXOffset -= 8.5;
+    PullToCreateLabelYOffset -= 2;
     self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.pullToCreateLabel.text = @"Pull to create a new note.";
     self.pullToCreateLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
@@ -389,15 +386,13 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     }
     [cell applyTheme:note.theme];
 
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        if (self.collectionView.collectionViewLayout == self.listLayout && 0 != indexPath.item && !self.transitioningToPagingLayout) {
-            /* It's necessary to remove and re-add the motion effects (on the next turn of the run-loop) because the effects
-             * were being suspended for some unknown reason. */
-            [self removeMotionEffects:cell atIndexPath:indexPath];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self addMotionEffects:cell atIndexPath:indexPath];
-            });
-        }
+    if (self.collectionView.collectionViewLayout == self.listLayout && 0 != indexPath.item && !self.transitioningToPagingLayout) {
+        /* It's necessary to remove and re-add the motion effects (on the next turn of the run-loop) because the effects
+         * were being suspended for some unknown reason. */
+        [self removeMotionEffects:cell atIndexPath:indexPath];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self addMotionEffects:cell atIndexPath:indexPath];
+        });
     }
 
     return cell;
@@ -718,16 +713,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                     && velocity.y > 0) {
                     // and the textview is scrolled to the top or further
                     if (self.visibleCell.textView.contentOffset.y <= 0) {
-                        
-                        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-                            self.visibleCell.textView.panGestureRecognizer.enabled = NO;
-                        } else {
-                            // animate it to a content offset of 0 and disable scrolling
-                            [UIView animateWithDuration:.2 animations:^{
-                                // animates the contentoffset to CGPointZero
-                                self.visibleCell.textView.scrollEnabled = NO;
-                            }];
-                        }
+                        self.visibleCell.textView.panGestureRecognizer.enabled = NO;
                     } else {
                         panGestureRecognizer.enabled = NO;
                     }
@@ -774,12 +760,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
             
         case UIGestureRecognizerStateEnded :
         {
-            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-                self.visibleCell.textView.panGestureRecognizer.enabled = YES;
-            }
+            self.visibleCell.textView.panGestureRecognizer.enabled = YES;
             self.visibleCell.textView.scrollEnabled = YES;
             
-
             switch (self.cardPanningDirection) {
                 case NTDCardPanningHorizontalDirection:
                 {
@@ -1087,36 +1070,18 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
 
     };
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
-            [self removeMotionEffects:cell atIndexPath:nil];
-        }
-        [UIView animateWithDuration:.4
-                              delay:0
-             usingSpringWithDamping:.7
-              initialSpringVelocity:-10
-                            options:UIViewAnimationCurveEaseInOut  | UIViewAnimationOptionBeginFromCurrentState
-                         animations:animationBlock
-                         completion:completionBlock];
-    } else {
-        [UIView animateWithDuration:.25
-                              delay:0
-                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
-                         animations:animationBlock
-                         completion:completionBlock];
+    for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
+        [self removeMotionEffects:cell atIndexPath:nil];
     }
+    [UIView animateWithDuration:.4
+                          delay:0
+         usingSpringWithDamping:.7
+          initialSpringVelocity:-10
+                        options:UIViewAnimationCurveEaseInOut  | UIViewAnimationOptionBeginFromCurrentState
+                     animations:animationBlock
+                     completion:completionBlock];
     
 }
-
-//-(void)setNotes:(NSMutableArray *)notes
-//{
-//    if (_notes) {
-//        NSLog(@"Changing notes from %p to %p", _notes, notes);
-//        NSLog(@"Old Notes: %@", _notes);
-//    }
-//    NSLog(@"New Notes: %@", notes);
-//    _notes = notes;
-//}
 
 static BOOL willShowSettings = NO;
 - (IBAction)showSettings:(id)sender
@@ -1497,7 +1462,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - Motion Effects
 - (void)addMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-//    NSLog(@"adding motion effects: (%d) %p", indexPath.item, cell);
     UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"frame.origin.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
     effect.minimumRelativeValue = @(-10 * indexPath.item);
     effect.maximumRelativeValue = @(10 * indexPath.item);
@@ -1506,26 +1470,15 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)removeMotionEffects:(NTDCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-//    NSLog(@"removing motion effects: (%d) %p", indexPath.item, cell);
     for (UIMotionEffect *effect in cell.motionEffects) [cell removeMotionEffect:effect];
 }
 
 - (void)adjustMotionEffects
 {
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) return;
-  
     CGFloat verticalContentOffset = self.collectionView.contentOffset.y;
     for (NTDCollectionViewCell *cell in self.collectionView.visibleCells) {
-//        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
         CGFloat offset = cell.$y - verticalContentOffset;
-//        if (offset < 0) {
-//            [self removeMotionEffects:cell atIndexPath:indexPath];
-//            continue;
-//        }
         NSInteger index = floor(offset / (int)self.listLayout.cardOffset);
-//        if (cell.motionEffects.count == 0) {
-//            [self addMotionEffects:cell atIndexPath:indexPath];
-//        }
         if (index < 0 || cell.motionEffects.count == 0) continue;
         UIInterpolatingMotionEffect *effect = cell.motionEffects[0];
         effect.minimumRelativeValue = @(-10 * index);
@@ -1575,10 +1528,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         return;
     
     NTDNote *note = [self noteAtIndexPath:indexPath];
-//    NSLog(@"checking state of note #%d", indexPath.item);
     if (note.fileState != NTDNoteFileStateOpened) {
         [visitedPaths addObject:indexPath];
-//        NSLog(@"%s: opening note #%d\n", __FUNCTION__, indexPath.item);
         [note openWithCompletionHandler:NULL];
     }
 }
@@ -1675,15 +1626,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView == self.visibleCell.textView)
         [self.visibleCell applyMaskWithScrolledOffset:scrollView.contentOffset.y];
   
-    // This keyboard function doesn't work as expected, and crashes in many cases
-    /*if (scrollView == self.visibleCell.textView &&
-        [self.visibleCell.textView isFirstResponder] &&
-        SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        CGRect keyboardFrame = [self keyboardFrame];
-        [self keyboardWasPannedToFrame:[self.visibleCell.textView convertRect:keyboardFrame
-                                                                     fromView:[[UIApplication sharedApplication] keyWindow]]];
-    }*/
-  
     if (scrollView != self.collectionView)
         return;
     
@@ -1698,12 +1640,11 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         self.pullToCreateContainerView.$y = -self.pullToCreateContainerView.$height;
     }
     
+    //TODO:NMH check on this
     /* In iOS 6, scroll indicator views are: the frontmost subview of a scrollview; instances of UIImageVIew
      * and have a width of 7 points. As you can tell, this is a total hack to place the scroll indicators
      * on top of all visible cards. */
-    CGFloat IndicatorWidth = 7.0;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-        IndicatorWidth = 3.5;
+    CGFloat IndicatorWidth = 3.5;
     UIView *possibleIndicatorView = [[scrollView subviews] lastObject];
     if ([possibleIndicatorView isKindOfClass:[UIImageView class]] &&
         possibleIndicatorView.$width == IndicatorWidth) {
@@ -1712,8 +1653,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     }
     
     [self adjustMotionEffects];
-//    NSLog(@"Bounds: %@", NSStringFromCGRect(scrollView.bounds));
-//    NSLog(@"Content Offset: %@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -1730,7 +1669,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (scrollView != self.collectionView)
         return;
 
-//    NSLog(@"willEndDragging withVelocity:%@ contentOffset: %@", NSStringFromCGPoint(velocity), NSStringFromCGPoint(scrollView.contentOffset));
     BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
     if (self.notes.count == 0) //hack alert
         shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
@@ -1758,20 +1696,15 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UITextViewDelegate
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    if (NTDNoteFileStateOpened != [[self noteAtIndexPath:self.visibleCardIndexPath] fileState])
+    if (NTDNoteFileStateOpened != [[self noteAtIndexPath:self.visibleCardIndexPath] fileState]) {
         return NO;
+    }
   
     self.panCardGestureRecognizer.enabled = NO;
     self.twoFingerPanGestureRecognizer.enabled = NO;
     self.pinchToListLayoutGestureRecognizer.enabled = NO;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        textView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
-        textView.alwaysBounceVertical = YES;
-    } else {
-        [textView addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView) {
-            [self keyboardWasPannedToFrame:keyboardFrameInView];
-        }];
-    }
+    textView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+    textView.alwaysBounceVertical = YES;
     return YES;
 }
 
@@ -1783,9 +1716,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        textView.alwaysBounceVertical = NO;
-    }
+    textView.alwaysBounceVertical = NO;
     self.panCardGestureRecognizer.enabled = YES;
     self.twoFingerPanGestureRecognizer.enabled = YES;
     self.pinchToListLayoutGestureRecognizer.enabled = YES;
@@ -1801,21 +1732,22 @@ static CGRect initialFrame;
 static UIView *focusView;
 
 - (void)keyboardWillShow:(NSNotification *)note {
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
     NSDictionary *userInfo = note.userInfo;
     NSTimeInterval duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
-    
+
     focusView = self.visibleCell.superview;
     CGRect keyboardFrameEnd = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
-    
+
     initialFrame = focusView.frame;
-    
+
     [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
-      focusView.frame = CGRectMake(initialFrame.origin.x, initialFrame.origin.y, initialFrame.size.width, keyboardFrameEnd.origin.y);
+      focusView.frame = CGRectMake(initialFrame.origin.x,
+                                   initialFrame.origin.y,
+                                   initialFrame.size.width,
+                                   keyboardFrameEnd.origin.y);
     } completion:nil];
-  }
 }
 
 static BOOL keyboardIsBeingShown;
@@ -1836,17 +1768,10 @@ static BOOL keyboardIsBeingShown;
     textView.contentInset = contentInset;
     textView.scrollIndicatorInsets = contentInset;
   
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
         UITextPosition *textPosition = [textView positionWithinRange:textView.selectedTextRange farthestInDirection:UITextLayoutDirectionRight];
         CGRect caretRect = [textView caretRectForPosition:textPosition];
-//        CGPoint caretBottomPoint = CGPointMake(0, CGRectGetMaxY(caretRect));
         caretRect.size.height *= 2;
-        
-//        [textView scrollRangeToVisible:textView.selectedRange]; /* doesn't work  */
-//        [textView scrollRectToVisible:caretRect animated:YES]; /* doesn't work */
-        [textView scrollRectToVisible:caretRect animated:NO]; /*works */
-//        [textView setContentOffset:caretBottomPoint animated:NO]; /* works */
-    }
+        [textView scrollRectToVisible:caretRect animated:NO];
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)notification
@@ -1855,13 +1780,11 @@ static BOOL keyboardIsBeingShown;
     UIViewAnimationCurve curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
   
   // KAK BEGIN
-  if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
     CGRect keyboardFrameEnd = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
     [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
       focusView.frame = CGRectMake(initialFrame.origin.x, initialFrame.origin.y, initialFrame.size.width, keyboardFrameEnd.origin.y);
     } completion:nil];
-  }
   // KAK END
 
     [UIView animateWithDuration:duration
@@ -1897,7 +1820,6 @@ static BOOL keyboardIsBeingShown;
 
 - (CGRect)keyboardFrame
 {
-    NSAssert(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"), @"You should only call this on iOS 7 or above.");
     NSMutableArray *windows = [[[UIApplication sharedApplication] windows] mutableCopy];
     [windows removeObject:[[UIApplication sharedApplication] keyWindow]];
     
@@ -1954,8 +1876,6 @@ static BOOL keyboardIsBeingShown;
 
 - (void)closeOptionsWithVelocity:(CGFloat)velocity
 {
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0") && fabs(velocity - 0.2) <= 0.001 ) velocity = 1600;
-
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughCloseOptionsStep];
     /* We need this coverup view b/c in iOS 7, if you tap to close from Settings or About, 
      * you'll see the right edge of the options view while the bounce animation runs. */

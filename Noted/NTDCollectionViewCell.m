@@ -12,7 +12,6 @@
 #import "NTDCollectionViewLayoutAttributes.h"
 #import "NTDListCollectionViewLayout.h"
 #import "NTDPagingCollectionViewLayout.h"
-#import "DAKeyboardControl.h"
 #import "Utilities.h"
 #import "NTDOptionsViewController.h"
 
@@ -28,10 +27,6 @@ static NSDictionary *bodyFontSizes;
 
 +(void)initialize
 {
-    /* The content size category constants obviously only exist on iOS >=7. */
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
-        return;
-    
     bodyFontSizes = @{
       UIContentSizeCategoryExtraSmall: @(14),
       UIContentSizeCategorySmall: @(15),
@@ -74,16 +69,14 @@ static NSDictionary *bodyFontSizes;
     self._doNotHideSettingsForNextLayoutChange = NO;
     self.textView.scrollsToTop = NO;
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        self.textView.$x += 3;
-        self.fadeView.$width += 3;
-        [self adjustTextViewForContentSize:nil];
-        
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(adjustTextViewForContentSize:)
-                                                   name:UIContentSizeCategoryDidChangeNotification
-                                                 object:nil];
-    }
+    self.textView.$x += 3;
+    self.fadeView.$width += 3;
+    [self adjustTextViewForContentSize:nil];
+    
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(adjustTextViewForContentSize:)
+                                               name:UIContentSizeCategoryDidChangeNotification
+                                             object:nil];
     
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(updateRelativeDateLabel:)
@@ -120,13 +113,6 @@ static NSDictionary *bodyFontSizes;
     }
 }
 
--(void)removeFromSuperview
-{
-    [super removeFromSuperview];
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
-        [self.textView removeKeyboardControl];
-}
-
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
 {
     if (![layoutAttributes isKindOfClass:[NTDCollectionViewLayoutAttributes class]])
@@ -144,8 +130,6 @@ static NSDictionary *bodyFontSizes;
             self.layer.affineTransform = noteLayoutAttributes.transform2D;
         }
     }
-    
-//    NSLog(@"applyLayoutAttributes (%d, %d) - frame: %@,", layoutAttributes.indexPath.item, layoutAttributes.zIndex, NSStringFromCGRect(layoutAttributes.frame));
 }
 
 - (void)willTransitionFromLayout:(UICollectionViewLayout *)oldLayout toLayout:(UICollectionViewLayout *)newLayout
@@ -170,11 +154,9 @@ static NSDictionary *bodyFontSizes;
 
 - (void)prepareForReuse
 {
-//    self.textView.contentOffset = CGPointZero;
     [self applyMaskWithScrolledOffset:0];
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-//        NSLog(@"removing motion effects for reused cell: %p", self);
-        for (UIMotionEffect *effect in self.motionEffects) [self removeMotionEffect:effect];
+    for (UIMotionEffect *effect in self.motionEffects) {
+        [self removeMotionEffect:effect];
     }
 }
 
@@ -232,9 +214,7 @@ static NSDictionary *bodyFontSizes;
     self.textView.textColor = theme.textColor;
     [self.settingsButton setImage:theme.optionsButtonImage forState:UIControlStateNormal];
     self.textView.indicatorStyle = ([theme isDarkColorScheme]) ? UIScrollViewIndicatorStyleWhite : UIScrollViewIndicatorStyleBlack;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        self.textView.tintColor = theme.caretColor;
-    }
+    self.textView.tintColor = theme.caretColor;
 }
 
 @end

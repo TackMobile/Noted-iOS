@@ -61,10 +61,8 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             UIImageView *sliceImageView = [[UIImageView alloc] initWithImage:noteImage];
             sliceImageView.frame = cropRect;
             sliceImageView.layer.shadowOffset = CGSizeZero;
-            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-                sliceImageView.layer.allowsGroupOpacity = NO;
-                sliceImageView.layer.allowsEdgeAntialiasing = YES;
-            }
+            sliceImageView.layer.allowsGroupOpacity = NO;
+            sliceImageView.layer.allowsEdgeAntialiasing = YES;
             
             CGRect cardRect = self.currentDeletionCell.bounds;
             CGRect contentFrame = CGRectMake(cropRect.origin.x / cardRect.size.width,
@@ -331,18 +329,12 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
 {
     CGSize imageSize = view.frame.size;
     CGFloat scale = [UIDeviceHardware isHighPerformanceDevice] ? 0 : 1;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        UIGraphicsBeginImageContextWithOptions(imageSize, YES, scale);
-        [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:NO];
-    } else {
-        UIGraphicsBeginImageContextWithOptions(imageSize, YES, 1);
-        [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-    }
+    UIGraphicsBeginImageContextWithOptions(imageSize, YES, scale);
+    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:NO];
     UIImage* ret = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
     return ret;
 }
-
 
 @end

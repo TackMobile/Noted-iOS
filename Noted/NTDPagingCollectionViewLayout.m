@@ -234,12 +234,6 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     // activeCardIndex will be current
     CGFloat translation = self.pannedCardXTranslation + self.pannedCardYTranslation; //only one of these will be non-zero
     BOOL translatingAlongXAxis = self.pannedCardXTranslation != 0;
-    
-    /* This fix is technically correct and animation speeds on iOS 6 but made iOS 7 feel too fast. This is probably why we had to
-     * tweak this method on iOS 7 so much. I'm going to make it iOS 6-only for now because we need to ship and I can't fuck with the curves. */
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
-         translatingAlongXAxis |= (self.pannedCardXTranslation == 0 && self.pannedCardYTranslation == 0);
-    
     self.pannedCardYTranslation = 0;
     self.pannedCardXTranslation = 0;
     self.deletedLastNote = NO;
@@ -292,23 +286,14 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     };
 
     NSTimeInterval animationDuration = CLAMP(dur, .05, .5);
-//    CGFloat springVelocity = animationDuration * (ABS(velocity)/320);
     CGFloat damping = (dur < .5) ? .7 : .5;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        [UIView animateWithDuration:animationDuration
-                              delay:0.0
-             usingSpringWithDamping:damping
-              initialSpringVelocity:0
-                            options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
-                         animations:animationBlock
-                         completion:animationCompletionBlock];
-    } else {
-        [UIView animateWithDuration:animationDuration
-                              delay:0
-                            options:UIViewAnimationOptionCurveEaseOut
-                         animations:animationBlock
-                         completion:animationCompletionBlock];
-    }
+    [UIView animateWithDuration:animationDuration
+                          delay:0.0
+         usingSpringWithDamping:damping
+          initialSpringVelocity:0
+                        options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                     animations:animationBlock
+                     completion:animationCompletionBlock];
 }
 
 - (void) completePullAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
@@ -326,9 +311,8 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
     isViewingOptions = YES;
     currentOptionsOffset = offset;
     
-    CGFloat velocity = (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) ? 0.2 : 600;
+    CGFloat velocity = 0.2;
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
-
 }
 
 - (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {

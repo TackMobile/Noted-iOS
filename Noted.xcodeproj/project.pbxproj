@@ -80,7 +80,6 @@
 		B52114DB171CA800007670F3 /* NTDTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DA171CA800007670F3 /* NTDTheme.m */; };
 		B52114DE171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */; };
 		B5961BC3161E3581001F02F0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5961BC2161E3581001F02F0 /* Social.framework */; };
-		B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */; };
 		B5A2B0D0171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */; };
 		B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F23D17188840008C60EE /* NTDCollectionViewCell.m */; };
 		B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D5F24017188840008C60EE /* NTDCollectionViewController.m */; };
@@ -209,8 +208,6 @@
 		B52114DC171DCF9E007670F3 /* NTDPagingCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDPagingCollectionViewLayout.h; sourceTree = "<group>"; };
 		B52114DD171DCF9F007670F3 /* NTDPagingCollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDPagingCollectionViewLayout.m; sourceTree = "<group>"; };
 		B5961BC2161E3581001F02F0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
-		B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAKeyboardControl.h; sourceTree = "<group>"; };
-		B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAKeyboardControl.m; sourceTree = "<group>"; };
 		B5A2B0CE171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewLayoutAttributes.h; sourceTree = "<group>"; };
 		B5A2B0CF171A30EB00AF2BB8 /* NTDCollectionViewLayoutAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDCollectionViewLayoutAttributes.m; sourceTree = "<group>"; };
 		B5D5F23C17188840008C60EE /* NTDCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NTDCollectionViewCell.h; sourceTree = "<group>"; };
@@ -328,8 +325,6 @@
 			isa = PBXGroup;
 			children = (
 				3F73F7E517975BA700EEE802 /* Constants.h */,
-				B59655841610C24C00A9CBD6 /* DAKeyboardControl.h */,
-				B59655851610C24C00A9CBD6 /* DAKeyboardControl.m */,
 				29960C7F15740F2D0054347A /* UIColor+Utils.h */,
 				29960C8015740F2D0054347A /* UIColor+Utils.m */,
 				298F8D1B15780FA2004D11A4 /* Utilities.h */,
@@ -827,7 +822,6 @@
 				C5F0C07918EC760600A5DA29 /* NTDThemesTableViewController.m in Sources */,
 				29960C8115740F2D0054347A /* UIColor+Utils.m in Sources */,
 				298F8D1D15780FA2004D11A4 /* Utilities.m in Sources */,
-				B59655861610C24C00A9CBD6 /* DAKeyboardControl.m in Sources */,
 				B5D5F245171888B3008C60EE /* NTDListCollectionViewLayout.m in Sources */,
 				B5D5F244171888B0008C60EE /* NTDCollectionViewController.m in Sources */,
 				B5D5F243171888AC008C60EE /* NTDCollectionViewCell.m in Sources */,
@@ -937,7 +931,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "df97ab94-2bcc-40d0-a2b6-5f99a925d7cd";
 				SDKROOT = iphoneos;
@@ -961,7 +955,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "df97ab94-2bcc-40d0-a2b6-5f99a925d7cd";
 				SDKROOT = iphoneos;
@@ -986,7 +980,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
@@ -1016,7 +1010,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Noted/Noted-Prefix.pch";
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
@@ -1174,7 +1168,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "df97ab94-2bcc-40d0-a2b6-5f99a925d7cd";
 				SDKROOT = iphoneos;
@@ -1204,7 +1198,7 @@
 					"COCOAPODS=1",
 				);
 				INFOPLIST_FILE = "Noted/Noted-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",

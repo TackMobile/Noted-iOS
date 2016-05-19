@@ -27,7 +27,6 @@ void Swizzle(Class c, SEL orig, SEL new)
 }
 
 + (void)load {
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) return;
     NSString *visibleBoundsSelector = [NSString stringWithFormat:@"%@isib%@unds", @"_v",@"leBo"];
     Swizzle([self class], NSSelectorFromString(visibleBoundsSelector), @selector(ntd_visibleBounds));
 }

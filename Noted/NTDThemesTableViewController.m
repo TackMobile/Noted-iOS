@@ -81,9 +81,7 @@ static NSString *themesPrice = @"...";
     self = [super initWithCoder:aDecoder];
     if (self) {
         [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:NTDThemeCellReuseIdentifier];
-        
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-            self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
         
         themeNames = [NTDTheme themeNames];
         
@@ -92,7 +90,6 @@ static NSString *themesPrice = @"...";
              if(response > 0 ) {
                  // get themes price
                  if (IAPShare.sharedHelper.iap.products.count > 0) {
-                     //SKProduct* product = IAPShare.sharedHelper.iap.products[1];
                      
                      SKProduct* product = nil;
                      

@@ -55,8 +55,7 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     [[UIApplication sharedApplication] setStatusBarHidden:hideStatusBar withAnimation:NO];
     
     self.window.rootViewController.view.frame = [[UIScreen mainScreen] applicationFrame];
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
   
   // Sync dropbox notes
   [NTDDropboxManager syncNotes];
