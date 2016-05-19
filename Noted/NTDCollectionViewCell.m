@@ -69,8 +69,6 @@ static NSDictionary *bodyFontSizes;
     self._doNotHideSettingsForNextLayoutChange = NO;
     self.textView.scrollsToTop = NO;
     
-    self.textView.$x += 3;
-    self.fadeView.$width += 3;
     [self adjustTextViewForContentSize:nil];
     
     [NSNotificationCenter.defaultCenter addObserver:self
