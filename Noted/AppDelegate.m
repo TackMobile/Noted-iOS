@@ -8,6 +8,7 @@
 
 #import <DropboxSDK/DropboxSDK.h>
 #import <Crashlytics/Crashlytics.h>
+#import <Fabric/Fabric.h>
 #import <FlurrySDK/Flurry.h>
 #import "AppDelegate.h"
 #import "Constants.h"
@@ -31,7 +32,7 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:NO];
     [Flurry startSession:@"F9R3ZM7J2KWNPCGR6XBF"];
-    [Crashlytics startWithAPIKey:@"74274da5058ac773f4834d2aedc44eac0555edcd"];
+    [Fabric with:@[[Crashlytics class]]];
     
     if ( ! IAPShare.sharedHelper.iap ) {
         NSSet *dataSet = [[NSSet alloc] initWithObjects:NTDNoteThemesProductID, NTDDropboxProductID, nil];
