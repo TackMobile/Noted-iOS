@@ -60,7 +60,6 @@ typedef NS_ENUM(NSInteger, NTDCardPanningDirection) {
 NSString *const NTDCollectionViewCellReuseIdentifier = @"NoteCollectionViewCellReuseIdentifier";
 NSString *const NTDCollectionViewPullToCreateCardReuseIdentifier = @"NTDCollectionViewPullToCreateCardReuseIdentifier";
 
-//static const CGFloat SettingsTransitionDuration = 0.5;
 static const CGFloat SwipeVelocityThreshold = 1000.0;
 static const CGFloat PinchVelocityThreshold = 2.2;
 static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
@@ -118,10 +117,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                }];
         
         /* Notifications */
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(keyboardWillShow:)
-                                                     name:UIKeyboardWillShowNotification
-                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardWasShown:)
                                                      name:UIKeyboardDidShowNotification
@@ -367,7 +362,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     NTDCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NTDCollectionViewCellReuseIdentifier
                                                                             forIndexPath:indexPath];
     cell.textView.delegate = self;
-//    NSLog(@"%s: creating cell for note #%d\n", __FUNCTION__, indexPath.item);
 
     [cell.settingsButton addTarget:self
                             action:@selector(showSettings:)
@@ -647,19 +641,9 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
                                               });
                         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
                         [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
-
                     } else {
                         [self.collectionView performBatchUpdates:^{
                             [self deleteCardAtIndexPath:prevVisibleCardIndexPath];
-//                            if (shouldDeleteLastNote) {
-//                                [NTDNote newNoteWithCompletionHandler:^(NTDNote *note) {
-//                                    [self.notes insertObject:note atIndex:0];
-//                                    self.pagingLayout.deletedLastNote = YES;
-//                                    self.pagingLayout.activeCardIndex = 0;
-//                                    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
-//                                    [self.pagingLayout finishAnimationWithVelocity:0 completion:nil];
-//                                }];
-//                            }
                         } completion:^(BOOL finished) {
                             [self.collectionView reloadData];
                             [NTDWalkthrough.sharedWalkthrough shouldAdvanceFromStep:NTDWalkthroughTwoFingerDeleteStep];
@@ -1262,7 +1246,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         
         if (insertedCellScrollPos < self.collectionView.contentOffset.y
             || insertedCellScrollPos >= self.collectionView.contentOffset.y + self.collectionView.frame.size.height)
-            [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+            [self.collectionView scrollToItemAtIndexPath:indexPath
+                                        atScrollPosition:UICollectionViewScrollPositionCenteredVertically
+                                                animated:NO];
         
         [self animateSwipedCellToOriginalPosition];
         [self adjustMotionEffects];
@@ -1371,12 +1357,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     NTDNote *note = [self noteAtIndexPath:indexPath];
     NTDCollectionViewCell __weak *weakCell = cell;
     if (note.fileState != NTDNoteFileStateOpened) {
-//        NSLog(@"%s: opening note #%d\n", __FUNCTION__, indexPath.item);
         [note openWithCompletionHandler:^(BOOL success) {
             if ([weakCell.textView.text isEqualToString:note.headline])
                 weakCell.textView.text = note.text;
-//            else
-//                NSLog(@"Cell doesn't have proper headline: %@", weakCell.textView.text);
         }];
     } else {
         weakCell.textView.text = note.text;
@@ -1509,12 +1492,8 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     newViewFrame.size.height = appFrame.size.height;
     newOptionsFrame.size.height = appFrame.size.height;
     
-    // [UIView animateWithDuration:0.25 animations:^{
-    //     animations are very jarring; so disabled for now.
-    //     they cause a bunch of strange view artifacts.
     self.view.frame = newViewFrame;
     self.optionsViewController.view.frame = newOptionsFrame;
-    // }];
 }
 
 - (void)mayShowNoteAtIndexPath:(NSNotification *)notification
@@ -1664,10 +1643,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     if (shouldCreateNewCard && self.collectionView.collectionViewLayout == self.listLayout) {
         CGPoint panVelocity = [scrollView.panGestureRecognizer velocityInView:scrollView];
         CGPoint panTranslation = [scrollView.panGestureRecognizer translationInView:scrollView];
-
-//        CGFloat scrollSpeed = fabsf(60 * velocity.y) + 30;
-//        CGFloat scrollPosition = fabsf(scrollView.contentOffset.y);
-//        NSTimeInterval scrollDuration = scrollPosition / scrollSpeed;
         
         CGFloat panSpeed = fabs(panVelocity.y) - 30;
         CGFloat panPosition = fabs(panTranslation.y);
@@ -1717,28 +1692,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 #pragma mark - Keyboard Handling
 
-static CGRect initialFrame;
-static UIView *focusView;
-
-- (void)keyboardWillShow:(NSNotification *)note {
-    NSDictionary *userInfo = note.userInfo;
-    NSTimeInterval duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
-
-    focusView = self.visibleCell.superview;
-    CGRect keyboardFrameEnd = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
-
-    initialFrame = focusView.frame;
-
-    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
-      focusView.frame = CGRectMake(initialFrame.origin.x,
-                                   initialFrame.origin.y,
-                                   initialFrame.size.width,
-                                   keyboardFrameEnd.origin.y);
-    } completion:nil];
-}
-
 static BOOL keyboardIsBeingShown;
 - (void)keyboardWasShown:(NSNotification*)notification
 {
@@ -1746,45 +1699,10 @@ static BOOL keyboardIsBeingShown;
         is sent right before a UIKeyboardWillHide notification. Jesus Christ. */
     if (keyboardIsBeingShown) return;
     keyboardIsBeingShown = YES;
-  
-    if ([notification.name isEqualToString:UIKeyboardWillShowNotification]) return;
-    
-    CGSize keyboardSize = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-    UITextView *textView = self.visibleCell.textView;
-  
-    UIEdgeInsets contentInset = UIEdgeInsetsZero;
-    contentInset.bottom += keyboardSize.height;
-    textView.contentInset = contentInset;
-    textView.scrollIndicatorInsets = contentInset;
-  
-        UITextPosition *textPosition = [textView positionWithinRange:textView.selectedTextRange farthestInDirection:UITextLayoutDirectionRight];
-        CGRect caretRect = [textView caretRectForPosition:textPosition];
-        caretRect.size.height *= 2;
-        [textView scrollRectToVisible:caretRect animated:NO];
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)notification
 {
-    NSTimeInterval duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationCurve curve = [notification.userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
-  
-  // KAK BEGIN
-    CGRect keyboardFrameEnd = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    keyboardFrameEnd = [focusView convertRect:keyboardFrameEnd fromView:nil];
-    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionBeginFromCurrentState | curve animations:^{
-      focusView.frame = CGRectMake(initialFrame.origin.x, initialFrame.origin.y, initialFrame.size.width, keyboardFrameEnd.origin.y);
-    } completion:nil];
-  // KAK END
-
-    [UIView animateWithDuration:duration
-                          delay:0
-                        options:(curve << 16)
-                     animations:^{
-                         self.visibleCell.textView.contentInset = self.visibleCell.textView.scrollIndicatorInsets = UIEdgeInsetsZero;
-                     } completion:^(BOOL finished) {
-                     }];
-
-    [self.visibleCell applyMaskWithScrolledOffset:0];
     [NTDWalkthrough.sharedWalkthrough stepShouldEnd:NTDWalkthroughSwipeToCloseKeyboardStep];
 }
 
@@ -1796,35 +1714,6 @@ static BOOL keyboardIsBeingShown;
   if (willShowSettings) {
     [self showSettings:self];
   }
-}
-
-- (void)keyboardWasPannedToFrame:(CGRect)frame
-{
-    UITextView *textView = self.visibleCell.textView;
-    UIEdgeInsets contentInset = textView.contentInset;
-    contentInset.bottom = textView.$height - (frame.origin.y - textView.contentOffset.y);
-    textView.contentInset = contentInset;
-    textView.scrollIndicatorInsets = contentInset;
-}
-
-- (CGRect)keyboardFrame
-{
-    NSMutableArray *windows = [[[UIApplication sharedApplication] windows] mutableCopy];
-    [windows removeObject:[[UIApplication sharedApplication] keyWindow]];
-    
-    for (UIWindow *window in windows) {
-        if (![window isKindOfClass:NSClassFromString(@"UITextEffectsWindow")]) continue;
-
-        UIView *peripheralHostView = window.subviews[0];
-        if ( [peripheralHostView isKindOfClass:NSClassFromString(@"UIPeripheralHostView")] ||
-            [peripheralHostView isKindOfClass:NSClassFromString(@"UIInputSetContainerView")] ) {
-            return [[[UIApplication sharedApplication] keyWindow] convertRect:peripheralHostView.frame
-                                                               fromWindow:window];
-        }
-    }
-    
-    NSAssert(FALSE, @"Wasn't able to find keyboard frame. Bailing");
-    return CGRectZero;
 }
 
 #pragma mark - application events

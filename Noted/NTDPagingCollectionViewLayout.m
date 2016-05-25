@@ -49,7 +49,6 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [attributesArray addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
-//            NSLog(@"%s: may show note #%d? [ACI = %d]", __FUNCTION__, indexPath.item, activeCardIndex);
             [NSNotificationCenter.defaultCenter postNotificationName:NTDMayShowNoteAtIndexPathNotification
                                                               object:indexPath];
         }
@@ -57,7 +56,9 @@ NSString *NTDMayShowNoteAtIndexPathNotification = @"NTDMayShowNoteAtIndexPathNot
     
     // add the creatable card behind everything
     if (self.pannedCardYTranslation != 0) {
-        UICollectionViewLayoutAttributes *pullToCreateCardAttributes = [self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard atIndexPath: [NSIndexPath indexPathForItem:0 inSection:0] ];
+        UICollectionViewLayoutAttributes *pullToCreateCardAttributes = [self layoutAttributesForSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
+                                                                                                            atIndexPath: [NSIndexPath indexPathForItem:0
+                                                                                                                                             inSection:0] ];
         
         [attributesArray addObject:pullToCreateCardAttributes];
     }
@@ -117,7 +118,7 @@ static const int NumberOfCardsToFanOut = 6;
 }
 
 - (CGSize)collectionViewContentSize {
-    return self.collectionView.frame.size;
+    return CGSizeZero;
 }
 
 -(void)setActiveCardIndex:(NSInteger)newActiveCardIndex
@@ -129,7 +130,6 @@ static const int NumberOfCardsToFanOut = 6;
             continue;
         else {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
-//            NSLog(@"%s: may show note #%d? [ACI = %d]", __FUNCTION__, indexPath.item, activeCardIndex);
             [NSNotificationCenter.defaultCenter postNotificationName:NTDMayShowNoteAtIndexPathNotification
                                                               object:indexPath];
         }

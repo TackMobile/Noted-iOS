@@ -8,20 +8,16 @@
 
 #import "NTDScrollingTextView.h"
 
-@interface NTDScrollingTextView () <UITextViewDelegate>
-
-    @property (nonatomic, weak) id<UITextViewDelegate> customDelegate;
-
-@end
-
 @implementation NTDScrollingTextView
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [super setDelegate:self];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardIsUp:) name:UIKeyboardDidShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardIsUp:)
+                                                     name:UIKeyboardWillShowNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -29,46 +25,15 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        [super setDelegate:self];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardIsUp:) name:UIKeyboardDidShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardIsUp:)
+                                                     name:UIKeyboardWillShowNotification
+                                                   object:nil];
     }
     return self;
 }
 
-// intercept the delegate call
-- (void)setDelegate:(id<UITextViewDelegate>)delegate
-{
-    self.customDelegate = delegate;
-    [super setDelegate:delegate];
-} 
-
-static CGFloat heightDifference;
--(void)setContentOffset:(CGPoint)contentOffset
-{
-    CGFloat offsetDifference = self.contentOffset.y - contentOffset.y;
-    if (heightDifference != 0 &&
-        offsetDifference != 0 && /* Don't bother if vertical offset hasn't changed. */
-        !self.dragging && /* Otherwise this triggers while the keyboard is scrolling. */
-        ABS(offsetDifference - heightDifference) < 0.01) /* Ghetto tolerance check */
-    {
-        contentOffset = CGPointZero;
-    }
-    [super setContentOffset:contentOffset];
-}
-
--(void)setContentSize:(CGSize)contentSize
-{
-    heightDifference = self.contentSize.height - contentSize.height;
-    [super setContentSize:contentSize];
-}
-
 #pragma mark - Helper Methods
-
-- (void) scrollToCaretAnimated:(BOOL)animated {
-    CGRect rect = [self caretRectForPosition:self.selectedTextRange.end];
-    rect.size.height += self.textContainerInset.bottom;
-    [self scrollRectToVisible:rect animated:animated];
-}
 
 - (void)keyboardIsUp:(NSNotification *)notification {
     NSDictionary *info = [notification userInfo];
@@ -77,42 +42,11 @@ static CGFloat heightDifference;
     
     UIEdgeInsets inset = self.contentInset;
     inset.bottom = keyboardRect.size.height;
-    self.contentInset = inset;
-    self.scrollIndicatorInsets = inset;
-    
-    [self scrollToCaretAnimated:YES];
-}
 
-
-#pragma mark - UITextViewDelegate
-
-- (void)textViewDidChange:(UITextView *)textView {
-    if ([textView.text hasSuffix:@"\n"]) {
-        [CATransaction setCompletionBlock:^{
-            [self scrollToCaretAnimated:NO];
-        }];
-    } else {
-        [self scrollToCaretAnimated:NO];
-    }
-    if ([self.customDelegate respondsToSelector:@selector(textViewDidChange:)])
-        return [self.customDelegate textViewDidChange:textView];
-
-}
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-    if ([self.customDelegate respondsToSelector:@selector(textViewShouldBeginEditing:)])
-        return [self.customDelegate textViewShouldBeginEditing:textView];
-    return YES;
-}
-
-- (void)textViewDidEndEditing:(UITextView *)textView {
-    if ([self.customDelegate respondsToSelector:@selector(textViewDidEndEditing:)])
-        [self.customDelegate textViewDidEndEditing:textView];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if ([self.customDelegate respondsToSelector:@selector(scrollViewDidScroll:)])
-        [self.customDelegate scrollViewDidScroll:scrollView];
+    [UIView animateWithDuration:0.4 animations:^{
+        self.contentInset = inset;
+        self.scrollIndicatorInsets = inset;
+    }];
 }
 
 @end

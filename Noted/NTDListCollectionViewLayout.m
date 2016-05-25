@@ -76,17 +76,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         layoutAttributes.alpha = fmaxf(MIN_ALPHA, (self.collectionView.frame.size.width/2 - ABS(offset))/(self.collectionView.frame.size.width/2));
         layoutAttributes.transform2D = CGAffineTransformMakeRotation(angle);
         layoutAttributes.center = CGPointMake(layoutAttributes.center.x + offset, layoutAttributes.center.y);
-        
-        /* One would think that the code below would work, but I encountered a bug where the hidden
-         * property of the CALayer backing the cell was set to YES. I figured this out using KVO, but
-         * couldn't find a way around it (although admittedly, I was setting the cell's hidden property instead of the layer's). 
-         * Instead, I added a CGAffineTransform property to a custom layout attributes subclass and am 
-         * using that instead.
-         */
-//        CATransform3D transform = CATransform3DIdentity;
-//        transform.m34 = 1.0 / 850.0; // feels like a hack, but all the cool kids do it.
-//        transform = CATransform3DRotate(transform, angle, 0.0, 0.0, 1.0);
-//        layoutAttributes.transform3D = transform;
     }
     
     return layoutAttributes;    
