@@ -24,8 +24,10 @@ FOUNDATION_EXPORT NSString *const NTDDidToggleStatusBarNotification;
 @end
 
 @interface NTDOptionsViewController : UIViewController
+
 @property (assign, nonatomic) UIViewController<NTDOptionsViewDelegate> *delegate;
 @property (strong, nonatomic) NTDNote *note;
 @property (strong, nonatomic) NSString *selectedText;
 - (void) reset;
+
 @end

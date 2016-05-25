@@ -10,7 +10,6 @@
 #import "NTDCoreDataStore.h"
 
 static NSString *const ModelFilename = @"NTDNoteMetadata";
-//static NSString *const DatabaseFilename = @".noted.metadata";
 
 @interface NTDCoreDataStore ()
 @property (nonatomic, strong) NSURL *databaseURL;
@@ -22,17 +21,6 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
-//#pragma mark - Singleton
-//+ (NTDCoreDataStore *) sharedStore
-//{
-//    static NTDCoreDataStore *sharedInstance = nil;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        sharedInstance = [[NTDCoreDataStore alloc] init];
-//    });
-//    return sharedInstance;
-//}
-
 + (NTDCoreDataStore *)datastoreWithURL:(NSURL *)dbURL
 {
     NTDCoreDataStore *store = [NTDCoreDataStore new];
@@ -41,8 +29,7 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
 }
 
 #pragma mark - Core Data
-// Returns the managed object context for the application.
-// If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
+
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext != nil) {
@@ -62,8 +49,6 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
     return self.managedObjectContext;
 }
 
-// Returns the managed object model for the application.
-// If the model doesn't already exist, it is created from the application's model.
 - (NSManagedObjectModel *)managedObjectModel
 {
     if (_managedObjectModel != nil) {
@@ -74,18 +59,12 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
     return _managedObjectModel;
 }
 
-// Returns the persistent store coordinator for the application.
-// If the coordinator doesn't already exist, it is created and the application's store added to it.
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator
 {
     static BOOL didDeleteExistingStore = NO;
     if (_persistentStoreCoordinator != nil) {
         return _persistentStoreCoordinator;
     }
-    
-//    NSString *dbFilename = [NSString stringWithFormat:@"%@.db", DatabaseFilename];
-//    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:dbFilename];
-//    [self copyInitialStoreToURLIfNecessary:storeURL];
 
     NSURL *storeURL = self.databaseURL;
     NSError *error = nil;
@@ -116,22 +95,6 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
     return _persistentStoreCoordinator;
 }
 
-//- (void)copyInitialStoreToURLIfNecessary:(NSURL *)storeURL
-//{
-//    NSString *storePath = [storeURL path];
-//    NSString *initialStoreName = [NSString stringWithFormat:@"%@.initial", DatabaseFilename];
-//    NSString *initialStorePath = [[NSBundle mainBundle] pathForResource:initialStoreName ofType:@"db"];
-//    NSFileManager *fileManager = [NSFileManager defaultManager];
-//    if ([fileManager fileExistsAtPath:initialStorePath] && ![fileManager fileExistsAtPath:storePath]) {
-//        NSError __autoreleasing *error;
-//        [fileManager copyItemAtPath:initialStorePath toPath:storePath error:&error];
-//        if (error)
-//            NSLog(@"Couldn't copy initial DB: %@", error);
-//        else
-//            NSLog(@"Copied initial DB.");
-//    }
-//}
-
 - (NSURL *)applicationDocumentsDirectory
 {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
@@ -142,4 +105,5 @@ static NSString *const ModelFilename = @"NTDNoteMetadata";
     _persistentStoreCoordinator = nil;
     _managedObjectContext = nil;
 }
+
 @end

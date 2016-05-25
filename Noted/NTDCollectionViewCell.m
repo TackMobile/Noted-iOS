@@ -16,9 +16,11 @@
 #import "NTDOptionsViewController.h"
 
 @interface NTDCollectionViewCell ()
+
 @property (nonatomic, strong) CAGradientLayer *maskLayer;
 @property (nonatomic) BOOL _doNotHideSettingsForNextLayoutChange;
 @property (nonatomic, weak) NTDTheme *theme;
+
 @end
 
 static NSDictionary *bodyFontSizes;
@@ -41,15 +43,6 @@ static NSDictionary *bodyFontSizes;
       UIContentSizeCategoryAccessibilityExtraExtraLarge: @(40),
       UIContentSizeCategoryAccessibilityExtraExtraExtraLarge: @(46)
     };
-}
-
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        
-    }
-    return self;
 }
 
 -(void)dealloc

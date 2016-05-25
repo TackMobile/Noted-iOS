@@ -224,7 +224,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     // tap while viewing options
     tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleCardTapWhileViewingOptions:)];
     tapGestureRecognizer.enabled = NO;
-//    [self.collectionView addGestureRecognizer:tapGestureRecognizer];
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // create launch image view while the notes are reloading
@@ -407,11 +406,6 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     } else {
         return nil;
     }
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
-//    [[self noteAtIndexPath:indexPath] closeWithCompletionHandler:nil];
 }
 
 #pragma mark - Properties

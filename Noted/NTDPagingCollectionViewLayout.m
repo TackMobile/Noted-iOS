@@ -298,7 +298,6 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
 
 - (void) completePullAnimationWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
-
 }
 
 - (void)revealOptionsViewWithOffset:(CGFloat)offset
@@ -310,7 +309,6 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
 {
     isViewingOptions = YES;
     currentOptionsOffset = offset;
-    
     CGFloat velocity = 0.2;
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
 }
@@ -318,7 +316,6 @@ static const CGFloat RatioToScalePinchedNoteAfterLimitReached = .07;
 - (void) hideOptionsWithVelocity:(CGFloat)velocity completion:(NTDVoidBlock)completionBlock {
     isViewingOptions = NO;
     currentOptionsOffset = 0.0;
-    
     [self finishAnimationWithVelocity:velocity completion:completionBlock];
 }
 

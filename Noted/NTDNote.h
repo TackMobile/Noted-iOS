@@ -75,8 +75,6 @@ typedef void (^NTDNoteDefaultCompletionHandler)(BOOL success);
 - (void)setDropboxClientMtime:(NSDate *)clientMtime;
 - (void)setDropboxRev:(NSString *)rev;
 
-//- (id<NTDNoteDelegate>)delegate;
-//- (void)setDelegate:(id<NTDNoteDelegate>)delegate;
 @end
 
 UIKIT_EXTERN NSString *const NTDNoteWasChangedNotification;

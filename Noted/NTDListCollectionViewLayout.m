@@ -98,7 +98,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         CGFloat y = self.collectionView.contentOffset.y;
         if (y > NTDPullToCreateShowCardOffset) {
             layoutAttributes.hidden = YES;
-            NSLog(@"gone rogue");
         } else if (y <= -NTDPullToCreateShowCardOffset && y > -NTDPullToCreateScrollCardOffset) {
             frame.origin.y = y + NTDPullToCreateShowCardOffset;
         } else if (y <= -NTDPullToCreateScrollCardOffset && y > self.pullToCreateCreateCardOffset) {
@@ -108,8 +107,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             frame.origin.y = y;
         }
         layoutAttributes.frame = frame;
-
-        if (layoutAttributes.hidden)  NSLog(@"pull card is hidden");
         return layoutAttributes;
     } else {
         return nil;
@@ -179,6 +176,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 #pragma mark - Caching
+
 - (NTDCollectionViewLayoutAttributes *)generateCellLayoutAttributesForItem:(NSInteger)i
 {
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
@@ -222,9 +220,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     NSUInteger cardCount = [self.collectionView numberOfItemsInSection:0];
     NSUInteger arrayCount = [self.layoutAttributesArray count];
     if (arrayCount < cardCount) {
-//        for (int i = arrayCount; i < cardCount; i++) {
-//            [self.layoutAttributesArray addObject:[self cellLayoutAttributesForItem:i]];
-//        }
         [self cacheCellLayoutAttributes];
     }
 }
@@ -261,7 +256,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                 maxIndexPath = MAX(maxIndexPath, indexPath.item);
                 count ++;
             }
-//            NSLog(@"%@", NSDictionaryOfVariableBindings(@(minIndexPath), @(maxIndexPath), @(count)));
         };
         void (^completionBlock)(BOOL finished) = ^(BOOL finished) {
             self.pinchStartedInListLayout = NO;
@@ -352,8 +346,6 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         pinchOffset *= .4;
     }
     
-//    NSLog(@"(%d) gap: %.2f, offset: %.2f, ratio: %.2f, offset.y: %.2f", indexPath.item, pinchGap, pinchOffset, self.pinchRatio, self.collectionView.contentOffset.y);
-    
     if (indexPath.item > self.pinchedCardIndexPath.item) {
         layoutAttributes.frame = CGRectOffset(layoutAttributes.frame, 0.0, pinchGap);
     } else if (indexPath.item <= self.pinchedCardIndexPath.item) {
@@ -362,4 +354,5 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     
     return layoutAttributes;
 }
+
 @end
