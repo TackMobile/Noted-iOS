@@ -166,13 +166,6 @@
 {
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.collectionView.panGestureRecognizer
                                                       forStep:NTDWalkthroughMakeANoteStep];
-//    [NTDWalkthroughGestureIndicatorView bindControl:self.visibleCell.settingsButton
-//                                             events:UIControlEventTouchUpInside
-//                                            forStep:NTDWalkthroughTapOptionsStep];
-//    [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardWhileViewingOptionsGestureRecognizer
-//                                                      forStep:NTDWalkthroughCloseOptionsStep];
-//    [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.panCardGestureRecognizer
-//                                                      forStep:NTDWalkthroughSwipeToLastNoteStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.twoFingerPanGestureRecognizer
                                                       forStep:NTDWalkthroughTwoFingerDeleteStep];
     [NTDWalkthroughGestureIndicatorView bindGestureRecognizer:self.pinchToListLayoutGestureRecognizer
@@ -217,8 +210,6 @@
     [self closeNotesWithCompletionHandler:^{
         [NTDNote restoreNotesFromBackupWithCompletionHandler:^(BOOL success) {
             if (!success) {
-                //TODO log this using analytics. this is a bad situation.
-                NSLog(@"Couldn't restore notes backup....");
                 [Flurry logError:@"Couldn't restore notes backup" message:nil error:nil];
             }
             [self reloadNotes];
@@ -229,9 +220,9 @@
 - (void)createWalkthroughNotes
 {
     NSArray *initialNotes = @[
-                              @"“That’s been one of my mantras – focus and simplicity. Simple can be harder than complex. You have to work hard to get your thinking clean to make it simple. But it’s worth it in the end because once you get there, you can move mountains.” ― Steve Jobs",
-                              @"“Good design is a lot like clear thinking made visual.” ― Edward Tufte",
-                              @"“It is not a daily increase, but a daily decrease. Hack away at the inessentials.” ― Bruce Lee",
+                              NTDSteveJobsQuote,
+                              NTDEdwardTufteQuote,
+                              NTDBruceLeeQuote,
                               ];
     
     NSArray *initialThemes = @[
@@ -251,7 +242,7 @@
 {
     if (self.collectionView.collectionViewLayout != self.listLayout) {
         [self updateLayout:self.listLayout animated:NO];
-        self.collectionView.contentOffset = CGPointZero; /* a bit of a hack. */
+        self.collectionView.contentOffset = CGPointZero;
     }
 }
 @end
