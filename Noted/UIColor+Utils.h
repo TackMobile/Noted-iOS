@@ -11,6 +11,5 @@
 @interface UIColor (Utils)
 
 +(UIColor*)colorWithHexString:(NSString*)hex;
-- (BOOL)isEqualToColor:(UIColor *)otherColor;
 
 @end
