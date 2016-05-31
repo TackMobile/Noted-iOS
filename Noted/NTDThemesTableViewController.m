@@ -67,15 +67,16 @@
 @end
 
 @implementation NTDThemesTableViewController
-NSString *const ThemesProductID = @"com.tackmobile.noted.themes";
+static NSString * const ThemesProductID = @"com.tackmobile.noted.themes";
 static NSString * const NTDThemeCellReuseIdentifier = @"ThemeCell";
 static NSString * const NTDDidPurchaseThemesKey = @"DidPurchaseThemes";
+static NSString *themesPrice = @"...";
+
 static NSArray *themeNames;
 static const int HeaderHeight = 38;
 static const int RowHeight = 60;
 
 #pragma mark - View Lifecycle
-static NSString *themesPrice = @"...";
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
@@ -135,13 +136,11 @@ static NSString *themesPrice = @"...";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
     return NTDNumberOfThemes;
 }
 
@@ -164,13 +163,13 @@ static NSString *themesPrice = @"...";
     UILabel *themeTitle = [[UILabel alloc] initWithFrame:CGRectMake(65, 10, cell.frame.size.width-60, 40)];
     themeTitle.textColor = [UIColor whiteColor];
     themeTitle.backgroundColor = [UIColor clearColor];
-    themeTitle.font = [UIFont fontWithName:@"Avenir-Light" size:16];
+    themeTitle.font = [UIFont fontWithName:NTDLightFontName size:16];
     themeTitle.text = [themeNames objectAtIndex:indexPath.item];
     
     // decide if the theme is currently active
     if (indexPath.item == self.selectedThemeIndex) {
         cell.backgroundColor = [UIColor colorWithWhite:.1 alpha:1];
-        themeTitle.font = [UIFont fontWithName:@"Avenir" size:16];
+        themeTitle.font = [UIFont fontWithName:NTDStandardFontName size:16];
         cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"check-icon"]];
     }
     
@@ -212,7 +211,7 @@ static NSString *themesPrice = @"...";
     UILabel *headerLabel = [[UILabel alloc] init];
     headerLabel.textColor = [UIColor whiteColor];
     headerLabel.backgroundColor = [UIColor blackColor];
-    headerLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
+    headerLabel.font = [UIFont fontWithName:NTDLightFontName size:16];
     headerLabel.text = @"Themes";
     headerLabel.alpha = .7;
     headerLabel.$size = [headerLabel.text sizeWithAttributes:@{NSFontAttributeName:headerLabel.font}];
@@ -280,7 +279,6 @@ static NSString *themesPrice = @"...";
     [[IAPShare sharedHelper].iap requestProductsWithCompletion:^(SKProductsRequest* request,SKProductsResponse* response) {
         if ( response > 0 ) {
             // purchase themes
-            //SKProduct* product = [[IAPShare sharedHelper].iap.products objectAtIndex:1];
             
             SKProduct* product = nil;
             
@@ -297,7 +295,6 @@ static NSString *themesPrice = @"...";
             
             IAPbuyProductCompleteResponseBlock buyProductCompleteResponceBlock = ^(SKPaymentTransaction* transaction){
                 if (transaction.error) {
-                    NSLog(@"Failed to complete purchase: %@", [transaction.error localizedDescription]);
                     [self showErrorMessageAndDismiss:transaction.error.localizedDescription];
                 } else {
                     switch (transaction.transactionState) {
@@ -306,25 +303,15 @@ static NSString *themesPrice = @"...";
                             // check the receipt
                             [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
                                                          onCompletion:^(NSString *response, NSError *error) {
-                                                             //NSDictionary *receipt = [IAPShare toJSON:response];
-                                                             // We never get a valid receipt status from Apple, but purchased do go through, leave it for now
-                                                             //if ([receipt[@"status"] integerValue] == 0) {
                                                                  NSString *pID = transaction.payment.productIdentifier;
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
-                                                                 NSLog(@"Success: %@",response);
-                                                                 NSLog(@"Purchases: %@",[IAPShare sharedHelper].iap.purchasedProducts);
                                                                  [self purchaseThemesSuccess];
-                                                             /*} else {
-                                                                 NSLog(@"Receipt Invalid");
-                                                                 [self showErrorMessageAndDismiss:error.localizedDescription];
-                                                             }*/
                                                          }];
                             break;
                         }
                             
                         default:
                         {
-                            NSLog(@"Purchase Failed");
                             [self purchaseThemesFailure];
                             break;
                         }

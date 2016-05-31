@@ -227,7 +227,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
     self.tapCardWhileViewingOptionsGestureRecognizer = tapGestureRecognizer;
     
     // create launch image view while the notes are reloading
-    UIImage *launchImage = (IS_TALL_IPHONE) ? [UIImage imageNamed:@"Default-568h"] : [UIImage imageNamed:@"Default"];
+    UIImage *launchImage = [UIImage imageNamed:@"Default-568h"];
     __block UIImageView *launchImageView = [[UIImageView alloc] initWithImage:launchImage];
     [[[UIApplication sharedApplication] keyWindow] addSubview:launchImageView];
 
@@ -331,7 +331,7 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
     PullToCreateLabelYOffset -= 2;
     self.pullToCreateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.pullToCreateLabel.text = @"Pull to create a new note.";
-    self.pullToCreateLabel.font = [UIFont fontWithName:@"Avenir-Light" size:16];
+    self.pullToCreateLabel.font = [UIFont fontWithName:NTDLightFontName size:16];
     self.pullToCreateLabel.backgroundColor = [UIColor blackColor];
     self.pullToCreateLabel.textColor = [UIColor whiteColor];
     [self.pullToCreateLabel sizeToFit];
@@ -398,8 +398,8 @@ static CGFloat PullToCreateLabelXOffset = 20.0, PullToCreateLabelYOffset = 6.0;
         NTDCollectionViewCell *cell = [collectionView dequeueReusableSupplementaryViewOfKind:NTDCollectionElementKindPullToCreateCard
                                                                          withReuseIdentifier:NTDCollectionViewPullToCreateCardReuseIdentifier
                                                                                 forIndexPath:indexPath];
-        cell.relativeTimeLabel.text = @"Today";
-        cell.textView.text = @"Release to create a note";
+        cell.relativeTimeLabel.text = NSLocalizedString(@"Today", @"Title for time label on newly created note");
+        cell.textView.text = NSLocalizedString(@"Release to create a note", @"Instructions for pull to released new note creation");
         [cell applyTheme:[NTDTheme themeForColorScheme:NTDColorSchemeWhite]];
         cell.textView.delegate = nil;
         return cell;
@@ -1190,7 +1190,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
                              self.pagingLayout.activeCardIndex = 0;
                              self.pagingLayout.pannedCardYTranslation = 0;
                              self.pagingLayout.pinchRatio = 1;
-                             //self.visibleCell.$y = 0; /* Hack for iOS 7.1 during 2nd step of walkthrough. Card was at (0,568) for some reason. */
                              
                              if (isListLayout)
                                  [self updateLayout:self.pagingLayout animated:NO];
@@ -1408,10 +1407,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
             dispatch_group_leave(self.note_refresh_group);
         }];
     }
-
-//    if (!self.panCardWhileViewingOptionsGestureRecognizer.isEnabled) {
-//        [self.collectionView reloadData];
-//    }
 }
 
 - (BOOL)shouldShowBodyForNoteAtIndexPath:(NSIndexPath *)indexPath
@@ -1492,8 +1487,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 
 - (void)mayShowNoteAtIndexPath:(NSNotification *)notification
 {
-    //TODO fix this when I start closing files again.
-    //PS why in the world am I not closing files?
+    //TODO: Update to close Note fileState
     static NSMutableSet *visitedPaths;
     if (!visitedPaths) visitedPaths = [NSMutableSet set];
     
@@ -1513,7 +1507,7 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 {
     NTDNote *note = notification.object;
     NSIndexPath *indexPath = [self indexPathForNote:note];
-    if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) { /* this isn't selective enough. in paging layout we should be visible. */
+    if ([self shouldShowBodyForNoteAtIndexPath:indexPath]) {
         NTDCollectionViewCell *cell = (NTDCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
         if (cell) {
             [note updateWithCompletionHandler:^(BOOL success) {
@@ -1545,8 +1539,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     [self.notes removeObject:note];
     if (indexPath) {
       [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-    } else {
-      NSLog(@"Received a 'note deleted' notification, but couldn't find the note. %@", note);
     }
   }
   
@@ -1569,7 +1561,6 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
     } else {
         [note openWithCompletionHandler:^(BOOL success) {
             NSInteger i = [NTDNote indexForNote:note amongNotes:self.notes];
-            NSLog(@"New note %@ should be placed at index %ld", note.filename, (long)i);
             [self.notes insertObject:note atIndex:i];
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             [self.collectionView insertItemsAtIndexPaths:@[indexPath]];
@@ -1580,13 +1571,13 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
 #pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    // if the scrollview
+    // scrollview
     if (otherGestureRecognizer.view == self.visibleCell.textView
         && gestureRecognizer == self.panCardGestureRecognizer) {
         if (self.visibleCell.textView.contentOffset.y <= 0)
             return YES;
     }
-    
+
     if (otherGestureRecognizer == self.collectionView.panGestureRecognizer)
         return YES;
     else
@@ -1632,8 +1623,9 @@ CGFloat DistanceBetweenTwoPoints(CGPoint p1, CGPoint p2)
         return;
 
     BOOL shouldCreateNewCard = (scrollView.contentOffset.y <= self.listLayout.pullToCreateCreateCardOffset);
-    if (self.notes.count == 0) //hack alert
+    if (self.notes.count == 0) {
         shouldCreateNewCard = (scrollView.contentOffset.y <= 0.0);
+    }
     if (shouldCreateNewCard && self.collectionView.collectionViewLayout == self.listLayout) {
         CGPoint panVelocity = [scrollView.panGestureRecognizer velocityInView:scrollView];
         CGPoint panTranslation = [scrollView.panGestureRecognizer translationInView:scrollView];

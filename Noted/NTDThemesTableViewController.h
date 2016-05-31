@@ -30,6 +30,4 @@
 - (void)showWaitingModal;
 -(void)dismissModalIfShowing;
 
-//@property (nonatomic, strong) activeTheme
-
 @end

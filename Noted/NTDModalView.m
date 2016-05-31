@@ -251,7 +251,7 @@ const CGFloat NTDWalkthroughModalButtonHeight = 40;
 }
 
 -(UIFont *)modalFont {
-    return [UIFont fontWithName:@"Avenir-Light" size:20];
+    return [UIFont fontWithName:NTDLightFontName size:20];
 }
 
 - (void)applyParallax

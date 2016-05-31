@@ -317,7 +317,7 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
 
     CGRect InitialOptionFrame = CGRectMake(0, 1, 221, 53);
     CGRect InitialShareLabelFrame = CGRectMake(14, 24, 149, 22);
-    UIFont *labelFont = [UIFont fontWithName:@"Avenir-Light" size:16];
+    UIFont *labelFont = [UIFont fontWithName:NTDLightFontName size:16];
     
     int i = 0; CGFloat shareOptionsHeight = 0;
     for (NSString *title in optionsTitles) {

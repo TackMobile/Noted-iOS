@@ -186,7 +186,7 @@ static NSDictionary *bodyFontSizes;
 {
     NSString *contentSizeCategory = [[UIApplication sharedApplication] preferredContentSizeCategory];
     CGFloat fontSize = [bodyFontSizes[contentSizeCategory] floatValue];
-    self.textView.font = [UIFont fontWithName:@"Avenir-Light" size:fontSize];
+    self.textView.font = [UIFont fontWithName:NTDLightFontName size:fontSize];
     [self.textView setNeedsDisplay];
 }
 
