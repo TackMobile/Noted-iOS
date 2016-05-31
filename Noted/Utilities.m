@@ -66,12 +66,6 @@
 
         return formattedDate;
     }
-    
-    // today
-    // yesterday
-    // x days ago (up to 6)
-    // date (January 2nd) (December 25th 2013)
 }
-
 
 @end
