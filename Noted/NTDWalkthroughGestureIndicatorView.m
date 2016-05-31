@@ -286,7 +286,6 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
                                      self.layer.opacity = 1.0;
                                  }
                                  completion:^(BOOL finished) {
-//                                     [self.layer addAnimation:dragAnimation forKey:@"dragAnimation"];
                                      [self addDragAnimation];
                 }];
                 break;
@@ -305,7 +304,6 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
 - (void)addDragAnimation
 {
     CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-//    fadeInAnimation.fromValue = [NSNumber numberWithFloat:0.0];
     fadeInAnimation.toValue = [NSNumber numberWithFloat:1.0];
     fadeInAnimation.duration = .2;
     fadeInAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
@@ -345,4 +343,5 @@ static CGFloat StandardIndicatorWidth = 50.0, TapIndicatorWidth = 40.0;
     if (self.recognizer) [self.recognizer removeTarget:self action:NULL];
     if (self.control) [self.control removeTarget:self action:NULL forControlEvents:UIControlEventAllEvents];    
 }
+
 @end

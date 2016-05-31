@@ -245,14 +245,12 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
             
             maskFrame.origin.x = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? noteWidth : -noteWidth;
             
-//            self.currentDeletionCell.layer.opacity = 0;
             [CATransaction begin];
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
             self.currentDeletionCell.layer.mask.frame = maskFrame;
             [CATransaction commit];
             
             [self clearAllShreddedPieces];
-            
         }
         
         if (completionBlock)
