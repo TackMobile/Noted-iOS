@@ -21,11 +21,7 @@ PODS:
     - FlurrySDK/FlurrySDK (= 4.3.2)
   - FlurrySDK/FlurrySDK (4.3.2)
   - IAPHelper (1.0.7)
-  - Kiwi/ARC (2.2.3)
-  - Kiwi/NonARC (2.2.3)
-  - Kiwi/XCTest (2.2.3):
-    - Kiwi/ARC
-    - Kiwi/NonARC
+  - Kiwi (2.4.0)
   - UIView+FrameAdditions (0.0.1)
 
 DEPENDENCIES:
@@ -33,7 +29,7 @@ DEPENDENCIES:
   - Crashlytics
   - FlurrySDK (~> 4.3)
   - IAPHelper (= 1.0.7)
-  - Kiwi/XCTest
+  - Kiwi
   - UIView+FrameAdditions (= 0.0.1)
 
 SPEC CHECKSUMS:
@@ -42,7 +38,9 @@ SPEC CHECKSUMS:
   Fabric: caf7580c725e64db144f610ac65cd60956911dc7
   FlurrySDK: 49bdf33234f60c5ff19bc23ed7a8d0fcc7118c34
   IAPHelper: 60a2d5b6ef2d121ce041cf942cd6fc87dc3ab3a3
-  Kiwi: e4e2673e9435622a5b84149fc90394b5345bc8bc
+  Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   UIView+FrameAdditions: ff98a73ddb1ba15ce426f3ca2eb70c2613580879
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 02ab3710e32d6cf81012a15a810a836e271e5f8d
+
+COCOAPODS: 1.0.0

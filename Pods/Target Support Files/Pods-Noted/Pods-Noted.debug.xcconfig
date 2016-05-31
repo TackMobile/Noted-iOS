@@ -1,0 +1,9 @@
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Crashlytics/iOS" "${PODS_ROOT}/Fabric/iOS"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/BlocksKit" "${PODS_ROOT}/Headers/Public/Crashlytics" "${PODS_ROOT}/Headers/Public/Fabric" "${PODS_ROOT}/Headers/Public/FlurrySDK" "${PODS_ROOT}/Headers/Public/IAPHelper" "${PODS_ROOT}/Headers/Public/Kiwi" "${PODS_ROOT}/Headers/Public/UIView+FrameAdditions"
+LIBRARY_SEARCH_PATHS = $(inherited) "$(PODS_ROOT)/FlurrySDK/Flurry" "$PODS_CONFIGURATION_BUILD_DIR/BlocksKit" "$PODS_CONFIGURATION_BUILD_DIR/IAPHelper" "$PODS_CONFIGURATION_BUILD_DIR/UIView+FrameAdditions"
+OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/BlocksKit" -isystem "${PODS_ROOT}/Headers/Public/Crashlytics" -isystem "${PODS_ROOT}/Headers/Public/Fabric" -isystem "${PODS_ROOT}/Headers/Public/FlurrySDK" -isystem "${PODS_ROOT}/Headers/Public/IAPHelper" -isystem "${PODS_ROOT}/Headers/Public/Kiwi" -isystem "${PODS_ROOT}/Headers/Public/UIView+FrameAdditions"
+OTHER_LDFLAGS = $(inherited) -ObjC -l"BlocksKit" -l"Flurry_4.3.2" -l"IAPHelper" -l"UIView+FrameAdditions" -l"c++" -l"z" -framework "CoreGraphics" -framework "Crashlytics" -framework "Fabric" -framework "MessageUI" -framework "Security" -framework "StoreKit" -framework "SystemConfiguration" -framework "UIKit"
+PODS_BUILD_DIR = $BUILD_DIR
+PODS_CONFIGURATION_BUILD_DIR = $PODS_BUILD_DIR/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_ROOT = ${SRCROOT}/Pods
