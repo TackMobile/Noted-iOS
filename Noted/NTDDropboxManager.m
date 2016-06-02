@@ -195,7 +195,8 @@ static NTDDropboxRestClient *restClient = nil;
               case SKPaymentTransactionStatePurchased:
               {
                 // check the receipt
-                [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                  NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+                [[IAPShare sharedHelper].iap checkReceipt:receiptData
                                              onCompletion:^(NSString *response, NSError *error) {
                                                NSDictionary *receipt = [IAPShare toJSON:response];
                                                // We never get a valid receipt from Apple, leave it for now

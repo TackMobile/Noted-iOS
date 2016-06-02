@@ -301,7 +301,8 @@ static const int RowHeight = 60;
                         case SKPaymentTransactionStatePurchased:
                         {
                             // check the receipt
-                            [[IAPShare sharedHelper].iap checkReceipt:transaction.transactionReceipt
+                            NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+                            [[IAPShare sharedHelper].iap checkReceipt:receiptData
                                                          onCompletion:^(NSString *response, NSError *error) {
                                                                  NSString *pID = transaction.payment.productIdentifier;
                                                                  [[IAPShare sharedHelper].iap provideContent:pID];
