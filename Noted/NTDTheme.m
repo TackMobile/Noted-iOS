@@ -16,7 +16,6 @@
 
 @implementation NTDTheme
 NSString *const NTDActiveThemeIndexKey = @"activeThemeIndex";
-NSString *const NTDDidChangeThemeNotification = @"DidChangeThemeNotification";
 NSString *const NTDNoteThemesProductID = @"com.tackmobile.noted.themes";
 
 static NSArray *backgroundColors, *textColors, *caretColors, *themes;
@@ -245,7 +244,6 @@ static NSArray *backgroundColors, *textColors, *caretColors, *themes;
     self = [super init];
     if (self) {
         self.activeThemeIndex = theme;
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ThemeChanged" object:nil];
     }
     return self;
 }

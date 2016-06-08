@@ -189,7 +189,10 @@ static NSTimeInterval ExpandMenuAnimationDuration = 0.3;
     }
     
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:NTDDidChangeThemeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:NTDDidChangeThemeNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *note) {
         for (UIView *color in self.colors.subviews) {
             color.backgroundColor = [[NTDTheme themeForColorScheme:color.tag] backgroundColor];
         }

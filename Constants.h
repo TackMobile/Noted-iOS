@@ -28,3 +28,12 @@ typedef NS_ENUM(NSInteger, NTDDeletionDirection) {
 
 // helpers
 #define CLAMP(x, a, b) MIN(b, MAX(a,x))
+
+#pragma mark - NSNotification Names -
+
+static NSString *const NTDDidChangeThemeNotification = @"DidChangeThemeNotification";
+static NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
+static NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
+static NSString *const NTDDidCompleteWalkthroughUserInfoKey = @"NTDDidCompleteWalkthroughKey";
+static NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
+static NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";

@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-FOUNDATION_EXPORT NSString *const NTDDidChangeThemeNotification;
 FOUNDATION_EXPORT NSString *const NTDNoteThemesProductID;
 
 typedef NS_ENUM(int16_t, NTDColorScheme) {

@@ -12,12 +12,6 @@
 #import "NTDWalkthroughViewController.h"
 #import "NTDModalView.h"
 
-NSString *const NTDWillBeginWalkthroughNotification = @"NTDUserWillBeginWalkthroughNotification";
-NSString *const NTDDidEndWalkthroughNotification = @"NTDUserDidCompleteWalkthroughNotification";
-NSString *const NTDDidCompleteWalkthroughUserInfoKey = @"NTDDidCompleteWalkthroughKey";
-NSString *const NTDDidAdvanceWalkthroughToStepNotification = @"NTDDidAdvanceWalkthroughToStepNotification";
-NSString *const NTDWillEndWalkthroughStepNotification = @"NTDWillEndWalkthroughStepNotification";
-
 static NSString *const DidCompleteWalkthroughKey = @"DidCompleteWalkthroughKey";
 static NSString *const KnowsAboutThemesKey = @"KnowsAboutThemesKey";
 
