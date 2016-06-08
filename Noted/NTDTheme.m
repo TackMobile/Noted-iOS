@@ -240,14 +240,6 @@ static NSArray *backgroundColors, *textColors, *caretColors, *themes;
     return @[@"Noted", @"Setting Sun", @"Turbo Charge", @"Candy Coat", @"Open Field", @"Coral Punch", @"Violet Grove"];
 }
 
-- (id) init {
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
-}
-
 - (id) initWithTheme:(NTDThemeName)theme {
     NSParameterAssert(theme >= 0 && theme < NTDNumberOfThemes);
     self = [super init];

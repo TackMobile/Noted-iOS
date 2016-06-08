@@ -64,9 +64,6 @@ NSString *const NTDInitialLaunchDateKey = @"NTDInitialLaunchDateKey";
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-  // Notify collection view if necessary
-  [NSNotificationCenter.defaultCenter postNotificationName:@"applicationWillResignActive" object:nil];
-  
   // Sync dropbox notes
   [NTDDropboxManager syncNotes];
 }

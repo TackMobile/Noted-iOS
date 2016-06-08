@@ -167,7 +167,7 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillResignActive:)
-                                                     name:@"applicationWillResignActive"
+                                                     name:UIApplicationWillResignActiveNotification
                                                    object:nil];
 
     }
