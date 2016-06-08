@@ -28,15 +28,6 @@ static NSDictionary *messages;
     };
 }
 
-- (id)initWithStep:(NTDWalkthroughStep)step
-{
-    if (self = [super init]) {
-        [self configureForStep:step];
-        [self setPromptHandler:^(BOOL userClickedYes){}];
-    }
-    return self;
-}
-
 - (id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler
 {
     if (self = [super init]) {

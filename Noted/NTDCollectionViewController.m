@@ -254,25 +254,6 @@ static const CGFloat InitialNoteOffsetWhenViewingOptions = 96.0;
                           });
     
     [self becomeFirstResponder];
-
-    [self.view addObserver: self
-                forKeyPath: @"frame"
-                   options: 0
-                   context: NULL];
-}
-
-
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(__unused NSDictionary *)change
-                       context:(__unused void *)context
-{
-    if( [keyPath isEqualToString:@"frame"] && object == self.view ) {
-        CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
-        if ( self.view.$y != statusBarHeight ) {
-            self.view.$y = statusBarHeight;
-        }
-    }
 }
 
 -(void)dealloc

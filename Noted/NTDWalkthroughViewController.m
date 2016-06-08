@@ -68,7 +68,7 @@
         
         self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step handler:promptHandler];
     } else {
-        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step];
+        self.currentModalView = [[NTDWalkthroughModalView alloc] initWithStep:step handler:nil];
     }
     
     [self.view addSubview:self.currentModalView];
@@ -85,10 +85,7 @@
                          self.currentModalView.alpha = 0;
                          self.currentModalView.transform = CGAffineTransformMakeScale(1.3, 1.3);
                          self.currentIndicatorView.alpha = 0;
-    } completion:^(BOOL finished) {
-//        [self.currentModalView removeFromSuperview];
-//        [self.currentIndicatorView removeFromSuperview];
-    }];
+    } completion:nil];
 }
 
 @end

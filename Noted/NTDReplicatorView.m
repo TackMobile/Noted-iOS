@@ -11,15 +11,6 @@
 
 @implementation NTDReplicatorView
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code
-    }
-    return self;
-}
-
 + (Class)layerClass
 {
     return [CAReplicatorLayer class];

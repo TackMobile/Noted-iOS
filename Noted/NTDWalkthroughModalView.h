@@ -12,7 +12,6 @@
 
 @interface NTDWalkthroughModalView : NTDModalView
 
--(id)initWithStep:(NTDWalkthroughStep)step;
 -(id)initWithStep:(NTDWalkthroughStep)step handler:(NTDWalkthroughPromptHandler)handler;
 
 @end
