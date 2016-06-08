@@ -51,6 +51,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
     NSString *device = [UIDeviceHardware deviceType];
     NSString *msg = [NSString stringWithFormat:@"You can restore the note you just deleted by shaking your %@.", device];
 
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
     AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"ShakeToUndoAnimation" withExtension:@"mov"]];
     player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
@@ -83,6 +84,7 @@ static NSString *const NTDShakeToUndoDidShowModalKey = @"NTDShakeToUndoDidShowMo
   NSString *device = [UIDeviceHardware deviceType];
   NSString *msg = [NSString stringWithFormat:@"A note was deleted remotely. You can restore the deleted note by shaking your %@.", device];
   
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
   AVPlayer *player = [AVPlayer playerWithURL:[[NSBundle mainBundle] URLForResource:@"ShakeToUndoAnimation" withExtension:@"mov"]];
   player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
   AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
