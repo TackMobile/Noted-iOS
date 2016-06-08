@@ -61,7 +61,6 @@
 		3F959404189B0E4700C86F93 /* Icon-60@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */; };
 		3F959405189B0E4700C86F93 /* Icon.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959402189B0E4700C86F93 /* Icon.dev.png */; };
 		3F959406189B0E4700C86F93 /* Icon@2x.dev.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F959403189B0E4700C86F93 /* Icon@2x.dev.png */; };
-		3F98D5CA17E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */; };
 		3F9D3F101790925100EA183D /* NTDNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F0F1790925100EA183D /* NTDNote.m */; };
 		3F9D3F131790B16C00EA183D /* NTDNoteDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F121790B16B00EA183D /* NTDNoteDocument.m */; };
 		3F9D3F171790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F9D3F151790BC8700EA183D /* NTDNoteMetadata.xcdatamodeld */; };
@@ -174,8 +173,6 @@
 		3F959401189B0E4700C86F93 /* Icon-60@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.dev.png"; sourceTree = "<group>"; };
 		3F959402189B0E4700C86F93 /* Icon.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.dev.png; sourceTree = "<group>"; };
 		3F959403189B0E4700C86F93 /* Icon@2x.dev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.dev.png"; sourceTree = "<group>"; };
-		3F98D5C817E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionView+NTDFixDisappearingCellBug.h"; sourceTree = "<group>"; };
-		3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionView+NTDFixDisappearingCellBug.m"; sourceTree = "<group>"; };
 		3F9D3F0E1790925100EA183D /* NTDNote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNote.h; sourceTree = "<group>"; };
 		3F9D3F0F1790925100EA183D /* NTDNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTDNote.m; sourceTree = "<group>"; };
 		3F9D3F111790B16B00EA183D /* NTDNoteDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTDNoteDocument.h; sourceTree = "<group>"; };
@@ -342,9 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				29FC4919156EE0CD0007BBAD /* Noted */,
-				3F1FF28717A048AA00213F2F /* Walkthrough */,
 				3F73710418AECD600092694E /* NotedTests */,
-				3FC8309018622058001C141C /* Dropbox */,
 				29FC4912156EE0CD0007BBAD /* Frameworks */,
 				29FC4910156EE0CD0007BBAD /* Products */,
 				7610E79ED1F48A990DF37834 /* Pods */,
@@ -388,6 +383,8 @@
 		29FC4919156EE0CD0007BBAD /* Noted */ = {
 			isa = PBXGroup;
 			children = (
+				3FC8309018622058001C141C /* Dropbox */,
+				3F1FF28717A048AA00213F2F /* Walkthrough */,
 				B52114D8171CA79E007670F3 /* Models */,
 				B52114DF171E15A8007670F3 /* Views */,
 				B5D5F23B17188821008C60EE /* Controllers */,
@@ -420,7 +417,6 @@
 				3F1FF28F17A071BF00213F2F /* Model */,
 			);
 			name = Walkthrough;
-			path = Noted;
 			sourceTree = "<group>";
 		};
 		3F1FF28F17A071BF00213F2F /* Model */ = {
@@ -521,7 +517,6 @@
 				B6732E0E1B82413E003AECB9 /* NTDDropboxRestClient.m */,
 			);
 			name = Dropbox;
-			path = Noted;
 			sourceTree = "<group>";
 		};
 		7610E79ED1F48A990DF37834 /* Pods */ = {
@@ -581,8 +576,6 @@
 		B5D5F2481718BD3C008C60EE /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				3F98D5C817E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.h */,
-				3F98D5C917E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m */,
 				3F1FF29717A0968B00213F2F /* NTDCollectionViewController+Walkthrough.h */,
 				3F1FF29817A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m */,
 				B5D751F41730361A00CFEB92 /* NSIndexPath+NTDManipulation.h */,
@@ -866,7 +859,6 @@
 				3F1FF29917A0968B00213F2F /* NTDCollectionViewController+Walkthrough.m in Sources */,
 				3FC8308F1861FB50001C141C /* NTDModalView.m in Sources */,
 				C51D44F41937A4C400B16C87 /* NTDScrollingTextView.m in Sources */,
-				3F98D5CA17E90DAA00693202 /* UICollectionView+NTDFixDisappearingCellBug.m in Sources */,
 				3F47D97117A2F6F000DBFB0E /* NTDWalkthroughModalView.m in Sources */,
 				3FB8976717B1A5EB004D0DC3 /* NTDReplicatorView.m in Sources */,
 			);
