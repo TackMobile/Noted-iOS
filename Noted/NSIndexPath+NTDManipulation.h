@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 @interface NSIndexPath (NTDManipulation)
 
 - (NSIndexPath *)ntd_indexPathForPreviousItem;

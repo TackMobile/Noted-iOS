@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 @interface UIViewController (NTDToast)
 
 - (void)showToastWithMessage:(NSString *)message;

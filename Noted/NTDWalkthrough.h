@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 typedef NS_ENUM(NSInteger, NTDWalkthroughStep)
 {
     NTDWalkthroughShouldBeginWalkthroughStep = 0,

@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 @protocol NTDPagingCollectionViewLayoutDelegate <UICollectionViewDelegate>
 
 - (NSInteger)numberOfNotes;

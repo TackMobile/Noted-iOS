@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 UIKIT_EXTERN NSString *const NTDCollectionElementKindPullToCreateCard;
 
 @interface NTDListCollectionViewLayout : UICollectionViewLayout

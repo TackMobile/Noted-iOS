@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Tack Mobile. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "NTDNote.h"
 
 @interface NTDDeletedNotePlaceholder : NSObject

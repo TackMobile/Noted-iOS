@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Tack Mobile. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 @interface NTDScrollingTextView : UITextView
 
 @end

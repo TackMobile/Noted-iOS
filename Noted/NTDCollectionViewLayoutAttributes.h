@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 @interface NTDCollectionViewLayoutAttributes : UICollectionViewLayoutAttributes
 
 @property (nonatomic, assign) CGAffineTransform transform2D;

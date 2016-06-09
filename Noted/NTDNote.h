@@ -8,8 +8,6 @@
 
 //TODO: add delegates/notifications for create, update, delete, list operations
 
-#import <Foundation/Foundation.h>
-
 @class NTDDeletedNotePlaceholder;
 
 typedef NS_ENUM(NSInteger, NTDNoteFileState) {

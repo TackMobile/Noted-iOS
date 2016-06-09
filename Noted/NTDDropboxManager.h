@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Tack Mobile. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "NTDNote.h"
 
 FOUNDATION_EXPORT NSString *const NTDDropboxProductID;
