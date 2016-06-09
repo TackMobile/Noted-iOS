@@ -270,12 +270,9 @@ static CGFloat ShredAnimationDuration = DefaultShredAnimationDuration;
         return;
   
     CGFloat shredByPercent = (self.twoFingerDeletionDirection == NTDDeletionDirectionRight) ? 0 : 1;
-    [self shredVisibleNoteByPercent:shredByPercent completion:^{
-        // remove slices from view
-        self.currentDeletionCell.layer.mask = nil;
-        [self clearAllShreddedPieces];
-        if (completionBlock) completionBlock();
-    }];
+    self.currentDeletionCell.layer.mask = nil;
+    [self clearAllShreddedPieces];
+    if (completionBlock) completionBlock();
 }
 
 - (void) clearAllShreddedPieces {

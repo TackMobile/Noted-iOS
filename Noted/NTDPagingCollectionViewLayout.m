@@ -118,7 +118,7 @@ static const int NumberOfCardsToFanOut = 6;
 }
 
 - (CGSize)collectionViewContentSize {
-    return self.collectionView.frame.size;
+    return CGSizeZero;
 }
 
 -(void)setActiveCardIndex:(NSInteger)newActiveCardIndex
